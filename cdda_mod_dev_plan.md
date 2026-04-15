@@ -102,23 +102,26 @@ cdda-mod-dev/
 - 「条件付き合格」をOKにする（1〜2修正で直る = 合格）
 
 **完了条件:** 以下をすべて満たすこと
-- [ ] Qwen がルールファイル（`CORE.md` + `hints_basic.md`）のみを参照して、同じmodを**10回中8回以上**実装できる
+- [ ] Qwen がルールファイル（`CORE.md` + `hints_basic.md`）のみを参照して、同じmodを**30回中24回以上**実装できる（成功率80%以上、誤差±9%程度）
 - [ ] 軽微修正OKの成功率80%以上達成
 - [ ] 失敗原因を `common_errors.md` に記録済み
 
 > **重要:** フェーズ2では「汎化」はまだ気にしない。same-mod評価のみで80%達成を目指す。
 
-**サイクル詳細（Day 3-4）:**
+> **なぜ30回か:** n=10では二項分布の信頼区間が広すぎる（真の成功率80%でも8/10を下回る確率が約38%）。n=30（24/30 = 80%）で誤差を±9%程度に抑え、フェーズ突破判定の信頼性を確保する。Qwen無料枠（1000 RPD/日）で十分実施可能。
+
+**サイクル詳細（Day 3-6）:**
 
 | Day | やること | ループ |
 |---|---|---|
-| Day 3 朝 | Qwen 1-3回目実行 | 各回毎に成功率確認 |
+| Day 3 朝 | Qwen 1-5回目実行 | 各回毎に成功率確認 |
 | Day 3 昼 | エラーTOP3分析 | 頻出エラーを抽出 |
 | Day 3 夕 | hints_basic.md 更新 | TOP3のみ |
-| Day 4 朝 | Qwen 4-6回目実行 | 改善確認 |
+| Day 4 朝 | Qwen 6-15回目実行 | 改善確認（中間集計） |
 | Day 4 昼 | 再度分析・更新 | 収束確認 |
-| Day 4 夕 | Qwen 7-10回目実行 | 80%達成確認 |
-| Day 5 | フェーズ2完了判定 | final |
+| Day 5 朝 | Qwen 16-25回目実行 | 継続改善 |
+| Day 5 夕 | Qwen 26-30回目実行 | 最終集計 |
+| Day 6 | フェーズ2完了判定 | final（24/30以上で突破） |
 
 **rule/capability 判定の実行タイミング:**
 
@@ -210,6 +213,20 @@ benchmarks/unseen/
 - バランスが崩壊していない
 
 > **重要:** フェーズ2ではLevel2までの合格でOK。フェーズ3以降でLevel3を必須とする。
+
+#### Level3 自動化方針（フェーズ3移行前に整備）
+
+Level3は現状すべて手動であり、フェーズ3でunseenタスクが増えるとボトルネックになる。
+以下の段階的な自動化を**フェーズ3移行前**に検討・整備すること。
+
+| ステップ | 内容 | 難易度 |
+|---|---|---|
+| Step A | CDDAの `--lab` / `--json` オプション等でヘッドレス起動可否を調査 | 低 |
+| Step B | 起動ログ（`debug.log`）のパースでスポーンエラーを自動検出 | 低 |
+| Step C | Lua/Python スクリプトでデバッグメニュー操作を自動化（CDDA版テストドライバ） | 高 |
+
+**短期的な妥協案（Step A/B のみで対応）:**
+CDDAは `--mapsize` や `--loglevel debug` フラグで詳細ログを出力できる。起動ログに `unknown type` や `missing field` が含まれないこと＋アイテムIDが正常にパースされることを確認するだけでも Level3 の一部を代替できる。完全な動作確認（クラフト・スポーン）は週次の手動レビューで補う。
 
 ---
 
@@ -833,7 +850,9 @@ ERRORS=0
 
 echo "=== JSON Validation: $MOD_DIR ==="
 
-find "$MOD_DIR" -name "*.json" | while read -r file; do
+# NOTE: パイプ経由の while read はサブシェルで実行されるため ERRORS が
+# 親シェルに伝播しない。プロセス置換 < <(...) を使って同一シェルで実行する。
+while read -r file; do
   if python3 -m json.tool "$file" > /dev/null 2>&1; then
     echo "  OK: $file"
   else
@@ -841,7 +860,7 @@ find "$MOD_DIR" -name "*.json" | while read -r file; do
     python3 -m json.tool "$file" 2>&1 | head -5
     ERRORS=$((ERRORS + 1))
   fi
-done
+done < <(find "$MOD_DIR" -name "*.json")
 
 if [ "$ERRORS" -eq 0 ]; then
   echo "=== All files passed ==="
@@ -908,14 +927,14 @@ bash scripts/validate.sh mods/
 3. テストして動作確認
 4. `common_errors.md` にエラー記録
 
-### Day 3-4: ルール評価サイクル
-1. Qwenに同じmodを10回実装させる
-2. 成功率記録
+### Day 3-5: ルール評価サイクル
+1. Qwenに同じmodを30回実装させる（分割して実施）
+2. 成功率記録（5回ごとに中間集計）
 3. 頻出エラーTOP3を特定
 4. `hints_basic.md` を更新
 
-### Day 5: フェーズ2突破確認
-1. 10回中8回成功達成確認
+### Day 6: フェーズ2突破確認
+1. 30回中24回（80%）成功達成確認
 2. 条件付き合格OK
 3. フェーズ2完了
 
@@ -993,8 +1012,8 @@ logs/errors/ の最新ログ10件を分析してください:
 8. Kilo Code（高性能）で実装し、`scripts/validate.sh` で検証する
 9. 発生したエラーをすべて `logs/errors/` にログ化し `rules/common_errors.md` に反映する
 
-### フェーズ2: ルール評価サイクル（Day 3-5）
-10. Qwen に `CORE.md` + `hints_basic.md` を渡して同じmodを10回実装させる
+### フェーズ2: ルール評価サイクル（Day 3-6）
+10. Qwen に `CORE.md` + `hints_basic.md` を渡して同じmodを30回実装させる（5回ごとに中間集計）
 11. 結果を `logs/agent_reports/` にレポートとしてまとめる
 12. 頻出エラーTOP3を `hints_basic.md` に追加する
 13. 成功率80%以上になったらフェーズ3へ進む
@@ -1027,3 +1046,4 @@ logs/errors/ の最新ログ10件を分析してください:
 |---|---|
 | 2026-04-15 | 初版作成。issue.mdの問題点を反映してベンチマーク構造、テストレベル、rule/capability判定ルールを追加 |
 | 2026-04-15 | ベンチマーク作成方法(Level3テスト手順)、rule/capability判定タイミングを追加 |
+| 2026-04-15 | **バグ修正・信頼性改善:** (1) validate.sh のサブシェルバグを修正（`find \| while` → プロセス置換）。(2) フェーズ2の評価回数を n=10 → n=30 に変更（統計的信頼性確保、完了条件 24/30以上）。(3) Level3テストに自動化方針（Step A/B/C）を追記。 |
