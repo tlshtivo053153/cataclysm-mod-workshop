@@ -31,5 +31,26 @@
 - **種別:** rule
 - **解決策:** `version_diff.md` の単位変換表を参照して文字列形式に変換する
 
+### `missing mandatory member "activity_level"`
+- **原因:** recipe に `activity_level` フィールドが欠けている（0.I RC で必須化）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** recipe オブジェクトに `"activity_level"` を追加する
+- **有効な値:**
+  - `"LIGHT_EXERCISE"` — 軽作業（縫製・料理など）
+  - `"BRISK_EXERCISE"` — 中程度の作業（一般的な工作・武器製作）
+  - `"MODERATE_EXERCISE"` — やや重い作業
+  - `"ACTIVE_EXERCISE"` — 重労働（金属加工・鍛冶）
+- **例:**
+  ```json
+  {
+    "type": "recipe",
+    "activity_level": "BRISK_EXERCISE",
+    "result": "my_item",
+    ...
+  }
+  ```
+- **確認方法:** `external/cdda/data/json/recipes/` の同カテゴリのレシピを参照する
+
 ---
 ※ 新しいエラーが発生したらこのファイルに追記する

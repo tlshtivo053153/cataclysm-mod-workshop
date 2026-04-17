@@ -31,8 +31,13 @@
   - 旧: `"weight": 500` → 新: `"weight": "500 g"`
 - その他の差分は version_diff.md を参照
 
+## recipe の必須フィールド（0.I RC）
+- `activity_level` が必須。省略するとゲーム起動時にエラー
+- 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ
+- 武器・工具の製作は通常 `"BRISK_EXERCISE"`
+
 ## よくあるエラー
 - `unknown type` → typeフィールドのスペルミス
 - `copy-from target not found` → 依存modの読み込み順か、IDのスペルミス
-- `missing required field` → common_errors.md を参照
+- `missing required field` / `missing mandatory member` → common_errors.md を参照
 - JSON構文エラー → 末尾カンマ、括弧の対応を確認
