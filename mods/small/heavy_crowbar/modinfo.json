@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "heavy_crowbar",
+    "name": "Heavy Crowbar Mod",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a reinforced crowbar, a sturdy prying weapon crafted from a standard crowbar with steel reinforcement.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

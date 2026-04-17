@@ -1,0 +1,12 @@
+[
+  {
+    "type": "ITEM",
+    "subtypes": [ "TOOL" ],
+    "id": "hcb_reinforced_crowbar",
+    "copy-from": "crowbar",
+    "name": { "str": "reinforced crowbar" },
+    "description": "A crowbar wrapped with steel banding for extra durability and striking power.  Heavier than a standard crowbar, but hits significantly harder.",
+    "weight": "2200 g",
+    "melee_damage": { "bash": 28, "cut": 1 }
+  }
+]

@@ -1,0 +1,21 @@
+[
+  {
+    "type": "recipe",
+    "activity_level": "BRISK_EXERCISE",
+    "result": "hcb_reinforced_crowbar",
+    "category": "CC_WEAPON",
+    "subcategory": "CSC_WEAPON_BASHING",
+    "skill_used": "fabrication",
+    "difficulty": 3,
+    "time": "45 m",
+    "autolearn": false,
+    "book_learn": [
+      [ "manual_fabrication", 3 ]
+    ],
+    "components": [
+      [ [ "crowbar", 1 ] ],
+      [ [ "steel_chunk", 2 ] ],
+      [ [ "duct_tape", 1 ] ]
+    ]
+  }
+]
