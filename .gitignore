@@ -1,0 +1,4 @@
+external/cdda/
+logs/
+benchmarks/unseen/
+*.swp

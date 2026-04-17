@@ -1,0 +1,38 @@
+# CDDA Mod開発 コアルール
+
+## 開発の進め方
+1. 実装前に必ず設計書（templates/design_template.md）を作成する
+2. external/cdda/data/json/ を参照してIDやフラグの正確な綴りを確認する
+3. 実装後は必ずJSONの構文チェックを行う（scripts/validate.sh）
+
+## 命名規則
+- IDは必ず `mod_prefix_` で始める（例: `mymod_iron_rod`）
+- IDに使える文字: 英小文字・数字・アンダースコアのみ
+- IDに `#` 文字は使用不可
+
+## 単位（0.H以降）
+- 重量: `"500 g"` 形式（旧modが数値のみの場合は変換が必要）
+- 容量: `"1500 ml"` 形式（旧modが数値のみの場合は変換が必要）
+- 価格: `"200 USD"` 形式
+
+## modinfo.json
+- `type`: 必ず `"MOD_INFO"`
+- `id`: 必須。他modと重複しない一意のID
+- `name`: 必須
+- `dependencies`: `[ "dda" ]` を最低限記載する
+
+## copy-from の使い方
+- 使用前に external/cdda/data/json/ で親IDの存在を確認する
+- abstract アイテムを copy-from する場合、`abstract` フィールドは引き継がれない
+
+## バージョン差分（0.G → 0.H）
+- volume/weight の単位が数値から文字列形式に変更
+  - 旧: `"volume": 3` → 新: `"volume": "750 ml"`
+  - 旧: `"weight": 500` → 新: `"weight": "500 g"`
+- その他の差分は version_diff.md を参照
+
+## よくあるエラー
+- `unknown type` → typeフィールドのスペルミス
+- `copy-from target not found` → 依存modの読み込み順か、IDのスペルミス
+- `missing required field` → common_errors.md を参照
+- JSON構文エラー → 末尾カンマ、括弧の対応を確認
