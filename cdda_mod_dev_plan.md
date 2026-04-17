@@ -15,7 +15,10 @@ AIエージェントを用いてCataclysm: DDAのmodを開発し、ノウハウ�
 |---|---|---|
 | Kilo Code | 設計・実装（高性能タスク） | — |
 | OpenCode | 実装支援・コードレビュー | — |
-| Qwen Code | ルール評価・検証 | 1000 RPD/日（無料） |
+| Nemotron 3 Super | 旧modの0.I RC向け修正 | OpenRouterで無料 |
+| MiniMax M2.5 | 小規模・中規模mod作成 | OpenRouterで無料 |
+| Claude Sonnet 4.6 | 大規模mod開発 | 高性能 |
+| Claude Opus 4.7 | 大規模mod・複雑タスク | 最高性能 |
 | Gemini CLI | ルール評価・検証 | 200〜300 RPD/日（無料） |
 
 ---
@@ -144,13 +147,13 @@ n >= 30（必須）
 
 | Day | やること | ループ |
 |---|---|---|
-| Day 3 朝 | Qwen 1-5回目実行 | 各回毎に成功率確認 |
+| Day 3 朝 | MiniMax M2.5 1-5回目実行 | 各回毎に成功率確認 |
 | Day 3 昼 | エラーTOP3分析 | 頻出エラーを抽出 |
 | Day 3 夕 | モデル別hints 更新 | TOP3のみ |
-| Day 4 朝 | Qwen 6-15回目実行 | 改善確認（中間集計） |
+| Day 4 朝 | MiniMax M2.5 6-15回目実行 | 改善確認（中間集計） |
 | Day 4 昼 | 再度分析・更新 | 収束確認 |
-| Day 5 朝 | Qwen 16-25回目実行 | 継続改善 |
-| Day 5 夕 | Qwen 26-30回目実行 | 最終集計 |
+| Day 5 朝 | MiniMax M2.5 16-25回目実行 | 継続改善 |
+| Day 5 夕 | MiniMax M2.5 26-30回目実行 | 最終集計 |
 | Day 6 | フェーズ2完了判定 | final（24/30以上で突破） |
 
 **rule/capability 判定の実行タイミング:**
@@ -206,7 +209,9 @@ cdda-mod-dev/
 │   └── cdda/               ← CDDAのソースファイル（gitignore対象）
 ├── rules/                  ← ノウハウ蓄積の核心
 │   ├── CORE.md             ← 基本ルール（全モデル必読、50行以内厳守）
-│   ├── hints_qwen.md       ← Qwen Code 固有のヒントと癖への対策
+│   ├── hints_nemotron.md   ← Nemotron 3 Super 固有のヒントと癖への対策
+│   ├── hints_minimax.md    ← MiniMax M2.5 固有のヒントと癖への対策
+│   ├── hints_claude.md     ← Claude モデル固有のヒントと癖への対策
 │   ├── hints_gemini.md     ← Gemini CLI 固有のヒントと癖への対策
 │   ├── hints_advanced.md   ← 高性能モデル向け補足（設計判断・トレードオフ）
 │   ├── json_schema.md      ← CDDAのJSONフォーマット仕様
@@ -893,7 +898,7 @@ active ↔ deprecating → inactive → (削除)
 
 ## ルールファイル: hints_basic.md
 
-> `rules/hints_basic.md` として保存する。低性能モデル（Qwen / Gemini）への指示時に `CORE.md` と一緒に渡す。
+> `rules/hints_basic.md` として保存する。低性能モデル（MiniMax M2.5 / Gemini）への指示時に `CORE.md` と一緒に渡す。
 
 ```markdown
 # CDDA Mod開発 低性能モデル向け補足ヒント
@@ -1084,7 +1089,7 @@ CORE.md を読んだ後にこのファイルを読んでください。
 
 - 日時: YYYY-MM-DD
 - 対象mod:
-- 評価モデル: Qwen Code / Gemini CLI
+- 評価モデル: MiniMax M2.5 / Gemini CLI
 - 使用ルール: CORE.md + hints_basic.md
 
 ## 試行結果サマリー
@@ -1347,7 +1352,7 @@ score >= 75
 
 ## 低性能モデルへの初期プロンプト（最短ルート用）
 
-### Qwen Code 向け（評価・成功率計測用）
+### MiniMax M2.5 向け（評価・成功率計測用）
 
 ```
 あなたはCataclysm: Dark Days Ahead (CDDA) 0.I RC のmod開発者です。
@@ -1390,7 +1395,7 @@ score >= 75
 4. `common_errors.md` にエラー記録
 
 ### Day 3-5: ルール評価サイクル
-1. Qwenに同じmodを30回実装させる（分割して実施）
+1. MiniMax M2.5に同じmodを30回実装させる（分割して実施）
 2. 成功率記録（5回ごとに中間集計）
 3. 頻出エラーTOP3を特定
 4. モデル別hints を更新
@@ -1416,27 +1421,33 @@ score >= 75
 ### 基本原則
 
 ```
-if タスク難易度 < threshold:
-    Qwen
+if 旧modの0.I RC向け修正:
+    Nemotron 3 Super
+elif 小規模・中規模mod作成:
+    MiniMax M2.5
+elif 大規模mod・複雑タスク:
+    Claude Sonnet 4.6 / Claude Opus 4.7
 else:
     Kilo Code
 ```
 
 ### 難易度推定基準
 
-| 基準 | 低難易度 | 高難易度 |
-|---|---|---|
-| JSON行数 | 1〜50 | 100+ |
-| type数 | 1 | 5+ |
-| copy-from | 浅 | 深 |
-| 新規概念 | なし | あり |
+| 基準 | 低難易度 | 中難易度 | 高難易度 |
+|---|---|---|---|
+| JSON行数 | 1〜50 | 51〜100 | 100+ |
+| type数 | 1 | 2〜4 | 5+ |
+| copy-from | 浅 | 中 | 深 |
+| 新規概念 | なし | 一部あり | あり |
 
 ### 判断ロジック
 
-1. **JSON行数 < 50**: QwenでOK
-2. **type数が1つ**: QwenでOK
-3. **新規概念なし**: QwenでOK
-4. **どれかに該当**: Kilo Codeへ委譲
+1. **旧mod移植・修正**: Nemotron 3 Super
+2. **JSON行数 < 50 / type数1つ / 新規概念なし**: MiniMax M2.5
+3. **JSON行数51〜100 / type数2〜4**: MiniMax M2.5
+4. **JSON行数100+ / type数5+ / 新規概念あり**: Claude Sonnet 4.6
+5. **非常に複雑なタスク**: Claude Opus 4.7
+6. **設計・高性能タスク**: Kilo Code
 
 ---
 
@@ -1484,7 +1495,7 @@ logs/errors/ の最新ログ10件を分析してください:
 9. 発生したエラーをすべて `logs/errors/` にログ化し `rules/common_errors.md` に反映する
 
 ### フェーズ2: ルール評価サイクル（Day 3-6）
-10. Qwen に `CORE.md` + モデル別hints を渡して同じmodを30回実装させる（5回ごとに中間集計）
+10. MiniMax M2.5 に `CORE.md` + モデル別hints を渡して同じmodを30回実装させる（5回ごとに中間集計）
 11. 結果を `logs/agent_reports/` にレポートとしてまとめる
 12. 頻出エラーTOP3をモデル別hints に追加する
 13. `scripts/prompt_builder.py` を実装する
