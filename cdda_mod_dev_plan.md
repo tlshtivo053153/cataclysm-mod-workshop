@@ -256,6 +256,16 @@ benchmarks/unseen/
 *.swp
 ```
 
+### 移植済みmodの配置方針
+
+- **原則:** 移植済みmodは `mods/` 配下に配置し、Git管理対象とする
+- **例外（大規模旧mod移植）:** 変更差分が巨大（数万行以上）で、かつ `external/cdda/mods/` 内に旧バージョンが存在する場合、変更差分を `patches/` にパッチ形式で保存することを許容する
+  - ベースライン: `external/cdda/mods/` 内の旧バージョン（`.gitignore` 対象）
+  - パッチ格納先: `patches/<mod_name>_<from>_<to>/`
+  - パッチは順次適用を前提とし、README.md で適用順序と手順を明記する
+- **テスト時:** `scripts/link_mod_for_test.sh` または `scripts/copy_mod_for_test.sh` を使用し、パッチ適用後のディレクトリを `external/cdda/mods/` へ一時的に反映する
+- **理由:** `external/cdda/` は `.gitignore` 対象であり、移植成果物をバージョン管理するため
+
 ---
 
 ## テストレベル構造

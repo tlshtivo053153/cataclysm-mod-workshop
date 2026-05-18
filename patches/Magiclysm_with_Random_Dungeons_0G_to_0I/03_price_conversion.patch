@@ -1,0 +1,2889 @@
+diff -ruN Items/Conjured_items.json Items/Conjured_items.json
+--- Items/Conjured_items.json	2026-05-18 22:13:14.695261534 +0900
++++ Items/Conjured_items.json	2026-05-18 22:15:26.970298984 +0900
+@@ -14,8 +14,8 @@
+         "description": "Mana bullets made by compressing magic power. It is mainly ammunition for mana turrets and mana robots.",
+         "volume": "1 ml",
+         "weight": "1 mg",
+-        "price": 150,
+-        "price_postapoc": 1000,
++        "price": "1 USD 50 cent",
++        "price_postapoc": "10 USD",
+         "flags": [
+             "IRREPLACEABLE_CONSUMABLE",
+             "TRADER_AVOID"
+@@ -46,8 +46,8 @@
+         "description": "These are magically created cannonballs to be loaded into a cannon. Cause a large explosion at the point where the bullet hits.",
+         "weight": "550 g",
+         "volume": "500 ml",
+-        "price": 1100,
+-        "price_postapoc": 1200,
++        "price": "11 USD",
++        "price_postapoc": "12 USD",
+         "material": [
+             "steel",
+             "powder"
+@@ -87,8 +87,8 @@
+         "description": "This is a magic bomb that uses mana. After equipping this item, pull out the pin. After five seconds, it will start spitting out spider webs.",
+         "weight": "1264 g",
+         "volume": "250 ml",
+-        "price": 0,
+-        "price_postapoc": 0,
++        "price": "0 cent",
++        "price_postapoc": "0 cent",
+         "to_hit": -1,
+         "bashing": 6,
+         "material": [
+@@ -126,8 +126,8 @@
+         "description": "This is a magic bomb that uses mana. After equipping this item, pull out the pin. After five seconds, it will start spitting out spider webs.",
+         "weight": "1264 g",
+         "volume": "250 ml",
+-        "price": 0,
+-        "price_postapoc": 0,
++        "price": "0 cent",
++        "price_postapoc": "0 cent",
+         "to_hit": -1,
+         "bashing": 6,
+         "material": [
+@@ -166,8 +166,8 @@
+         "description": "This is a bomb made of magic.  Use this item to arm it.  In ten seconds it will begin to expel fire extinguish gas.",
+         "weight": "1264 g",
+         "volume": "250 ml",
+-        "price": 0,
+-        "price_postapoc": 0,
++        "price": "0 cent",
++        "price_postapoc": "0 cent",
+         "to_hit": -1,
+         "bashing": 6,
+         "material": [
+@@ -205,8 +205,8 @@
+         "description": "This Magic-made canister of extinguish gas has been unsealed, and In 10 seconds it will begin to expel fire.  You should consider getting rid of it soon.",
+         "weight": "1264 g",
+         "volume": "250 ml",
+-        "price": 0,
+-        "price_postapoc": 0,
++        "price": "0 cent",
++        "price_postapoc": "0 cent",
+         "to_hit": -1,
+         "bashing": 6,
+         "material": [
+@@ -336,7 +336,7 @@
+         "weight": "1133 g",
+         "longest_side": "90 cm",
+         "to_hit": 5,
+-        "price_postapoc": 750,
++        "price_postapoc": "7 USD 50 cent",
+         "color": "brown",
+         "symbol": "/",
+         "material": [
+@@ -350,7 +350,7 @@
+         ],
+         "volume": "1750 ml",
+         "bashing": 22,
+-        "price": 10,
++        "price": "10 cent",
+         "subtypes": [
+             "GENERIC"
+         ]
+@@ -365,7 +365,7 @@
+         "description": "A thick layer of bark that affords some protections againist stub, cut and bash.",
+         "weight": "3000g",
+         "volume": "15000ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -436,7 +436,7 @@
+         "description": "An all-encompassing, invisible layer of protection against acid.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "symbol": "o",
+         "material": [
+             "magical_material"
+@@ -499,7 +499,7 @@
+         "description": "An all-encompassing, invisible layer of protection against all damage effect.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "symbol": "o",
+         "material": [
+             "magical_material"
+@@ -594,7 +594,7 @@
+         "description": "An all-encompassing, invisible layer of protection against bash.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -660,7 +660,7 @@
+         "material": [
+             "magical_material"
+         ],
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "symbol": "o",
+         "color": "green",
+         "armor": [
+@@ -723,7 +723,7 @@
+         "material": [
+             "magical_material"
+         ],
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "symbol": "o",
+         "color": "green",
+         "armor": [
+@@ -783,7 +783,7 @@
+         "description": "An all-encompassing, invisible layer of protection against heat.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "symbol": "o",
+         "material": [
+             "magical_material"
+@@ -846,7 +846,7 @@
+         "description": "An all-encompassing, invisible layer of protection against cold.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "symbol": "o",
+         "material": [
+             "magical_material"
+@@ -909,7 +909,7 @@
+         "description": "An all-encompassing, invisible layer of protection against electro.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -972,7 +972,7 @@
+         "description": "An all-encompassing, invisible layer of protection against bio.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -1034,8 +1034,8 @@
+         "description": "It is an inactive golem. Activate it to summon a golem with a variety of attack methods!",
+         "weight": "4700 g",
+         "volume": "750 ml",
+-        "price": 64500,
+-        "price_postapoc": 3000,
++        "price": "645 USD",
++        "price_postapoc": "30 USD",
+         "to_hit": -3,
+         "bashing": 6,
+         "cutting": 6,
+@@ -1072,8 +1072,8 @@
+         "description": "This is an broken golem crystal.You can repair it from the Craft menu.",
+         "weight": "4700 g",
+         "volume": "750 ml",
+-        "price": 64500,
+-        "price_postapoc": 3000,
++        "price": "645 USD",
++        "price_postapoc": "30 USD",
+         "to_hit": -3,
+         "bashing": 6,
+         "cutting": 6,
+@@ -1095,7 +1095,7 @@
+         "description": "You got great blessing and covered by protect aura that reduce all received damage by half and increase your HP,STAMINA and MANA by 20%. This aura also heal your hp every 10 minutes",
+         "weight": "1 g",
+         "volume": "1 ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "symbol": "o",
+         "material": [
+             "magical_material"
+@@ -1239,7 +1239,7 @@
+         "description": "Continuously summons blades of air that slices the target for a certain period of time.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -1306,7 +1306,7 @@
+         "description": "A magic that attacks enemies in a range of 10 squares around it while moving randomly for a certain period of time. Each attack can inflict 100 bash damage.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -1374,7 +1374,7 @@
+         "description": "This magic releases an aura that freezes the surface of the water in 3 surrounding tiles.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -1442,7 +1442,7 @@
+         "description": "You continue to emit an aura that temporarily joins monsters with less than 80 HP around you.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -1508,7 +1508,7 @@
+         "description": "Continues to summon many ice thorns around it for a certain period of time. These ice thorns fly toward the surrounding enemies and deal piercing damage damage.",
+         "weight": "1g",
+         "volume": "1ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "material": [
+             "magical_material"
+         ],
+@@ -1574,8 +1574,8 @@
+         "weight": "35133 g",
+         "volume": "35750 ml",
+         "looks_like": "PSY_magi_f_ice_magic_crystal",
+-        "price": 0,
+-        "price_postapoc": 0,
++        "price": "0 cent",
++        "price_postapoc": "0 cent",
+         "to_hit": -3,
+         "bashing": 4,
+         "material": [
+@@ -1612,8 +1612,8 @@
+         "weight": "35133 g",
+         "volume": "35750 ml",
+         "looks_like": "PSY_magi_f_ice_magic_crystal",
+-        "price": 0,
+-        "price_postapoc": 0,
++        "price": "0 cent",
++        "price_postapoc": "0 cent",
+         "to_hit": -3,
+         "bashing": 4,
+         "material": [
+@@ -1650,8 +1650,8 @@
+         "weight": "35133 g",
+         "volume": "35750 ml",
+         "looks_like": "PSY_magi_f_ice_magic_crystal",
+-        "price": 0,
+-        "price_postapoc": 0,
++        "price": "0 cent",
++        "price_postapoc": "0 cent",
+         "to_hit": -3,
+         "bashing": 4,
+         "material": [
+diff -ruN Items/Magic_rings.json Items/Magic_rings.json
+--- Items/Magic_rings.json	2026-05-18 22:13:14.695227630 +0900
++++ Items/Magic_rings.json	2026-05-18 22:15:26.970476405 +0900
+@@ -6,7 +6,7 @@
+         "description": "A generic copper magic ring.",
+         "weight": "4 g",
+         "volume": "1 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "price_postapoc": "20 USD",
+         "material": [
+             "copper"
+@@ -50,7 +50,7 @@
+         "description": "A generic silver magic ring.",
+         "weight": "5 g",
+         "volume": "1 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "price_postapoc": "20 USD",
+         "material": [
+             "silver"
+@@ -94,7 +94,7 @@
+         "description": "A generic gold magic ring.",
+         "weight": "9 g",
+         "volume": "1 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "price_postapoc": "20 USD",
+         "material": [
+             "gold"
+@@ -138,7 +138,7 @@
+         "description": "A generic platinum magic ring.",
+         "weight": "11 g",
+         "volume": "1 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "price_postapoc": "20 USD",
+         "material": [
+             "platinum"
+diff -ruN Items/Monster_drop_items.json Items/Monster_drop_items.json
+--- Items/Monster_drop_items.json	2026-05-18 22:13:14.695188732 +0900
++++ Items/Monster_drop_items.json	2026-05-18 22:15:26.970709091 +0900
+@@ -14,8 +14,8 @@
+         "looks_like": "seed",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 2125,
++        "price": "120 USD",
++        "price_postapoc": "21 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -48,8 +48,8 @@
+         "looks_like": "PSY_magi_scroll_big_room",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 2125,
++        "price": "120 USD",
++        "price_postapoc": "21 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -82,8 +82,8 @@
+         "looks_like": "seed",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 2125,
++        "price": "120 USD",
++        "price_postapoc": "21 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -116,8 +116,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 2125,
++        "price": "120 USD",
++        "price_postapoc": "21 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -150,8 +150,8 @@
+         "looks_like": "PSY_magi_scroll_big_room",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 2125,
++        "price": "120 USD",
++        "price_postapoc": "21 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -184,8 +184,8 @@
+         "looks_like": "PSY_magi_scroll_big_room",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 2125,
++        "price": "120 USD",
++        "price_postapoc": "21 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -218,8 +218,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 2125,
++        "price": "120 USD",
++        "price_postapoc": "21 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -252,8 +252,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 21025,
++        "price": "120 USD",
++        "price_postapoc": "210 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -286,8 +286,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 21025,
++        "price": "120 USD",
++        "price_postapoc": "210 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -320,8 +320,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 21025,
++        "price": "120 USD",
++        "price_postapoc": "210 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -354,8 +354,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 21025,
++        "price": "120 USD",
++        "price_postapoc": "210 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -388,8 +388,8 @@
+         "looks_like": "PSY_magi_scroll_big_room",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 12125,
++        "price": "120 USD",
++        "price_postapoc": "121 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -422,8 +422,8 @@
+         "looks_like": "PSY_magi_scroll_big_room",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 12125,
++        "price": "120 USD",
++        "price_postapoc": "121 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -456,8 +456,8 @@
+         "looks_like": "PSY_magi_scroll_big_room",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 12125,
++        "price": "120 USD",
++        "price_postapoc": "121 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -490,8 +490,8 @@
+         "looks_like": "PSY_magi_scroll_big_room",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 12125,
++        "price": "120 USD",
++        "price_postapoc": "121 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -519,7 +519,7 @@
+         "description": "This is stored in a small glass box with a minuscule fairy that makes two coins each day, which are stored in a cellar that can be opened and closed.",
+         "weight": "10000 g",
+         "volume": "20000 ml",
+-        "price": 100000,
++        "price": "1 kUSD",
+         "price_postapoc": "21500 USD",
+         "looks_like": "heat_cube",
+         "to_hit": -2,
+@@ -561,7 +561,7 @@
+         "description": "This is a magical 3D printer that produces turrets when you start it up after putting 15 magic coins in it!",
+         "weight": "30000 g",
+         "volume": "60000 ml",
+-        "price": 100000,
++        "price": "1 kUSD",
+         "price_postapoc": "11500 USD",
+         "looks_like": "heat_cube",
+         "to_hit": -2,
+@@ -609,8 +609,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 21025,
++        "price": "120 USD",
++        "price_postapoc": "210 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -643,8 +643,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 21025,
++        "price": "120 USD",
++        "price_postapoc": "210 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+@@ -677,8 +677,8 @@
+         "looks_like": "PSY_magi_scroll_of_Light",
+         "volume": "300 ml",
+         "weight": "300 g",
+-        "price": 12000,
+-        "price_postapoc": 21025,
++        "price": "120 USD",
++        "price_postapoc": "210 USD 25 cent",
+         "symbol": ".",
+         "color": "brown",
+         "flags": [
+diff -ruN Items/Monster_drop_mats_foods.json Items/Monster_drop_mats_foods.json
+--- Items/Monster_drop_mats_foods.json	2026-05-18 22:13:14.695149922 +0900
++++ Items/Monster_drop_mats_foods.json	2026-05-18 22:15:26.970954380 +0900
+@@ -19,10 +19,10 @@
+             "str": "Magical Coin"
+         },
+         "description": "These coins are used in the crafting menu to enhance your body and acquire magic.",
+-        "price": 500,
++        "price": "5 USD",
+         "volume": "1 ml",
+         "weight": "1 mg",
+-        "price_postapoc": 25,
++        "price_postapoc": "25 cent",
+         "//": "$50 bills have substantial pre-Cataclysm value, but are worth 1 meat jerky",
+         "to_hit": -3,
+         "color": "white",
+@@ -46,8 +46,8 @@
+             "str": "Magical Forest Core"
+         },
+         "description": "a rare item that can be obtained from monsters in the forest dungeon by chance.These coins are used in the crafting menu to enhance your body and acquire magic.",
+-        "price": 500,
+-        "price_postapoc": 25,
++        "price": "5 USD",
++        "price_postapoc": "25 cent",
+         "volume": "1000 ml",
+         "weight": "100 mg",
+         "//": "$50 bills have substantial pre-Cataclysm value, but are worth 1 meat jerky",
+@@ -73,10 +73,10 @@
+             "str": "Magical Forest Coin"
+         },
+         "description": "These coins are used in the crafting menu to enhance your body and acquire magic.",
+-        "price": 500,
++        "price": "5 USD",
+         "volume": "1 ml",
+         "weight": "1 mg",
+-        "price_postapoc": 25,
++        "price_postapoc": "25 cent",
+         "//": "$50 bills have substantial pre-Cataclysm value, but are worth 1 meat jerky",
+         "to_hit": -3,
+         "color": "white",
+@@ -100,10 +100,10 @@
+             "str": "Crystallized honey"
+         },
+         "description": "Crystallized honey. It cannot be eaten as is, but can be used in some recipes or as ammunition.",
+-        "price": 500,
++        "price": "5 USD",
+         "volume": "1 ml",
+         "weight": "1 mg",
+-        "price_postapoc": 25,
++        "price_postapoc": "25 cent",
+         "//": "$50 bills have substantial pre-Cataclysm value, but are worth 1 meat jerky",
+         "to_hit": -3,
+         "color": "white",
+@@ -127,10 +127,10 @@
+             "str": "Spell Token"
+         },
+         "description": "This token is used to learn normal magic in the crafting menu. They are sold by merchants on the ground floor of the forest dungeon.",
+-        "price": 1500,
++        "price": "15 USD",
+         "volume": "100 ml",
+         "weight": "10 mg",
+-        "price_postapoc": 100,
++        "price_postapoc": "1 USD",
+         "//": "$50 bills have substantial pre-Cataclysm value, but are worth 1 meat jerky",
+         "flags": [
+             "TRADER_AVOID"
+@@ -154,10 +154,10 @@
+             "str": "Mana Mecha Parts"
+         },
+         "description": "These are parts that drop when mana mechs and mana drones are broken. By collecting them, new mechas can be created.\n\nIt can also be created from scrap metal, although this is inefficient.",
+-        "price": 15000,
++        "price": "150 USD",
+         "volume": "100 ml",
+         "weight": "10 mg",
+-        "price_postapoc": 1000,
++        "price_postapoc": "10 USD",
+         "//": "$50 bills have substantial pre-Cataclysm value, but are worth 1 meat jerky",
+         "flags": [
+             "TRADER_AVOID"
+@@ -181,10 +181,10 @@
+             "str": "Magical gold coin"
+         },
+         "description": "These coins are used in the crafting menu to enhance your body and acquire magic.",
+-        "price": 5000,
++        "price": "50 USD",
+         "volume": "10 ml",
+         "weight": "1 mg",
+-        "price_postapoc": 250,
++        "price_postapoc": "2 USD 50 cent",
+         "//": "$50 bills have substantial pre-Cataclysm value, but are worth 1 meat jerky",
+         "flags": [
+             "TRADER_AVOID"
+@@ -214,8 +214,8 @@
+         "healthy": 1,
+         "calories": 364,
+         "description": "These rice balls are large and nutritious. Some people only eat these.",
+-        "price": 47,
+-        "price_postapoc": 100,
++        "price": "47 cent",
++        "price_postapoc": "1 USD",
+         "material": [
+             "wheat"
+         ],
+@@ -273,8 +273,8 @@
+         "healthy": 2,
+         "calories": 384,
+         "description": "These grilled rice balls have a savory soy sauce flavor. It also recovers HP mysteriously.",
+-        "price": 47,
+-        "price_postapoc": 100,
++        "price": "47 cent",
++        "price_postapoc": "1 USD",
+         "stack_size": 1,
+         "material": [
+             "wheat"
+@@ -324,8 +324,8 @@
+         "healthy": 2,
+         "calories": 150,
+         "description": "Nutritious egg laid by a thunder bird.",
+-        "price": 44,
+-        "price_postapoc": 50,
++        "price": "44 cent",
++        "price_postapoc": "50 cent",
+         "material": [
+             "egg"
+         ],
+@@ -376,8 +376,8 @@
+         "healthy": 2,
+         "calories": 150,
+         "description": "Nutritious egg laid by a blaze bird.",
+-        "price": 44,
+-        "price_postapoc": 50,
++        "price": "44 cent",
++        "price_postapoc": "50 cent",
+         "material": [
+             "egg"
+         ],
+@@ -426,8 +426,8 @@
+         "healthy": 1,
+         "calories": 723,
+         "description": "The Babble's tail are bouncy and taste good.",
+-        "price": 807,
+-        "price_postapoc": 100,
++        "price": "8 USD 7 cent",
++        "price_postapoc": "1 USD",
+         "material": [
+             "wheat"
+         ],
+@@ -470,7 +470,7 @@
+             "str_pl": "chunks of great tree"
+         },
+         "description": "It is a piece of the spirit of the great tree. you can feel the energy of nature in your body.",
+-        "price": 800,
++        "price": "8 USD",
+         "material": [
+             "veggy"
+         ],
+@@ -497,8 +497,8 @@
+         "looks_like": "seed",
+         "volume": "250 ml",
+         "weight": "1 g",
+-        "price": 120,
+-        "price_postapoc": 25,
++        "price": "1 USD 20 cent",
++        "price_postapoc": "25 cent",
+         "stack_size": 1,
+         "material": [
+             "veggy"
+@@ -534,8 +534,8 @@
+         "looks_like": "seed",
+         "volume": "250 ml",
+         "weight": "1 g",
+-        "price": 120,
+-        "price_postapoc": 25,
++        "price": "1 USD 20 cent",
++        "price_postapoc": "25 cent",
+         "stack_size": 1,
+         "material": [
+             "veggy"
+@@ -576,8 +576,8 @@
+         "looks_like": "seed",
+         "volume": "250 ml",
+         "weight": "1 g",
+-        "price": 120,
+-        "price_postapoc": 25,
++        "price": "1 USD 20 cent",
++        "price_postapoc": "25 cent",
+         "stack_size": 1,
+         "symbol": ".",
+         "color": "brown",
+@@ -614,8 +614,8 @@
+         "looks_like": "seed",
+         "volume": "250 ml",
+         "weight": "1 g",
+-        "price": 120,
+-        "price_postapoc": 25,
++        "price": "1 USD 20 cent",
++        "price_postapoc": "25 cent",
+         "stack_size": 1,
+         "symbol": ".",
+         "color": "brown",
+@@ -665,7 +665,7 @@
+             "NUTRIENT_OVERRIDE",
+             "SINGLE_USE"
+         ],
+-        "price": 2500,
++        "price": "25 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -700,7 +700,7 @@
+             "NUTRIENT_OVERRIDE",
+             "SINGLE_USE"
+         ],
+-        "price": 22500,
++        "price": "225 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -735,7 +735,7 @@
+             "NUTRIENT_OVERRIDE",
+             "SINGLE_USE"
+         ],
+-        "price": 12500,
++        "price": "125 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -771,7 +771,7 @@
+             "NUTRIENT_OVERRIDE",
+             "SINGLE_USE"
+         ],
+-        "price": 22500,
++        "price": "225 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -806,7 +806,7 @@
+             "NUTRIENT_OVERRIDE",
+             "SINGLE_USE"
+         ],
+-        "price": 16500,
++        "price": "165 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -841,7 +841,7 @@
+             "NUTRIENT_OVERRIDE",
+             "SINGLE_USE"
+         ],
+-        "price": 120000,
++        "price": "1 kUSD 200 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -876,7 +876,7 @@
+             "NUTRIENT_OVERRIDE",
+             "SINGLE_USE"
+         ],
+-        "price": 250000,
++        "price": "2 kUSD 500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -901,8 +901,8 @@
+         "healthy": 1,
+         "calories": 16,
+         "description": "These grilled rice balls have a savory soy sauce flavor. It also recovers HP mysteriously.",
+-        "price": 1000,
+-        "price_postapoc": 500,
++        "price": "10 USD",
++        "price_postapoc": "5 USD",
+         "stack_size": 1,
+         "material": [
+             "honey"
+diff -ruN Items/Monster_drop_weapons.json Items/Monster_drop_weapons.json
+--- Items/Monster_drop_weapons.json	2026-05-18 22:13:14.695060696 +0900
++++ Items/Monster_drop_weapons.json	2026-05-18 22:15:26.971666078 +0900
+@@ -150,8 +150,8 @@
+             "str": "The Sword of Babble"
+         },
+         "description": "This is a rare weapon dropped by a babble.\nOn rare occasions when attacking, babbles will come to your aid for a short while.",
+-        "price": 222000,
+-        "price_postapoc": 98000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "980 USD",
+         "material": [
+             "steel"
+         ],
+@@ -244,8 +244,8 @@
+             "str": "The Sword of Babble+1"
+         },
+         "description": "This is a rare weapon dropped by a babble.\nOn rare occasions when attacking, babbles will come to your aid for a short while.\nThe upgrades increase the power of the weapon and the chance of it coming to your aid.",
+-        "price": 222000,
+-        "price_postapoc": 98000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "980 USD",
+         "material": [
+             "steel"
+         ],
+@@ -338,8 +338,8 @@
+             "str": "The Sword of Babble+2"
+         },
+         "description": "This is a rare weapon dropped by a babble.\nOn rare occasions when attacking, babbles will come to your aid for a short while.\nFurther upgrades increase the power of the weapon and the chance of it coming to your aid.",
+-        "price": 222000,
+-        "price_postapoc": 98000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "980 USD",
+         "material": [
+             "steel"
+         ],
+@@ -432,8 +432,8 @@
+         "description": "This is a rare shield dropped by a babble.\nOn rare occasions when attacked by an enemy, babbles will come to your aid for a short while.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 98000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "980 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -512,8 +512,8 @@
+         "description": "This is a rare shield dropped by a babble.\nOn rare occasions when attacked by an enemy, babbles will come to your aid for a short while.\nThe upgrades increase the defence of the shield and the chance of it coming to your aid.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 98000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "980 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -592,8 +592,8 @@
+         "description": "This is a rare shield dropped by a babble.\nOn rare occasions when attacked by an enemy, babbles will come to your aid for a short while.\nFurther upgrades increase the defence of the shield and the chance of it coming to your aid.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 98000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "980 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -672,7 +672,7 @@
+             "str": "Chimera Gun: SLUDGE"
+         },
+         "description": "The gun is made of a chimeric material that releases various fluids and can emit a sludge field that causes biological damage.",
+-        "price": 170000,
++        "price": "1 kUSD 700 USD",
+         "material": [
+             "steel"
+         ],
+@@ -690,7 +690,7 @@
+         ],
+         "weight": "1535 g",
+         "volume": "1750 ml",
+-        "price_postapoc": 3000,
++        "price_postapoc": "30 USD",
+         "bashing": 12,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -738,7 +738,7 @@
+             "str": "Chimera Gun: EXTINGUISHER"
+         },
+         "description": "The gun is made of a chimeric material that releases various liquids and can release a field of cold damaging extinguishing fire.",
+-        "price": 170000,
++        "price": "1 kUSD 700 USD",
+         "material": [
+             "steel"
+         ],
+@@ -756,7 +756,7 @@
+         ],
+         "weight": "1535 g",
+         "volume": "1750 ml",
+-        "price_postapoc": 3000,
++        "price_postapoc": "30 USD",
+         "bashing": 12,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -804,7 +804,7 @@
+             "str": "Chimera Gun: SHADOW"
+         },
+         "description": "The gun is made of a chimeric material that releases various liquids and can emit a field of shadows that cause cut damage.",
+-        "price": 170000,
++        "price": "1 kUSD 700 USD",
+         "material": [
+             "steel"
+         ],
+@@ -822,7 +822,7 @@
+         ],
+         "weight": "1535 g",
+         "volume": "1750 ml",
+-        "price_postapoc": 3000,
++        "price_postapoc": "30 USD",
+         "bashing": 12,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -870,7 +870,7 @@
+             "str": "Chimera Gun: DAZZLING"
+         },
+         "description": "The gun is made of a chimeric material that releases various liquids and can emit a dizzying field that causes flame damage.",
+-        "price": 170000,
++        "price": "1 kUSD 700 USD",
+         "material": [
+             "steel"
+         ],
+@@ -888,7 +888,7 @@
+         ],
+         "weight": "1535 g",
+         "volume": "1750 ml",
+-        "price_postapoc": 3000,
++        "price_postapoc": "30 USD",
+         "bashing": 12,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -936,7 +936,7 @@
+             "str": "Chimera Gun: CLAIRVOYANT"
+         },
+         "description": "The gun is made of a chimeric material that releases various fluids and can emit a clairvoyant field that does pure damage.",
+-        "price": 170000,
++        "price": "1 kUSD 700 USD",
+         "material": [
+             "steel"
+         ],
+@@ -954,7 +954,7 @@
+         ],
+         "weight": "1535 g",
+         "volume": "1750 ml",
+-        "price_postapoc": 3000,
++        "price_postapoc": "30 USD",
+         "bashing": 12,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -1001,8 +1001,8 @@
+             "str": "The Knife of Mystical Bird"
+         },
+         "description": "This is a very light knife made from mystical bird material.Your movement speed increases with each attack.",
+-        "price": 222000,
+-        "price_postapoc": 98000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "980 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1089,8 +1089,8 @@
+             "str": "The Knife of Mystical Bird+1"
+         },
+         "description": "This is a very light knife made from mystical bird material.Your movement speed increases with each attack.",
+-        "price": 222000,
+-        "price_postapoc": 128000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 280 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1177,8 +1177,8 @@
+             "str": "The Knife of Mystical Bird+2"
+         },
+         "description": "This is a very light knife made from mystical bird material.Your movement speed increases with each attack.",
+-        "price": 222000,
+-        "price_postapoc": 198000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 980 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1265,8 +1265,8 @@
+             "str": "Zineke's ice spear"
+         },
+         "description": "The tip of this lance is as cold as ice. It is possible to send the illusion of the ice lance far and wide for long-range attacks.",
+-        "price": 22000,
+-        "price_postapoc": 8000,
++        "price": "220 USD",
++        "price_postapoc": "80 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1340,8 +1340,8 @@
+             "str": "Zineke's ice spear+1"
+         },
+         "description": "The tip of this lance is as cold as ice. It is possible to send the illusion of the ice lance far and wide for long-range attacks.",
+-        "price": 22000,
+-        "price_postapoc": 8000,
++        "price": "220 USD",
++        "price_postapoc": "80 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1415,8 +1415,8 @@
+             "str": "Zineke's ice spear+2"
+         },
+         "description": "The tip of this lance is as cold as ice. It is possible to send the illusion of the ice lance far and wide for long-range attacks.",
+-        "price": 22000,
+-        "price_postapoc": 8000,
++        "price": "220 USD",
++        "price_postapoc": "80 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1491,7 +1491,7 @@
+             "str": "Cactus minigun"
+         },
+         "description": "This is a minigun made of cactus. The power is incredibly low, but the bullets refill on their own.",
+-        "price": 170000,
++        "price": "1 kUSD 700 USD",
+         "material": [
+             "veggy"
+         ],
+@@ -1508,7 +1508,7 @@
+         ],
+         "weight": "8350 g",
+         "volume": "10500 ml",
+-        "price_postapoc": 3000,
++        "price_postapoc": "30 USD",
+         "bashing": 12,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -1562,8 +1562,8 @@
+             "str": "The King's Sword of Walilnorth"
+         },
+         "description": "The King's Sword of Walilnorth is a sword that appears in the Tales of the Kings of Walilnorth.This sword has been passed down from generation to generation in the royal family of Walilnorth, and is a treasure that serves as a symbol of the royal family.Legend has it that long ago, when an evil dragon attacked Waril North, the wielder of this champion's sword fought bravely and vanquished the evil dragon, and from this legend, it is said that it became a reminder that the wielder of this sword must have both courage and strength.However, the sword itself is not particularly powerful.It is a legendary weapon and has no special power.",
+-        "price": 222000,
+-        "price_postapoc": 28000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "280 USD",
+         "material": [
+             "budget_steel"
+         ],
+@@ -1617,8 +1617,8 @@
+             "str": "Yaeza's death straight sword"
+         },
+         "description": "The Straight Sword of Death of Yaeza is a sword that appears in the Tales of King Walilnoth.This sword is also known as the 'Sword of Reincarnation,' which derives from the fact that those who are buried by this sword will be reincarnated.The straight sword of death of Yaeza belonged to one of the four swordsmen that King Walilnose chose as his companions when he set out on his adventurous journey.The swordsman's name was Yaeza, who was not only an outstanding swordsman, but also a man of outstanding character, and King Walilnorth trusted him deeply.However, Yaeza lost his life during the journey.The sword, which remained in his hand even after Yaeza's death, had a mysterious power: it could guide mortals to their destiny.It is also said that those who are buried with this sword can be reborn into a new life.",
+-        "price": 222000,
+-        "price_postapoc": 1080000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "10 kUSD 800 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1685,8 +1685,8 @@
+             "str": "The Spirit Sword of Alamoa"
+         },
+         "description": "The Alamoa Spirit Sword is named after the fairy king who is said to have joined King Walilnose in the battle of Fort Alamo. When the sword is swung, an invisible spirit makes an additional attack on another target.",
+-        "price": 222000,
+-        "price_postapoc": 62000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "620 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1778,8 +1778,8 @@
+             "str": "The Sword of Confusion and Starlight"
+         },
+         "description": "The Sword of Confusion and Starlight is a sword that appears in the Tales of King Walilnorth.This sword was It is said that the sword has two effects.The first is that the light emitted from the blade, which is charged with magic power, confuses the opponent.The second is that the wind generated when the sword is swung blows the opponent away.",
+-        "price": 222000,
+-        "price_postapoc": 72000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "720 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1871,8 +1871,8 @@
+             "str": "High Sword of the Sorcerer"
+         },
+         "description": "It is a magic sword whose blade has been dyed black by the power of an unusual ability.It is said to be so sharp that it can cut through even the hardest of objects as easily as tofu.However, there is a disadvantage: when cut by this weapon, the part of the sword that is cut is also dyed black.",
+-        "price": 222000,
+-        "price_postapoc": 138000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 380 USD",
+         "material": [
+             "steel"
+         ],
+@@ -1926,8 +1926,8 @@
+             "str": "Acrobat's Rainbow Sword"
+         },
+         "description": "The acrobat's rainbow sword is a sword that is controlled by a circus acrobat.Acrobats specialize in aerial trapeze, juggling, and other acrobatic feats, of which the rainbow sword is the most difficult and dangerous, and failure to perform it can result in serious injury.The acrobat's Rainbow Sword is performed on a rope that is strung higher than the acrobat's own height, and during the performance, the acrobat makes a slashing gesture with the sword in his hand toward the Audience (performer posing as audience). During the performance, the acrobat makes a slashing gesture toward the audience with the sword in his hand, which causes blood to spray from the audience's neck, and when the juggler swings his sword again, the spectator falls directly to the ground, a terrifying sight.This performance is now banned because of an incident in which a person was actually decapitated, and people who witnessed it were so horrified that they stopped watching the circus afterwards. However, even today, however, some acrobats still seem to perform this performance.",
+-        "price": 222000,
+-        "price_postapoc": 118000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 180 USD",
+         "material": [
+             "steel"
+         ],
+@@ -2007,8 +2007,8 @@
+             "str": "Thirteenth Needle of Resentment Slaughter"
+         },
+         "description": "Thirteenth Needle of Resentment Slaughter is a cursed magical sword wielded by a knight trapped in a grudge.It is said that those who are wounded by the sword die, with blood spurting from their entire body.This sword was once used by the knights of the Warilnorth nation to cover the heroes in the battle between the heroes and the Demon King.However, the hero was taken in by a grudge, went out of control, and in the end wounded his comrades.As a result, the hero is said to have taken his own life.",
+-        "price": 222000,
+-        "price_postapoc": 148000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 480 USD",
+         "material": [
+             "steel"
+         ],
+@@ -2100,8 +2100,8 @@
+             "str": "The Sword of Termination and Waste"
+         },
+         "description": "The Sword of Termination and Waste is a sword that appears in the Tales of King Walilnorth.This sword is said to have been made by an enemy witch who cast a spell on King Walilnorth when he and his entourage of knights fought at the Alamo fortress.The sword is imbued with powerful magical powers and has the ability to read the minds and memories of those who touch it.It also has the terrifying power to force those touched by its blade to remember the fears within their own hearts.",
+-        "price": 222000,
+-        "price_postapoc": 158000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 580 USD",
+         "material": [
+             "steel"
+         ],
+@@ -2193,8 +2193,8 @@
+             "str": "Deadly Sword of No-Rayu"
+         },
+         "description": "The Deadly Sword of No-Rayu is a sword that appears in the Tales of King Walilnorth.It is said to have the power to manipulate the souls of the dead and make them repeat their actions in life.Using this power, King Walil North is said to have destroyed his enemies many times.After his death, however, the sword was sealed in the royal cemetery and is said to be guarded by the tomb guard dogs.",
+-        "price": 222000,
+-        "price_postapoc": 228000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "2 kUSD 280 USD",
+         "material": [
+             "steel"
+         ],
+@@ -2286,8 +2286,8 @@
+             "str": "The Sword of the Merciful and Relentless"
+         },
+         "description": "The Sword of the Merciful and Relentless is a sword that appears in the Tales of King Walilnorth.It is said that this sword is a magical sword that changes its appearance depending on its wielder, and that it displays various abilities depending on the wielder.It is also said that its ability is dependent on the quality of the wielder, so even if the same person uses it, it will have a completely different ability.However, it is said that the true power of the sword is only demonstrated when the wielder becomes a truly powerful person, and no one has yet demonstrated its true power.Incidentally, when King Walilnorth used it, it was said to be a holy sword that healed its user.",
+-        "price": 222000,
+-        "price_postapoc": 328000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "3 kUSD 280 USD",
+         "material": [
+             "steel"
+         ],
+@@ -2341,8 +2341,8 @@
+         "description": "The Shield of Envy and Hatred is said to have the ability to amplify negative emotions such as jealousy and hatred that its owner harbors toward other human beings.Therefore, it is said that the negative emotions amplified by the shield of envy and hatred can be used to inflict damage on the other person.However, this ability is so powerful that it can become a double-edged sword that can cause pain to some users.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 228000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "2 kUSD 280 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -2458,8 +2458,8 @@
+         "description": "The shield of the hidden world is It has the ability to block any attack by releasing the power hidden in the shield, causing the world to be hidden.The shield of the hidden world also has another power, which is the power to create and change the world itself.With this ability, the shield of the hidden world can re-create the world itself.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 508000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "5 kUSD 80 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -2575,8 +2575,8 @@
+         "description": "The Shield of Decision and Wrath is a shield that appears in the Tales of King Walilnorth.This shield was used by King Walilnorth when he slayed the evil dragon, and an anecdote has it that it protected him from the fireballs and flames that the dragon unleashed.King Walilnorth later won the battle against the evil entity, but it is said that he lost his life in the battle.The shield is inscribed with words of praise for his victory over the evil entity, and the feelings behind these words remain to this day.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 198000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 980 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -2659,8 +2659,8 @@
+         "description": "The Shield of Thought and Awakening is when magical power is put into the shield, the shield itself has a will and periodically heals the person's wounds.However, if the person acts or thinks in a way that does not conform to the shield's will, it will attack back.The shield is also said to be cursed with a powerful curse, and even a single attack on the shield is said to cause extreme pain to the point of death.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 198000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 980 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -2769,8 +2769,8 @@
+         "description": "A shield of limpid filth is a shield that It is a shield that can disperse filth when it blocks an attack from an enemy.Its effect can also block the enemy's vision.It is also possible to attack a wide area by scattering the filth around the shield.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 78000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "780 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -2879,8 +2879,8 @@
+         "description": "The Shield of Futile Wishes is a shield that appears in the Tale of King Walilnorth.This shield belonged to a certain male merchant, and was apparently placed in a coffin with him when he died. There is a curse on the shield, and if what you wish for comes true to your disadvantage, it will come true, but if what you wish for comes true to your disadvantage, it will not come true.But if the wish is for one's own benefit, it will not come true.Therefore, it is said that the person who obtains this shield will spend his life being driven by the greed of others.Due to the effect of this shield, the man kept failing in business and finally went bankrupt.The descendant of the merchant who owned the shield is said to have been involved in the founding of the Kingdom of Walil North.The descendant of the merchant is said to have been very lucky and became a wealthy man as his country developed greatly.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 38000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "380 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -2959,8 +2959,8 @@
+         "description": "The Shield of Tales and Fraternity is a shield that appears in the Tales of King Walilnorth.This shield was The hero king Walilnorth risked his life to create it for the woman he loved, who later became the first queen.It is said that this shield has two powers.One is the power to protect those we love, and the other is the power to destroy those who are evil.It is said that these two powers have not disappeared even after King Walilnorth's death, and they continue to reside in the shield to this day.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 268000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "2 kUSD 680 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -3061,8 +3061,8 @@
+         "description": "The Great Shield of the Neutral End is a shield that appears in the Tale of King Walilnorth.This shield has the effect of equalizing any damage it takes. Whether it is dragon fire or powerful acid, all damage blocked by this shield is reduced to 3.There is an anecdote about a man who, with this shield in his hand, was able to survive all the attacks of an oncoming dragon.However, the man was killed shortly thereafter by a large number of low-grade monsters.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 328000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "3 kUSD 280 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -3161,8 +3161,8 @@
+         "description": "The Noble and luminous shield is the shield that appears in the Tale of King Walilnorth.This shield was worn by King Walilnorth in his battle against the demon tribe.It is said to be so beautiful that enemy soldiers mistook it for the sun because of its brilliance.It is said that if anyone attacked a person equipped with this shield, he or she would be blinded by the dazzling light that was emitted.For this reason, it is said that the demon tribe could not attack the king who possessed this shield.It is also said that this shield contains powerful magical power, and when struck with it, even if the opponent is a demon king, it can create a momentary opening.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 348000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "3 kUSD 480 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -3264,8 +3264,8 @@
+         "description": "The Guardian of the Elements is a shield that appears in the Tale of King Walilnorth.This shield is said that the holder of this shield can manipulate the power of the four elements.The holder of this shield is said to be able to manipulate the power of the four elements. It is also said that the bearer of this shield never loses heart and never loses hope in any situation.The shield is rectangular in shape, with red, blue, yellow, and green gems embedded in the shield's handle.The gems are then filled with light of the four colors.",
+         "weight": "960 g",
+         "volume": "2 L",
+-        "price": 222000,
+-        "price_postapoc": 718000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "7 kUSD 180 USD",
+         "longest_side": "50 cm",
+         "material": [
+             "steel"
+@@ -3361,8 +3361,8 @@
+             "str": "Thrust dagger:MANA"
+         },
+         "description": "a dagger made of a very light magic material.It can recover a small amount of mana with a normal attack, and can also use a skill that allows it to move instantly to a target point, piercing and damaging enemies in its path.",
+-        "price": 222000,
+-        "price_postapoc": 118000,
++        "price": "2 kUSD 220 USD",
++        "price_postapoc": "1 kUSD 180 USD",
+         "material": [
+             "steel"
+         ],
+@@ -3442,8 +3442,8 @@
+             "str": "Charm Spear"
+         },
+         "description": "It is a spear that does little damage. If the target's HP is below a certain level at the time of the attack, it can be seduced for a short while.",
+-        "price": 22000,
+-        "price_postapoc": 8000,
++        "price": "220 USD",
++        "price_postapoc": "80 USD",
+         "material": [
+             "steel"
+         ],
+@@ -3506,8 +3506,8 @@
+         "description": "It is an inflexible vine whip made of steel.The vines entangle at the point of attack.",
+         "weight": "3460 g",
+         "volume": "2 L",
+-        "price": 3500,
+-        "price_postapoc": 500,
++        "price": "35 USD",
++        "price_postapoc": "5 USD",
+         "material": [
+             "steel"
+         ],
+@@ -3553,7 +3553,7 @@
+             "str": "Honey crossbow"
+         },
+         "description": "This crossbow smells like sweet honey. It can be loaded with up to 3 bolts!",
+-        "price": 32400,
++        "price": "324 USD",
+         "//": "800 lbs, 40in steel limbs, 0.41 Slugs with a 30g bolt, 2.0 slugs with a special 0.5 lb bolt",
+         "material": [
+             "iron",
+@@ -3570,7 +3570,7 @@
+         "weight": "1203 g",
+         "volume": "1 L",
+         "longest_side": "82 cm",
+-        "price_postapoc": 4000,
++        "price_postapoc": "40 USD",
+         "bashing": 12,
+         "to_hit": -2,
+         "ranged_damage": {
+@@ -3605,7 +3605,7 @@
+     {
+         "type": "ITEM",
+         "id": "PSY_bolt_honey",
+-        "price": 1200,
++        "price": "12 USD",
+         "name": {
+             "str": "Honey bolt"
+         },
+@@ -3618,7 +3618,7 @@
+         ],
+         "volume": "100 ml",
+         "longest_side": "400 mm",
+-        "price_postapoc": 1000,
++        "price_postapoc": "10 USD",
+         "weight": "20 g",
+         "bashing": 5,
+         "ammo_type": "bolt",
+@@ -3651,7 +3651,7 @@
+             "str": "Honey Assault Rifle"
+         },
+         "description": "This assault rifle is made from crystallized honey. Covering it with sticky honey can slow down the enemy's movement.",
+-        "price": 170000,
++        "price": "1 kUSD 700 USD",
+         "material": [
+             "steel",
+             "honey"
+@@ -3669,7 +3669,7 @@
+         ],
+         "weight": "2335 g",
+         "volume": "3250 ml",
+-        "price_postapoc": 3000,
++        "price_postapoc": "30 USD",
+         "bashing": 12,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -3718,7 +3718,7 @@
+             "str": "Honey Burst Rifle"
+         },
+         "description": "This burst rifle is made from crystallized honey. Covering it with sticky honey can slow down the enemy's movement.",
+-        "price": 170000,
++        "price": "1 kUSD 700 USD",
+         "material": [
+             "steel",
+             "honey"
+@@ -3736,7 +3736,7 @@
+         ],
+         "weight": "2735 g",
+         "volume": "3850 ml",
+-        "price_postapoc": 3000,
++        "price_postapoc": "30 USD",
+         "bashing": 11,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -3785,7 +3785,7 @@
+             "str": "Honey Beam Rifle"
+         },
+         "description": "This beam rifle is made from crystallized honey. Shoots a beam of sticky honey at the target enemy.",
+-        "price": 210000,
++        "price": "2 kUSD 100 USD",
+         "material": [
+             "steel",
+             "honey"
+@@ -3804,7 +3804,7 @@
+         ],
+         "weight": "4135 g",
+         "volume": "5250 ml",
+-        "price_postapoc": 8000,
++        "price_postapoc": "80 USD",
+         "bashing": 13,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -3853,7 +3853,7 @@
+             "str": "Hot Honey Shotgun"
+         },
+         "description": "This Shotgun is made from crystallized honey. Shoots hot honey at the target enemy. Each shot consumes 5 bullets.",
+-        "price": 210000,
++        "price": "2 kUSD 100 USD",
+         "material": [
+             "steel",
+             "honey"
+@@ -3872,7 +3872,7 @@
+         ],
+         "weight": "5135 g",
+         "volume": "7250 ml",
+-        "price_postapoc": 8000,
++        "price_postapoc": "80 USD",
+         "bashing": 18,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -3922,7 +3922,7 @@
+             "str": "Honey Hand Cannon"
+         },
+         "description": "This Hand Cannon is made from crystallized honey. Shoots a lump of exploding honey at the target point. Each shot consumes 20 bullets.",
+-        "price": 310000,
++        "price": "3 kUSD 100 USD",
+         "material": [
+             "steel",
+             "honey"
+@@ -3941,7 +3941,7 @@
+         ],
+         "weight": "3135 g",
+         "volume": "6250 ml",
+-        "price_postapoc": 12000,
++        "price_postapoc": "120 USD",
+         "bashing": 8,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -3986,7 +3986,7 @@
+             "str": "Honey Sub Machine Gun"
+         },
+         "description": "This sub machine gun is made from crystallized honey. Covering it with sticky honey can slow down the enemy's movement.",
+-        "price": 120000,
++        "price": "1 kUSD 200 USD",
+         "material": [
+             "steel",
+             "honey"
+@@ -4004,7 +4004,7 @@
+         ],
+         "weight": "1212 g",
+         "volume": "2424 ml",
+-        "price_postapoc": 2600,
++        "price_postapoc": "26 USD",
+         "bashing": 7,
+         "to_hit": -1,
+         "ranged_damage": {
+@@ -4053,8 +4053,8 @@
+         "volume": "120 ml",
+         "longest_side": "20 cm",
+         "looks_like": "wrench_large",
+-        "price": 120000,
+-        "price_postapoc": 10000,
++        "price": "1 kUSD 200 USD",
++        "price_postapoc": "100 USD",
+         "bashing": 13,
+         "material": [
+             "steel"
+diff -ruN Items/PSY_spellbooks.json Items/PSY_spellbooks.json
+--- Items/PSY_spellbooks.json	2026-05-18 22:13:14.695013449 +0900
++++ Items/PSY_spellbooks.json	2026-05-18 22:15:26.972001421 +0900
+@@ -59,7 +59,7 @@
+         "description": "It's a spellbook on how to manipulate the mind of your opponent.",
+         "weight": "585 g",
+         "volume": "250 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "material": [
+             "paper"
+         ],
+@@ -90,7 +90,7 @@
+         "description": "It's a spellbook on how to manipulate magnetism and how to deal with it.",
+         "weight": "1585 g",
+         "volume": "250 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "material": [
+             "paper"
+         ],
+@@ -121,7 +121,7 @@
+         "description": "It is a book covered with plants. It contains instructions on how to grow plants instantly!",
+         "weight": "1585 g",
+         "volume": "250 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "material": [
+             "paper"
+         ],
+@@ -152,7 +152,7 @@
+         "description": "It's a spellbook that describes how to exchange positions with your partner.",
+         "weight": "50 g",
+         "volume": "250 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "material": [
+             "silver",
+             "gold",
+@@ -184,7 +184,7 @@
+         "description": "It's a spellbook about how to create a disaster easily.",
+         "weight": "50 g",
+         "volume": "250 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "material": [
+             "silver",
+             "gold",
+@@ -216,7 +216,7 @@
+         "description": "This is a book where you can learn intermediate summoning techniques.",
+         "weight": "920 g",
+         "volume": "750 ml",
+-        "price": 30000,
++        "price": "300 USD",
+         "material": [
+             "paper"
+         ],
+@@ -246,7 +246,7 @@
+         "description": "This is a spellbook on how to use ninjutsu.",
+         "weight": "920 g",
+         "volume": "750 ml",
+-        "price": 30000,
++        "price": "300 USD",
+         "material": [
+             "paper"
+         ],
+@@ -277,7 +277,7 @@
+         "description": "This is a spellbook with a suspicious glow. It looks like you could learn a thing or two about summoning...",
+         "weight": "920 g",
+         "volume": "750 ml",
+-        "price": 30000,
++        "price": "300 USD",
+         "material": [
+             "paper"
+         ],
+@@ -308,7 +308,7 @@
+         "description": "This is a spellbook on how to create simple items with magic.",
+         "weight": "450 g",
+         "volume": "1 L",
+-        "price": 1904,
++        "price": "19 USD 4 cent",
+         "material": [
+             "paper"
+         ],
+@@ -338,7 +338,7 @@
+         "description": "This is a book for beginner spellcasters. It contains information on totems.",
+         "weight": "450 g",
+         "volume": "1 L",
+-        "price": 1904,
++        "price": "19 USD 4 cent",
+         "material": [
+             "paper"
+         ],
+@@ -369,7 +369,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -397,7 +397,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -425,7 +425,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -453,7 +453,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -481,7 +481,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -509,7 +509,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -537,7 +537,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -565,7 +565,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -593,7 +593,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -615,7 +615,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -643,7 +643,7 @@
+         "type": "ITEM",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -677,7 +677,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -705,7 +705,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -733,7 +733,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -761,7 +761,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -789,7 +789,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -817,7 +817,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -845,7 +845,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -873,7 +873,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -901,7 +901,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -929,7 +929,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -957,7 +957,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -985,7 +985,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -1013,7 +1013,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -1041,7 +1041,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -1069,7 +1069,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -1097,7 +1097,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -1125,7 +1125,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -1153,7 +1153,7 @@
+         "//": "PSY spell",
+         "weight": "50 g",
+         "volume": "150 ml",
+-        "price": 1000,
++        "price": "10 USD",
+         "material": [
+             "paper"
+         ],
+@@ -1180,7 +1180,7 @@
+         "description": "This is a magic book describing ice magic that has been studied for many years. Touch it with your bare hands and you will get frostbite, okay?",
+         "weight": "1585 g",
+         "volume": "250 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "material": [
+             "paper"
+         ],
+@@ -1212,7 +1212,7 @@
+         "description": "A spell book that describes this and that about magic guns. By reading it, you will be able to create a gun using magic power.",
+         "weight": "1585 g",
+         "volume": "250 ml",
+-        "price": 5000,
++        "price": "50 USD",
+         "material": [
+             "paper"
+         ],
+diff -ruN Items/cast_spell_wands.json Items/cast_spell_wands.json
+--- Items/cast_spell_wands.json	2026-05-18 22:13:14.694973588 +0900
++++ Items/cast_spell_wands.json	2026-05-18 22:15:26.972219354 +0900
+@@ -69,7 +69,7 @@
+             "str_pl": "lesser wands of random polymorph"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 20000,
++        "price": "200 USD",
+         "description": "A slender wooden wand with a mana crystal socket at the base that casts a spell when activated.  This wand casts [random polymorph] that polymorphs target enemy has MAXHP equal 150 or less.",
+         "use_action": {
+             "type": "cast_spell",
+@@ -90,7 +90,7 @@
+             "str_pl": "greater wands of random polymorph"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "description": "A slender wooden wand with a mana crystal socket at the base that casts a spell when activated.  This wand casts [random polymorph] that polymorphs target enemy has MAXHP equal 200 or less.",
+         "use_action": {
+             "type": "cast_spell",
+@@ -111,7 +111,7 @@
+             "str_pl": "wands of insects"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "description": "This is magic wand that has been wriggling all along. When you wave this wand, friendly insects will appear out of nowhere for a short time!\nUpgrades will increase summoned insect of duration.",
+         "use_action": {
+             "type": "cast_spell",
+@@ -133,7 +133,7 @@
+         },
+         "copy-from": "PSY_magi_spell_wand",
+         "looks_like": "PSY_magi_wand_summon_insects",
+-        "price": 30000,
++        "price": "300 USD",
+         "description": "This is magic wand that has been wriggling all along. When you wave this wand, friendly insects will appear out of nowhere for a short time!\nUpgrades will increase summoned insect of duration.",
+         "use_action": {
+             "type": "cast_spell",
+@@ -155,7 +155,7 @@
+         },
+         "copy-from": "PSY_magi_spell_wand",
+         "looks_like": "PSY_magi_wand_summon_insects",
+-        "price": 30000,
++        "price": "300 USD",
+         "description": "This is magic wand that has been wriggling all along. When you wave this wand, friendly insects will appear out of nowhere for a short time!\nUpgrades will increase summoned insect of duration.",
+         "use_action": {
+             "type": "cast_spell",
+@@ -176,7 +176,7 @@
+             "str_pl": "wands of upgrade"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 2,
+         "description": "This is magic wand that upgrades target upgradeable monster,It has no effect on monsters that cannot be upgraded.",
+         "use_action": {
+@@ -198,7 +198,7 @@
+             "str_pl": "wands of tangled vine"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 3,
+         "description": "This is magic wand that conjure Crawling magical vines up to the target location, then flourish many tangled vines after reaching there.\n Monsters who steps on the vine will move slower.\nUpgrades will increase damage and range.",
+         "use_action": {
+@@ -220,7 +220,7 @@
+             "str_pl": "wands of tangled vine+1"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 3,
+         "description": "This is magic wand that conjure Crawling magical vines up to the target location, then flourish many tangled vines after reaching there.\n Monsters who steps on the vine will move slower.\nUpgrades will increase damage and range.",
+         "use_action": {
+@@ -242,7 +242,7 @@
+             "str_pl": "wands of tangled vine+2"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 3,
+         "description": "This is magic wand that conjure Crawling magical vines up to the target location, then flourish many tangled vines after reaching there.\n Monsters who steps on the vine will move slower.\nUpgrades will increase damage and range.",
+         "use_action": {
+@@ -264,7 +264,7 @@
+             "str_pl": "wands of healing"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "A magic wand that heals all allies within 10 tiles except yourself and temporarily increases your movement speed.\nUpgrades will increase healing power.",
+         "use_action": {
+@@ -286,7 +286,7 @@
+             "str_pl": "wands of healing+1"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "A magic wand that heals all allies within 10 tiles except yourself and temporarily increases your movement speed.\nUpgrades will increase healing power.",
+         "use_action": {
+@@ -308,7 +308,7 @@
+             "str_pl": "wands of healing+2"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "A magic wand that heals all allies within 10 tiles except yourself and temporarily increases your movement speed.\nUpgrades will increase healing power.",
+         "use_action": {
+@@ -330,7 +330,7 @@
+             "str_pl": "wands of resurrection"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "A magic wand that compleatly reanimates the corpse of a resurrectable zombie as your side./n That zombie will turn again as an enemy in 24 hours.\nUpgrades will decrease casting cost.",
+         "use_action": {
+@@ -352,7 +352,7 @@
+             "str_pl": "wands of resurrection+1"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 4,
+         "description": "A magic wand that compleatly reanimates the corpse of a resurrectable zombie as your side./n That zombie will turn again as an enemy in 24 hours.\nUpgrades will decrease casting cost.",
+         "use_action": {
+@@ -374,7 +374,7 @@
+             "str_pl": "wands of resurrection+2"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 3,
+         "description": "A magic wand that compleatly reanimates the corpse of a resurrectable zombie as your side./n That zombie will turn again as an enemy in 24 hours.\nUpgrades will decrease casting cost.",
+         "use_action": {
+@@ -396,7 +396,7 @@
+             "str_pl": "wands of pulling"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 2,
+         "description": "A magic wand that attempts to pull the target towards the caster in a straight line.\nUpgrades will increase range.",
+         "use_action": {
+@@ -418,7 +418,7 @@
+             "str_pl": "wands of pulling+1"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 2,
+         "description": "A magic wand that attempts to pull the target towards the caster in a straight line.\nUpgrades will increase range.",
+         "use_action": {
+@@ -440,7 +440,7 @@
+             "str_pl": "wands of pulling+2"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 2,
+         "description": "A magic wand that attempts to pull the target towards the caster in a straight line.\nUpgrades will increase range.",
+         "use_action": {
+@@ -462,7 +462,7 @@
+             "str_pl": "wands of dashing"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 2,
+         "description": "A magic wand that shoots a magic bullet at the target and causes the caster to move to it in a straight line.\nUpgrades will increase range.",
+         "use_action": {
+@@ -484,7 +484,7 @@
+             "str_pl": "wands of dashing+1"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 2,
+         "description": "A magic wand that shoots a magic bullet at the target and causes the caster to move to it in a straight line.\nUpgrades will increase range.",
+         "use_action": {
+@@ -506,7 +506,7 @@
+             "str_pl": "wands of dashing+2"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 2,
+         "description": "A magic wand that shoots a magic bullet at the target and causes the caster to move to it in a straight line.\nUpgrades will increase range.",
+         "use_action": {
+@@ -528,7 +528,7 @@
+             "str_pl": "wands of swapping"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 3,
+         "description": "A magic wand that shoots a magic bullet at the target and swaps you and target positions in a long distance,   also slow target movement for a short of period.\nUpgrades will increase range and duration.",
+         "use_action": {
+@@ -550,7 +550,7 @@
+             "str_pl": "wands of swapping+1"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 3,
+         "description": "A magic wand that shoots a magic bullet at the target and swaps you and target positions in a long distance,   also slow target movement for a short of period.\nUpgrades will increase range and duration.",
+         "use_action": {
+@@ -572,7 +572,7 @@
+             "str_pl": "wands of swapping+2"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 3,
+         "description": "A magic wand that shoots a magic bullet at the target and swaps you and target positions in a long distance,   also slow target movement for a short of period.\nUpgrades will increase range and duration.",
+         "use_action": {
+@@ -594,7 +594,7 @@
+             "str_pl": "wands of blood rain"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 3,
+         "description": "A magic wand that shoots a magic bullet at the target and causes the caster to move to it in a straight line.",
+         "use_action": {
+@@ -616,7 +616,7 @@
+             "str_pl": "wands of chess of king"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "A magic wand that summons 2 chess of pawns to the target location.",
+         "use_action": {
+@@ -638,7 +638,7 @@
+             "str_pl": "wands of chess of king+1"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "A magic wand that summons 4 chess of pawns to the target location.",
+         "use_action": {
+@@ -660,7 +660,7 @@
+             "str_pl": "wands of chess of king+2"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "A magic wand that summons 6 chess of pawns to the target location.",
+         "use_action": {
+@@ -682,7 +682,7 @@
+             "str_pl": "wands of Create Stunning Field"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "Create a field of stunning in the area of the target point.",
+         "use_action": {
+@@ -704,7 +704,7 @@
+             "str_pl": "wands of Create Darkness Field"
+         },
+         "copy-from": "PSY_magi_spell_wand",
+-        "price": 30000,
++        "price": "300 USD",
+         "charges_per_use": 5,
+         "description": "Create a field of darkness in the area of the target point.",
+         "use_action": {
+diff -ruN Items/clothers.json Items/clothers.json
+--- Items/clothers.json	2026-05-18 22:13:14.694942406 +0900
++++ Items/clothers.json	2026-05-18 22:15:26.972349565 +0900
+@@ -7,7 +7,7 @@
+         "description": "A leather belt.  Useful for making your pair of pants fit.",
+         "weight": "102 g",
+         "volume": "250 ml",
+-        "price": 90000,
++        "price": "900 USD",
+         "bashing": 5,
+         "material": [
+             "concentrated_mana"
+@@ -114,8 +114,8 @@
+             "str_pl": "merchant's Cloaks of Hidden Treasures"
+         },
+         "description": "This cloak seems to absorb light except for the pinpricks of stars that move across its surface.",
+-        "price": 1500000,
+-        "price_postapoc": 360000,
++        "price": "15 kUSD",
++        "price_postapoc": "3 kUSD 600 USD",
+         "symbol": "[",
+         "color": "dark_gray",
+         "warmth": 30,
+diff -ruN Items/fake_items.json Items/fake_items.json
+--- Items/fake_items.json	2026-05-18 22:13:14.694863911 +0900
++++ Items/fake_items.json	2026-05-18 22:15:26.972617926 +0900
+@@ -647,8 +647,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -709,8 +709,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -773,8 +773,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -840,8 +840,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -901,8 +901,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -968,8 +968,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -1035,8 +1035,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -1099,8 +1099,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -1164,8 +1164,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -1229,8 +1229,8 @@
+         "weight": "380 g",
+         "volume": "90 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -1294,8 +1294,8 @@
+         "weight": "241946 g",
+         "volume": "104 L",
+         "longest_side": "185 cm",
+-        "price": 35000,
+-        "price_postapoc": 1000,
++        "price": "350 USD",
++        "price_postapoc": "10 USD",
+         "to_hit": -4,
+         "bashing": 50,
+         "material": [
+@@ -1341,8 +1341,8 @@
+         "weight": "1 g",
+         "volume": "1 ml",
+         "longest_side": "25 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 12,
+         "material": [
+@@ -1401,8 +1401,8 @@
+         "weight": "1 g",
+         "volume": "1 ml",
+         "longest_side": "105 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 15,
+         "material": [
+@@ -1470,8 +1470,8 @@
+         "weight": "1 g",
+         "volume": "1 ml",
+         "longest_side": "165 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "bashing": 18,
+         "material": [
+@@ -1530,8 +1530,8 @@
+         "weight": "1 g",
+         "volume": "1 ml",
+         "longest_side": "100 cm",
+-        "price": 180,
+-        "price_postapoc": 10,
++        "price": "1 USD 80 cent",
++        "price_postapoc": "10 cent",
+         "bashing": 10,
+         "to_hit": -3,
+         "material": [
+diff -ruN Items/inactive_bots.json Items/inactive_bots.json
+--- Items/inactive_bots.json	2026-05-18 22:13:14.694770635 +0900
++++ Items/inactive_bots.json	2026-05-18 22:15:26.972920204 +0900
+@@ -9,8 +9,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 50000,
+-        "price_postapoc": 5000,
++        "price": "500 USD",
++        "price_postapoc": "50 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -46,8 +46,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 50000,
+-        "price_postapoc": 5000,
++        "price": "500 USD",
++        "price_postapoc": "50 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -83,8 +83,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -120,8 +120,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -157,8 +157,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -194,8 +194,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -231,8 +231,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -268,8 +268,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -305,8 +305,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -342,8 +342,8 @@
+         "weight": "7750 g",
+         "volume": "5 L",
+         "looks_like": "bot_turret",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -379,8 +379,8 @@
+         "volume": "250 ml",
+         "weight": "200 g",
+         "looks_like": "bot_manhack",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -416,8 +416,8 @@
+         "volume": "1250 ml",
+         "weight": "2 kg",
+         "looks_like": "bot_eyebot",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -453,8 +453,8 @@
+         "volume": "1250 ml",
+         "weight": "2 kg",
+         "looks_like": "bot_manhack",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -490,8 +490,8 @@
+         "volume": "1250 ml",
+         "weight": "2 kg",
+         "looks_like": "bot_manhack",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -527,8 +527,8 @@
+         "volume": "6 L",
+         "weight": "8225 g",
+         "looks_like": "bot_skitterbot",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -564,8 +564,8 @@
+         "volume": "6 L",
+         "weight": "8225 g",
+         "looks_like": "bot_skitterbot",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -601,8 +601,8 @@
+         "volume": "6 L",
+         "weight": "8225 g",
+         "looks_like": "bot_grocerybot",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -638,8 +638,8 @@
+         "volume": "10 L",
+         "weight": "12130 g",
+         "looks_like": "bot_copbot",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -675,8 +675,8 @@
+         "volume": "10 L",
+         "weight": "12130 g",
+         "looks_like": "bot_copbot",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -712,8 +712,8 @@
+         "volume": "13 L",
+         "weight": "14230 g",
+         "looks_like": "bot_hazmatbot",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -749,8 +749,8 @@
+         "volume": "13 L",
+         "weight": "14230 g",
+         "looks_like": "bot_hazmatbot",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -786,8 +786,8 @@
+         "volume": "24 L",
+         "weight": "44 kg",
+         "looks_like": "bot_prototype_cyborg",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -823,8 +823,8 @@
+         "volume": "24 L",
+         "weight": "44 kg",
+         "looks_like": "bot_prototype_cyborg",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -860,8 +860,8 @@
+         "volume": "24 L",
+         "weight": "44 kg",
+         "looks_like": "bot_prototype_cyborg",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -897,8 +897,8 @@
+         "volume": "12 L",
+         "weight": "19 kg",
+         "looks_like": "bot_prototype_cyborg",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -934,8 +934,8 @@
+         "volume": "21 L",
+         "weight": "21 kg",
+         "looks_like": "bot_prototype_cyborg",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -971,8 +971,8 @@
+         "volume": "20 L",
+         "weight": "20 kg",
+         "looks_like": "bot_prototype_cyborg",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+@@ -1008,8 +1008,8 @@
+         "volume": "14 L",
+         "weight": "10 kg",
+         "looks_like": "bot_prototype_cyborg",
+-        "price": 25000,
+-        "price_postapoc": 2500,
++        "price": "250 USD",
++        "price_postapoc": "25 USD",
+         "to_hit": -3,
+         "bashing": 8,
+         "material": [
+diff -ruN Items/mutation_items.json Items/mutation_items.json
+--- Items/mutation_items.json	2026-05-18 22:13:14.694698191 +0900
++++ Items/mutation_items.json	2026-05-18 22:15:26.973050231 +0900
+@@ -27,7 +27,7 @@
+             "EATEN_COLD",
+             "NUTRIENT_OVERRIDE"
+         ],
+-        "price": 25000,
++        "price": "250 USD",
+         "freezing_point": 40,
+         "subtypes": [
+             "COMESTIBLE"
+@@ -47,7 +47,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -66,7 +66,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 75000,
++        "price": "750 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -85,7 +85,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 25000,
++        "price": "250 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -104,7 +104,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 55000,
++        "price": "550 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -123,7 +123,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 75000,
++        "price": "750 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -142,7 +142,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -161,7 +161,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 100000,
++        "price": "1 kUSD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -180,7 +180,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -199,7 +199,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 100000,
++        "price": "1 kUSD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -218,7 +218,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -237,7 +237,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 100000,
++        "price": "1 kUSD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -256,7 +256,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -275,7 +275,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 100000,
++        "price": "1 kUSD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -294,7 +294,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 25000,
++        "price": "250 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -313,7 +313,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -332,7 +332,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -351,7 +351,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -370,7 +370,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -389,7 +389,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+@@ -408,7 +408,7 @@
+             "no_fail": true,
+             "level": 0
+         },
+-        "price": 50000,
++        "price": "500 USD",
+         "subtypes": [
+             "COMESTIBLE"
+         ]
+diff -ruN Spells/DEBUGandSUMPLE/DEBUG_spells.json Spells/DEBUGandSUMPLE/DEBUG_spells.json
+--- Spells/DEBUGandSUMPLE/DEBUG_spells.json	2026-05-18 22:13:14.693266356 +0900
++++ Spells/DEBUGandSUMPLE/DEBUG_spells.json	2026-05-18 22:15:26.978946738 +0900
+@@ -61,7 +61,7 @@
+         "description": "MUGEN OF MANA.",
+         "weight": "1 g",
+         "volume": "1 ml",
+-        "price": 3646,
++        "price": "36 USD 46 cent",
+         "symbol": "o",
+         "color": "white",
+         "flags": [
+diff -ruN artifact/artifact_item_types.json artifact/artifact_item_types.json
+--- artifact/artifact_item_types.json	2026-05-18 22:13:14.692455006 +0900
++++ artifact/artifact_item_types.json	2026-05-18 22:15:26.980463804 +0900
+@@ -10,8 +10,8 @@
+         "description": "It is the one and only artifact.Equipping it will have beneficial effects for you. Random effects are triggered by activating it.",
+         "weight": "15 g",
+         "volume": "25 ml",
+-        "price": 1000,
+-        "price_postapoc": 10,
++        "price": "10 USD",
++        "price_postapoc": "10 cent",
+         "material": [
+             "cotton"
+         ],
+@@ -33,8 +33,8 @@
+         "description": "It is the one and only artifact.Equipping it will have beneficial effects for you. Random effects are triggered by activating it.",
+         "weight": "123 g",
+         "volume": "500 ml",
+-        "price": 800,
+-        "price_postapoc": 10,
++        "price": "8 USD",
++        "price_postapoc": "10 cent",
+         "to_hit": -1,
+         "material": [
+             "cotton"
+@@ -69,8 +69,8 @@
+         "weight": "200 g",
+         "volume": "200 ml",
+         "looks_like": "pearl_collar",
+-        "price": 590000,
+-        "price_postapoc": 25,
++        "price": "5 kUSD 900 USD",
++        "price_postapoc": "25 cent",
+         "material": [
+             "stone"
+         ],
+@@ -93,8 +93,8 @@
+         "description": "It is the one and only artifact.Equipping it will have beneficial effects for you. Random effects are triggered by activating it.",
+         "weight": "30 g",
+         "volume": "10 ml",
+-        "price": 3000,
+-        "price_postapoc": 10,
++        "price": "30 USD",
++        "price_postapoc": "10 cent",
+         "material": [
+             "copper"
+         ],
+@@ -118,8 +118,8 @@
+         "weight": "50 g",
+         "volume": "25 ml",
+         "looks_like": "gold_locket",
+-        "price": 20000,
+-        "price_postapoc": 25,
++        "price": "200 USD",
++        "price_postapoc": "25 cent",
+         "material": [
+             "gold"
+         ],
+@@ -143,8 +143,8 @@
+         "description": "It is the one and only artifact.Equipping it will have beneficial effects for you. Random effects are triggered by activating it.",
+         "weight": "100 g",
+         "volume": "100 ml",
+-        "price": 5000,
+-        "price_postapoc": 100,
++        "price": "50 USD",
++        "price_postapoc": "1 USD",
+         "to_hit": -1,
+         "material": [
+             "plastic",

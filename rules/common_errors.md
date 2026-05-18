@@ -52,5 +52,112 @@
   ```
 - **確認方法:** `external/cdda/data/json/recipes/` の同カテゴリのレシピを参照する
 
+### `Invalid or misplaced field name "traits" in JSON data` (field_type)
+- **原因:** `field_type` の `immunity_data` で `traits` が廃止され `flags` に変更された（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** `"immunity_data": { "traits": ["XXX"] }` → `"immunity_data": { "flags": ["XXX"] }`
+- **例:** `"traits": ["WEB_WALKER"]` → `"flags": ["WEBWALK"]`
+
+### `Invalid or misplaced field name "convection_temperature_mod" in JSON data` (field_type)
+- **原因:** `convection_temperature_mod` が `effects` 配列内から `intensity_levels` レベルに移動した（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** `intensity_levels` 内の各レベルオブジェクトの `effects` 配列から `convection_temperature_mod` を外し、同じレベルオブジェクトの兄弟要素として配置する
+- **例:**
+  ```json
+  // 旧（エラー）
+  "intensity_levels": [{
+    "effects": [{
+      "effect_id": "downed",
+      "convection_temperature_mod": -20,
+      ...
+    }]
+  }]
+  // 新（正しい）
+  "intensity_levels": [{
+    "convection_temperature_mod": -20,
+    "effects": [{
+      "effect_id": "downed",
+      ...
+    }]
+  }]
+  ```
+
+### `Invalid or misplaced field name "dangerous" / "translucency" / "effects" in JSON data` (field_type)
+- **原因:** `field_type` のルートレベルに配置していた `dangerous`, `translucency`, `effects` 等が `intensity_levels` 内に移動した（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** これらのフィールドを `intensity_levels` 配列内の各レベルオブジェクトに移動する
+
+### `bound_reader failed to read value` / `price`
+- **原因:** `price` / `price_postapoc` が数値形式から通貨文字列形式に変更された（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** 数値を通貨文字列に変換する
+  - `"price": 150` → `"price": "1 USD 50 cent"`
+  - `"price": 1000` → `"price": "10 USD"`
+  - `"price": 25` → `"price": "25 cent"`
+  - `"price_postapoc": 0` → `"price_postapoc": "0 cent"`
+- **一括変換スクリプト:** `scripts/convert_price.py`
+
+### `unrecognized JSON object` / `type: "AMMO"`
+- **原因:** `AMMO`, `GUN`, `ARMOR` 等の個別アイテムタイプが `ITEM` 型に統合された（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** `"type": "AMMO"` → `"type": "ITEM", "subtypes": ["AMMO"]`
+- **対象タイプ:** `AMMO`, `GUN`, `ARMOR`, `TOOL`, `TOOLMOD`, `TOOL_ARMOR`, `BOOK`, `COMESTIBLE`, `ENGINE`, `WHEEL`, `GUNMOD`, `MAGAZINE`, `GENERIC`, `BIONIC_ITEM` 等
+- **例外:** `ammunition_type`（弾薬タイプ定義）はそのまま有効
+
+### `Invalid enum string 'ARMOR_BALLISTIC'`
+- **原因:** `enchant_vals::mod` から `ARMOR_*` 系の値が削除された（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** `ARMOR_BALLISTIC`, `ARMOR_ACID`, `ARMOR_BASH`, `ARMOR_BIO`, `ARMOR_STAB`, `ARMOR_HEAT`, `ARMOR_ELEC`, `ARMOR_CUT`, `ARMOR_COLD` 等を enchantment 定義から削除する
+- **一括削除スクリプト:** `scripts/remove_armor_bullet.py`
+
+### `Name is not an object` / `str_sp not supported`
+- **原因:** JSON タイプごとの `name` フィールド形式が厳格化された（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:**
+  - `ITEM`, `MONSTER`, `SPELL` 等 → `{"str_sp": "名称"}` が必須
+  - `overmap_terrain`, `mutation`, `profession` 等 → 単純文字列が必須（`str_sp`/`str_pl` は不可）
+
+### `missing mandatory member "see_cost"`
+- **原因:** `overmap_terrain` 型に `see_cost` フィールドが必須化された（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** `overmap_terrain` オブジェクトに `"see_cost"` を追加する
+- **有効値:** `"none"`, `"low"`, `"medium"`, `"high"`
+
+### `Invalid or misplaced field name "compare_int"`
+- **原因:** `compare_int` 条件が EOC で無効化された（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** EOC 条件から `compare_int` を削除する
+
+### `rot_spawn` 形式エラー
+- **原因:** `rot_spawn` の形式が配列からオブジェクトに変更された（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:**
+  - 旧: `[{"monster": "zombie", "probability": 10}]`
+  - 新: `{"zombie": 10}`
+
+### `json_flag` 未定義エラー
+- **原因:** カスタムフラグを使用する mod で `type: "json_flag"` の定義が欠けている（0.I RC）
+- **種別:** rule
+- **バージョン:** 0.I RC 以降
+- **解決策:** カスタムフラグを `type: "json_flag"` で定義した JSON ファイルを mod に追加する
+- **例:**
+  ```json
+  {
+    "type": "json_flag",
+    "id": "ONLY_ONE",
+    "info": "Only one of this item can be carried."
+  }
+  ```
+
 ---
 ※ 新しいエラーが発生したらこのファイルに追記する

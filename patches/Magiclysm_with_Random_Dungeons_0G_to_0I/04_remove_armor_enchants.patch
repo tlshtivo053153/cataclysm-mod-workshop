@@ -1,0 +1,6511 @@
+diff -ruN Items/Conjured_items.json Items/Conjured_items.json
+--- Items/Conjured_items.json	2026-05-18 22:15:26.970298984 +0900
++++ Items/Conjured_items.json	2026-05-18 22:15:59.380233715 +0900
+@@ -571,10 +571,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": -1
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": -1
+                         }
+                     ]
+                 }
+diff -ruN Items/Monster_drop_weapons.json Items/Monster_drop_weapons.json
+--- Items/Monster_drop_weapons.json	2026-05-18 22:15:26.971666078 +0900
++++ Items/Monster_drop_weapons.json	2026-05-18 22:15:59.389908016 +0900
+@@ -483,10 +483,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "add": -1
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "add": -3
+                         }
+                     ],
+                     "hit_me_effect": [
+@@ -563,10 +559,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "add": -2
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "add": -5
+                         }
+                     ],
+                     "hit_me_effect": [
+@@ -643,10 +635,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "add": -3
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "add": -7
+                         }
+                     ],
+                     "hit_me_effect": [
+@@ -2412,10 +2400,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": -0.5
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": -0.3
+                         }
+                     ],
+                     "charge_info": {
+@@ -2529,10 +2513,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": -0.4
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": -0.4
+                         }
+                     ],
+                     "charge_info": {
+@@ -2630,10 +2610,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": -0.4
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": -0.4
+                         }
+                     ],
+                     "hit_me_effect": [
+@@ -2745,10 +2721,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": 1.0
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": 1.0
+                         }
+                     ]
+                 }
+@@ -2828,10 +2800,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": -0.1
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": -0.1
+                         }
+                     ],
+                     "charge_info": {
+@@ -2930,10 +2898,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": -0.3
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": -0.3
+                         }
+                     ],
+                     "hit_me_effect": [
+@@ -3010,10 +2974,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "add": -5
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "add": -5
+                         }
+                     ],
+                     "hit_me_effect": [
+@@ -3132,10 +3092,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": -1.0
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": -1.0
+                         }
+                     ],
+                     "hit_me_effect": [
+@@ -3235,10 +3191,6 @@
+                         {
+                             "value": "ARMOR_STAB",
+                             "multiply": -0.3
+-                        },
+-                        {
+-                            "value": "ARMOR_BULLET",
+-                            "multiply": -0.3
+                         }
+                     ],
+                     "hit_me_effect": [
+diff -ruN Mutations/DEBUG_mutation.json Mutations/DEBUG_mutation.json
+--- Mutations/DEBUG_mutation.json	2026-05-18 22:15:26.973482637 +0900
++++ Mutations/DEBUG_mutation.json	2026-05-18 22:15:59.409195714 +0900
+@@ -59,10 +59,6 @@
+                 "condition": "ALWAYS",
+                 "values": [
+                     {
+-                        "value": "ARMOR_BULLET",
+-                        "add": 100
+-                    },
+-                    {
+                         "value": "ARMOR_ACID",
+                         "multiply": -0.9
+                     },
+diff -ruN recipes/enhancement.json recipes/enhancement.json
+--- recipes/enhancement.json	2026-05-18 22:15:26.987852084 +0900
++++ recipes/enhancement.json	2026-05-18 22:15:59.515701678 +0900
+@@ -1,402 +1,402 @@
+ [
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_ManaUP500",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_ManaUP1000",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          100
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_ManaUP1500",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          150
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_MANA_REGEN11",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_MANA_REGEN12",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          100
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_MANA_REGEN13",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          150
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_STRUP_1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          75
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_STRUP_2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          150
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_INTUP_1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          75
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_INTUP_2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          150
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_DEXUP_1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          75
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_DEXUP_2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          150
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_PERUP_1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          75
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_PERUP_2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          150
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_STAMINA_REGEN11",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_STAMINA_REGEN12",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          100
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_STAMINA_STORE15",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          75
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_SPEED_UP5",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          75
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_HP_UP10",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          75
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_potion_HARDENSKIN1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          75
+-        ]
+-      ]
+-    ]
+-  }
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_ManaUP500",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_ManaUP1000",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    100
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_ManaUP1500",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    150
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_MANA_REGEN11",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_MANA_REGEN12",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    100
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_MANA_REGEN13",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    150
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_STRUP_1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    75
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_STRUP_2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    150
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_INTUP_1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    75
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_INTUP_2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    150
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_DEXUP_1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    75
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_DEXUP_2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    150
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_PERUP_1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    75
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_PERUP_2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    150
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_STAMINA_REGEN11",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_STAMINA_REGEN12",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    100
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_STAMINA_STORE15",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    75
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_SPEED_UP5",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    75
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_HP_UP10",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    75
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_potion_HARDENSKIN1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ENHANCEMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    75
++                ]
++            ]
++        ]
++    }
+ ]
+diff -ruN recipes/equipments.json recipes/equipments.json
+--- recipes/equipments.json	2026-05-18 22:15:26.987937932 +0900
++++ recipes/equipments.json	2026-05-18 22:15:59.516451321 +0900
+@@ -1,548 +1,548 @@
+ [
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_ice_lance",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_great_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_excelent_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_elite_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_enchanted_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_enchanted_bastard_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_enchanted_Juggler_Rainbow_Sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_enchanted_long_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_enchanted_great_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_enchanted_lich_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_enchanted_dragon_hunter_sword",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_death_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_sword_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_metal_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_tower_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_mirage_prison_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_iron_maiden_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_alchemic_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_protect_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_absolute_defence_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_guardian_element_shield",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          3
+-        ]
+-      ]
+-    ]
+-  }
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_ice_lance",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_great_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_excelent_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_elite_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_enchanted_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_enchanted_bastard_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_enchanted_Juggler_Rainbow_Sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_enchanted_long_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_enchanted_great_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_enchanted_lich_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_enchanted_dragon_hunter_sword",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_death_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_sword_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_metal_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_tower_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_mirage_prison_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_iron_maiden_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_alchemic_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_protect_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_absolute_defence_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_guardian_element_shield",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_EQUIPMENT",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    3
++                ]
++            ]
++        ]
++    }
+ ]
+diff -ruN recipes/honeys.json recipes/honeys.json
+--- recipes/honeys.json	2026-05-18 22:15:26.988006697 +0900
++++ recipes/honeys.json	2026-05-18 22:15:59.516574820 +0900
+@@ -1,122 +1,122 @@
+ [
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_healing_honey_bottle",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_HONEY",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "5 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_crystallized_honey",
+-          20
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_attracting_honey_bottle",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_HONEY",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "10 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_crystallized_honey",
+-          50
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_freezing_honey_bottle",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_HONEY",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "40 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_crystallized_honey",
+-          40
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_charming_honey_bottle",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_HONEY",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "50 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_crystallized_honey",
+-          60
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_terraforming_honey_bottle",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_HONEY",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "40 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_crystallized_honey",
+-          35
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_treasure_honey_bottle",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_HONEY",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "120 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_crystallized_honey",
+-          100
+-        ]
+-      ]
+-    ]
+-  }
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_healing_honey_bottle",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_HONEY",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "5 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_crystallized_honey",
++                    20
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_attracting_honey_bottle",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_HONEY",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "10 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_crystallized_honey",
++                    50
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_freezing_honey_bottle",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_HONEY",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "40 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_crystallized_honey",
++                    40
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_charming_honey_bottle",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_HONEY",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "50 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_crystallized_honey",
++                    60
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_terraforming_honey_bottle",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_HONEY",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "40 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_crystallized_honey",
++                    35
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_treasure_honey_bottle",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_HONEY",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "120 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_crystallized_honey",
++                    100
++                ]
++            ]
++        ]
++    }
+ ]
+diff -ruN recipes/normalspell_recipe.json recipes/normalspell_recipe.json
+--- recipes/normalspell_recipe.json	2026-05-18 22:15:26.988068969 +0900
++++ recipes/normalspell_recipe.json	2026-05-18 22:15:59.517374673 +0900
+@@ -1,162 +1,162 @@
+ [
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_conj_blade_of_air",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_spell_token",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_summon_blade_dance",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_spell_token",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_summon_boomerang",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_spell_token",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_summon_flying_eye",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_spell_token",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_summon_magic_tower",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_spell_token",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_conj_blitzkrieg_aura",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_spell_token",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_short_blink_base",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_spell_token",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_conj_thread_cone",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_spell_token",
+-          1
+-        ]
+-      ]
+-    ]
+-  }
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_conj_blade_of_air",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_spell_token",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_summon_blade_dance",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_spell_token",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_summon_boomerang",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_spell_token",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_summon_flying_eye",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_spell_token",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_summon_magic_tower",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_spell_token",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_conj_blitzkrieg_aura",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_spell_token",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_short_blink_base",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_spell_token",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_conj_thread_cone",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_NORMALSPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_spell_token",
++                    1
++                ]
++            ]
++        ]
++    }
+ ]
+diff -ruN recipes/recipe_categories.json recipes/recipe_categories.json
+--- recipes/recipe_categories.json	2026-05-18 22:15:26.988124603 +0900
++++ recipes/recipe_categories.json	2026-05-18 22:15:59.517525274 +0900
+@@ -1,17 +1,17 @@
+ [
+-  {
+-    "type": "recipe_category",
+-    "id": "CC_PSY_MAGI",
+-    "recipe_subcategories": [
+-      "CSC_ALL",
+-      "CSC_PSY_MAGI_EQUIPMENT",
+-      "CSC_PSY_MAGI_UPGRADE",
+-      "CSC_PSY_MAGI_ENHANCEMENT",
+-      "CSC_PSY_MAGI_NORMALSPELLS",
+-      "CSC_PSY_MAGI_ULTIMATESPELLS",
+-      "CSC_PSY_MAGI_SCROLL",
+-      "CSC_PSY_MAGI_HONEY",
+-      "CSC_PSY_MAGI_ROBOT"
+-    ]
+-  }
++    {
++        "type": "recipe_category",
++        "id": "CC_PSY_MAGI",
++        "recipe_subcategories": [
++            "CSC_ALL",
++            "CSC_PSY_MAGI_EQUIPMENT",
++            "CSC_PSY_MAGI_UPGRADE",
++            "CSC_PSY_MAGI_ENHANCEMENT",
++            "CSC_PSY_MAGI_NORMALSPELLS",
++            "CSC_PSY_MAGI_ULTIMATESPELLS",
++            "CSC_PSY_MAGI_SCROLL",
++            "CSC_PSY_MAGI_HONEY",
++            "CSC_PSY_MAGI_ROBOT"
++        ]
++    }
+ ]
+diff -ruN recipes/robots.json recipes/robots.json
+--- recipes/robots.json	2026-05-18 22:15:26.988205532 +0900
++++ recipes/robots.json	2026-05-18 22:15:59.518584614 +0900
+@@ -1,772 +1,772 @@
+ [
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_magi_mana_bullet",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "charges": 10,
+-    "time": "5 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_magi_magical_mana_mech_parts",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "charges": 1,
+-    "time": "5 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "scrap",
+-          50
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_turret_normal",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          5
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_shotgun",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          5
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_tazer",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          5
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_gatling",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          15
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_flamethrower",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          15
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_rocket_launcher",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          25
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_railgun",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_shadowfang",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          10
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_frostbeam",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_turret_acidsplatter",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_electro_bat",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          3
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_magic_eye",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_skylock",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          10
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_overload_cube",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_blaze_ant",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          12
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_icicle_ant",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          12
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_light_bringer",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          10
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_energy_cube",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          35
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_life_generator",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_acid_arachnid",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          25
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_venom_stinger",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          25
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_power_arms",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          100
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_iron_fist",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          100
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_demolisher",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          100
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_night_stalker",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          35
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_blood_storm",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          45
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_magic_sphere",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          75
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "MODERATE_EXERCISE",
+-    "result": "PSY_bot_mana_mech_mind_breaker",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ROBOT",
+-    "skill_used": "electronics",
+-    "difficulty": 0,
+-    "time": "60 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_mana_mech_parts",
+-          85
+-        ]
+-      ],
+-      [
+-        [
+-          "ai_module",
+-          1
+-        ]
+-      ]
+-    ]
+-  }
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_magi_mana_bullet",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "charges": 10,
++        "time": "5 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_magi_magical_mana_mech_parts",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "charges": 1,
++        "time": "5 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "scrap",
++                    50
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_turret_normal",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    5
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_shotgun",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    5
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_tazer",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    5
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_gatling",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    15
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_flamethrower",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    15
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_rocket_launcher",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    25
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_railgun",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    20
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_shadowfang",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    10
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_frostbeam",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    20
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_turret_acidsplatter",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    20
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_electro_bat",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    3
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_magic_eye",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    20
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_skylock",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    10
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_overload_cube",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    30
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_blaze_ant",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    12
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_icicle_ant",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    12
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_light_bringer",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    10
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_energy_cube",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    35
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_life_generator",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    50
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_acid_arachnid",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    25
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_venom_stinger",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    25
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_power_arms",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    100
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_iron_fist",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    100
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_demolisher",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    100
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_night_stalker",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    35
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_blood_storm",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    45
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_magic_sphere",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    75
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "MODERATE_EXERCISE",
++        "result": "PSY_bot_mana_mech_mind_breaker",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ROBOT",
++        "skill_used": "electronics",
++        "difficulty": 0,
++        "time": "60 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_mana_mech_parts",
++                    85
++                ]
++            ],
++            [
++                [
++                    "ai_module",
++                    1
++                ]
++            ]
++        ]
++    }
+ ]
+diff -ruN recipes/scrolls.json recipes/scrolls.json
+--- recipes/scrolls.json	2026-05-18 22:15:26.988277458 +0900
++++ recipes/scrolls.json	2026-05-18 22:15:59.519152884 +0900
+@@ -1,386 +1,386 @@
+ [
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_big_room",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_search_stairway",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_Light",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          25
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_Haste",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_Frighten",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_Freese",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_summoning",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_collect_item",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_sanctuary",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_summon_gate",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_thunder_snake",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          35
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_Orchard",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_Upgrade",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_Monster_house",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          40
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_scroll_of_Nothing_Written",
+-          1
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "PSY_magi_scroll_of_Nothing_Written",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_SCROLL",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ]
+-    ]
+-  }
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_big_room",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_search_stairway",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_Light",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    25
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_Haste",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_Frighten",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_Freese",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_summoning",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_collect_item",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_sanctuary",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_summon_gate",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_thunder_snake",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    35
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_Orchard",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_Upgrade",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_Monster_house",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    40
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_scroll_of_Nothing_Written",
++                    1
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "PSY_magi_scroll_of_Nothing_Written",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_SCROLL",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ]
++        ]
++    }
+ ]
+diff -ruN recipes/ultimatespell_recipe.json recipes/ultimatespell_recipe.json
+--- recipes/ultimatespell_recipe.json	2026-05-18 22:15:26.988341065 +0900
++++ recipes/ultimatespell_recipe.json	2026-05-18 22:15:59.519474363 +0900
+@@ -1,182 +1,182 @@
+ [
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_spell_summon_four_element",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_meteor",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_Tiamat_breath",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_dead_end",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_summon_bug_swarm",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_mega_healing",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_spell_summon_ultimate_flame_feather",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          4
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_spell_ultimate_random_breath",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          4
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "LIGHT_EXERCISE",
+-    "result": "spell_scroll_PSY_magi_spell_summon_ultimate_apple_tree",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_forest_core",
+-          4
+-        ]
+-      ]
+-    ]
+-  }
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_spell_summon_four_element",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_meteor",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_Tiamat_breath",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_dead_end",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_summon_bug_swarm",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_mega_healing",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_spell_summon_ultimate_flame_feather",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    4
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_spell_ultimate_random_breath",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    4
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "LIGHT_EXERCISE",
++        "result": "spell_scroll_PSY_magi_spell_summon_ultimate_apple_tree",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_ULTIMATESPELLS",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_forest_core",
++                    4
++                ]
++            ]
++        ]
++    }
+ ]
+diff -ruN recipes/upgrade.json recipes/upgrade.json
+--- recipes/upgrade.json	2026-05-18 22:15:26.988416438 +0900
++++ recipes/upgrade.json	2026-05-18 22:15:59.520217230 +0900
+@@ -1,574 +1,574 @@
+ [
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_summon_insects+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_summon_insects",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_summon_insects+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_summon_insects+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_tangled_vine+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_tangled_vine",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_tangled_vine+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_tangled_vine+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_healing+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_healing",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_healing+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_healing+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_resurrection+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_resurrection",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_resurrection+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_resurrection+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_pulling+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_pulling",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_pulling+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_pulling+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_dashing+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_dashing",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_dashing+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_dashing+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_swapping+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_swapping",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_swapping+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_swapping+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_chess_king+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          20
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_chess_king",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_wand_of_chess_king+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          50
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_wand_of_chess_king+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_mmask_acceleration+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_mmask_acceleration",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_mmask_acceleration+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          70
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_mmask_acceleration+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_babble_sword+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_weapon_babble_sword",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_weapon_babble_sword+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          70
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_weapon_babble_sword+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_babble_shield+1",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          30
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_armor_babble_shield",
+-          2
+-        ]
+-      ]
+-    ]
+-  },
+-  {
+-    "type": "recipe",
+-    "activity_level": "BRISK_EXERCISE",
+-    "result": "PSY_magi_armor_babble_shield+2",
+-    "id_suffix": "using_mwmi",
+-    "category": "CC_PSY_MAGI",
+-    "subcategory": "CSC_PSY_MAGI_UPGRADE",
+-    "skill_used": "chemistry",
+-    "difficulty": 0,
+-    "time": "1 m",
+-    "autolearn": true,
+-    "components": [
+-      [
+-        [
+-          "PSY_magi_magical_coin_bronze",
+-          70
+-        ]
+-      ],
+-      [
+-        [
+-          "PSY_magi_armor_babble_shield+1",
+-          2
+-        ]
+-      ]
+-    ]
+-  }
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_summon_insects+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_summon_insects",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_summon_insects+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_summon_insects+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_tangled_vine+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_tangled_vine",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_tangled_vine+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_tangled_vine+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_healing+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_healing",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_healing+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_healing+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_resurrection+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_resurrection",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_resurrection+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_resurrection+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_pulling+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_pulling",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_pulling+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_pulling+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_dashing+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_dashing",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_dashing+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_dashing+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_swapping+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_swapping",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_swapping+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_swapping+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_chess_king+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    20
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_chess_king",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_wand_of_chess_king+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    50
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_wand_of_chess_king+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_mmask_acceleration+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_mmask_acceleration",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_mmask_acceleration+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    70
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_mmask_acceleration+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_babble_sword+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_weapon_babble_sword",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_weapon_babble_sword+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    70
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_weapon_babble_sword+1",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_babble_shield+1",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    30
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_armor_babble_shield",
++                    2
++                ]
++            ]
++        ]
++    },
++    {
++        "type": "recipe",
++        "activity_level": "BRISK_EXERCISE",
++        "result": "PSY_magi_armor_babble_shield+2",
++        "id_suffix": "using_mwmi",
++        "category": "CC_PSY_MAGI",
++        "subcategory": "CSC_PSY_MAGI_UPGRADE",
++        "skill_used": "chemistry",
++        "difficulty": 0,
++        "time": "1 m",
++        "autolearn": true,
++        "components": [
++            [
++                [
++                    "PSY_magi_magical_coin_bronze",
++                    70
++                ]
++            ],
++            [
++                [
++                    "PSY_magi_armor_babble_shield+1",
++                    2
++                ]
++            ]
++        ]
++    }
+ ]

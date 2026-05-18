@@ -2,3 +2,4 @@ external/cdda/
 logs/
 benchmarks/unseen/
 *.swp
+__pycache__/

@@ -36,6 +36,10 @@
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ
 - 武器・工具の製作は通常 `"BRISK_EXERCISE"`
 
+## name フィールド形式（0.I RC）
+- `ITEM`/`MONSTER`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）
+- `overmap_terrain`/`mutation`/`profession` → 単純文字列が必須（`str_sp` は不可）
+
 ## よくあるエラー
 - `unknown type` → typeフィールドのスペルミス
 - `copy-from target not found` → 依存modの読み込み順か、IDのスペルミス
