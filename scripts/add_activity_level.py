@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""
-Add activity_level to all recipe objects in JSON files.
-"""
-import json
+"""Add activity_level to all recipe objects in JSON files."""
+
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+
+from common import create_parser, process_directory, resolve_paths, save_json
 
 # Mapping from subcategory to activity_level
 ACTIVITY_MAP = {
@@ -44,35 +46,29 @@ def add_activity_level(data: list) -> list:
     return data
 
 
-def process_file(path: Path) -> None:
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
+def processor(data, _path):
     if not isinstance(data, list):
-        print(f"Skip {path}: root is not a list")
-        return
-
-    modified = add_activity_level(data)
-
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(modified, f, ensure_ascii=False, indent=2)
-        f.write("\n")
-
-    print(f"Updated: {path}")
+        return None
+    return add_activity_level(data)
 
 
 def main():
-    target_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("external/cdda/mods/Magiclysm_with_Random_Dungeons-0I/recipes")
-    if not target_dir.exists():
-        print(f"Directory not found: {target_dir}")
-        sys.exit(1)
+    parser = create_parser("Add activity_level to recipe objects")
+    args = parser.parse_args()
+    input_path, output_path = resolve_paths(args)
 
-    for json_file in sorted(target_dir.rglob("*.json")):
-        try:
-            process_file(json_file)
-        except Exception as e:
-            print(f"Error processing {json_file}: {e}")
-            sys.exit(1)
+    if input_path.is_dir():
+        process_directory(input_path, output_path, processor, backup=args.backup)
+    else:
+        from common import backup_file, load_json
+
+        if args.backup:
+            backup_file(input_path)
+        data = load_json(input_path)
+        transformed = processor(data, input_path)
+        if transformed is not None:
+            save_json(output_path, transformed)
+            print(f"Updated: {output_path}")
 
 
 if __name__ == "__main__":

@@ -2,84 +2,75 @@
 """Remove invalid JSON fields from CDDA mod files."""
 
 import json
-import os
 import sys
 from pathlib import Path
 
-# Invalid fields to remove (from debug.log analysis)
-INVALID_FIELDS = {
-    "method",
-    "bashing",
-    "armor_bullet", "armor_cut", "armor_bash", "armor_stab", 
-    "armor_elec", "armor_acid", "armor_fire",
-    "relic_data",
-    "melee_cut", "cutting",
-    "magazine",
-    "passive_mods",
-    "ammo",
-    "mana_regen_multiplier", "mana_modifier",
-    "stamina_regen_modifier",
-    "sound_volume", "sound_msg",
-    "no_deactivate_msg",
-    "rot_spawn_chance",
-    "baby_egg",
-    "var_name",
-    "standard_symbols",
-    "hp_modifier",
-    "charges_per_use",
-    "countdown_destroy",
-}
+sys.path.insert(0, str(Path(__file__).parent))
 
-def remove_invalid_fields(obj):
+from common import create_parser, process_directory, resolve_paths, save_json
+
+# Resolve invalid_fields.json relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INVALID_FIELDS_PATH = PROJECT_ROOT / "rules" / "invalid_fields.json"
+
+
+def load_invalid_fields() -> set[str]:
+    """Load the set of invalid field names from rules/invalid_fields.json."""
+    with open(INVALID_FIELDS_PATH, encoding="utf-8") as f:
+        fields = json.load(f)
+    return set(fields)
+
+
+def remove_invalid_fields(obj, invalid_fields: set[str]):
     """Recursively remove invalid fields from a JSON object."""
     if isinstance(obj, dict):
-        # Remove invalid fields
-        keys_to_remove = [k for k in obj.keys() if k in INVALID_FIELDS]
+        keys_to_remove = [k for k in obj if k in invalid_fields]
         for k in keys_to_remove:
             del obj[k]
-        # Recurse into remaining values
         for v in obj.values():
-            remove_invalid_fields(v)
+            remove_invalid_fields(v, invalid_fields)
     elif isinstance(obj, list):
         for item in obj:
-            remove_invalid_fields(item)
+            remove_invalid_fields(item, invalid_fields)
     return obj
 
-def process_file(filepath):
-    """Process a single JSON file."""
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        print(f"Error parsing {filepath}: {e}", file=sys.stderr)
-        return False
-    
-    # Handle both single objects and arrays
-    if isinstance(data, list):
-        for item in data:
-            remove_invalid_fields(item)
-    else:
-        remove_invalid_fields(data)
-    
-    # Write back
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-        f.write('\n')
-    
-    return True
+
+def make_processor(invalid_fields: set[str]):
+    def processor(data, _path):
+        if isinstance(data, list):
+            for item in data:
+                remove_invalid_fields(item, invalid_fields)
+        elif isinstance(data, dict):
+            remove_invalid_fields(data, invalid_fields)
+        return data
+
+    return processor
+
 
 def main():
-    mod_dir = Path("/home/tlsh/cataclysm/cdda_mod_framework/external/cdda/mods/Magiclysm_with_Random_Dungeons-0I")
-    
-    json_files = list(mod_dir.rglob("*.json"))
-    print(f"Processing {len(json_files)} JSON files...")
-    
-    success_count = 0
-    for json_file in json_files:
-        if process_file(json_file):
-            success_count += 1
-    
-    print(f"Successfully processed {success_count}/{len(json_files)} files.")
+    parser = create_parser("Remove invalid JSON fields from CDDA mod files")
+    args = parser.parse_args()
+    input_path, output_path = resolve_paths(args)
+
+    if not INVALID_FIELDS_PATH.exists():
+        print(f"Invalid fields list not found: {INVALID_FIELDS_PATH}", file=sys.stderr)
+        sys.exit(1)
+
+    invalid_fields = load_invalid_fields()
+    processor = make_processor(invalid_fields)
+
+    if input_path.is_dir():
+        process_directory(input_path, output_path, processor, backup=args.backup)
+    else:
+        from common import backup_file, load_json
+
+        if args.backup:
+            backup_file(input_path)
+        data = load_json(input_path)
+        transformed = processor(data, input_path)
+        save_json(output_path, transformed)
+        print(f"Updated: {output_path}")
+
 
 if __name__ == "__main__":
     main()

@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 """Revert ALL name translation objects back to strings."""
 
-import json
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+
+from common import create_parser, process_directory, resolve_paths, save_json
+
 
 def revert_all_name_fields(obj):
     """Revert all name fields that are translation objects back to strings."""
     if isinstance(obj, dict):
-        # Revert 'name' field if it's a translation object
-        if 'name' in obj and isinstance(obj['name'], dict):
-            if 'str_sp' in obj['name']:
-                obj['name'] = obj['name']['str_sp']
-            elif 'str' in obj['name']:
-                obj['name'] = obj['name']['str']
-        # Revert 'description' field if it's a translation object
-        if 'description' in obj and isinstance(obj['description'], dict):
-            if 'str_sp' in obj['description']:
-                obj['description'] = obj['description']['str_sp']
-            elif 'str' in obj['description']:
-                obj['description'] = obj['description']['str']
-        # Recurse into all values
+        if "name" in obj and isinstance(obj["name"], dict):
+            if "str_sp" in obj["name"]:
+                obj["name"] = obj["name"]["str_sp"]
+            elif "str" in obj["name"]:
+                obj["name"] = obj["name"]["str"]
+        if "description" in obj and isinstance(obj["description"], dict):
+            if "str_sp" in obj["description"]:
+                obj["description"] = obj["description"]["str_sp"]
+            elif "str" in obj["description"]:
+                obj["description"] = obj["description"]["str"]
         for v in obj.values():
             revert_all_name_fields(v)
     elif isinstance(obj, list):
@@ -28,41 +29,33 @@ def revert_all_name_fields(obj):
             revert_all_name_fields(item)
     return obj
 
-def process_file(filepath):
-    """Process a single JSON file."""
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        print(f"Error parsing {filepath}: {e}", file=sys.stderr)
-        return False
-    
-    # Handle both single objects and arrays
+
+def processor(data, _path):
     if isinstance(data, list):
         for item in data:
             revert_all_name_fields(item)
-    else:
+    elif isinstance(data, dict):
         revert_all_name_fields(data)
-    
-    # Write back
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-        f.write('\n')
-    
-    return True
+    return data
+
 
 def main():
-    mod_dir = Path("/home/tlsh/cataclysm/cdda_mod_framework/external/cdda/mods/Magiclysm_with_Random_Dungeons-0I")
-    
-    json_files = list(mod_dir.rglob("*.json"))
-    print(f"Processing {len(json_files)} JSON files to revert ALL name translation objects...")
-    
-    success_count =0
-    for json_file in json_files:
-        if process_file(json_file):
-            success_count += 1
-    
-    print(f"Successfully processed {success_count}/{len(json_files)} files.")
+    parser = create_parser("Revert all name/description translation objects to strings")
+    args = parser.parse_args()
+    input_path, output_path = resolve_paths(args)
+
+    if input_path.is_dir():
+        process_directory(input_path, output_path, processor, backup=args.backup)
+    else:
+        from common import backup_file, load_json
+
+        if args.backup:
+            backup_file(input_path)
+        data = load_json(input_path)
+        transformed = processor(data, input_path)
+        save_json(output_path, transformed)
+        print(f"Updated: {output_path}")
+
 
 if __name__ == "__main__":
     main()

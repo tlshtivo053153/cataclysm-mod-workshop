@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""
-Convert old item types (TOOL, GUN, ARMOR, TOOL_ARMOR, COMESTIBLE, GENERIC, BOOK)
-to new unified ITEM type with subtypes for CDDA 0.I.
-"""
+"""Convert old item types to new unified ITEM type with subtypes for CDDA 0.I."""
 
-import json
 import sys
 from pathlib import Path
+
+# Add scripts directory to path for common imports
+sys.path.insert(0, str(Path(__file__).parent))
+
+from common import create_parser, process_directory, resolve_paths, save_json
 
 TYPE_MAP = {
     "TOOL": ["TOOL"],
@@ -57,30 +58,30 @@ def convert_object(obj):
     return obj
 
 
-def process_file(filepath):
-    with open(filepath, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    data = json.loads(content)
-
+def processor(data, _path):
     if isinstance(data, list):
-        data = [convert_object(item) for item in data]
+        return [convert_object(item) for item in data]
     elif isinstance(data, dict):
-        data = convert_object(data)
-
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-        f.write("\n")
+        return convert_object(data)
+    return data
 
 
 def main():
-    target_dir = Path(sys.argv[1])
-    for filepath in target_dir.rglob("*.json"):
-        try:
-            process_file(filepath)
-            print(f"Processed: {filepath}")
-        except Exception as e:
-            print(f"Error processing {filepath}: {e}", file=sys.stderr)
+    parser = create_parser("Convert old item types to unified ITEM type")
+    args = parser.parse_args()
+    input_path, output_path = resolve_paths(args)
+
+    if input_path.is_dir():
+        process_directory(input_path, output_path, processor, backup=args.backup)
+    else:
+        from common import backup_file, load_json
+
+        if args.backup:
+            backup_file(input_path)
+        data = load_json(input_path)
+        transformed = processor(data, input_path)
+        save_json(output_path, transformed)
+        print(f"Updated: {output_path}")
 
 
 if __name__ == "__main__":
