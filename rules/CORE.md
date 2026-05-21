@@ -39,6 +39,8 @@
 
 ## name フィールド形式（0.I RC）
 - `ITEM`/`MONSTER`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）
+  - **ただし `TOOL` subtype のみ例外:** TOOL アイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
+  - **COMESTIBLE/FOOD/DRINK は `str_sp`:** 食品・飲料系も `ITEM` 型だが、`str_sp` が必須
 - `overmap_terrain`/`mutation`/`profession` → 単純文字列が必須（`str_sp` は不可）
 
 ## よくあるエラー

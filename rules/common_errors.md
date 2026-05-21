@@ -98,6 +98,22 @@
   - 新: `"volume": "750 ml"`, `"weight": "500 g"`
 - **詳細:** [`version_diff.md#単位の文字列化`](version_diff.md)
 
+### `charges expected but not defined or <= 0`
+- **原因:** `phase: liquid` の液体アイテム等、`charges` を必要とするアイテムで `charges` が定義されていないか、値が0以下になっている
+- **解決策:** `charges` フィールドを追加し、正の整数を設定する
+- **詳細:** 液体 COMESTIBLE では `charges` が必須。バニラの `coffee`（`charges: 1`）、`bleach`（`charges: 2`）等を参照
+
+### `charges defined but can not have any`
+- **原因:** `charges` を持てないアイテム（`phase: solid` や `phase` 未定義の固体等）に `charges` を定義している
+- **解決策:** `charges` フィールドを削除する
+- **詳細:** `charges` の使用可否は主に `phase`（液体か固体か）で決まる。`phase: liquid` の液体アイテムでは `charges` が必須的に使われる一方、`phase: solid` や液体でないアイテムでは `charges` を持てない。バニラの `coffee`（液体、`charges: 1`）と `granola`（固体、`charges` なし）を参照
+
+### `Invalid surface_heat format`
+- **原因:** recipe の `tools` で `surface_heat` を `["surface_heat", N, "C"]` のように指定している
+- **解決策:** 必ず `"LIST"` を使用する → `["surface_heat", N, "LIST"]`
+- **例:** `bread` レシピでは `["surface_heat", 22, "LIST"]`、`granola` では `["surface_heat", 20, "LIST"]`
+- **詳細:** `"C"`（セルシウス温度）形式は存在しない
+
 ---
 
 ## 無効フィールドの削除

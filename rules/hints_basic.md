@@ -73,6 +73,7 @@ cat external/cdda/config/debug.log | grep ERROR
 - [ ] `"activity_level"` フィールドがあるか（0.I RC で必須）
 - [ ] `"result"` のアイテムIDが正しいか
 - [ ] `"components"` 内の全IDが `external/cdda/data/json/` に存在するか
+- [ ] `"tools"` に `surface_heat` を使う場合、`["surface_heat", N, "LIST"]` 形式になっているか（`"C"` は無効）
 - [ ] `scripts/validate.sh` を実行して構文エラーがないか
 - [ ] `scripts/link_mod_for_test.sh` で mod を `external/cdda/mods/` に配置済みか
 - [ ] `scripts/check_mods.sh <mod_id>` で CDDA 組み込みチェックを実行済みか（`mod_id` は `modinfo.json` の `"id"` 値）
@@ -84,6 +85,20 @@ cat external/cdda/config/debug.log | grep ERROR
   ```
 - 何も出力されなければそのIDは使える
 - 出力があればバニラと衝突するため、プレフィックスを変えて別IDにする
+- **計画書に記載する参照IDも存在確認する:** `copper_saw` のように、バニラに存在しないIDを計画書や根拠に記載しないようにする
+
+## アイテム作成時のチェックリスト（0.I RC）
+新しいアイテムを書いたら、以下を確認する:
+- [ ] `ITEM` 型の場合、`subtypes` が正しく設定されているか（`TOOL`, `COMESTIBLE` 等）
+- [ ] `name` の形式が subtype に合っているか
+  - `TOOL` → `{"str": "..."}`
+  - `COMESTIBLE`/`FOOD`/`DRINK` → `{"str_sp": "..."}`
+- [ ] `phase: solid` や `phase` 未定義の固体アイテムに、`charges` を定義していないか（定義すると `charges defined but can not have any` 警告が出る）
+- [ ] `material` フィールドの値がバニラの material ID として存在するか確認する:
+  ```bash
+  grep -r '"id": "meat"' external/cdda/data/json/materials.json
+  ```
+  - `meat` は material として定義されていない（食品アイテムIDとしては存在するが material ではない）
 
 ## Level2 と Level3 の違い（混同しない）
 - **Level2** = ゲームが起動し、modの読み込みにエラーが出ない
