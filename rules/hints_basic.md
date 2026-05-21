@@ -56,6 +56,17 @@ CORE.md を読んだ後にこのファイルを読んでください。
   - mod修正後にセーブデータを再起動なしで読み込むと発生するが、動作に支障はない
   - 再起動すれば解消するが、毎回再起動する必要はない
 
+### check_mods.sh 実行後の debug.log
+`scripts/check_mods.sh` は実行前に `config/debug.log` をクリアします。
+そのため、実行後の `external/cdda/config/debug.log` の内容は**すべてそのセッションのエラー**です。
+以下で最新セッションのERROR行だけ確認できます:
+
+```bash
+cat external/cdda/config/debug.log | grep ERROR
+```
+
+`check_mods.sh` の実行結果（終了コード）と `debug.log` の両方を確認してください。
+
 ## recipe 作成時のチェックリスト
 新しい recipe を書いたら、ゲームに読み込む前に以下を確認する:
 - [ ] `"type": "recipe"` が正しく書かれているか
@@ -63,6 +74,8 @@ CORE.md を読んだ後にこのファイルを読んでください。
 - [ ] `"result"` のアイテムIDが正しいか
 - [ ] `"components"` 内の全IDが `external/cdda/data/json/` に存在するか
 - [ ] `scripts/validate.sh` を実行して構文エラーがないか
+- [ ] `scripts/link_mod_for_test.sh` で mod を `external/cdda/mods/` に配置済みか
+- [ ] `scripts/check_mods.sh <mod_id>` で CDDA 組み込みチェックを実行済みか（`mod_id` は `modinfo.json` の `"id"` 値）
 
 ## アイテムID設計の注意点
 - **バニラに同じIDが存在する場合がある。** IDを決める前に必ず確認する:

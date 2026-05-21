@@ -27,9 +27,10 @@
 3. data/recipes.json
 
 ### テスト手順
-1. CDDAを起動してmodを有効化
-2. デバッグメニュー（`~`キー）でアイテムをスポーンして確認
-3. クラフトメニューでレシピが表示されることを確認
+1. validate.shでJSON構文チェック
+2. link_mod_for_test.shでCDDAに配置
+3. check_mods.shでmod読み込み確認
+4. CDDAを起動してLevel3確認
 
 ### 完了条件
 - [ ] Level1: JSON構文OK

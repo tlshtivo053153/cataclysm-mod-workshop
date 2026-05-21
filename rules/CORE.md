@@ -4,6 +4,7 @@
 1. 実装前に必ず設計書（templates/design_template.md）を作成する
 2. external/cdda/data/json/ を参照してIDやフラグの正確な綴りを確認する
 3. 実装後は必ずJSONの構文チェックを行う（scripts/validate.sh）
+4. validate.sh通過後、modをexternal/cdda/mods/に配置しCDDA組み込みチェックを行う（scripts/check_mods.sh）。詳細はrules/verification.md参照
 
 ## 命名規則
 - IDは必ず `mod_prefix_` で始める（例: `mymod_iron_rod`）
