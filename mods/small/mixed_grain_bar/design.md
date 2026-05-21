@@ -1,0 +1,40 @@
+## Mod設計書: Mixed Grain Bar
+
+### 目的
+雑穀と蜂蜜を練った携行食を追加。高カロリーで長期保存可能な補給食。
+
+### スコープ
+- **含む:** 新規COMESTIBLEアイテム1種、製作レシピ1種
+- **含まない:** 専用包装、複数フレーバー、変質アニメーション
+
+### ターゲットバージョン
+- CDDA: 0.I RC
+
+### 依存関係
+- 依存mod: dda（必須）
+
+### 参照ファイル（external/cdda/）
+- `data/json/items/comestibles/drink.json` → `coffee`（COMESTIBLE構造参考）
+- `data/json/items/comestibles/food/` → `hardtack`, `granola`（`FOOD` の `str_sp`、`spoils_in`、`material`、`container`）
+- `data/json/recipes/food/*.json` → `bread`, `granola` レシピ参考
+
+### ファイル構成
+- modinfo.json
+- data/items.json
+- data/recipes.json
+
+### 実装順序
+1. modinfo.json
+2. data/items.json
+3. data/recipes.json
+
+### テスト手順
+1. validate.shでJSON構文チェック
+2. link_mod_for_test.shでCDDAに配置
+3. check_mods.shでmod読み込み確認
+4. CDDAを起動してLevel3確認
+
+### 完了条件
+- [ ] Level1: JSON構文OK
+- [ ] Level2: 起動OK（エラーなし）
+- [ ] Level3: 意図通り動作（フェーズ3以降で必須）

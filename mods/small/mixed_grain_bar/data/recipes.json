@@ -1,0 +1,22 @@
+[
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "mgb_mixed_grain_bar",
+    "category": "CC_FOOD",
+    "subcategory": "CSC_FOOD_BREAD",
+    "skill_used": "cooking",
+    "difficulty": 2,
+    "time": "20 m",
+    "batch_time_factors": [80, 4],
+    "autolearn": true,
+    "components": [
+      [["flour", 2]],
+      [["honey_glassed", 1], ["honey_bottled", 1], ["syrup", 1]],
+      [["water_clean", 1], ["water", 1]]
+    ],
+    "tools": [
+      [["surface_heat", 10, "LIST"]]
+    ]
+  }
+]

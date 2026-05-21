@@ -1,0 +1,18 @@
+[
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "mws_makeshift_wire_saw",
+    "category": "CC_OTHER",
+    "subcategory": "CSC_OTHER_TOOLS",
+    "skill_used": "survival",
+    "difficulty": 1,
+    "time": "10 m",
+    "reversible": true,
+    "autolearn": true,
+    "components": [
+      [["wire", 2], ["wire_barbed", 2]],
+      [["stick", 2], ["2x4", 1]]
+    ]
+  }
+]

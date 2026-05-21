@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "makeshift_wire_saw",
+    "name": "Makeshift Wire Saw",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a crude wire saw, an early-game woodworking tool crafted from scrap wire and wooden handles.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

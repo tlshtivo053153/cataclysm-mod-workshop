@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "mixed_grain_bar",
+    "name": "Mixed Grain Bar",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a dense mixed grain bar, a high-calorie portable ration sweetened with honey.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
