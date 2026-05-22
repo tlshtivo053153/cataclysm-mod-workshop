@@ -72,6 +72,7 @@ cdda-mod-dev/
 │       ├── 01_xxx.patch
 │       └── README.md
 ├── templates/
+│   ├── spec_template.md    ← mod仕様書テンプレート
 │   └── design_template.md  ← mod設計書テンプレート
 └── .gitignore
 ```
@@ -90,25 +91,39 @@ cdda-mod-dev/
 ### 新規mod作成
 
 ```
-1. 設計書作成（templates/design_template.md を使用）
-   └── mods/<size>/<mod_name>/design.md
-2. AIエージェントで実装
-   └── modinfo.json, data/*.json
-3. validate.sh でJSON構文チェック（Level1）
-   └── bash scripts/validate.sh mods/<size>/<mod_name>/
-4. ゲーム起動確認（Level2）
-   └── CDDAを起動し、mod有効化時にエラーが出ないか確認
-5. 意図通り動作確認（Level3・手動）
-   └── デバッグメニューでスポーン、クラフト確認等
+Step 1: 仕様書作成（小規模modは省略可）
+  └── templates/spec_template.md を使用
+  └── mods/<size>/<mod_name>/spec.md
+Step 2: 仕様書レビュー（AI自己レビュー）
+  └── スコープ・矛盾点の洗い出し
+Step 3: 計画書作成
+  └── templates/design_template.md を使用
+  └── mods/<size>/<mod_name>/design.md
+Step 4: CDDAデータとの整合性確認
+  └── external/cdda/data/json/ でID・フラグ・値を実在確認
+Step 5: 計画書レビュー（AI自己レビュー）
+  └── ID命名・依存関係・実装後修正コストの洗い出し
+Step 6: AIエージェントで実装
+  └── modinfo.json, data/*.json
+  └── 編集のたびに validate.sh（Level1）
+Step 7: 読み込みエラー解消（Level2）
+  └── link_mod_for_test.sh → check_mods.sh
+Step 8: 動作確認（Level3）
+  └── CDDA起動、デバッグメニューでスポーン・クラフト確認
+Step 9: バランス調整
+  └── 既存コンテンツとの比較、数値調整
 ```
+
+詳細な手順・プロンプト例・チェックリストは `rules/CORE.md` を参照。
+小規模modの定義（Step 1・2省略条件）も `rules/CORE.md` に記載。
 
 ### 検証レベル
 
-| レベル | 内容 | 必須 |
-|---|---|---|
-| Level1 | JSON構文OK（`scripts/validate.sh`） | 必須 |
-| Level2 | ゲーム起動OK（mod有効化時エラーなし） | 必須 |
-| Level3 | 意図通り動作（スポーン・クラフト・バランス等） | 手動確認 |
+| レベル | 内容 | 必須 | 対応ステップ |
+|---|---|---|---|
+| Level1 | JSON構文OK（`scripts/validate.sh`） | 必須 | Step 6（実装中に頻回実行） |
+| Level2 | ゲーム起動OK（mod有効化時エラーなし） | 必須 | Step 7 |
+| Level3 | 意図通り動作（スポーン・クラフト・バランス等） | 手動確認 | Step 8〜9 |
 
 ### ルール追加・削除の閾値
 
@@ -171,3 +186,4 @@ cdda-mod-dev/
 | 2026-04-15 | 初版作成 |
 | 2026-04-15 | validate.sh のサブシェルバグ修正、フェーズ2評価回数変更等 |
 | 2026-05-19 | **大幅改訂:** 統計的手法・rule_manager.py・prompt_builder.py・balance_checker.pyを削除。スクリプト優先のハイブリッドアプローチに整理。計画書を1500行→約300行に圧縮。 |
+| 2026-05-22 | **開発フロー9ステップ化:** 仕様書→レビュー→計画書→レビューの2段階設計を導入。`templates/spec_template.md` 新規作成。`rules/CORE.md` と `cdda_mod_dev_plan.md` を9ステップ形式に更新。バランス調整・小規模mod定義・AIレビュープロンプト例を追加。 |
