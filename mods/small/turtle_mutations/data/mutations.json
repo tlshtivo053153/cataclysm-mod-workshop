@@ -1,0 +1,108 @@
+[
+  {
+    "type": "mutation",
+    "id": "THRESH_TURTLE",
+    "name": { "str": "Chelonian" },
+    "points": 1,
+    "description": "You have crossed the threshold, becoming a true chelonian.  Your body is slow and deliberate, but encased in formidable natural armor.",
+    "valid": false,
+    "purifiable": false,
+    "threshold": true,
+    "threshold_substitutes": [ "THRESH_CHIMERA" ]
+  },
+  {
+    "type": "mutation",
+    "id": "TURTLE_SHELL_PLATES",
+    "name": { "str": "Shell Plates" },
+    "points": 1,
+    "vitamin_cost": 160,
+    "visibility": 8,
+    "ugliness": 3,
+    "description": "Hard, keratinous plates have begun growing across your back and torso.  They provide modest protection, but their weight slows you down slightly.",
+    "types": [ "SKIN" ],
+    "changes_to": [ "TURTLE_SHELL", "TURTLE_BEAK" ],
+    "category": [ "TURTLE" ],
+    "armor": [ { "part_types": [ "torso" ], "cut": 1, "bash": 3 } ],
+    "enchantments": [ { "condition": "ALWAYS", "values": [ { "value": "SPEED", "multiply": -0.05 } ] } ]
+  },
+  {
+    "type": "mutation",
+    "id": "TURTLE_SHELL",
+    "name": { "str": "Shell" },
+    "points": 3,
+    "vitamin_cost": 280,
+    "visibility": 10,
+    "ugliness": 6,
+    "description": "A full turtle shell has grown across your torso, providing excellent natural armor at a significant speed penalty.  You can no longer wear anything on your torso.",
+    "prereqs": [ "TURTLE_SHELL_PLATES" ],
+    "types": [ "SKIN" ],
+    "changes_to": [ "TURTLE_ANCIENT_SHELL" ],
+    "category": [ "TURTLE" ],
+    "restricts_gear": [ "torso" ],
+    "destroys_gear": true,
+    "armor": [ { "part_types": [ "torso" ], "cut": 8, "bash": 14 } ],
+    "enchantments": [
+      { "condition": "ALWAYS", "values": [ { "value": "SPEED", "multiply": -0.15 } ] }
+    ]
+  },
+  {
+    "type": "mutation",
+    "id": "TURTLE_BEAK",
+    "name": { "str": "Turtle Beak" },
+    "points": 1,
+    "vitamin_cost": 160,
+    "visibility": 8,
+    "ugliness": 5,
+    "description": "Your mouth has hardened into a sharp, bony beak.  You can snap at enemies with it for slashing damage.  You cannot wear mouth gear.",
+    "prereqs": [ "TURTLE_SHELL_PLATES" ],
+    "types": [ "TEETH" ],
+    "changes_to": [ "TURTLE_AQUATIC" ],
+    "category": [ "TURTLE" ],
+    "restricts_gear": [ "mouth" ],
+    "destroys_gear": true,
+    "attacks": {
+      "attack_text_u": "You snap at %s with your beak!",
+      "attack_text_npc": "%1$s snaps at %2$s with their beak!",
+      "body_part": "mouth",
+      "blocker_mutations": [ "MUZZLE", "MUZZLE_LONG", "MUZZLE_RAT", "MUZZLE_BEAR", "SABER_TEETH" ],
+      "chance": 15,
+      "base_damage": { "damage_type": "cut", "amount": 16 }
+    }
+  },
+  {
+    "type": "mutation",
+    "id": "TURTLE_ANCIENT_SHELL",
+    "name": { "str": "Ancient Shell" },
+    "points": 5,
+    "vitamin_cost": 400,
+    "visibility": 12,
+    "ugliness": 8,
+    "description": "Your shell has thickened into an impenetrable fortress of keratin and bone.  Few forces in the Cataclysm can pierce it, though you are now ponderously slow.",
+    "prereqs": [ "TURTLE_SHELL" ],
+    "types": [ "SKIN" ],
+    "category": [ "TURTLE" ],
+    "threshreq": [ "THRESH_TURTLE" ],
+    "restricts_gear": [ "torso" ],
+    "destroys_gear": true,
+    "armor": [ { "part_types": [ "torso" ], "cut": 14, "bash": 22 } ],
+    "enchantments": [
+      { "condition": "ALWAYS", "values": [ { "value": "SPEED", "multiply": -0.25 } ] }
+    ],
+    "purifiable": false
+  },
+  {
+    "type": "mutation",
+    "id": "TURTLE_AQUATIC",
+    "name": { "str": "Aquatic Adaptation" },
+    "points": 3,
+    "vitamin_cost": 300,
+    "visibility": 7,
+    "ugliness": 3,
+    "description": "Your body has fully adapted to an amphibious lifestyle.  You can hold your breath for incredible durations and swim with ease.",
+    "prereqs": [ "TURTLE_BEAK" ],
+    "category": [ "TURTLE" ],
+    "threshreq": [ "THRESH_TURTLE" ],
+    "flags": [ "GILLS" ],
+    "purifiable": false
+  }
+]

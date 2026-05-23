@@ -1,0 +1,13 @@
+[
+  {
+    "type": "mutation_category",
+    "id": "SUID",
+    "name": "Suid",
+    "threshold_mut": "THRESH_SUID",
+    "mutagen_message": "You feel an overwhelming stubbornness and a desire to root through the earth.",
+    "memorial_message": "Let the boar's will consume you.",
+    "vitamin": "mutagen_suid",
+    "base_removal_chance": 33,
+    "base_removal_cost_mul": 2.5
+  }
+]

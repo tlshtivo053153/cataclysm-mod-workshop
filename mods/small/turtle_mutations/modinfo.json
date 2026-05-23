@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "turtle_mutations",
+    "name": "Turtle Mutations",
+    "authors": [ "AI-assisted" ],
+    "description": "Adds a TURTLE (testudine) mutation category with shell armor, beak attack, and aquatic adaptation mutations.",
+    "category": "mutation",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

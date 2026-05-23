@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "formicid_mutations",
+    "name": "Formicid Mutations",
+    "authors": [ "AI-assisted" ],
+    "description": "Adds a FORMICID (ant) mutation category with mandible attacks, chitin armor, and formic acid mutations.",
+    "category": "mutation",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

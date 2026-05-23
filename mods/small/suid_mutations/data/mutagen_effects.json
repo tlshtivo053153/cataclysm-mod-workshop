@@ -1,0 +1,36 @@
+[
+  {
+    "type": "effect_type",
+    "id": "mutagen_suid",
+    "name": [ "Suid Mutation", "Suid Transformation", "Suid Metamorphosis" ],
+    "desc": [
+      "You consumed suid primer.",
+      "The earth calls to you.  You feel an urge to root through every pile of dirt.",
+      "Coarse bristles push through your skin, and your jaw aches as if your teeth are trying to escape."
+    ],
+    "max_intensity": 3,
+    "resist_traits": [ "THRESH_SUID" ],
+    "base_mods": {
+      "hunger_min": [ 1 ],
+      "hunger_max": [ 2 ],
+      "hunger_tick": [ 500 ],
+      "hurt_min": [ 1 ],
+      "hurt_max": [ 2 ],
+      "hurt_chance": [ -22 ],
+      "hurt_tick": [ 150 ],
+      "pain_min": [ 1 ],
+      "pain_max": [ 2 ],
+      "pain_chance": [ 100 ],
+      "pain_tick": [ 75 ]
+    },
+    "scaling_mods": {
+      "hunger_tick": [ -200 ],
+      "str_mod": [ 1.5 ],
+      "dex_mod": [ -1 ],
+      "hurt_chance": [ 21, 0 ],
+      "pain_chance": [ -30 ]
+    },
+    "rating": "bad",
+    "blood_analysis_description": "Suid Primer Contamination"
+  }
+]

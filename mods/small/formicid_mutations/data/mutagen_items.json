@@ -1,0 +1,31 @@
+[
+  {
+    "id": "mutagen_formicid",
+    "copy-from": "mutagen_flavor",
+    "type": "ITEM",
+    "subtypes": [ "COMESTIBLE" ],
+    "name": { "str_sp": "formicid mutagen" },
+    "looks_like": "mutagen",
+    "use_action": {
+      "type": "consume_drug",
+      "activation_message": "You drink the %s.",
+      "vitamins": [ [ "mutagen_formicid", 225 ], [ "mutagen", 125 ] ]
+    }
+  },
+  {
+    "id": "iv_mutagen_formicid",
+    "copy-from": "iv_mutagen_flavor",
+    "type": "ITEM",
+    "subtypes": [ "COMESTIBLE" ],
+    "name": { "str_sp": "formicid mutagenic primer" },
+    "description": "A processed mutagenic primer the color of dark amber, with a sharp, acidic smell.",
+    "looks_like": "iv_mutagen",
+    "color": "yellow",
+    "use_action": {
+      "type": "consume_drug",
+      "activation_message": "You inject the %s.",
+      "tools_needed": { "syringe": -1 },
+      "vitamins": [ [ "mutagen_formicid", 450, 550 ] ]
+    }
+  }
+]

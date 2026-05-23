@@ -1,0 +1,13 @@
+[
+  {
+    "type": "mutation_category",
+    "id": "TURTLE",
+    "name": "Turtle",
+    "threshold_mut": "THRESH_TURTLE",
+    "mutagen_message": "Your body feels heavy and you long for still water.",
+    "memorial_message": "Withdrew into their shell.",
+    "vitamin": "mutagen_turtle",
+    "base_removal_chance": 33,
+    "base_removal_cost_mul": 2.5
+  }
+]

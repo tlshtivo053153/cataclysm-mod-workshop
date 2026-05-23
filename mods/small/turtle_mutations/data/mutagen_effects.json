@@ -1,0 +1,37 @@
+[
+  {
+    "type": "effect_type",
+    "id": "mutagen_turtle",
+    "name": [ "Turtle Mutation", "Turtle Transformation", "Turtle Metamorphosis" ],
+    "desc": [
+      "You consumed turtle primer.",
+      "Your skin feels stiff and your movements grow sluggish.",
+      "Hard plates push outward from your spine.  You feel an overwhelming urge to find still water."
+    ],
+    "max_intensity": 3,
+    "resist_traits": [ "THRESH_TURTLE" ],
+    "base_mods": {
+      "thirst_min": [ 1 ],
+      "thirst_max": [ 2 ],
+      "thirst_tick": [ 900 ],
+      "hurt_min": [ 1 ],
+      "hurt_max": [ 2 ],
+      "hurt_chance": [ -22 ],
+      "hurt_tick": [ 150 ],
+      "pain_min": [ 1 ],
+      "pain_max": [ 2 ],
+      "pain_chance": [ 100 ],
+      "pain_tick": [ 75 ]
+    },
+    "scaling_mods": {
+      "thirst_tick": [ -400 ],
+      "str_mod": [ 0.5 ],
+      "dex_mod": [ -2 ],
+      "speed_mod": [ -3.5 ],
+      "hurt_chance": [ 21, 0 ],
+      "pain_chance": [ -30 ]
+    },
+    "rating": "bad",
+    "blood_analysis_description": "Turtle Primer Contamination"
+  }
+]

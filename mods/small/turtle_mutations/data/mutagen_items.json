@@ -1,0 +1,31 @@
+[
+  {
+    "id": "mutagen_turtle",
+    "copy-from": "mutagen_flavor",
+    "type": "ITEM",
+    "subtypes": [ "COMESTIBLE" ],
+    "name": { "str_sp": "turtle mutagen" },
+    "looks_like": "mutagen",
+    "use_action": {
+      "type": "consume_drug",
+      "activation_message": "You drink the %s.",
+      "vitamins": [ [ "mutagen_turtle", 225 ], [ "mutagen", 125 ] ]
+    }
+  },
+  {
+    "id": "iv_mutagen_turtle",
+    "copy-from": "iv_mutagen_flavor",
+    "type": "ITEM",
+    "subtypes": [ "COMESTIBLE" ],
+    "name": { "str_sp": "turtle mutagenic primer" },
+    "description": "A processed mutagenic primer the color of murky pond water, with a greenish sheen.",
+    "looks_like": "iv_mutagen",
+    "color": "green",
+    "use_action": {
+      "type": "consume_drug",
+      "activation_message": "You inject the %s.",
+      "tools_needed": { "syringe": -1 },
+      "vitamins": [ [ "mutagen_turtle", 450, 550 ] ]
+    }
+  }
+]

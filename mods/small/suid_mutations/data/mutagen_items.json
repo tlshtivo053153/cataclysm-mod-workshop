@@ -1,0 +1,31 @@
+[
+  {
+    "id": "mutagen_suid",
+    "copy-from": "mutagen_flavor",
+    "type": "ITEM",
+    "subtypes": [ "COMESTIBLE" ],
+    "name": { "str_sp": "suid mutagen" },
+    "looks_like": "mutagen",
+    "use_action": {
+      "type": "consume_drug",
+      "activation_message": "You drink the %s.",
+      "vitamins": [ [ "mutagen_suid", 225 ], [ "mutagen", 125 ] ]
+    }
+  },
+  {
+    "id": "iv_mutagen_suid",
+    "copy-from": "iv_mutagen_flavor",
+    "type": "ITEM",
+    "subtypes": [ "COMESTIBLE" ],
+    "name": { "str_sp": "suid mutagenic primer" },
+    "description": "A processed mutagenic primer the color of dried mud, with a faint animal musk.",
+    "looks_like": "iv_mutagen",
+    "color": "brown",
+    "use_action": {
+      "type": "consume_drug",
+      "activation_message": "You inject the %s.",
+      "tools_needed": { "syringe": -1 },
+      "vitamins": [ [ "mutagen_suid", 450, 550 ] ]
+    }
+  }
+]

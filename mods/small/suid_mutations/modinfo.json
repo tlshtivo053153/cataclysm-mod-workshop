@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "suid_mutations",
+    "name": "SUID Mutations",
+    "authors": [ "AI-assisted" ],
+    "description": "Adds a SUID (swine/boar) mutation category with tough hide, tusks, and rooting snout mutations.",
+    "category": "mutation",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

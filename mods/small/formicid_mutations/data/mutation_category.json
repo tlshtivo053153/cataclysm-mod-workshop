@@ -1,0 +1,13 @@
+[
+  {
+    "type": "mutation_category",
+    "id": "FORMICID",
+    "name": "Formicid",
+    "threshold_mut": "THRESH_FORMICID",
+    "mutagen_message": "You feel a buzzing in your limbs and a craving for carbohydrates.",
+    "memorial_message": "Joined the colony.",
+    "vitamin": "mutagen_formicid",
+    "base_removal_chance": 33,
+    "base_removal_cost_mul": 2.5
+  }
+]
