@@ -1,0 +1,44 @@
+[
+  {
+    "type": "profession",
+    "id": "urban_scavenger",
+    "name": "Urban Scavenger",
+    "description": "You survived the first days by hiding in basements and moving through back alleys.  Now you know every trick of navigating the ruined city — prying open doors, scavenging supplies in the dark, and slipping past the dead unnoticed.  The city is your graveyard, and you're the grave robber.",
+    "npc_background": "BG_survival_story_EVACUEE",
+    "points": 2,
+    "proficiencies": [ "prof_lockpicking" ],
+    "skills": [
+      { "level": 4, "name": "traps" },
+      { "level": 3, "name": "survival" },
+      { "level": 2, "name": "dodge" },
+      { "level": 1, "name": "fabrication" },
+      { "level": 1, "name": "melee" }
+    ],
+    "items": {
+      "both": {
+        "entries": [
+          { "item": "pants_cargo" },
+          { "item": "boots" },
+          { "item": "hoodie" },
+          { "item": "socks" },
+          { "item": "mask_dust" },
+          { "item": "daypack" },
+          { "item": "crowbar" },
+          { "item": "crude_picklock" },
+          { "item": "wearable_light" },
+          { "item": "water_clean", "container-item": "canteen" },
+          { "item": "lighter", "charges": 100 },
+          { "item": "pockknife" },
+          { "group": "starter_wallet_full" },
+          { "item": "tshirt", "variant": "generic_tshirt" }
+        ]
+      },
+      "male": {
+        "entries": [ { "item": "boxer_shorts" } ]
+      },
+      "female": {
+        "entries": [ { "item": "bra" }, { "item": "panties" } ]
+      }
+    }
+  }
+]

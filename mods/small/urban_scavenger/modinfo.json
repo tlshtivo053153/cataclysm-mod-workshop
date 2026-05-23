@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "urban_scavenger",
+    "name": "Urban Scavenger",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a new profession: Urban Scavenger — a non-criminal city survivor who excels at breaking into locked buildings, scavenging in the dark, and avoiding combat.",
+    "category": "misc",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
