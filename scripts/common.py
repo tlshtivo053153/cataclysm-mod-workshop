@@ -162,3 +162,21 @@ def process_file(
     except Exception as e:
         print(f"Error processing {input_path}: {e}", file=sys.stderr)
         return False
+
+
+def run_standard_pipeline(description: str, processor: callable) -> None:
+    """Run a standard input/output pipeline for a transformation script.
+
+    Handles argument parsing, path resolution, and dispatches to
+    process_directory() or process_file() based on whether the input
+    is a directory or a single file.
+    """
+    parser = create_parser(description)
+    args = parser.parse_args()
+    input_path, output_path = resolve_paths(args)
+
+    if input_path.is_dir():
+        count = process_directory(input_path, output_path, processor, backup=args.backup)
+        print(f"Updated {count} files.")
+    else:
+        process_file(input_path, output_path, processor, backup=args.backup)

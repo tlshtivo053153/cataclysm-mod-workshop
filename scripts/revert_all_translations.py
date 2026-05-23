@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 """Revert ALL name translation objects back to strings."""
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent))
-
-from common import create_parser, process_directory, resolve_paths, save_json
+from common import run_standard_pipeline
 
 
 def revert_all_name_fields(obj):
@@ -40,21 +35,7 @@ def processor(data, _path):
 
 
 def main():
-    parser = create_parser("Revert all name/description translation objects to strings")
-    args = parser.parse_args()
-    input_path, output_path = resolve_paths(args)
-
-    if input_path.is_dir():
-        process_directory(input_path, output_path, processor, backup=args.backup)
-    else:
-        from common import backup_file, load_json
-
-        if args.backup:
-            backup_file(input_path)
-        data = load_json(input_path)
-        transformed = processor(data, input_path)
-        save_json(output_path, transformed)
-        print(f"Updated: {output_path}")
+    run_standard_pipeline("Revert all name/description translation objects to strings", processor)
 
 
 if __name__ == "__main__":

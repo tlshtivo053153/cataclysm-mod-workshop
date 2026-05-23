@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 """Remove ARMOR_BULLET and ARMOR_BALLISTIC values from enchantment definitions."""
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent))
-
-from common import create_parser, process_directory, resolve_paths, save_json
+from common import run_standard_pipeline
 
 TARGET_VALUES = {"ARMOR_BULLET", "ARMOR_BALLISTIC"}
 
@@ -50,21 +45,7 @@ def processor(data, _path):
 
 
 def main():
-    parser = create_parser("Remove ARMOR_BULLET/BALLISTIC enchantment values")
-    args = parser.parse_args()
-    input_path, output_path = resolve_paths(args)
-
-    if input_path.is_dir():
-        process_directory(input_path, output_path, processor, backup=args.backup)
-    else:
-        from common import backup_file, load_json
-
-        if args.backup:
-            backup_file(input_path)
-        data = load_json(input_path)
-        transformed = processor(data, input_path)
-        save_json(output_path, transformed)
-        print(f"Updated: {output_path}")
+    run_standard_pipeline("Remove ARMOR_BULLET/BALLISTIC enchantment values", processor)
 
 
 if __name__ == "__main__":

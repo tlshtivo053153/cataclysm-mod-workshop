@@ -2,10 +2,9 @@
 """Convert numeric price/price_postapoc to string currency format for CDDA 0.I."""
 
 import re
+import shutil
 import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent))
 
 from common import backup_file, create_parser, resolve_paths
 
@@ -76,23 +75,29 @@ def main():
     args = parser.parse_args()
     input_path, output_path = resolve_paths(args)
 
-    if output_path != input_path and output_path.is_dir():
-        print(
-            "--output directory mode is not supported for convert_price.py "
-            "(uses in-place regex replacement)",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
     if input_path.is_dir():
+        output_path.mkdir(parents=True, exist_ok=True)
         files = sorted(input_path.rglob("*.json"))
         success = 0
         for filepath in files:
-            if process_file(filepath, filepath, backup=args.backup):
-                success += 1
+            if output_path == input_path:
+                if process_file(filepath, filepath, backup=args.backup):
+                    success += 1
+            else:
+                dst = output_path / filepath.relative_to(input_path)
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(filepath, dst)
+                if process_file(dst, dst, backup=False):
+                    success += 1
         print(f"Updated {success}/{len(files)} files.")
     else:
-        process_file(input_path, output_path, backup=args.backup)
+        if output_path != input_path and output_path.is_dir():
+            output_path.mkdir(parents=True, exist_ok=True)
+            dst = output_path / input_path.name
+            shutil.copy2(input_path, dst)
+            process_file(dst, dst, backup=False)
+        else:
+            process_file(input_path, output_path, backup=args.backup)
 
 
 if __name__ == "__main__":

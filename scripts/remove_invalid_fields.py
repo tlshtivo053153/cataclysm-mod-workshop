@@ -5,9 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from common import create_parser, process_directory, resolve_paths, save_json
+from common import create_parser, process_directory, process_file, resolve_paths
 
 # Resolve invalid_fields.json relative to project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -50,26 +48,19 @@ def make_processor(invalid_fields: set[str]):
 def main():
     parser = create_parser("Remove invalid JSON fields from CDDA mod files")
     args = parser.parse_args()
-    input_path, output_path = resolve_paths(args)
 
     if not INVALID_FIELDS_PATH.exists():
         print(f"Invalid fields list not found: {INVALID_FIELDS_PATH}", file=sys.stderr)
         sys.exit(1)
 
     invalid_fields = load_invalid_fields()
-    processor = make_processor(invalid_fields)
+    input_path, output_path = resolve_paths(args)
 
     if input_path.is_dir():
-        process_directory(input_path, output_path, processor, backup=args.backup)
+        count = process_directory(input_path, output_path, make_processor(invalid_fields), backup=args.backup)
+        print(f"Updated {count} files.")
     else:
-        from common import backup_file, load_json
-
-        if args.backup:
-            backup_file(input_path)
-        data = load_json(input_path)
-        transformed = processor(data, input_path)
-        save_json(output_path, transformed)
-        print(f"Updated: {output_path}")
+        process_file(input_path, output_path, make_processor(invalid_fields), backup=args.backup)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "cdda-mod-framework"
 version = "0.1.0"
 description = "Tools and scripts for CDDA mod development and porting"
-readme = "README.md"
 requires-python = ">=3.10"
 
 [tool.black]
@@ -41,7 +40,7 @@ ignore = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["scripts/tests"]
+# testpaths = ["scripts/tests"]  # tests directory not yet created
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-ra -q"
