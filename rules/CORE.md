@@ -41,6 +41,7 @@
   - 使用予定のマテリアルID
   - レシピの `activity_level` の設定値
   - `name` フィールドの形式（str_sp / str / 単純文字列）の適切性
+- **新規レシピの場合**: `external/cdda/data/json/recipes/` から同カテゴリ・類似素材の既存レシピを1〜2個見つけ、`tools`・`qualities`・`components` の構成が既存レシピと整合しているか比較する
 - design_template.md の「参照ファイル（実在確認済み）」欄にチェックをつける
 
 ### Step 5: 計画書レビュー

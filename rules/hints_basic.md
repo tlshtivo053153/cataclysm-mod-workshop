@@ -74,6 +74,7 @@ cat external/cdda/config/debug.log | grep ERROR
 - [ ] `"result"` のアイテムIDが正しいか
 - [ ] `"components"` 内の全IDが `external/cdda/data/json/` に存在するか
 - [ ] `"tools"` に `surface_heat` を使う場合、`["surface_heat", N, "LIST"]` 形式になっているか（`"C"` は無効）
+- [ ] 同カテゴリ・同傾向の既存レシピを `external/cdda/data/json/recipes/` から1〜2個見つけ、`tools`・`qualities`・`components`・`difficulty`・`time` の設定を比較したか
 - [ ] `scripts/validate.sh` を実行して構文エラーがないか
 - [ ] `scripts/link_mod_for_test.sh` で mod を `external/cdda/mods/` に配置済みか
 - [ ] `scripts/check_mods.sh <mod_id>` で CDDA 組み込みチェックを実行済みか（`mod_id` は `modinfo.json` の `"id"` 値）

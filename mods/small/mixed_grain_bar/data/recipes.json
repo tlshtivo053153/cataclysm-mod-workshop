@@ -10,6 +10,7 @@
     "time": "20 m",
     "batch_time_factors": [80, 4],
     "autolearn": true,
+    "qualities": [ { "id": "COOK", "level": 2 } ],
     "components": [
       [["flour", 2]],
       [["honey_glassed", 1], ["honey_bottled", 1], ["syrup", 1]],
