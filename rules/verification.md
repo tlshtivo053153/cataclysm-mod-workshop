@@ -118,6 +118,9 @@ cat external/cdda/config/debug.log | grep ERROR
 - **タイムアウト**: 30秒で強制終了します。大規模modや多数の依存がある場合は時間がかかることがあります
 - **パフォーマンス**: `validate.sh` と比べて重い処理です。マイルストーン毎（機能完成時、PR前など）に実行してください
 - **mod配置の更新**: ソースを修正したら、再度 `link_mod_for_test.sh` または `copy_mod_for_test.sh` を実行してCDDA側のmodを更新してください
+- **check_mods.sh の同時実行禁止**: `check_mods.sh` は `external/cdda/config/debug.log` と `flexcache` を同時にクリア・書き込みするため、並行実行するとログが破損する。複数modを検証する場合は必ず逐次実行すること。
+  - 良い例: `bash scripts/check_mods.sh mod_a && bash scripts/check_mods.sh mod_b`
+  - 悪い例: `bash scripts/check_mods.sh mod_a & bash scripts/check_mods.sh mod_b &`
 
 ---
 

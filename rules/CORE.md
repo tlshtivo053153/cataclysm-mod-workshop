@@ -109,6 +109,10 @@
   - 旧: `"weight": 500` → 新: `"weight": "500 g"`
 - その他の差分は version_diff.md を参照
 
+## 変異カテゴリの実装
+
+変異カテゴリを新規追加する場合は `rules/patterns/mutation_category.md` を参照すること。
+
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ

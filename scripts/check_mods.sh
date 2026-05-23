@@ -31,6 +31,9 @@ fi
 mkdir -p "${CDDA_DIR}/config"
 : > "${CDDA_DIR}/config/debug.log"
 
+# flexcache をクリア（stale data検出によるexit 1を防止）
+rm -rf "${CDDA_DIR}/config/flexcache"
+
 echo "Running mod check for: ${MOD_ID}"
 cd "${CDDA_DIR}"
 EXIT_CODE=0

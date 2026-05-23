@@ -116,6 +116,27 @@
 
 ---
 
+## よくあるエラー（変異・エンチャント関連）
+
+### mutation_type の不正な値
+- **原因**: `types` フィールドに未定義の値を指定している
+- **解決策**: 有効値は `external/cdda/data/json/mutations/mutation_type.json` に定義されたもののみ
+- **よくある間違い**: `SMELL` → `SCENT`, `ATTACK` → `SECRETION`
+
+### enchantment value の未定義エラー
+- **原因**: enchantmentの `values` に存在しない value 名を指定している
+- **解決策**: `external/cdda/data/json/` の enchantment 定義を確認する
+- **よくある間違い**:
+  - `PAIN_RESIST` は未定義 → `PAIN` + multiply: -0.25 で代用
+  - `ARMOR_BALLISTIC`, `ARMOR_ACID` 等の旧防具フラグは enchantment では使えない
+
+### comfort 条件の不正なtype
+- **原因**: comfort フィールドの `condition.type` に無効な値を指定している
+- **解決策**: 有効値は `terrain`, `field`, `vehicle`, `furniture`, `trait` のみ
+- **よくある間違い**: `npc_following` → 存在しないtype。
+
+---
+
 ## 無効フィールドの削除
 
 debug.log などで `Invalid or misplaced field name "XXX"` が大量に出る場合、[`rules/invalid_fields.json`](invalid_fields.json) に定義された既知の無効フィールドを一括削除できます。
