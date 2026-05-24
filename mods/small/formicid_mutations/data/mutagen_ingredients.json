@@ -1,0 +1,12 @@
+[
+  {
+    "type": "ITEM",
+    "id": "formicid_sample",
+    "copy-from": "mutagen_sample",
+    "color": "yellow",
+    "name": { "str": "formicid sample" },
+    "description": "A slurry of eusociality.",
+    "looks_like": "insect_sample",
+    "material": [ "iflesh", "chitin" ]
+  }
+]

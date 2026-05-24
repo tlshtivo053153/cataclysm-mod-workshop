@@ -1,0 +1,67 @@
+[
+  {
+    "id": "nested_mutagen_formicid",
+    "type": "nested_category",
+    "activity_level": "LIGHT_EXERCISE",
+    "category": "CC_CHEM",
+    "subcategory": "CSC_CHEM_MUTAGEN",
+    "name": "formicid mutagens",
+    "description": "Recipes related to synthesizing formicid mutagenic substances.",
+    "skill_used": "chemistry",
+    "nested_category_data": [
+      "mutagen_formicid",
+      "iv_mutagen_formicid"
+    ],
+    "difficulty": 7
+  },
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "mutagen_formicid",
+    "category": "CC_*",
+    "subcategory": "CSC_*_NESTED",
+    "skill_used": "chemistry",
+    "skills_required": [ "firstaid", 1 ],
+    "difficulty": 7,
+    "time": "45 m",
+    "batch_time_factors": [ 80, 20 ],
+    "book_learn": [ [ "recipe_maiar", 6 ] ],
+    "proficiencies": [
+      { "proficiency": "prof_intro_chemistry" },
+      { "proficiency": "prof_organic_chemistry" },
+      { "proficiency": "prof_biochemistry" },
+      { "proficiency": "prof_intro_chem_synth" },
+      { "proficiency": "prof_chem_synth" }
+    ],
+    "using": [ [ "mutagen_production_standard", 25 ] ],
+    "components": [
+      [ [ "mutagen", 1 ] ],
+      [ [ "formicid_sample", 1 ] ],
+      [ [ "chitin_piece", 4 ], [ "acidchitin_piece", 2 ] ],
+      [ [ "insect_sample", 1 ], [ "formicid_sample", 1 ] ]
+    ],
+    "flags": [ "SECRET" ]
+  },
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "iv_mutagen_formicid",
+    "category": "CC_*",
+    "subcategory": "CSC_*_NESTED",
+    "skill_used": "chemistry",
+    "skills_required": [ "firstaid", 3 ],
+    "difficulty": 8,
+    "time": "2 h",
+    "batch_time_factors": [ 20, 5 ],
+    "book_learn": [ [ "recipe_serum", 6 ], [ "recipe_maiar", 6 ] ],
+    "proficiencies": [
+      { "proficiency": "prof_intro_chemistry" },
+      { "proficiency": "prof_organic_chemistry" },
+      { "proficiency": "prof_intro_chem_synth" },
+      { "proficiency": "prof_chem_synth" }
+    ],
+    "using": [ [ "serum_production_standard", 37 ] ],
+    "components": [ [ [ "mutagen_formicid", 2 ] ], [ [ "formicid_sample", 1 ] ] ],
+    "flags": [ "SECRET" ]
+  }
+]

@@ -2,7 +2,7 @@
 
 ### 仕様書から継承
 - **目的**: CDDAにアリ型変異カテゴリ「FORMICID」を追加し、大顎・キチン装甲・蟻酸攻撃を持つ変異ツリーを提供する
-- **スコープ**: 含むもの→変異カテゴリFORMICID、閾値変異、3つの変異（大顎→キチン甲羅→蟻酸腺）、ビタミン、変異原アイテム（液体＋IV）、変異原効果。含まないもの→レシピ、モンスター、職業
+- **スコープ**: 含むもの→変異カテゴリFORMICID、閾値変異、3つの変異（大顎→キチン甲羅→蟻酸腺）、ビタミン、変異原アイテム（液体＋IV）、変異原効果、変異原素材サンプル、レシピ（液体＋IV）。含まないもの→モンスター、職業
 - **成功基準**: デバッグメニューで変異原をスポーンし、摂取/注射で変異が発現すること
 
 ### ターゲットバージョン
@@ -23,6 +23,10 @@
 | ITEM | mutagen_formicid | 飲用変異原 |
 | ITEM | iv_mutagen_formicid | 注射用変異原プライマー |
 | effect_type | mutagen_formicid | 変異中効果 |
+| ITEM | formicid_sample | Formicid変異原サンプル |
+| recipe | mutagen_formicid | 飲用変異原レシピ |
+| recipe | iv_mutagen_formicid | 注射用プライマーレシピ |
+| nested_category | nested_mutagen_formicid | Formicid変異原レシピグループ |
 
 ### 参照ファイル（実在確認済み）
 - [x] `external/cdda/data/json/mutations/mutation_category.json`
@@ -38,6 +42,8 @@
 - data/vitamin.json
 - data/mutagen_items.json
 - data/mutagen_effects.json
+- data/mutagen_ingredients.json
+- data/mutagen_recipes.json
 
 ### テスト手順
 1. validate.shでJSON構文チェック（Level1）
