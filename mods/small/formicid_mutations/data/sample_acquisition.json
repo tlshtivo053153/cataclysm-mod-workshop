@@ -1,0 +1,66 @@
+[
+  {
+    "id": "formicid_sample_single",
+    "type": "item_group",
+    "subtype": "collection",
+    "entries": [ { "item": "formicid_sample" } ]
+  },
+  {
+    "id": "formicid_sample_small",
+    "type": "item_group",
+    "subtype": "collection",
+    "entries": [ { "item": "formicid_sample", "count": [ 1, 3 ] } ]
+  },
+  {
+    "id": "formicid_sample_large",
+    "type": "item_group",
+    "subtype": "collection",
+    "entries": [ { "item": "formicid_sample", "count": [ 3, 6 ] } ]
+  },
+  {
+    "id": "formicid_sample_huge",
+    "type": "item_group",
+    "subtype": "collection",
+    "entries": [ { "item": "formicid_sample", "count": [ 10, 20 ] } ]
+  },
+  {
+    "id": "dissect_insect_sample_single",
+    "type": "harvest",
+    "copy-from": "dissect_insect_sample_single",
+    "extend": {
+      "entries": [ { "drop": "formicid_sample_single", "type": "mutagen_group" } ]
+    }
+  },
+  {
+    "id": "dissect_insect_sample_small",
+    "type": "harvest",
+    "copy-from": "dissect_insect_sample_small",
+    "extend": {
+      "entries": [ { "drop": "formicid_sample_small", "type": "mutagen_group" } ]
+    }
+  },
+  {
+    "id": "dissect_insect_sample_large",
+    "type": "harvest",
+    "copy-from": "dissect_insect_sample_large",
+    "extend": {
+      "entries": [ { "drop": "formicid_sample_large", "type": "mutagen_group" } ]
+    }
+  },
+  {
+    "id": "dissect_insect_sample_huge",
+    "type": "harvest",
+    "copy-from": "dissect_insect_sample_huge",
+    "extend": {
+      "entries": [ { "drop": "formicid_sample_huge", "type": "mutagen_group" } ]
+    }
+  },
+  {
+    "id": "science",
+    "type": "item_group",
+    "copy-from": "science",
+    "extend": {
+      "items": [ { "item": "formicid_sample", "prob": 40, "count": [ 1, 3 ] } ]
+    }
+  }
+]
