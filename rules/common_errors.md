@@ -114,6 +114,12 @@
 - **例:** `bread` レシピでは `["surface_heat", 22, "LIST"]`、`granola` では `["surface_heat", 20, "LIST"]`
 - **詳細:** `"C"`（セルシウス温度）形式は存在しない
 
+### `recipe X is nested but isn't in a nested group`
+- **原因:** `subcategory: "CSC_*_NESTED"` のレシピが、いずれの `nested_category` の `nested_category_data` にも含まれていない
+- **解決策:** `type: "nested_category"` を定義し、レシピIDを `nested_category_data` 配列に追加する
+- **制約:** バニラの `nested_category` に `extend` で追加することはできない（`nested_category_data` は `mandatory()` で読み込まれるため）。必ず独自の nested_category を新規定義する
+- **詳細:** `rules/patterns/recipe_nested.md`
+
 ---
 
 ## よくあるエラー（変異・エンチャント関連）

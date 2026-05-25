@@ -14,7 +14,7 @@ CDDAに新規の変異カテゴリ（プレイヤーが突然変異誘発剤で�
 
 ## ファイル構成
 
-変異カテゴリmodは以下の7ファイルで構成する：
+変異カテゴリmodは以下の7ファイルで構成する（レシピ・素材サンプルを含む場合は9ファイル）：
 
 | ファイル | type | 内容 |
 |---|---|---|
@@ -25,6 +25,8 @@ CDDAに新規の変異カテゴリ（プレイヤーが突然変異誘発剤で�
 | `data/mutagen_effects.json` | `effect_type` | 変異誘発中の効果（max_intensity: 3） |
 | `data/mutations.json` | `mutation` | 変異ツリー全定義 |
 | `data/extended_mutations.json` | `mutation` (`copy-from` + `extend`) | 既存変異にカテゴリ追加 |
+| `data/mutagen_ingredients.json` | `ITEM` (`copy-from: mutagen_sample`) | 変異原素材サンプル（任意） |
+| `data/mutagen_recipes.json` | `recipe` + `nested_category` | 変異原クラフトレシピ（任意） |
 
 ---
 
@@ -423,3 +425,147 @@ CDDAに新規の変異カテゴリ（プレイヤーが突然変異誘発剤で�
 ### Vitamin disease_excess の閾値
 - `[2200, 2500]` が強度3（プライマーレベル）。この範囲に達していないと閾値変異が発現しない
 - `max: 2500` を超えるプライマーは無駄になるため、注入量の合計が2500に近づくよう設計する
+
+---
+
+## 変異原レシピ・素材サンプル（任意拡張）
+
+変異原アイテム（`mutagen_items.json`）に加えて、クラフト用のレシピと素材サンプルを追加できる。
+
+### 8. mutagen_ingredients.json — 素材サンプル
+
+バニラの `insect_sample` や `plant_sample` と同様、カテゴリ専用の変異原サンプルを定義する：
+
+```json
+[
+  {
+    "type": "ITEM",
+    "id": "formicid_sample",
+    "copy-from": "mutagen_sample",
+    "color": "yellow",
+    "name": { "str": "formicid sample" },
+    "description": "A slurry of eusociality.",
+    "looks_like": "insect_sample",
+    "material": [ "iflesh", "chitin" ]
+  }
+]
+```
+
+**ポイント:**
+- `copy-from: mutagen_sample` は abstract アイテムのため、`type: "ITEM"` を明示する
+- `name` は `{"str": "..."}` 形式（mutagen_sample の子は COMESTIBLE ではなく GENERIC 扱いのため `str_sp` ではない）
+- `material` は `["iflesh", "<category_material>"]` の2要素構成が標準
+
+### 9. mutagen_recipes.json — クラフトレシピ + nested category
+
+変異原のクラフトレシピは **必ず nested category とセット** で定義する。
+
+#### 飲用変異原レシピ（Tier 1）
+
+```json
+{
+  "type": "recipe",
+  "activity_level": "LIGHT_EXERCISE",
+  "result": "mutagen_formicid",
+  "category": "CC_*",
+  "subcategory": "CSC_*_NESTED",
+  "skill_used": "chemistry",
+  "skills_required": [ "firstaid", 1 ],
+  "difficulty": 7,
+  "time": "45 m",
+  "batch_time_factors": [ 80, 20 ],
+  "book_learn": [ [ "recipe_maiar", 6 ] ],
+  "proficiencies": [
+    { "proficiency": "prof_intro_chemistry" },
+    { "proficiency": "prof_organic_chemistry" },
+    { "proficiency": "prof_biochemistry" },
+    { "proficiency": "prof_intro_chem_synth" },
+    { "proficiency": "prof_chem_synth" }
+  ],
+  "using": [ [ "mutagen_production_standard", 25 ] ],
+  "components": [
+    [ [ "mutagen", 1 ] ],
+    [ [ "formicid_sample", 1 ] ],
+    [ [ "chitin_piece", 4 ], [ "acidchitin_piece", 2 ] ],
+    [ [ "insect_sample", 1 ], [ "formicid_sample", 1 ] ]
+  ],
+  "flags": [ "SECRET" ]
+}
+```
+
+**Components の構成（全 Tier 1 mutagen 共通の4グループ）:**
+1. `["mutagen", 1]` — 基本変異原
+2. `["<category>_sample", 1]` — カテゴリサンプル
+3. `["<thematic_ingredient>", N]` — テーマ食材（昆虫系なら chitin_piece、植物系なら plant_fibre 等）
+4. `["<related>_sample", 1], ["<category>_sample", 1]` — 関連サンプルとの代替
+
+#### 注射用プライマーレシピ（Tier 2）
+
+```json
+{
+  "type": "recipe",
+  "activity_level": "LIGHT_EXERCISE",
+  "result": "iv_mutagen_formicid",
+  "category": "CC_*",
+  "subcategory": "CSC_*_NESTED",
+  "skill_used": "chemistry",
+  "skills_required": [ "firstaid", 3 ],
+  "difficulty": 8,
+  "time": "2 h",
+  "batch_time_factors": [ 20, 5 ],
+  "book_learn": [ [ "recipe_serum", 6 ], [ "recipe_maiar", 6 ] ],
+  "proficiencies": [
+    { "proficiency": "prof_intro_chemistry" },
+    { "proficiency": "prof_organic_chemistry" },
+    { "proficiency": "prof_intro_chem_synth" },
+    { "proficiency": "prof_chem_synth" }
+  ],
+  "using": [ [ "serum_production_standard", 37 ] ],
+  "components": [ [ [ "mutagen_formicid", 2 ] ], [ [ "formicid_sample", 1 ] ] ],
+  "flags": [ "SECRET" ]
+}
+```
+
+**Tier 2 の proficiency に関する注意:**
+- バニラ `iv_mutagen_insect` に合わせ、`prof_biochemistry` は含めない（4件のみ）
+- Tier 1 のみ `prof_biochemistry` を含める（5件）
+
+#### nested category
+
+```json
+{
+  "id": "nested_mutagen_formicid",
+  "type": "nested_category",
+  "activity_level": "LIGHT_EXERCISE",
+  "category": "CC_CHEM",
+  "subcategory": "CSC_CHEM_MUTAGEN",
+  "name": "formicid mutagens",
+  "description": "Recipes related to synthesizing formicid mutagenic substances.",
+  "skill_used": "chemistry",
+  "nested_category_data": [
+    "mutagen_formicid",
+    "iv_mutagen_formicid"
+  ],
+  "difficulty": 7
+}
+```
+
+**重要な制約:**
+- Leaf recipe の `category: "CC_*"` / `subcategory: "CSC_*_NESTED"` と nested_category の `category: "CC_CHEM"` / `subcategory: "CSC_CHEM_MUTAGEN"` は**別物**。前者は「ネストされている」シグナル、後者は実際のクラフトメニュー上の位置
+- `nested_category_data` には **`extend` が使えない**。バニラの `nested_mutagen` にレシピを追加することはできず、必ず独自の nested_category を定義する
+- nested_category を定義しないと `check_mods.sh` で `recipe X is nested but isn't in a nested group` の debug warning が発生する
+- 詳細は `rules/patterns/recipe_nested.md` を参照
+
+### book_learn の設定
+
+- Tier 1（飲用）: `recipe_maiar` 1冊のみを指定（バニラ insect レシピに準拠）
+- Tier 2（注射用）: `recipe_serum` + `recipe_maiar` の2冊
+- 全書籍IDは `external/cdda/data/json/items/book/chemistry.json` に実在を確認すること
+
+### 素材サンプルの代替コンポーネント設計
+
+Tier 1 レシピの第4コンポーネントグループでは、関連カテゴリのサンプルを代替素材として指定する：
+- Formicid（昆虫系）→ `["insect_sample", 1], ["formicid_sample", 1]`
+- Spider（昆虫系）→ `["insect_sample", 1], ["spider_sample", 1]`
+
+これにより、自カテゴリのサンプルが不足している場合でも関連サンプルで代用可能になる。

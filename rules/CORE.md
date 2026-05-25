@@ -85,6 +85,7 @@
 
 ## 命名規則
 - IDは必ず `mod_prefix_` で始める（例: `mymod_iron_rod`）
+- ただし、バニラの抽象アイテム（`mutagen_flavor`、`mutagen_sample` 等）を `copy-from` してバニラシステムを拡張する場合、バニラの命名慣習（`mutagen_formicid`、`insect_sample` 等）に従うことを優先する
 - IDに使える文字: 英小文字・数字・アンダースコアのみ
 - IDに `#` 文字は使用不可
 

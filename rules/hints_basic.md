@@ -77,6 +77,7 @@ cat external/cdda/config/debug.log | grep ERROR
 - [ ] 同カテゴリ・同傾向の既存レシピを `external/cdda/data/json/recipes/` から1〜2個見つけ、`tools`・`qualities`・`components`・`difficulty`・`time` の設定を比較したか
 - [ ] `scripts/validate.sh` を実行して構文エラーがないか
 - [ ] `scripts/link_mod_for_test.sh` で mod を `external/cdda/mods/` に配置済みか
+- [ ] `subcategory` が `"CSC_*_NESTED"` の場合、`type: "nested_category"` を定義し、`nested_category_data` にレシピIDを列挙しているか（詳細: `rules/patterns/recipe_nested.md`）
 - [ ] `scripts/check_mods.sh <mod_id>` で CDDA 組み込みチェックを実行済みか（`mod_id` は `modinfo.json` の `"id"` 値）
 
 ## アイテムID設計の注意点
