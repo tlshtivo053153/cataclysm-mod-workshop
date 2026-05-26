@@ -132,6 +132,13 @@
 
 変異カテゴリを新規追加する場合は `rules/patterns/mutation_category.md` を参照すること。
 
+## 格闘スタイルの実装
+
+格闘スタイル（martial_art）を新規追加する場合は `rules/patterns/martial_art.md` を参照すること。特に以下の点に注意：
+- 武器限定テクニックの `attack_vectors` には `["vector_null"]` が必須
+- `skill_requirements` のスキル名は常に `"melee"`（`"bashing"` 等の個別武器スキルではない）
+- 指定した `weapon_category` に実際に属する武器を `external/cdda/data/json/items/melee/` で必ず確認する
+
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ
