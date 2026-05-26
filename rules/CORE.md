@@ -104,6 +104,24 @@
 - 使用前に external/cdda/data/json/ で親IDの存在を確認する
 - abstract アイテムを copy-from する場合、`abstract` フィールドは引き継がれない
 
+### item_group の extend
+- `copy-from` + `extend` で拡張する
+- **distribution 型**（subtype 未指定含む）: subtype の再宣言は不要。`extend: { "items": [...] }` を使用
+- **collection 型**: **`"subtype": "collection"` の明示的な再宣言が必須**。`extend` のキーは親のフィールド名に合わせる（通常 `"entries"`）
+- subtype を再宣言しない場合、`already defined with type "collection"` エラーになる
+- **例**: `science`（distribution 型）→ subtype 宣言不要で extend 可。`lab_mutagen_ingredients_fridge`（collection 型）→ `"subtype": "collection"` を追記すれば extend 可
+- **参考**: Magiclysm `external/cdda/data/mods/Magiclysm/itemgroups/` — collection 型拡張時は必ず `"subtype": "collection"` を再宣言している
+
+### harvest の extend
+- `copy-from` + `extend: { "entries": [...] }` で拡張する
+- バニラデータに多数の使用例あり（`external/cdda/data/json/harvest.json`）
+
+### dissect システム（mutagen_group）
+- 三層構造: MONSTER.dissect（string）→ harvest（`type: "mutagen_group"`）→ item_group（subtype: "collection"）→ アイテム
+- `harvest_drop_type: mutagen_group` は `drop` フィールド値を item_group ID として解決する
+- `dissect_only: true` により解剖（dissect）アクション限定で入手可能
+- 新規変異サンプルの解剖入手を追加する際は、harvest 定義を extend するだけでモンスター個別の修正は不要
+
 ## バージョン差分（0.G → 0.H）
 - volume/weight の単位が数値から文字列形式に変更
   - 旧: `"volume": 3` → 新: `"volume": "750 ml"`

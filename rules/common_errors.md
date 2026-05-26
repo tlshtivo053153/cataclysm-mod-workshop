@@ -120,6 +120,13 @@
 - **制約:** バニラの `nested_category` に `extend` で追加することはできない（`nested_category_data` は `mandatory()` で読み込まれるため）。必ず独自の nested_category を新規定義する
 - **詳細:** `rules/patterns/recipe_nested.md`
 
+### `item group "XXX" already defined with type "collection"`
+- **原因:** `copy-from` + `extend` で collection 型の item_group を拡張しようとしたが、子側で `"subtype": "collection"` を宣言していない
+- **解決策:** 子側の定義に `"subtype": "collection"` を明示的に追加する。または拡張先を distribution 型の item_group に変更する
+- **制限:** CDDA 0.I では collection 型の item_group を `copy-from` で拡張する場合、子側で `"subtype": "collection"` の再宣言が必要（distribution 型の拡張では不要）
+- **例:** `lab_mutagen_ingredients_fridge`（collection 型）を extend する場合、`"subtype": "collection"` を追記すれば可。distribution 型の `science` への extend であれば subtype 宣言不要で可
+- **参考:** Magiclysm 公式mod `external/cdda/data/mods/Magiclysm/itemgroups/` — collection 型の拡張では必ず `"subtype": "collection"` を再宣言している（death_drops.json の `feral_humans_death_drops_axe` 等）
+
 ---
 
 ## よくあるエラー（変異・エンチャント関連）
