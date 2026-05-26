@@ -1,0 +1,33 @@
+[
+  {
+    "type": "technique",
+    "id": "tec_scrap_striker_smash",
+    "name": "Crushing Smash",
+    "messages": [
+      "You bring your weapon down in a crushing smash on %s",
+      "<npcname> smashes %s with a brutal overhead blow"
+    ],
+    "melee_allowed": true,
+    "mult_bonuses": [
+      { "stat": "damage", "type": "bash", "scale": 1.25 },
+      { "stat": "movecost", "scale": 1.2 }
+    ],
+    "attack_vectors": [ "vector_null" ]
+  },
+  {
+    "type": "technique",
+    "id": "tec_scrap_striker_backhand",
+    "name": "Quick Backswing",
+    "messages": [
+      "You catch %s with a swift backswing",
+      "<npcname> catches %s with a quick backswing"
+    ],
+    "skill_requirements": [ { "name": "melee", "level": 3 } ],
+    "melee_allowed": true,
+    "mult_bonuses": [
+      { "stat": "movecost", "scale": 0.7 },
+      { "stat": "damage", "type": "bash", "scale": 0.8 }
+    ],
+    "attack_vectors": [ "vector_null" ]
+  }
+]

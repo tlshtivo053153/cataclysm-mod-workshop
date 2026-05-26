@@ -1,0 +1,29 @@
+[
+  {
+    "type": "martial_art",
+    "id": "style_scrap_striker",
+    "name": { "str": "Scrap Striker" },
+    "description": "A brutal, improvised fighting style developed by survivors who rely on heavy bludgeons.  Emphasizes raw destructive power and quick follow-up swings over finesse.",
+    "initiate": [ "You grip your weapon tightly, ready to smash through anything.", "%s readies a heavy weapon with a wild grin." ],
+    "priority": 1,
+    "learn_difficulty": 3,
+    "primary_skill": "bashing",
+    "strictly_melee": true,
+    "arm_block": 1,
+    "autolearn": [ [ "bashing", 4 ] ],
+    "static_buffs": [
+      {
+        "id": "buff_scrap_striker_static",
+        "name": "Heavy Grip",
+        "description": "You put your full weight behind every swing.\n\n+10% bash damage.",
+        "melee_allowed": true,
+        "mult_bonuses": [ { "stat": "damage", "type": "bash", "scale": 1.1 } ]
+      }
+    ],
+    "techniques": [
+      "tec_scrap_striker_smash",
+      "tec_scrap_striker_backhand"
+    ],
+    "weapon_category": [ "BATONS" ]
+  }
+]

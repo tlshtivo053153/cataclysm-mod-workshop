@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "scrap_striker",
+    "name": "Scrap Striker Martial Art",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a new martial art style for improvised bludgeon weapons of the BATONS category (pipes, crowbars, bats, and more).",
+    "category": "misc",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
