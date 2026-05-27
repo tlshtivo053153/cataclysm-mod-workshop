@@ -1,0 +1,53 @@
+[
+  {
+    "id": "mon_zombie_scrap",
+    "type": "MONSTER",
+    "name": { "str": "scrap zombie" },
+    "description": "An industrial accident fused this corpse with scrap metal. Twisted shards of iron and steel protrude from all over its body.",
+    "copy-from": "mon_zombie_base",
+    "hp": 110,
+    "speed": 55,
+    "color": "dark_gray",
+    "melee_skill": 5,
+    "melee_dice": 3,
+    "melee_dice_sides": 4,
+    "melee_damage": [ { "damage_type": "bash", "amount": 8 } ],
+    "armor": { "bash": 8, "cut": 10, "stab": 6, "electric": 2 },
+    "special_attacks": [
+      { "id": "grab", "cooldown": 7 },
+      { "id": "bite_humanoid", "cooldown": 5 },
+      { "id": "scratch_humanoid" },
+      { "id": "smash", "throw_strength": 48 }
+    ],
+    "upgrades": { "half_life": 168, "into": "mon_zombie_scrap_hulk" },
+    "death_drops": "mon_zombie_scrap_death_drops",
+    "extend": { "flags": [ "SMELLS" ] },
+    "delete": { "flags": [ "STUMBLES" ] }
+  },
+  {
+    "id": "mon_zombie_scrap_hulk",
+    "type": "MONSTER",
+    "name": { "str": "scrap hulk" },
+    "description": "A grotesque mass of bloated flesh embedded with countless shards of scrap metal. A towering monument to industrial horror.",
+    "copy-from": "mon_zombie_scrap",
+    "species": [ "ZOMBIE" ],
+    "hp": 380,
+    "speed": 75,
+    "volume": "200 L",
+    "weight": "400 kg",
+    "color": "light_gray",
+    "melee_skill": 6,
+    "melee_dice": 4,
+    "melee_dice_sides": 8,
+    "melee_damage": [ { "damage_type": "bash", "amount": 14 } ],
+    "armor": { "bash": 14, "cut": 16, "stab": 10, "bullet": 12, "electric": 4 },
+    "special_attacks": [
+      { "id": "grab" },
+      { "id": "bite_humanoid" },
+      { "id": "scratch_humanoid" },
+      { "id": "smash", "throw_strength": 96 }
+    ],
+    "death_drops": "mon_zombie_scrap_hulk_death_drops",
+    "upgrades": false
+  }
+]
