@@ -100,6 +100,28 @@
 - `name`: 必須
 - `dependencies`: `[ "dda" ]` を最低限記載する
 
+## start_location
+- `type`: 必ず `"start_location"`
+- `id`: 必ず `sloc_` プレフィックス（例: `sloc_construction_site`）
+- `name`: plain string（`str_sp` 禁止）
+- `terrain`: 対象の om_terrain ID を文字列配列、または `{"om_terrain": "...", "om_terrain_match_type": "..."}` のオブジェクト配列で指定
+  - 文字列: 完全一致
+  - `"PREFIX"`: 前方一致（例: `"school_1"` → `school_1_0_0` にマッチ）
+  - `"TYPE"`: 完全一致（文字列と同義）
+  - `"CONTAINS"`: 部分一致（例: `"campsite"` → `campsite_cabin` にマッチ）
+- **野外スタートには `"flags": [ "ALLOW_OUTSIDE" ]` が必須。** 屋根のない地形（field, forest, construction_site, rooftop 等）では必ず指定する。付け忘れるとCDDAが**エラーを出さずに**最寄りの屋内タイルへフォールバックし、想定外の場所にスポーンする
+
+## scenario
+- `type`: 必ず `"scenario"`
+- `id`: 一意の文字列。バニラとの競合を避けるため `scenario_` プレフィックス推奨
+- `name`: plain string（`str_sp` 禁止）
+- `points`: 整数（0 = 基準、負 = ハード、正 = イージー）
+- `description`: フレーバーテキスト
+- `start_name`: 開始地点選択画面の表示名
+- `allowed_locs`: `start_location` ID の文字列配列
+- `professions`: （任意）許可する profession ID の文字列配列（allowlist）。指定しない場合は全職業が使用可能
+- `flags`: 主なフラグ — `CITY_START`（都市内）、`LONE_START`（NPC仲間なし）、`SUR_START`（サバイバー施設）、`CHALLENGE`（チャレンジ）、`FIRE_START`（火災あり）
+
 ## copy-from の使い方
 - 使用前に external/cdda/data/json/ で親IDの存在を確認する
 - abstract アイテムを copy-from する場合、`abstract` フィールドは引き継がれない
@@ -148,10 +170,11 @@
 - `ITEM`/`MONSTER`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）
   - **ただし `TOOL` subtype のみ例外:** TOOL アイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
   - **COMESTIBLE/FOOD/DRINK は `str_sp`:** 食品・飲料系も `ITEM` 型だが、`str_sp` が必須
-- `overmap_terrain`/`mutation`/`profession` → 単純文字列が必須（`str_sp` は不可）
+- `overmap_terrain`/`mutation`/`profession`/`start_location`/`scenario` → 単純文字列が必須（`str_sp` は不可）
 
 ## よくあるエラー
 - `unknown type` → typeフィールドのスペルミス
 - `copy-from target not found` → 依存modの読み込み順か、IDのスペルミス
 - `missing required field` / `missing mandatory member` → common_errors.md を参照
 - JSON構文エラー → 末尾カンマ、括弧の対応を確認
+- **`start_location` で想定外の場所にスポーンする** → `ALLOW_OUTSIDE` フラグの付け忘れ。屋根のない野外タイル（construction_site, field, forest, rooftop 等）では `"flags": [ "ALLOW_OUTSIDE" ]` が必須。エラーは出ず、最寄りの屋内タイルに沈黙フォールバックする
