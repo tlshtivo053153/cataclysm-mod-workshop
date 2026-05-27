@@ -1,0 +1,13 @@
+[
+  {
+    "type": "scenario",
+    "id": "scenario_construction_site",
+    "name": "Construction Site Survivor",
+    "points": 0,
+    "description": "You were working at a construction site when the Cataclysm hit.  Tools and materials are at hand, but the site is open to the outside.",
+    "start_name": "Construction Site",
+    "allowed_locs": [ "sloc_construction_site" ],
+    "professions": [ "construction_worker", "electrician", "engineer_mech", "mechanic" ],
+    "flags": [ "CITY_START", "LONE_START" ]
+  }
+]

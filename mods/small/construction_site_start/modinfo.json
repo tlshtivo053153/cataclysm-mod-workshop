@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "construction_site_start",
+    "name": "Construction Site Survivor",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a new start scenario: you were working at a construction site when the Cataclysm hit.",
+    "category": "scenario",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
