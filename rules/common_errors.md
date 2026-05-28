@@ -69,7 +69,8 @@
 
 ### `Name is not an object` / `str_sp not supported`
 - **解決策:**
-  - `ITEM`, `MONSTER`, `SPELL` 等 → `{"str_sp": "名称"}` が必須
+  - `ITEM`, `SPELL` 等 → `{"str_sp": "名称"}` が必須
+  - `MONSTER` → `{"str": "名称"}`（バニラで支配的な形式）。一部モンスターでは `{"str_sp": "..."}` も使用可
   - `overmap_terrain`, `mutation`, `profession` 等 → 単純文字列が必須
 - **詳細:** [`version_diff.md#name-format`](version_diff.md)
 

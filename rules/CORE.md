@@ -150,6 +150,34 @@
   - 旧: `"weight": 500` → 新: `"weight": "500 g"`
 - その他の差分は version_diff.md を参照
 
+## monstergroup の same-ID merge
+
+バニラの出現テーブル（`GROUP_ZOMBIE` 等）に新モンスターを注入するには、**同一IDのmonstergroupを定義する**。CDDAローダーが自動でマージする。
+
+### 書式
+```json
+{
+  "type": "monstergroup",
+  "id": "GROUP_ZOMBIE",
+  "monsters": [
+    { "monster": "mon_my_zombie", "weight": 10, "cost_multiplier": 5 }
+  ]
+}
+```
+
+### 必須ルール
+- **`id` をバニラと同一にする**（`GROUP_ZOMBIE`, `GROUP_ZOMBIE_UPGRADE` 等）
+- **`monsters` 配列のみ記述する。** `default`, `is_animal`, `auto_total` 等のグループレベルフィールドは書かない（バニラ定義から継承される）
+- **`copy-from` は使用しない。** 同一ID定義のみで自動マージされる
+- `monster` フィールドには実在するモンスターIDを指定する
+- `cost_multiplier` が高いほど出現タイミングが遅れる（日数経過後に出現）
+
+### 実在確認
+注入先の monstergroup がバニラに存在することを必ず確認する:
+```bash
+grep -r '"id": "GROUP_ZOMBIE"' external/cdda/data/json/monstergroups/
+```
+
 ## 変異カテゴリの実装
 
 変異カテゴリを新規追加する場合は `rules/patterns/mutation_category.md` を参照すること。
@@ -161,15 +189,25 @@
 - `skill_requirements` のスキル名は常に `"melee"`（`"bashing"` 等の個別武器スキルではない）
 - 指定した `weapon_category` に実際に属する武器を `external/cdda/data/json/items/melee/` で必ず確認する
 
+## モンスターの実装
+
+モンスター（MONSTER）を新規追加する場合は `rules/patterns/monster.md` を参照すること。特に以下の点に注意：
+- `special_attacks` は `copy-from` 時に完全上書きされる。継承したい攻撃も明示的に再宣言が必要
+- `smash` 攻撃の `throw_strength` 有効範囲は 30〜108
+- `upgrades` の単体進化は `into`（グループ進化は `into_group`）
+- flags 操作は `extend`（追加）/ `delete`（削除）を使用
+- 死亡ドロップは `subtype: "collection"` の item_group で `default_zombie_items` をネストする
+
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ
 - 武器・工具の製作は通常 `"BRISK_EXERCISE"`
 
 ## name フィールド形式（0.I RC）
-- `ITEM`/`MONSTER`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）
+- `ITEM`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）
   - **ただし `TOOL` subtype のみ例外:** TOOL アイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
   - **COMESTIBLE/FOOD/DRINK は `str_sp`:** 食品・飲料系も `ITEM` 型だが、`str_sp` が必須
+- `MONSTER` → `{"str": "名称"}`（バニラで支配的な形式）。動的名前生成の一部モンスターでは `{"str_sp": "..."}` も使用される
 - `overmap_terrain`/`mutation`/`profession`/`start_location`/`scenario` → 単純文字列が必須（`str_sp` は不可）
 
 ## よくあるエラー

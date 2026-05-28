@@ -82,7 +82,8 @@
 - `modinfo.json` の `dependencies` に関係するフラグを提供する mod が含まれているか確認
 
 ### name フィールド形式の厳格化（破壊的変更）
-- `ITEM`, `MONSTER`, `SPELL` 等: 単純文字列 → `{"str_sp": "..."}` が必須
+- `ITEM`, `SPELL` 等: 単純文字列 → `{"str_sp": "..."}` が必須
+- `MONSTER`: 単純文字列 → `{"str": "..."}` が必須（一部モンスターでは `{"str_sp": "..."}` も使用可）
 - `overmap_terrain`, `mutation`, `profession` 等: `{"str_sp": "..."}` → 単純文字列が必須
 - 形式が合わないと `Name is not an object` または `str_sp not supported` エラー
 
