@@ -1,0 +1,41 @@
+[
+  {
+    "id": "bio_junk_power_storage",
+    "copy-from": "bionic_general_npc_usable",
+    "type": "ITEM",
+    "subtypes": [ "BIONIC_ITEM" ],
+    "name": { "str": "Junk Power Storage CBM" },
+    "looks_like": "burnt_out_bionic",
+    "description": "A crude bionic capacitor assembled from salvaged batteries, scrap copper wiring, and improvised voltage regulators packed into a dented metal casing. Can be installed to increase bionic power capacity by 50 kJ.",
+    "price": "50 USD",
+    "price_postapoc": "1 USD",
+    "weight": "200 g",
+    "difficulty": 2
+  },
+  {
+    "id": "bio_junk_armor_torso",
+    "copy-from": "bionic_general_npc_usable",
+    "type": "ITEM",
+    "subtypes": [ "BIONIC_ITEM" ],
+    "name": { "str": "Scrap-Plated Torso CBM" },
+    "looks_like": "burnt_out_bionic",
+    "description": "A set of salvaged sheet metal plates ready for crude subdermal implantation. Installs as protective plating for the torso, offering modest physical protection at the cost of reduced flexibility.",
+    "price": "150 USD",
+    "price_postapoc": "5 USD",
+    "weight": "4000 g",
+    "difficulty": 4
+  },
+  {
+    "id": "bio_junk_muscle",
+    "copy-from": "bionic_general_npc_usable",
+    "type": "ITEM",
+    "subtypes": [ "BIONIC_ITEM" ],
+    "name": { "str": "Pipe-Spring Musculature CBM" },
+    "looks_like": "burnt_out_bionic",
+    "description": "A bundle of salvaged coil springs and braided steel cables designed for crude muscle augmentation. Can be installed to provide a +1 strength bonus, though the bulky mechanisms are far less elegant than professional myomer fibers.",
+    "price": "200 USD",
+    "price_postapoc": "5 USD",
+    "weight": "2500 g",
+    "difficulty": 5
+  }
+]

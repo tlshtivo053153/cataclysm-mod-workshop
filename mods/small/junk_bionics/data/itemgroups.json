@@ -1,0 +1,14 @@
+[
+  {
+    "type": "item_group",
+    "id": "bionics_common",
+    "copy-from": "bionics_common",
+    "extend": {
+      "items": [
+        [ "bio_junk_power_storage", 10 ],
+        [ "bio_junk_armor_torso", 5 ],
+        [ "bio_junk_muscle", 5 ]
+      ]
+    }
+  }
+]

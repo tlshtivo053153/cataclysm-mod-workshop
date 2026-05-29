@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "junk_bionics",
+    "name": "Junk Bionics Mod",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds three crude, low-quality bionics assembled from salvaged scrap materials: Junk Power Storage, Scrap-Plated Torso, and Pipe-Spring Musculature.",
+    "category": "misc",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
