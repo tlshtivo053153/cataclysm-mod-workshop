@@ -248,6 +248,16 @@ grep -r '"category": "note"' external/cdda/data/json/snippets/
 - flags 操作は `extend`（追加）/ `delete`（削除）を使用
 - 死亡ドロップは `subtype: "collection"` の item_group で `default_zombie_items` をネストする
 
+## バイオニック/CBMの実装
+
+バイオニック（bionic）を新規追加する場合は `rules/patterns/bionic.md` を参照すること。特に以下の点に注意：
+- bionic定義 (`"type": "bionic"`) とCBMアイテム (`"type": "ITEM"`, `"subtypes": [ "BIONIC_ITEM" ]`) を**同一ID**で二重定義する
+- CBMアイテムは `bionic_general_npc_usable`（または `bionic_general`）から `copy-from` する
+- `name` 形式: bionic/CBMいずれも `{ "str": "名称" }`、CBMアイテム名末尾は `" CBM"`
+- `mutation_conflicts` に記載する変異IDは `external/cdda/data/json/mutations/mutations.json` で実在確認する
+- `BIONIC_SHOCKPROOF` フラグの付与要否を検討する（金属製なら付けない）
+- 故障リスクは `faults: [ { "fault": "fault_bionic_salvaged" } ]` を抽象ベースが継承するため、個別CBMでの記述は不要
+
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ
@@ -256,6 +266,7 @@ grep -r '"category": "note"' external/cdda/data/json/snippets/
 ## name フィールド形式（0.I RC）
 - `ITEM`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）
   - **ただし `TOOL` subtype のみ例外:** TOOL アイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
+  - **ただし `BIONIC_ITEM` subtype も例外:** CBMアイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
   - **COMESTIBLE/FOOD/DRINK は `str_sp`:** 食品・飲料系も `ITEM` 型だが、`str_sp` が必須
 - `MONSTER` → `{"str": "名称"}`（バニラで支配的な形式）。動的名前生成の一部モンスターでは `{"str_sp": "..."}` も使用される
 - `overmap_terrain`/`mutation`/`profession`/`start_location`/`scenario` → 単純文字列が必須（`str_sp` は不可）
