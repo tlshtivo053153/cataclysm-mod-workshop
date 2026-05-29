@@ -1,0 +1,41 @@
+[
+  {
+    "id": "imp_trap_noise_alarm",
+    "type": "ITEM",
+    "subtypes": [ "TOOL" ],
+    "copy-from": "light_snare_kit",
+    "name": { "str": "noise alarm" },
+    "description": "A length of string threaded through a bundle of empty tin cans, with two anchor stakes.  When stretched across an opening and triggered, the cans clatter together loudly, alerting you to intruders.",
+    "weight": "1200 g",
+    "volume": "1500 ml",
+    "material": [ "steel", "cotton" ],
+    "use_action": {
+      "type": "place_trap",
+      "needs_solid_neighbor": true,
+      "trap": "tr_imp_trap_noise",
+      "moves": 150,
+      "practice": 2,
+      "done_message": "You string up the noise alarm."
+    },
+    "flags": [ "SINGLE_USE" ]
+  },
+  {
+    "id": "imp_trap_cans_snare",
+    "type": "ITEM",
+    "subtypes": [ "TOOL" ],
+    "copy-from": "light_snare_kit",
+    "name": { "str": "scrap wire snare" },
+    "description": "A simple loop snare fashioned from scrap metal wire and a few bent nails for anchorage.  Tougher than a string snare, making it suitable for slightly larger prey.  It has no means of harming its target, as live meat lasts longer.",
+    "weight": "3200 g",
+    "volume": "2500 ml",
+    "material": [ "steel" ],
+    "use_action": {
+      "type": "place_trap",
+      "trap": "tr_imp_trap_cans_snare",
+      "moves": 150,
+      "practice": 2,
+      "done_message": "You set the scrap wire snare."
+    },
+    "flags": [ "SINGLE_USE" ]
+  }
+]

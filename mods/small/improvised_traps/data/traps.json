@@ -1,0 +1,27 @@
+[
+  {
+    "type": "trap",
+    "id": "tr_imp_trap_noise",
+    "name": "noise maker",
+    "color": "light_gray",
+    "symbol": "^",
+    "visibility": 2,
+    "avoidance": 8,
+    "difficulty": 0,
+    "action": "bubble",
+    "drops": [ "imp_trap_noise_alarm" ],
+    "vehicle_data": { "sound_volume": 90, "sound": "CLANK!  CLANK!  CLANK!" }
+  },
+  {
+    "type": "trap",
+    "id": "tr_imp_trap_cans_snare",
+    "name": "scrap wire snare",
+    "color": "dark_gray",
+    "symbol": "^",
+    "visibility": 2,
+    "avoidance": 6,
+    "difficulty": 0,
+    "action": "snare_light",
+    "drops": [ "imp_trap_cans_snare" ]
+  }
+]

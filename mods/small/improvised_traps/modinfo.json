@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "improvised_traps",
+    "name": "Improvised Traps",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds craftable improvised traps: a noise alarm from tin cans and string, and a scrap wire snare.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
