@@ -4,7 +4,7 @@
     "id": "scrap_zombie",
     "name": "Scrap Zombie Mod",
     "authors": [ "cdda_mod_framework" ],
-    "description": "Adds two new zombie evolution lines fused with metal scrap: the Scrap Zombie and the Scrap Hulk. High armor, high damage, low speed.",
+    "description": "Adds two new zombie evolution lines fused with metal scrap: the Scrap Zombie and the Scrap Hulk.  High armor, high damage, low speed.",
     "category": "creatures",
     "dependencies": [ "dda" ],
     "version": "1.0"
