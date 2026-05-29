@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "jp_survivor_notes",
+    "name": "Japanese Survivor Notes",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds Japanese-language survivor notes and graffiti to the game.",
+    "category": "misc_additions",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
