@@ -178,6 +178,56 @@
 grep -r '"id": "GROUP_ZOMBIE"' external/cdda/data/json/monstergroups/
 ```
 
+## snippet の same-ID merge
+
+バニラのスニペットカテゴリ（`note`, `general_graffiti_snippets` 等）に新エントリを追加するには、**同一 `type` + `category` の定義を作成する**。CDDAローダーが自動でマージする。
+
+### 書式
+```json
+[
+  {
+    "type": "snippet",
+    "category": "note",
+    "text": [
+      { "id": "mymod_note_1", "text": "\"引用符付きテキスト\"" }
+    ]
+  },
+  {
+    "type": "snippet",
+    "category": "general_graffiti_snippets",
+    "text": [
+      { "id": "mymod_graffiti_1", "text": "平文テキスト" }
+    ]
+  }
+]
+```
+
+### 必須ルール
+- **`type` と `category` をバニラと同一にする**
+- **`copy-from` / `extend` は使用しない。** 同一カテゴリ名定義のみで自動マージされる
+- **ID はモッド固有のプレフィックスを使用する**（バニラ・他modとの衝突防止）
+- `name` フィールドは使用しない（`note` / `general_graffiti_snippets` では不使用。`note_child` のみ例外）
+
+### カテゴリ別テキスト形式
+| カテゴリ | テキスト形式 | 用途 |
+|---|---|---|
+| `note` | `"\"引用符付きテキスト\""` | 手書きの紙切れ表現（サバイバーノート） |
+| `general_graffiti_snippets` | `"平文テキスト"` | 壁の落書き視覚表現（グラフィティ） |
+
+- **テキスト形式を誤ると、バニラと表示が不統一になる。** JSON構文チェックでは検出不可のため、実装時に手動確認が必要
+- 拡張先カテゴリのテキスト形式は、必ずバニラデータの全エントリを確認して従うこと。形式はカテゴリ単位で統一されている
+- 上記以外のカテゴリ（`note_child`, `shelter_graffiti_snippets` 等）を拡張する場合も、必ずバニラデータのテキスト形式を確認すること
+
+### 実在確認
+拡張先の snippet カテゴリがバニラに存在することを必ず確認する:
+```bash
+grep -r '"category": "note"' external/cdda/data/json/snippets/
+```
+
+### 実証例
+- Magiclysm: `note` カテゴリ拡張（`magiclysm_note_1`〜`_8`）
+- DinoMod: `general_graffiti_snippets` カテゴリ拡張（`general_graffiti_dino_1`〜`_13`）
+
 ## 変異カテゴリの実装
 
 変異カテゴリを新規追加する場合は `rules/patterns/mutation_category.md` を参照すること。
