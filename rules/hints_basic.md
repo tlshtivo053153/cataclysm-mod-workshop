@@ -52,9 +52,10 @@ CORE.md を読んだ後にこのファイルを読んでください。
 - **末尾のセッションだけ読めばよい。** ファイル全体を読む必要はない
 - セッションの区切りは `-----------------------------------------` 行
 - 確認すべきは最後のセッション内の `ERROR` 行のみ
-- `Stale game data detected` 警告は無視してよい
-  - mod修正後にセーブデータを再起動なしで読み込むと発生するが、動作に支障はない
-  - 再起動すれば解消するが、毎回再起動する必要はない
+- `Stale game data detected` エラーが出た場合:
+  - 原因: 前回実行時のキャッシュとJSONファイルのタイムスタンプが不一致
+  - `check_mods.sh` は実行前に `flexcache` を自動削除するため、スクリプト経由では通常発生しない
+  - `cataclysm-tiles` を直接実行した場合に発生することがある。その場合は `external/cdda/config/flexcache` を削除して再実行
 
 ### check_mods.sh 実行後の debug.log
 `scripts/check_mods.sh` は実行前に `config/debug.log` をクリアします。

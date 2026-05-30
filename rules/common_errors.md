@@ -128,6 +128,22 @@
 - **例:** `lab_mutagen_ingredients_fridge`（collection 型）を extend する場合、`"subtype": "collection"` を追記すれば可。distribution 型の `science` への extend であれば subtype 宣言不要で可
 - **参考:** Magiclysm 公式mod `external/cdda/data/mods/Magiclysm/itemgroups/` — collection 型の拡張では必ず `"subtype": "collection"` を再宣言している（death_drops.json の `feral_humans_death_drops_axe` 等）
 
+### `insufficient spaces at this location.  2 required, but only 1 found.`
+- **原因:** CDDA 0.I のテキストスタイルチェッカーが英語テキストの句読点（`.` `!` `?`）の後に2スペースを要求
+- **対象:** 英文文字列内の文中の句読点。文字列末尾の句読点は対象外
+- **解決策:** 対象の句読点の後に半角スペースを追加する
+  - 例: `"Hulk. High"` → `"Hulk.  High"`
+  - 例: `"CLANK! CLANK!"` → `"CLANK!  CLANK!"`
+- **注意:** 日本語テキストには適用されない。英文のみが検査される
+
+### trap action のハードコード制限（既知の制約）
+- **原因:** C++ 実装の trap action がドロップアイテムやメッセージをハードコードしている
+- **具体例:**
+  - `action: "snare_light"` → トリガー時に **常に `light_snare_kit` をドロップ**する。`drops` フィールドは無視される
+  - `action: "bubble"` → 踏んだ時のメッセージとサウンドがハードコードされ、変更不可
+- **影響:** これらの action を `copy-from` や `drops` フィールドでカスタマイズしても、C++ 側の動作は変わらない
+- **回避策:** 詳細は `rules/patterns/trap.md` 参照
+
 ---
 
 ## よくあるエラー（変異・エンチャント関連）

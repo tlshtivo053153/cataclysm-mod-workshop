@@ -258,6 +258,17 @@ grep -r '"category": "note"' external/cdda/data/json/snippets/
 - `BIONIC_SHOCKPROOF` フラグの付与要否を検討する（金属製なら付けない）
 - 故障リスクは `faults: [ { "fault": "fault_bionic_salvaged" } ]` を抽象ベースが継承するため、個別CBMでの記述は不要
 
+## トラップの実装
+
+トラップ（trap）/ トラップアイテム（ITEM/TOOL with place_trap）を新規追加する場合は `rules/patterns/trap.md` を参照すること。特に以下の点に注意：
+- trap定義 (`"type": "trap"`) とアイテム定義 (`"type": "ITEM"`, `"subtypes": [ "TOOL" ]`) の**両方**が必要。アイテムの `use_action.place_trap.trap` で trap 定義を参照する
+- 一部の C++ trap action（`snare_light`, `bubble`, `beartrap` 等）はドロップアイテムやメッセージをハードコードしており、JSONの `drops` フィールドは**トリガー時には無視される**
+- `snare_light` アクションは常に `light_snare_kit` をドロップする。異なるアイテムをドロップさせるには別actionの使用または変換レシピの追加が必要
+- trap 定義の `name` は単純文字列（`str_sp` 不可）
+- ITEM/TOOL の `name` は `{"str": "..."}` 形式（`str_sp` 不可）
+- `SINGLE_USE` フラグが必須（設置型トラップアイテム）
+- `needs_solid_neighbor: true` で通路設置型（両端に壁が必要）にできる
+
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ

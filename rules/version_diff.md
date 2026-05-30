@@ -87,6 +87,14 @@
 - `overmap_terrain`, `mutation`, `profession` 等: `{"str_sp": "..."}` → 単純文字列が必須
 - 形式が合わないと `Name is not an object` または `str_sp not supported` エラー
 
+### テキストスタイルチェッカーの導入（破壊的変更）
+- 英語テキストの `.` `!` `?` の後に半角スペースが2つ必須になった
+- 文中の句読点後にスペースが1つしかない場合、`insufficient spaces at this location.  2 required, but only 1 found.` エラー
+- 対象: 全JSONファイル内の英文文字列（`description`, `name`, `sound`, `done_message` 等）
+- 解決策: 対象の句読点の後にスペースを1つ追加する
+  - 例: `"Hulk. High"` → `"Hulk.  High"`
+  - 例: `"CLANK! CLANK!"` → `"CLANK!  CLANK!"`
+
 ### その他（調査中）
 - `external/cdda/doc/` の changelog やリリースノートを確認して随時追記する
 - 変更確認コマンド:
