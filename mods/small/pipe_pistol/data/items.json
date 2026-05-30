@@ -1,0 +1,37 @@
+[
+  {
+    "type": "ITEM",
+    "subtypes": [ "GUN" ],
+    "id": "ppis_9mm_pipe_pistol",
+    "copy-from": "gun_base_handgun_manual",
+    "name": { "str": "9mm pipe pistol" },
+    "description": "A home-made pistol.  It is a pipe with a crude grip and hammer mechanism, designed to strike the single 9mm round it holds.",
+    "looks_like": "glock_19",
+    "ascii_picture": "sm_pipe_gun",
+    "weight": "1200 g",
+    "volume": "900 ml",
+    "longest_side": "35 cm",
+    "barrel_length": "203 mm",
+    "price": "75 USD",
+    "price_postapoc": "5 USD",
+    "material": [ "steel", "wood" ],
+    "ammo": [ "9mm" ],
+    "flags": [ "RELOAD_EJECT", "EASY_CLEAN" ],
+    "ranged_damage": { "damage_type": "bullet", "amount": -1 },
+    "dispersion": 650,
+    "durability": 6,
+    "loudness": 35,
+    "clip_size": 1,
+    "reload": 200,
+    "barrel_volume": "120 ml",
+    "blackpowder_tolerance": 60,
+    "valid_mod_locations": [ [ "sights mount", 1 ] ],
+    "pocket_data": [
+      {
+        "pocket_type": "MAGAZINE",
+        "rigid": true,
+        "ammo_restriction": { "9mm": 1 }
+      }
+    ]
+  }
+]

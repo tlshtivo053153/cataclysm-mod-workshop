@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "pipe_pistol",
+    "name": "Pipe Pistol Mod",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a craftable 9mm single-shot pipe pistol, a handgun counterpart to the pipe rifle.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
