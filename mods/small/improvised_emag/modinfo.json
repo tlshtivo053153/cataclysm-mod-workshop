@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "improvised_emag",
+    "name": "Improvised Extended Magazine",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a field-expedient 45-round STANAG extended magazine, crafted by cutting and welding two standard STANAG 30-round magazines together.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
