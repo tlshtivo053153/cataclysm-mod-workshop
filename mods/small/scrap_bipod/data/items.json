@@ -1,0 +1,25 @@
+[
+  {
+    "type": "ITEM",
+    "subtypes": [ "GUNMOD" ],
+    "id": "smb_scrap_bipod",
+    "name": { "str": "scrap bipod" },
+    "description": "A crude bipod made from scrap metal and duct tape. It attaches to the front of a long arm and provides some stability when aiming, though it's heavier and less effective than a proper bipod.",
+    "weight": "700 g",
+    "volume": "500 ml",
+    "integral_volume": "0 ml",
+    "integral_weight": "0 g",
+    "price": "10 USD",
+    "price_postapoc": "2 USD",
+    "install_time": "30 m",
+    "material": [ "steel" ],
+    "symbol": ":",
+    "color": "dark_gray",
+    "location": "underbarrel",
+    "mod_targets": [ "rifle", "launcher", "smg", "shotgun", "crossbow" ],
+    "handling_modifier": 6,
+    "melee_damage": { "bash": 6 },
+    "flags": [ "BIPOD", "SLOW_WIELD" ],
+    "min_skills": [ [ "weapon", 1 ] ]
+  }
+]

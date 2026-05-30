@@ -1,0 +1,19 @@
+[
+  {
+    "type": "recipe",
+    "activity_level": "MODERATE_EXERCISE",
+    "result": "smb_scrap_bipod",
+    "category": "CC_WEAPON",
+    "subcategory": "CSC_WEAPON_MODS",
+    "skill_used": "fabrication",
+    "skills_required": [ [ "gun", 1 ] ],
+    "difficulty": 1,
+    "time": "15 m",
+    "autolearn": true,
+    "components": [
+      [ [ "pipe", 1 ] ],
+      [ [ "steel_chunk", 1 ] ],
+      [ [ "duct_tape", 50 ] ]
+    ]
+  }
+]

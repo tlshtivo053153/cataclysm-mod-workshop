@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "scrap_bipod",
+    "name": "Scrap Bipod Mod",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a craftable scrap bipod, an improvised underbarrel bipod made from pipes and duct tape.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
