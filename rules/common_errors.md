@@ -143,6 +143,12 @@
   - 複数スキルの場合は入れ子配列: `"skills_required": [["traps", 1], ["gun", 1]]`
 - **注意:** バニラCDDA（`ranged.json` 等）では両方の書式が混在しており、いずれも有効。単一スキルか複数スキルかで使い分ける
 
+### GUNMODが装着できない（mod_targets が狭すぎる）
+- **原因:** `mod_targets` が限定されすぎている。例：`mod_targets: ["rifle"]` だけだと、実際に該当 `location` を持つ銃が少なく装着不可になる
+- **解決策:** バニラ同種GUNMOD（例: `bipod`）の `mod_targets` を参照し、同等の広さに拡張する
+  - 例: `["rifle"]` → `["rifle", "launcher", "smg", "shotgun", "crossbow"]`
+- **注意:** また `"underbarrel"` と `"underbarrel mount"` は別スロット。前者は直接装着スロットで一部の銃のみ持つ。後者はアダプター用スロットで多くの最新銃が持つ。`underbarrel_mount` アダプターを経由すれば間接装着可能
+
 ### trap action のハードコード制限（既知の制約）
 - **原因:** C++ 実装の trap action がドロップアイテムやメッセージをハードコードしている
 - **具体例:**

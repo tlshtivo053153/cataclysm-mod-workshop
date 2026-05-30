@@ -269,6 +269,16 @@ grep -r '"category": "note"' external/cdda/data/json/snippets/
 - `SINGLE_USE` フラグが必須（設置型トラップアイテム）
 - `needs_solid_neighbor: true` で通路設置型（両端に壁が必要）にできる
 
+## GUNMODの実装
+
+GUNMOD（武器アタッチメント）を新規追加する場合は `rules/patterns/gunmod.md` を参照すること。特に以下の点に注意：
+- `name` は `{"str": "..."}` 形式（TOOL相当。`str_sp` ではない）
+- `location` は装着先の銃の `valid_mod_locations` と完全一致する必要がある
+- `"underbarrel"` と `"underbarrel mount"` は別スロット。混同しないこと
+- `mod_targets` はバニラ同種GUNMODと同等の広さを確保する（狭すぎると装着不可になる）
+- `min_skills`（ITEM側）は装着難易度、recipe `skills_required` はクラフト難易度（別物）
+- `integral_volume: "0 ml"` / `integral_weight: "0 g"` は追加アタッチメント用（既存パーツ置換ではない）
+
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ
