@@ -278,6 +278,7 @@ grep -r '"category": "note"' external/cdda/data/json/snippets/
 - `ITEM`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）
   - **ただし `TOOL` subtype のみ例外:** TOOL アイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
   - **ただし `BIONIC_ITEM` subtype も例外:** CBMアイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
+  - **ただし `MAGAZINE` subtype も例外:** マガジンアイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
   - **COMESTIBLE/FOOD/DRINK は `str_sp`:** 食品・飲料系も `ITEM` 型だが、`str_sp` が必須
 - `MONSTER` → `{"str": "名称"}`（バニラで支配的な形式）。動的名前生成の一部モンスターでは `{"str_sp": "..."}` も使用される
 - `overmap_terrain`/`mutation`/`profession`/`start_location`/`scenario` → 単純文字列が必須（`str_sp` は不可）
