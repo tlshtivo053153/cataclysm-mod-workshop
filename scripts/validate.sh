@@ -1,5 +1,6 @@
 #!/bin/bash
 # validate.sh — mod内の全JSONファイルの構文チェック
+set -euo pipefail
 
 MOD_DIR="${1:-.}"
 ERRORS=0
@@ -13,7 +14,7 @@ while read -r file; do
     echo "  OK: $file"
   else
     echo "  NG: $file"
-    python3 -m json.tool "$file" 2>&1 | head -5
+    python3 -m json.tool "$file" 2>&1 | head -5 || true
     ERRORS=$((ERRORS + 1))
   fi
 done < <(find "$MOD_DIR" -name "*.json")
