@@ -1,0 +1,20 @@
+[
+  {
+    "result": "carbide_popper",
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "category": "CC_WEAPON",
+    "subcategory": "CSC_WEAPON_EXPLOSIVE",
+    "skill_used": "fabrication",
+    "difficulty": 1,
+    "time": "2 m",
+    "autolearn": true,
+    "qualities": [ { "id": "CUT", "level": 1 } ],
+    "components": [
+      [ [ "chem_carbide", 20 ] ],
+      [ [ "water", 1 ], [ "water_clean", 1 ] ],
+      [ [ "bottle_plastic", 1 ] ],
+      [ [ "duct_tape", 10 ] ]
+    ]
+  }
+]

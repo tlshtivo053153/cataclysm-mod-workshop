@@ -1,0 +1,46 @@
+[
+  {
+    "id": "carbide_popper",
+    "type": "ITEM",
+    "subtypes": [ "TOOL" ],
+    "category": "weapons",
+    "name": { "str": "calcium carbide popper" },
+    "description": "A small plastic container separated by a seal.  One side holds calcium carbide powder, the other holds a small amount of water.  Breaking the seal causes an immediate chemical reaction that produces acetylene gas, which will eventually rupture the container with a loud bang.",
+    "weight": "50 g",
+    "volume": "50 ml",
+    "price": "5 cent",
+    "price_postapoc": "25 cent",
+    "material": [ "plastic" ],
+    "symbol": "*",
+    "color": "light_gray",
+    "use_action": {
+      "type": "transform",
+      "need_wielding": true,
+      "target": "carbide_popper_act",
+      "msg": "You break the seal, mixing the calcium carbide with water.  The pressure builds rapidly…",
+      "target_timer": "5 seconds",
+      "menu_text": "Break seal"
+    },
+    "flags": [ "BOMB" ]
+  },
+  {
+    "id": "carbide_popper_act",
+    "type": "ITEM",
+    "subtypes": [ "TOOL" ],
+    "category": "weapons",
+    "name": { "str": "active calcium carbide popper", "str_pl": "active calcium carbide poppers" },
+    "description": "Acetylene gas is building up inside this container, and it's about to burst.  You should throw it immediately!",
+    "weight": "50 g",
+    "volume": "50 ml",
+    "price": "0 cent",
+    "price_postapoc": "0 cent",
+    "material": [ "plastic" ],
+    "symbol": "*",
+    "color": "light_gray",
+    "use_action": { "type": "message", "message": "The seal is already broken on this calcium carbide popper.  Throw it, quickly!", "name": "Break seal" },
+    "tick_action": [ { "type": "sound", "sound_message": "A hissing fizz comes from the carbide popper.", "sound_volume": 0, "sound_id": "misc", "sound_variant": "lit_fuse" } ],
+    "countdown_action": { "type": "explosion", "explosion": { "power": 3, "shrapnel": 0 } },
+    "countdown_interval": "5 seconds",
+    "flags": [ "TRADER_AVOID", "NPC_THROW_NOW" ]
+  }
+]

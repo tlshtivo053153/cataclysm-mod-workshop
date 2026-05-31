@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "carbide_popper",
+    "name": "Calcium Carbide Popper",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a craftable thrown noise-making device made from calcium carbide, water, and a plastic bottle.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
