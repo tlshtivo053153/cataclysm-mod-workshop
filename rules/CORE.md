@@ -279,10 +279,19 @@ GUNMOD（武器アタッチメント）を新規追加する場合は `rules/pat
 - `min_skills`（ITEM側）は装着難易度、recipe `skills_required` はクラフト難易度（別物）
 - `integral_volume: "0 ml"` / `integral_weight: "0 g"` は追加アタッチメント用（既存パーツ置換ではない）
 
+## カウントダウン爆発物の実装
+
+投擲式爆発物・ノイズメーカー（未活性→活性化→カウントダウン→爆発の2状態TOOL）を新規追加する場合は `rules/patterns/explosive.md` を参照すること。特に以下の点に注意：
+- `transform` use_action の `need_wielding: true` で誤操作防止
+- `target_timer`（未活性側）と `countdown_interval`（活性化側）を同じ値に設定する
+- `tick_action` は単一でも配列 `[{...}]` で記述
+- 活性化側にダミー `use_action: { "type": "message" }` で再活性化を防止
+- `countdown_action` の type に `"explosion"` を指定すると、爆風パワーに比例した暗黙ノイズを生成。純粋ノイズ目的でもアイテム消費の確実性から爆発型を推奨
+
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ
-- 武器・工具の製作は通常 `"BRISK_EXERCISE"`
+- 大型爆発物（バレルボム級）は `"BRISK_EXERCISE"`。その他の爆発物・ノイズメーカーは `"LIGHT_EXERCISE"` が標準。必ず参照レシピを確認すること
 
 ## name フィールド形式（0.I RC）
 - `ITEM`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）

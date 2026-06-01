@@ -115,6 +115,13 @@
 - **例:** `bread` レシピでは `["surface_heat", 22, "LIST"]`、`granola` では `["surface_heat", 20, "LIST"]`
 - **詳細:** `"C"`（セルシウス温度）形式は存在しない
 
+### recipe components で AMMO アイテムのチャージ数が不明
+
+- **原因:** `duct_tape`（`ammo_type: "tape"`）や `chem_carbide`（`ammo_type: "components"`）等の AMMO アイテムをレシピ材料にする際、消費チャージ数の指定方法が不明瞭
+- **解決策:** `components` 内で `[ "item_id", N ]` の形式で指定する。`ammo_type` の指定は不要
+- **例:** `[ "duct_tape", 10 ]` → 10チャージ消費。`[ "chem_carbide", 20 ]` → 20チャージ消費
+- **注意:** `ammo_type: "components"` のアイテムは弾薬ではないが、AMMO subtype としてチャージ数を持つ。レシピでの消費方法は通常の AMMO と同様
+
 ### `recipe X is nested but isn't in a nested group`
 - **原因:** `subcategory: "CSC_*_NESTED"` のレシピが、いずれの `nested_category` の `nested_category_data` にも含まれていない
 - **解決策:** `type: "nested_category"` を定義し、レシピIDを `nested_category_data` 配列に追加する
