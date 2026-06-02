@@ -77,6 +77,22 @@
   - 旧: `{"monster": "zombie", "probability": 10}` の配列
   - 新: `{"zombie": 10}` のオブジェクト
 
+### ITEM ID 統合: `rag` → `sheet_cotton`（破壊的変更）
+- 旧 ITEM ID `rag` が `sheet_cotton` に統合された
+- 旧 mod 内の `"rag"` 参照は `"sheet_cotton"` に置換する
+- 確認方法: `external/cdda/data/json/obsoletion_and_migration_0.I/migration_items.json` に `"id": "rag", "type": "MIGRATION", "replace": "sheet_cotton"` がある
+- 他の 0.I 統合 ID 候補: 同ファイルを `grep '"type": "MIGRATION"'` で一覧確認
+
+### vehicle_part フラグ整理（破壊的変更）
+- `FENDER` フラグが削除された
+  - mud flap 系 vehicle_part は実装不可
+  - 確認: `external/cdda/data/json/vehicleparts/vp_flags.json` に `FENDER` エントリなし
+- ライト系フラグ（`CONE_LIGHT`, `CIRCLE_LIGHT`, `HEADLIGHT` 等）は電装前提
+  - これらを使用するには `ENABLED_DRAINS_EPOWER` フラグと `epower` 数値（負の値: 消費電力）が必要
+  - 車両バッテリーが必須のため、序盤〜即席コンセプトの mod では使用不可
+- 実装前に必ず `vp_flags.json` で実在確認すること
+- 詳細: `rules/patterns/vehicle_part.md`
+
 ### flags.json（json_flag）の新規作成（破壊的変更）
 - カスタムフラグを使用する mod は `type: "json_flag"` の定義ファイルが必要
 - `modinfo.json` の `dependencies` に関係するフラグを提供する mod が含まれているか確認

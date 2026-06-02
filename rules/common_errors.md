@@ -143,6 +143,37 @@
   - 例: `"CLANK! CLANK!"` → `"CLANK!  CLANK!"`
 - **注意:** 日本語テキストには適用されない。英文のみが検査される
 
+### `vehicle part X is not CARGO and cannot define size`
+- **原因:** `vehicle_part` に `size` フィールドがあるが `CARGO` フラグが付いていない
+- **解決策:**
+  1. CARGO フラグを追加する（`flags: [..., "CARGO"]`）
+  2. または `size` フィールドを削除する（`BED`, `SEAT` 等のサイズ指定は意味を持たない）
+- **詳細:** `rules/patterns/vehicle_part.md`
+
+### `Invalid or misplaced field name "ammo"` (TOOL アイテム)
+- **原因:** `"subtypes": ["TOOL"]` のアイテムに `"ammo"` フィールドを定義
+- **解決策:** `ammo` フィールドは `AMMO` subtype アイテムでのみ有効。TOOL から削除する
+- **正しい AMMO 定義:**
+  ```json
+  { "type": "ITEM", "subtypes": ["AMMO"], "id": "...", "ammo_type": "battery", "count": 100 }
+  ```
+- **詳細:** `rules/patterns/vehicle_part.md`
+
+### `itemgroup entry for spawning item X defined charges but can't have any` (vehicle_part breaks_into)
+- **原因:** `vehicle_part.breaks_into` で charge 非対応アイテムに `charges` を指定
+- **charge 非対応の代表例:** `wire`, `splinter`（GENERIC ITEM で subtype 未定義。`max_charges` 設定なし）
+- **charge 対応の代表例:** `nail`, `scrap`（AMMO subtype）、`plastic_chunk`（TOOL subtype で `max_charges` 設定なしなら非対応、設定済なら対応）
+- **解決策:** `charges` を `count` に変更する
+  - 例: `{"item": "wire", "charges": [4, 10]}` → `{"item": "wire", "count": [1, 3]}`
+- **詳細:** `rules/patterns/vehicle_part.md`
+
+### `unknown vehicle part flag "FENDER"`
+- **原因:** 0.I で削除された `vehicle_part` フラグを使用
+- **0.I で削除されたフラグ:** `FENDER`（mud flap 系）
+- **事前確認:** 実装前に `external/cdda/data/json/vehicleparts/vp_flags.json` で実在確認する
+- **解決策:** フラグを削除する、または別フラグに置換する
+- **詳細:** `rules/patterns/vehicle_part.md`
+
 ### `skills_required` の書式（単一スキル / 複数スキル）
 - **原因:** 単一スキルと複数スキルで書式の使い分けが必要
 - **解決策:**
