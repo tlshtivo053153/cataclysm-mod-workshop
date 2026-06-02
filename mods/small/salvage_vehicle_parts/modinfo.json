@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "salvage_vehicle_parts",
+    "name": "Salvage Vehicle Parts",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds 5 makeshift vehicle parts (seat, basket rack, bed, workbench, horn) made from salvaged materials.  All parts are installable with basic hand tools and require no welding, making them suitable for early-to-mid game vehicle customization.",
+    "category": "vehicles",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

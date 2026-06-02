@@ -1,0 +1,134 @@
+[
+  {
+    "type": "vehicle_part",
+    "id": "svp_improv_seat",
+    "name": { "str": "makeshift padded seat" },
+    "looks_like": "seat",
+    "categories": [ "operations", "passengers" ],
+    "color": "brown",
+    "broken_color": "brown",
+    "damage_modifier": 75,
+    "damage_reduction": { "all": 1, "bash": 3 },
+    "comfort": 1,
+    "floor_bedding_warmth": 50,
+    "description": "A seat cobbled together from wooden boards and salvaged padding.  Crude, but it keeps you off the floor.",
+    "durability": 120,
+    "flags": [ "SEAT", "BOARDABLE", "BELTABLE" ],
+    "item": "svp_improv_seat_item",
+    "location": "center",
+    "requirements": {
+      "install": { "skills": [ [ "mechanics", 1 ] ], "time": "15 m", "using": [ [ "vehicle_wrench_2", 1 ] ] },
+      "removal": { "skills": [ [ "mechanics", 1 ] ], "time": "10 m", "using": [ [ "vehicle_wrench_2", 1 ] ] },
+      "repair": { "skills": [ [ "mechanics", 1 ] ], "time": "15 m", "using": [ [ "adhesive", 1 ], [ "sewing_standard", 4 ] ] }
+    },
+    "breaks_into": "ig_vp_seat",
+    "variants": [ { "symbols": "#", "symbols_broken": "*" } ]
+  },
+  {
+    "type": "vehicle_part",
+    "id": "svp_basket_rack",
+    "name": { "str": "wire basket rack" },
+    "looks_like": "basketlg",
+    "categories": [ "cargo" ],
+    "color": "cyan",
+    "broken_color": "brown",
+    "damage_modifier": 75,
+    "damage_reduction": { "all": 2 },
+    "description": "A wire shopping basket wired onto a wooden frame.  Provides a small amount of cargo space on a vehicle.",
+    "durability": 60,
+    "size": "15 L",
+    "flags": [ "CARGO", "BOARDABLE" ],
+    "item": "svp_basket_rack_item",
+    "location": "center",
+    "requirements": {
+      "install": { "skills": [ [ "mechanics", 1 ] ], "time": "10 m", "using": [ [ "vehicle_screw", 1 ] ] },
+      "removal": { "skills": [ [ "mechanics", 1 ] ], "time": "5 m", "using": [ [ "vehicle_screw", 1 ] ] },
+      "repair": { "skills": [ [ "mechanics", 1 ] ], "time": "5 m", "using": [ [ "adhesive", 1 ] ] }
+    },
+    "breaks_into": [ { "item": "wire", "count": [ 1, 3 ] }, { "item": "splinter", "count": [ 2, 4 ] } ],
+    "variants": [ { "symbols": "o", "symbols_broken": "#" } ]
+  },
+  {
+    "type": "vehicle_part",
+    "id": "svp_improv_bed",
+    "name": { "str": "makeshift vehicle bed" },
+    "looks_like": "bed",
+    "categories": [ "passengers" ],
+    "color": "magenta",
+    "broken_color": "magenta",
+    "damage_modifier": 75,
+    "damage_reduction": { "all": 1, "bash": 3 },
+    "comfort": 2,
+    "floor_bedding_warmth": 400,
+    "description": "A flat wooden board topped with a salvaged sleeping bag and a piece of blanket.  A passable place to sleep in a vehicle.",
+    "durability": 70,
+    "flags": [ "BED", "BOARDABLE", "NONBELTABLE" ],
+    "item": "svp_improv_bed_item",
+    "location": "center",
+    "requirements": {
+      "install": { "skills": [ [ "mechanics", 1 ] ], "time": "15 m", "using": [ [ "vehicle_wrench_2", 1 ] ] },
+      "removal": { "skills": [ [ "mechanics", 1 ] ], "time": "10 m", "using": [ [ "vehicle_wrench_2", 1 ] ] },
+      "repair": {
+        "skills": [ [ "mechanics", 1 ] ],
+        "time": "15 m",
+        "using": [ [ "adhesive", 1 ], [ "sewing_standard", 6 ] ]
+      }
+    },
+    "breaks_into": [
+      { "count": [ 0, 2 ], "item": "sheet_cotton" },
+      { "count": [ 1, 4 ], "item": "splinter" },
+      { "count": [ 4, 10 ], "item": "scrap_cotton" }
+    ],
+    "variants": [ { "symbols": "#", "symbols_broken": "*" } ]
+  },
+  {
+    "type": "vehicle_part",
+    "id": "svp_makeshift_workbench",
+    "name": { "str": "makeshift vehicle workbench" },
+    "looks_like": "veh_table",
+    "categories": [ "utility" ],
+    "color": "brown",
+    "broken_color": "brown",
+    "damage_modifier": 75,
+    "damage_reduction": { "all": 4 },
+    "description": "A simple workbench made of wooden boards nailed into a frame.  Provides a flat work surface that can be used to craft on a vehicle.",
+    "durability": 80,
+    "size": "15 L",
+    "flags": [ "WORKBENCH", "FLAT_SURF", "CARGO", "OBSTACLE" ],
+    "item": "svp_makeshift_workbench_item",
+    "location": "center",
+    "requirements": {
+      "install": { "skills": [ [ "fabrication", 1 ] ], "time": "15 m", "using": [ [ "vehicle_wrench_2", 1 ] ] },
+      "removal": { "skills": [ [ "fabrication", 1 ] ], "time": "15 m", "using": [ [ "vehicle_wrench_2", 1 ] ] },
+      "repair": { "skills": [ [ "fabrication", 1 ] ], "time": "10 m", "using": [ [ "adhesive", 1 ] ] }
+    },
+    "workbench": { "multiplier": 1.05, "mass": 100000, "volume": "15 L" },
+    "breaks_into": [ { "item": "2x4", "count": [ 2, 4 ] }, { "item": "splinter", "count": [ 4, 8 ] }, { "item": "nail", "charges": [ 4, 8 ] } ],
+    "variants": [ { "symbols": "#", "symbols_broken": "#" } ]
+  },
+  {
+    "type": "vehicle_part",
+    "id": "svp_claxon_horn",
+    "name": { "str": "makeshift claxon horn" },
+    "looks_like": "horn_bicycle",
+    "categories": [ "other" ],
+    "broken_color": "dark_gray",
+    "damage_modifier": 20,
+    "durability": 30,
+    "description": "An old bulb horn wired to a single battery.  Use the vehicle controls and select the honk option to make noise.",
+    "bonus": 30,
+    "item": "svp_claxon_horn_item",
+    "requirements": {
+      "install": { "skills": [ [ "mechanics", 0 ] ], "time": "5 m", "using": [ [ "vehicle_screw", 1 ] ] },
+      "removal": { "skills": [ [ "mechanics", 0 ] ], "time": "5 m", "using": [ [ "vehicle_screw", 1 ] ] },
+      "repair": { "skills": [ [ "mechanics", 1 ] ], "time": "10 s", "using": [ [ "adhesive", 1 ] ] }
+    },
+    "flags": [ "HORN" ],
+    "breaks_into": [
+      { "item": "scrap_aluminum", "prob": 25 },
+      { "item": "plastic_chunk", "count": [ 1, 2 ] },
+      { "item": "splinter", "count": [ 1, 2 ] }
+    ],
+    "variants": [ { "symbols": "*", "symbols_broken": "*" } ]
+  }
+]
