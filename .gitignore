@@ -3,3 +3,4 @@ logs/
 benchmarks/unseen/
 *.swp
 __pycache__/
+.kilo/plans/
