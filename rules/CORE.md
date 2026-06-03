@@ -122,6 +122,47 @@
 - `professions`: （任意）許可する profession ID の文字列配列（allowlist）。指定しない場合は全職業が使用可能
 - `flags`: 主なフラグ — `CITY_START`（都市内）、`LONE_START`（NPC仲間なし）、`SUR_START`（サバイバー施設）、`CHALLENGE`（チャレンジ）、`FIRE_START`（火災あり）
 
+### scenario の拡張（既存シナリオに allowed_locs 追加）
+- 既存シナリオを拡張するには `copy-from` + `extend` を使用する。**新規IDは不要で、バニラと同じ `id` を指定する**
+- 書式:
+  ```json
+  { "type": "scenario", "id": "evacuee", "copy-from": "evacuee",
+    "extend": { "allowed_locs": [ "sloc_my_new_loc" ] } }
+  ```
+- **注意:** `type` は `"scenario"`、`id` はバニラのIDと**同一**にする。`name` や `points` 等の他のフィールドは継承されるため再宣言不要
+
+## overmap_terrain / overmap_special / mapgen
+
+### overmap_terrain の定義
+- `copy-from: "shelter_abstract"` で避難所用のシンボル・視認性設定を継承可能（`sym: "+"`, `color: "white"`, `vision_levels: "isolated_building"`, `see_cost: "high"`）
+- 地上階: `flags: [ "KNOWN_DOWN", "SOURCE_PEOPLE", "SOURCE_SAFETY" ]`
+- 地下階/屋根: `flags: [ "KNOWN_UP" ]`
+
+### overmap_special の `_north` 命名規則
+- overmap_special 定義では、マップ生成時の自動回転をサポートするため OMT 名に `_north` を付与する
+- **mapgen の `om_terrain` フィールドには `_north` を付けない**（mapgen 側は回転前のベースIDを指定）
+- 例:
+  ```json
+  // overmap_special 側
+  { "point": [0,0,0], "overmap": "shelter_d_north" }
+  // mapgen 側
+  { "om_terrain": "shelter_d" }
+  ```
+- 3層構造（地上+屋根+地下）のパターンは `external/cdda/data/json/overmap/overmap_special/specials.json` の `Evac Shelter` を参照
+
+### mapgen の基本ルール
+- **24x24グリッド**: `rows` 配列は必ず24行、各行24文字ちょうど。手動カウントはミスが多いため、Python等で全行長を検証する（`common_errors.md` 参照）
+- **`fill_ter`**: パレットにマッピングのない文字に適用されるデフォルト地形。`.` は安全だが、`,`（カンマ）は CDDA 内部で特別扱いされるため、パレット未マップ状態での使用はエラーになる
+- **パレット継承と文字競合**: 継承元パレットの全文字マッピングを事前確認すること。`shelter` パレット（`parametrized_walls_palette` 継承）および `roof_palette` の文字マッピングは `external/cdda/data/json/mapgen_palettes/` で確認可能
+- **`parametrized_walls_palette` の壁文字**: `#`（外壁）と `|`（内壁）は直接の地形IDにマップされず、パラメータ（`exterior_wall_type` / `interior_wall_type`）経由でランダムな壁タイプ（レンガ・木材・コンクリート等）が割り当てられる。`fallback` 値（`t_brick_wall` / `t_wall_w`）はパラメータ解決失敗時の予備。`#` でコンクリート壁を確実にしたい場合は、パレットの `terrain` で `"#": "t_concrete_wall"` と明示的に上書きする
+- **`place_zones`**: 地上階 mapgen の `object` 内に NPC follower 開始地点を定義する:
+  ```json
+  "place_zones": [
+    { "type": "ZONE_START_POINT", "faction": "your_followers", "x": [7,17], "y": [10,15] }
+  ]
+  ```
+- **家具IDの実在確認**: `f_bars`, `f_window_boarded`, `f_railing`, `f_gun_safe` 等は Furniture として存在しない。代わりに terrain（`t_window_bars`, `t_window_boarded`, `t_railing`）/ 別 furniture（`f_gun_safe_el`）を使用する
+
 ## copy-from の使い方
 - 使用前に external/cdda/data/json/ で親IDの存在を確認する
 - abstract アイテムを copy-from する場合、`abstract` フィールドは引き継がれない

@@ -231,4 +231,45 @@ debug.log などで `Invalid or misplaced field name "XXX"` が大量に出る�
 
 ---
 
+## mapgen・mapgen_palette 関連エラー
+
+### mapgen `rows` のカンマ文字による silent error / タイムアウト
+- **現象:** `check_mods.sh` が30秒タイムアウト、または debug.log に `mapgen.cpp:5365 setup_common` エラーが大量発生するがエラーメッセージが空
+- **原因:** mapgen の `rows` 文字列内で `,`（カンマ）を未マップ文字として使用している。カンマは CDDA 内部で特別な扱いを受ける文字であり、パレットで明示的に terrain マッピングされていない場合 `fill_ter` が適用されずエラーになる（`.` は `fill_ter` が適用される）
+- **解決策:** `rows` 内の `,` を `.` に置換する。`.` は `fill_ter` でカバーされる安全な文字。または `,` をパレットの `terrain` で明示的にマッピングする（例: `",": "t_region_soil"` — `shelter_unfinished` パレットのパターン）
+- **注意:** `validate.sh` では検出できない。24文字の行長が合っていてもエラーになる
+
+### roof_palette の未定義文字 / 文字競合
+- **現象:** `check_mods.sh` で屋根 mapgen がエラー。debug.log に `roof_palette` を使った mapgen の `setup_common` エラー
+- **原因:**
+  1. `*`（ladder up）は `roof_palette` の terrain に定義されていない（`shelter` パレットでは定義されている）
+  2. `~` は `roof_palette` の furniture で `f_chimney`（煙突）にマップされている
+- **解決策:** 屋根 mapgen の `object` 内でインライン `terrain` / `furniture` 定義を追加して上書きする:
+  ```json
+  "terrain": { "*": "t_ladder_up" },
+  "furniture": { "~": "f_sandbag_half" }
+  ```
+- **事前確認:** `external/cdda/data/json/mapgen_palettes/roof_palette.json` で使用予定文字のマッピングを確認する
+
+### mapgen rows の行長エラー（24x24不一致）
+- **現象:** マップ生成時に壁の繋がりが崩れたり、タイル位置がずれる
+- **原因:** 24x24グリッドの各行文字列が正確に24文字になっていない
+- **解決策:** Python 等で全行の `len(row)` を確認する:
+  ```bash
+  python3 -c "import json; d=json.load(open('file.json')); [print(f'row[{i}] len={len(r)}') for e in d for i,r in enumerate(e.get('object',{}).get('rows',[])) if len(r)!=24]"
+  ```
+- **注意:** `validate.sh` では検出できない。1文字のズレが建物全体のレイアウトを破壊する
+
+### パレット継承時の文字競合
+- **現象:** 意図しない furniture/terrain が配置される
+- **原因:** 継承元パレット（`parametrized_walls_palette`, `shelter` 等）が特定の文字を既にマッピングしている
+- **解決策:**
+  1. 継承元パレットの全文字マッピングを `external/cdda/data/json/mapgen_palettes/` で事前確認する
+  2. 競合する文字は避けるか、`object` 内のインライン `terrain` / `furniture` で上書きする
+  3. 新規パレットで継承元の文字を上書きする場合は、`terrain` / `furniture` に明示的に定義する（自パレットの定義は継承元より後に適用されるため優先される）
+- **代表的な競合:** `roof_palette` の `~`=`f_chimney`, `shelter` の `:`=`t_window_domestic`, `=`=`t_door_locked_interior` 等
+- **補足:** `palettes` 配列に複数のパレットを指定した場合、後方のパレットが前方の定義を上書きする（後勝ち）。`parametrized_walls_palette` を配列末尾に置くことで、他パレットによる `#` / `|` の誤上書きを防止できる
+
+---
+
 ※ 新しいエラーが発生したらこのファイルに追記する
