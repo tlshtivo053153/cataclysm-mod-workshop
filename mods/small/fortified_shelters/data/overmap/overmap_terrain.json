@@ -1,0 +1,44 @@
+[
+  {
+    "type": "overmap_terrain",
+    "id": "shelter_d",
+    "name": "fortified garage shelter",
+    "copy-from": "shelter_abstract",
+    "flags": [ "KNOWN_DOWN", "SOURCE_PEOPLE", "SOURCE_SAFETY" ]
+  },
+  {
+    "type": "overmap_terrain",
+    "id": "shelter_d_roof",
+    "name": "garage shelter roof",
+    "copy-from": "shelter_abstract",
+    "flags": [ "KNOWN_UP" ]
+  },
+  {
+    "type": "overmap_terrain",
+    "id": "shelter_d_under",
+    "name": "garage shelter basement",
+    "copy-from": "shelter_abstract",
+    "flags": [ "KNOWN_UP" ]
+  },
+  {
+    "type": "overmap_terrain",
+    "id": "shelter_e",
+    "name": "watchtower shelter",
+    "copy-from": "shelter_abstract",
+    "flags": [ "KNOWN_DOWN", "SOURCE_PEOPLE", "SOURCE_SAFETY" ]
+  },
+  {
+    "type": "overmap_terrain",
+    "id": "shelter_e_roof",
+    "name": "watchtower shelter roof",
+    "copy-from": "shelter_abstract",
+    "flags": [ "KNOWN_UP" ]
+  },
+  {
+    "type": "overmap_terrain",
+    "id": "shelter_e_under",
+    "name": "watchtower shelter basement",
+    "copy-from": "shelter_abstract",
+    "flags": [ "KNOWN_UP" ]
+  }
+]

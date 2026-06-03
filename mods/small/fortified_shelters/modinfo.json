@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "fortified_shelters",
+    "name": "Fortified Shelter Variants",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds two fortified evac shelter variants: a converted garage workshop and a watchtower shelter, both available as starting locations in existing scenarios.",
+    "category": "buildings",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

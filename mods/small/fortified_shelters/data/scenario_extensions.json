@@ -1,0 +1,20 @@
+[
+  {
+    "type": "scenario",
+    "id": "evacuee",
+    "copy-from": "evacuee",
+    "extend": { "allowed_locs": [ "sloc_fortified_garage", "sloc_fortified_watchtower" ] }
+  },
+  {
+    "type": "scenario",
+    "id": "squatter",
+    "copy-from": "squatter",
+    "extend": { "allowed_locs": [ "sloc_fortified_garage", "sloc_fortified_watchtower" ] }
+  },
+  {
+    "type": "scenario",
+    "id": "alone",
+    "copy-from": "alone",
+    "extend": { "allowed_locs": [ "sloc_fortified_garage", "sloc_fortified_watchtower" ] }
+  }
+]

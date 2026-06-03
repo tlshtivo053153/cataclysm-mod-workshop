@@ -1,0 +1,35 @@
+[
+  {
+    "type": "palette",
+    "id": "fortified_shelter",
+    "palettes": [ "shelter" ],
+    "terrain": {
+      "{": "t_window_boarded",
+      "}": "t_window_bars",
+      "=": "t_door_metal_c",
+      "3": "t_door_metal_locked",
+      "@": "t_railing"
+    },
+    "furniture": {
+      "~": "f_sandbag_half",
+      "w": "f_workbench",
+      "G": "f_gun_safe_el",
+      "M": "f_machinery_heavy",
+      "H": "f_armchair",
+      "F": "f_sofa",
+      "W": "f_woodstove",
+      "a": "f_bed",
+      "D": "f_desk",
+      "K": "f_console",
+      "Y": "f_rack",
+      "8": "f_crate_c",
+      "9": "f_filing_cabinet"
+    },
+    "items": {
+      "G": { "item": "army_personal_locker", "chance": 80 },
+      "8": { "item": "milspec_arsenal_only_guns_or_ammo", "chance": 70 },
+      "Y": { "item": "SUS_evac_shelter_supply_closet", "chance": 60 },
+      "9": { "item": "SUS_evac_shelter_supply_closet", "chance": 60 }
+    }
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "type": "start_location",
+    "id": "sloc_fortified_garage",
+    "name": "Fortified Garage Shelter",
+    "terrain": [ "shelter_d" ]
+  },
+  {
+    "type": "start_location",
+    "id": "sloc_fortified_watchtower",
+    "name": "Watchtower Shelter",
+    "terrain": [ "shelter_e" ]
+  }
+]
