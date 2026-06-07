@@ -58,11 +58,7 @@ class Grid:
                 reachable.add((ex, ey))
                 queue.append((ex, ey))
 
-        directions = [
-            (-1, -1), (0, -1), (1, -1),
-            (-1, 0),           (1, 0),
-            (-1, 1),  (0, 1),  (1, 1),
-        ]
+        directions = [(0, -1), (-1, 0), (1, 0), (0, 1)]
 
         while queue:
             cx, cy = queue.popleft()

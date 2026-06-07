@@ -78,6 +78,11 @@ def _resolve_global_coords(value: int | list[int]) -> list[int]:
     if isinstance(value, int):
         return [value]
     if isinstance(value, list) and len(value) == 2:
+        if value[0] > value[1]:
+            raise CompileError(
+                f"Invalid global coordinate range: [{value[0]}, {value[1]}] "
+                f"(start must be <= end)"
+            )
         return list(range(value[0], value[1] + 1))
     raise CompileError(f"Invalid global coordinate: {value}")
 
@@ -92,15 +97,18 @@ def _validate_entry(entry_data: dict) -> EntrySpec:
 
     room_specs: list[RoomSpec] = []
     for room_data in entry_data.get("rooms", []):
-        spec = RoomSpec(
-            id=room_data["id"],
-            x=room_data["x"],
-            y=room_data["y"],
-            w=room_data["w"],
-            h=room_data["h"],
-            wall=room_data["wall"],
-            floor=room_data["floor"],
-        )
+        try:
+            spec = RoomSpec(
+                id=room_data["id"],
+                x=room_data["x"],
+                y=room_data["y"],
+                w=room_data["w"],
+                h=room_data["h"],
+                wall=room_data["wall"],
+                floor=room_data["floor"],
+            )
+        except KeyError as e:
+            raise CompileError(f"Room missing required field: {e}") from e
         if spec.w < 1 or spec.h < 1:
             raise InvalidRoomSizeError(
                 f"Room '{spec.id}': w={spec.w}, h={spec.h} — both must be >= 1"
@@ -120,13 +128,16 @@ def _validate_entry(entry_data: dict) -> EntrySpec:
 
     door_specs: list[DoorSpec] = []
     for door_data in entry_data.get("doors", []):
-        spec = DoorSpec(
-            from_room=door_data["from"],
-            to_room=door_data["to"],
-            char=door_data["char"],
-            offset=door_data.get("offset"),
-            side=door_data.get("side"),
-        )
+        try:
+            spec = DoorSpec(
+                from_room=door_data["from"],
+                to_room=door_data["to"],
+                char=door_data["char"],
+                offset=door_data.get("offset"),
+                side=door_data.get("side"),
+            )
+        except KeyError as e:
+            raise CompileError(f"Door missing required field: {e}") from e
         if spec.from_room not in seen:
             raise RoomNotAdjacentError(
                 f"Door references unknown room: '{spec.from_room}'"
@@ -147,7 +158,10 @@ def _validate_entry(entry_data: dict) -> EntrySpec:
 
     feature_specs: list[FeatureSpec] = []
     for feat_data in entry_data.get("features", []):
-        room_name = feat_data["room"]
+        try:
+            room_name = feat_data["room"]
+        except KeyError as e:
+            raise CompileError(f"Feature missing required field: {e}") from e
         if room_name not in seen:
             raise FeatureOutOfRoomError(
                 f"Feature references unknown room: '{room_name}'"
@@ -155,11 +169,14 @@ def _validate_entry(entry_data: dict) -> EntrySpec:
         room_spec = _find_room_spec(room_specs, room_name)
         tiles: list[FeatureTile] = []
         for tile_data in feat_data.get("tiles", []):
-            tile = FeatureTile(
-                char=tile_data["char"],
-                x=tile_data["x"],
-                y=tile_data["y"],
-            )
+            try:
+                tile = FeatureTile(
+                    char=tile_data["char"],
+                    x=tile_data["x"],
+                    y=tile_data["y"],
+                )
+            except KeyError as e:
+                raise CompileError(f"Feature tile in room '{room_name}' missing required field: {e}") from e
             if tile.x < 0 or tile.x >= room_spec.w or tile.y < 0 or tile.y >= room_spec.h:
                 raise FeatureOutOfRoomError(
                     f"Feature tile at ({tile.x},{tile.y}) is outside room '{room_name}' "
@@ -170,11 +187,14 @@ def _validate_entry(entry_data: dict) -> EntrySpec:
 
     global_tiles: list[GlobalTile] = []
     for gt_data in entry_data.get("global", []):
-        gt = GlobalTile(
-            char=gt_data["char"],
-            x=gt_data["x"],
-            y=gt_data["y"],
-        )
+        try:
+            gt = GlobalTile(
+                char=gt_data["char"],
+                x=gt_data["x"],
+                y=gt_data["y"],
+            )
+        except KeyError as e:
+            raise CompileError(f"Global tile missing required field: {e}") from e
         for x_val in _resolve_global_coords(gt.x):
             if x_val < 0 or x_val > 23:
                 raise FeatureOutOfGridError(

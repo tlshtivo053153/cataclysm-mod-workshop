@@ -138,10 +138,12 @@ class Compiler:
                     grid.place(x, y, gt.char)
 
         passable_chars: set[str] = {" "}
+        wall_chars_all: set[str] = {r.wall_char for r in rooms.values()}
         for room in rooms.values():
             passable_chars.add(room.floor_char)
         for door in spec.doors:
-            passable_chars.add(door.char)
+            if door.char not in wall_chars_all:
+                passable_chars.add(door.char)
         for feat in spec.features:
             for tile in feat.tiles:
                 if tile.char in STAIR_CHARS:
@@ -228,22 +230,22 @@ class Compiler:
                         next_ladders.add((x, y))
 
             if current_stairs_down and next_stairs_up and current_stairs_down != next_stairs_up:
-                    errors.append(StairMismatchError(
-                        f"Stair mismatch between {current.om_terrain} (>) and "
-                        f"{next_entry.om_terrain} (<): positions differ"
-                    ))
+                errors.append(StairMismatchError(
+                    f"Stair mismatch between {current.om_terrain} (>) and "
+                    f"{next_entry.om_terrain} (<): positions differ"
+                ))
 
             if current_stairs_up and next_stairs_down and current_stairs_up != next_stairs_down:
-                    errors.append(StairMismatchError(
-                        f"Stair mismatch between {current.om_terrain} (<) and "
-                        f"{next_entry.om_terrain} (>): positions differ"
-                    ))
+                errors.append(StairMismatchError(
+                    f"Stair mismatch between {current.om_terrain} (<) and "
+                    f"{next_entry.om_terrain} (>): positions differ"
+                ))
 
             if current_ladders and next_ladders and current_ladders != next_ladders:
-                    errors.append(StairMismatchError(
-                        f"Ladder mismatch between {current.om_terrain} and "
-                        f"{next_entry.om_terrain}: positions differ"
-                    ))
+                errors.append(StairMismatchError(
+                    f"Ladder mismatch between {current.om_terrain} and "
+                    f"{next_entry.om_terrain}: positions differ"
+                ))
 
         return errors
 
