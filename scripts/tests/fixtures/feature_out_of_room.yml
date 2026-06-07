@@ -1,0 +1,18 @@
+entries:
+  - om_terrain: "test_feature_oob"
+    fill_ter: "t_floor"
+    palette: ["test_palette"]
+    rooms:
+      - id: "main"
+        x: 5
+        y: 5
+        w: 4
+        h: 4
+        wall: "#"
+        floor: "."
+    features:
+      - room: "main"
+        tiles:
+          - char: ">"
+            x: 10
+            y: 2

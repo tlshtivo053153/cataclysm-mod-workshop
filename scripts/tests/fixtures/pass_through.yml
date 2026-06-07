@@ -1,0 +1,24 @@
+entries:
+  - om_terrain: "test_pass_through"
+    fill_ter: "t_floor"
+    palette: ["test_palette"]
+    rooms:
+      - id: "main"
+        x: 5
+        y: 5
+        w: 6
+        h: 6
+        wall: "#"
+        floor: "."
+    terrain:
+      ".": "t_floor"
+    furniture:
+      "~": "f_sandbag_half"
+    place_items:
+      - item: "SUS_trash"
+        chance: 50
+    place_zones:
+      - type: "ZONE_START_POINT"
+        faction: "your_followers"
+        x: [7, 17]
+        y: [12, 16]

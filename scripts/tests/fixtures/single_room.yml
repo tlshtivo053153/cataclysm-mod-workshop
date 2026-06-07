@@ -1,0 +1,12 @@
+entries:
+  - om_terrain: "test_single"
+    fill_ter: "t_floor"
+    palette: ["fortified_shelter"]
+    rooms:
+      - id: "main"
+        x: 5
+        y: 5
+        w: 8
+        h: 8
+        wall: "#"
+        floor: "."

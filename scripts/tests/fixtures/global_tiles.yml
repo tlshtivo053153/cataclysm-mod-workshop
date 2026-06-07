@@ -1,0 +1,19 @@
+entries:
+  - om_terrain: "test_global_tiles"
+    fill_ter: "t_floor"
+    palette: ["test_palette"]
+    rooms:
+      - id: "main"
+        x: 5
+        y: 5
+        w: 6
+        h: 6
+        wall: "#"
+        floor: "."
+    global:
+      - char: "&"
+        x: [0, 23]
+        y: 0
+      - char: "&"
+        x: 0
+        y: [0, 23]

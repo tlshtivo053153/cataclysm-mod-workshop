@@ -7,6 +7,9 @@ name = "cdda-mod-framework"
 version = "0.1.0"
 description = "Tools and scripts for CDDA mod development and porting"
 requires-python = ">=3.10"
+dependencies = [
+    "PyYAML>=6.0",
+]
 
 [tool.black]
 line-length = 100

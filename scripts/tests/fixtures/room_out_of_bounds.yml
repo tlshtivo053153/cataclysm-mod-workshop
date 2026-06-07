@@ -1,0 +1,12 @@
+entries:
+  - om_terrain: "test_oob"
+    fill_ter: "t_floor"
+    palette: ["test_palette"]
+    rooms:
+      - id: "bad"
+        x: 20
+        y: 5
+        w: 10
+        h: 5
+        wall: "#"
+        floor: "."

@@ -1,0 +1,19 @@
+entries:
+  - om_terrain: "test_unreachable"
+    fill_ter: "t_floor"
+    palette: ["test_palette"]
+    rooms:
+      - id: "a"
+        x: 2
+        y: 2
+        w: 4
+        h: 4
+        wall: "#"
+        floor: "."
+      - id: "b"
+        x: 8
+        y: 2
+        w: 4
+        h: 4
+        wall: "#"
+        floor: "."

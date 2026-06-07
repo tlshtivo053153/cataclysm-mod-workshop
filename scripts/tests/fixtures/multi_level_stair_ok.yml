@@ -1,0 +1,35 @@
+entries:
+  - om_terrain: "shelter_e"
+    fill_ter: "t_floor"
+    palette: ["test_palette"]
+    rooms:
+      - id: "main"
+        x: 2
+        y: 2
+        w: 10
+        h: 10
+        wall: "#"
+        floor: "."
+    features:
+      - room: "main"
+        tiles:
+          - char: "<"
+            x: 3
+            y: 4
+  - om_terrain: "shelter_e_under"
+    fill_ter: "t_linoleum_white"
+    palette: ["test_palette"]
+    rooms:
+      - id: "main"
+        x: 2
+        y: 2
+        w: 10
+        h: 10
+        wall: "#"
+        floor: "."
+    features:
+      - room: "main"
+        tiles:
+          - char: ">"
+            x: 3
+            y: 4

@@ -1,0 +1,24 @@
+entries:
+  - om_terrain: "test_door_offset"
+    fill_ter: "t_floor"
+    palette: ["test_palette"]
+    rooms:
+      - id: "north"
+        x: 4
+        y: 2
+        w: 8
+        h: 6
+        wall: "#"
+        floor: "."
+      - id: "south"
+        x: 4
+        y: 8
+        w: 8
+        h: 6
+        wall: "#"
+        floor: "."
+    doors:
+      - from: "north"
+        to: "south"
+        char: "="
+        offset: 2

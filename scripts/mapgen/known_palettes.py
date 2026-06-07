@@ -1,0 +1,44 @@
+KNOWN_PALETTES: dict[str, dict[str, dict[str, str]]] = {
+    "fortified_shelter": {
+        "terrain": {
+            "{": "t_window_boarded",
+            "}": "t_window_bars",
+            "=": "t_door_metal_c",
+            "3": "t_door_metal_locked",
+            "@": "t_railing",
+        },
+        "furniture": {
+            "~": "f_sandbag_half",
+            "w": "f_workbench",
+            "G": "f_gun_safe_el",
+            "M": "f_machinery_heavy",
+            "H": "f_armchair",
+            "F": "f_sofa",
+            "W": "f_woodstove",
+            "a": "f_bed",
+            "D": "f_desk",
+            "K": "f_console",
+            "Y": "f_rack",
+            "8": "f_crate_c",
+            "9": "f_filing_cabinet",
+        },
+    },
+    "roof_palette": {
+        "terrain": {
+            ".": "t_flat_roof",
+            "-": "t_concrete_wall",
+        },
+        "furniture": {},
+    },
+    "standard_domestic_palette": {
+        "terrain": {},
+        "furniture": {},
+    },
+}
+
+
+def is_char_known(palette_name: str, char: str) -> bool:
+    palette = KNOWN_PALETTES.get(palette_name)
+    if palette is None:
+        return False
+    return char in palette.get("terrain", {}) or char in palette.get("furniture", {})

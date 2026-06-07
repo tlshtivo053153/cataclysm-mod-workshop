@@ -1,0 +1,24 @@
+entries:
+  - om_terrain: "test_contained"
+    fill_ter: "t_floor"
+    palette: ["test_palette"]
+    rooms:
+      - id: "outer"
+        x: 2
+        y: 2
+        w: 14
+        h: 14
+        wall: "#"
+        floor: "."
+      - id: "inner"
+        x: 5
+        y: 5
+        w: 6
+        h: 6
+        wall: "#"
+        floor: "."
+    doors:
+      - from: "outer"
+        to: "inner"
+        char: "="
+        side: "south"
