@@ -123,11 +123,15 @@ class Compiler:
 
             grid.place(door_x, door_y, door.char)
 
+        self._merge_adjacent_walls(rooms, grid)
+
         for feat in spec.features:
             room = rooms[feat.room]
             for tile in feat.tiles:
                 ax = room.x + tile.x
                 ay = room.y + tile.y
+                if self._is_inside_contained_room(ax, ay, room, rooms):
+                    continue
                 grid.place(ax, ay, tile.char)
 
         for gt in spec.global_tiles:
@@ -248,6 +252,75 @@ class Compiler:
                 ))
 
         return errors
+
+    def _is_inside_contained_room(
+        self, ax: int, ay: int, parent: Room, rooms: dict[str, Room],
+    ) -> bool:
+        """Check if absolute coordinates (ax, ay) fall within any room contained by parent."""
+        for other in rooms.values():
+            if other.room_id == parent.room_id:
+                continue
+            if not parent.contains(other):
+                continue
+            if other.x1 <= ax < other.x2 and other.y1 <= ay < other.y2:
+                return True
+        return False
+
+    def _merge_adjacent_walls(self, rooms: dict[str, Room], grid: Grid) -> None:
+        """Replace one side of double walls between adjacent rooms with floor.
+
+        For east-west adjacency, the eastern room's west wall is merged.
+        For north-south adjacency, the southern room's north wall is merged.
+        Only the interior portion of the wall (excluding horizontal-wall corners)
+        is merged.  Tiles already replaced by doors are left intact.
+        """
+        room_list = list(rooms.values())
+        for i in range(len(room_list)):
+            for j in range(i + 1, len(room_list)):
+                a = room_list[i]
+                b = room_list[j]
+                if not a.is_adjacent_to(b):
+                    continue
+
+                edge = a.adjacent_edge(b)
+                if edge is None:
+                    continue
+
+                if edge.direction == "east":
+                    # a is left, b is right — merge b's west wall (vertical)
+                    y_start = max(edge.overlap_start, b.y + 1)
+                    y_end = min(edge.overlap_end, b.y + b.h - 1)
+                    for y in range(y_start, y_end):
+                        x = b.x1
+                        if grid.get(x, y) == b.wall_char:
+                            grid.place(x, y, b.floor_char)
+
+                elif edge.direction == "west":
+                    # a is right, b is left — merge a's west wall (vertical)
+                    y_start = max(edge.overlap_start, a.y + 1)
+                    y_end = min(edge.overlap_end, a.y + a.h - 1)
+                    for y in range(y_start, y_end):
+                        x = a.x1
+                        if grid.get(x, y) == a.wall_char:
+                            grid.place(x, y, a.floor_char)
+
+                elif edge.direction == "south":
+                    # a is top, b is bottom — merge b's north wall (horizontal)
+                    x_start = max(edge.overlap_start, b.x + 1)
+                    x_end = min(edge.overlap_end, b.x + b.w - 1)
+                    for x in range(x_start, x_end):
+                        y = b.y1
+                        if grid.get(x, y) == b.wall_char:
+                            grid.place(x, y, b.floor_char)
+
+                elif edge.direction == "north":
+                    # a is bottom, b is top — merge a's north wall (horizontal)
+                    x_start = max(edge.overlap_start, a.x + 1)
+                    x_end = min(edge.overlap_end, a.x + a.w - 1)
+                    for x in range(x_start, x_end):
+                        y = a.y1
+                        if grid.get(x, y) == a.wall_char:
+                            grid.place(x, y, a.floor_char)
 
     def _find_entry_points(
         self,
