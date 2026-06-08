@@ -1,21 +1,26 @@
 from collections import deque
 
+from mapgen import OutOfBoundsError
+
+MAPGEN_SIZE = 24
+
 
 class Grid:
-    WIDTH = 24
-    HEIGHT = 24
+    WIDTH = MAPGEN_SIZE
+    HEIGHT = MAPGEN_SIZE
+    DIRECTIONS: tuple[tuple[int, int], ...] = ((0, -1), (-1, 0), (1, 0), (0, 1))
 
     def __init__(self, fill_char: str = " ") -> None:
         self._cells = [[fill_char for _ in range(self.WIDTH)] for _ in range(self.HEIGHT)]
 
     def place(self, x: int, y: int, char: str) -> None:
         if not self.is_in_bounds(x, y):
-            raise ValueError(f"Coordinates ({x}, {y}) out of bounds (0-23)")
+            raise OutOfBoundsError(f"Coordinates ({x}, {y}) out of bounds (0-{self.WIDTH - 1}, 0-{self.HEIGHT - 1})")
         self._cells[y][x] = char
 
     def get(self, x: int, y: int) -> str:
         if not self.is_in_bounds(x, y):
-            raise ValueError(f"Coordinates ({x}, {y}) out of bounds (0-23)")
+            raise OutOfBoundsError(f"Coordinates ({x}, {y}) out of bounds (0-{self.WIDTH - 1}, 0-{self.HEIGHT - 1})")
         return self._cells[y][x]
 
     def is_in_bounds(self, x: int, y: int) -> bool:
@@ -58,11 +63,9 @@ class Grid:
                 reachable.add((ex, ey))
                 queue.append((ex, ey))
 
-        directions = [(0, -1), (-1, 0), (1, 0), (0, 1)]
-
         while queue:
             cx, cy = queue.popleft()
-            for dx, dy in directions:
+            for dx, dy in self.DIRECTIONS:
                 nx, ny = cx + dx, cy + dy
                 if not self.is_in_bounds(nx, ny):
                     continue

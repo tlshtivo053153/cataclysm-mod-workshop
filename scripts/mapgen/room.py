@@ -1,12 +1,34 @@
 from dataclasses import dataclass
+from typing import Callable, Literal
 
 from mapgen import DoorOverlapTooSmallError, RoomNotAdjacentError
 from mapgen.grid import Grid
 
+_SIDE_CONFIG: dict[str, tuple[Callable[["Room"], int], Callable[["Room", int], tuple[int, int]]]] = {
+    "south": (lambda r: r.w, lambda r, o: (r.x + min(o, r.w - 1), r.y2 - 1)),
+    "north": (lambda r: r.w, lambda r, o: (r.x + min(o, r.w - 1), r.y1)),
+    "east":  (lambda r: r.h, lambda r, o: (r.x2 - 1, r.y + min(o, r.h - 1))),
+    "west":  (lambda r: r.h, lambda r, o: (r.x1, r.y + min(o, r.h - 1))),
+}
+
+_DIRECTION_NAMES: dict[str, str] = {
+    "south": "Southern",
+    "north": "Northern",
+    "east": "Eastern",
+    "west": "Western",
+}
+
+_EDGE_POS: dict[str, Callable[["Room", int], tuple[int, int]]] = {
+    "east":  lambda r, c: (r.x2 - 1, c),
+    "west":  lambda r, c: (r.x1, c),
+    "south": lambda r, c: (c, r.y2 - 1),
+    "north": lambda r, c: (c, r.y1),
+}
+
 
 @dataclass
 class Edge:
-    direction: str
+    direction: Literal["north", "south", "east", "west"]
     overlap_start: int
     overlap_end: int
 
@@ -102,44 +124,28 @@ class Room:
         horiz_overlap = self.x1 < other.x2 and self.x2 > other.x1
         return vert and horiz_overlap
 
-    def adjacent_edge(self, other: "Room") -> Edge | None:
-        if self.x2 == other.x1:
-            overlap_start = max(self.y1, other.y1)
-            overlap_end = min(self.y2, other.y2)
-            if overlap_end > overlap_start:
-                return Edge(
-                    direction="east",
-                    overlap_start=overlap_start,
-                    overlap_end=overlap_end,
-                )
-        if self.x1 == other.x2:
-            overlap_start = max(self.y1, other.y1)
-            overlap_end = min(self.y2, other.y2)
-            if overlap_end > overlap_start:
-                return Edge(
-                    direction="west",
-                    overlap_start=overlap_start,
-                    overlap_end=overlap_end,
-                )
-        if self.y2 == other.y1:
-            overlap_start = max(self.x1, other.x1)
-            overlap_end = min(self.x2, other.x2)
-            if overlap_end > overlap_start:
-                return Edge(
-                    direction="south",
-                    overlap_start=overlap_start,
-                    overlap_end=overlap_end,
-                )
-        if self.y1 == other.y2:
-            overlap_start = max(self.x1, other.x1)
-            overlap_end = min(self.x2, other.x2)
-            if overlap_end > overlap_start:
-                return Edge(
-                    direction="north",
-                    overlap_start=overlap_start,
-                    overlap_end=overlap_end,
-                )
+    def _try_edge(
+        self, other: "Room",
+        axis_self: int, axis_other: int,
+        overlap_a1: int, overlap_a2: int,
+        overlap_b1: int, overlap_b2: int,
+        direction: str,
+    ) -> Edge | None:
+        if axis_self != axis_other:
+            return None
+        start = max(overlap_a1, overlap_b1)
+        end = min(overlap_a2, overlap_b2)
+        if end > start:
+            return Edge(direction=direction, overlap_start=start, overlap_end=end)
         return None
+
+    def adjacent_edge(self, other: "Room") -> Edge | None:
+        return (
+            self._try_edge(other, self.x2, other.x1, self.y1, self.y2, other.y1, other.y2, "east")
+            or self._try_edge(other, self.x1, other.x2, self.y1, self.y2, other.y1, other.y2, "west")
+            or self._try_edge(other, self.y2, other.y1, self.x1, self.x2, other.x1, other.x2, "south")
+            or self._try_edge(other, self.y1, other.y2, self.x1, self.x2, other.x1, other.x2, "north")
+        )
 
     def draw(self, grid: Grid) -> None:
         grid.draw_rect_border(self.x, self.y, self.w, self.h, self.wall_char)
@@ -169,18 +175,12 @@ def compute_door_position(
     pos = offset if offset is not None else edge.overlap_length // 2
     coord = edge.overlap_start + pos
 
-    if edge.direction == "east":
-        return (room_a.x2 - 1, coord)
-    elif edge.direction == "west":
-        return (room_a.x1, coord)
-    elif edge.direction == "south":
-        return (coord, room_a.y2 - 1)
-    elif edge.direction == "north":
-        return (coord, room_a.y1)
-    else:
+    pos_fn = _EDGE_POS.get(edge.direction)
+    if pos_fn is None:
         raise RoomNotAdjacentError(
             f"Unknown edge direction: {edge.direction}"
         )
+    return pos_fn(room_a, coord)
 
 
 def compute_contained_door_position(
@@ -194,45 +194,16 @@ def compute_contained_door_position(
             f"Room '{container.room_id}' does not strictly contain '{inner.room_id}'"
         )
 
-    if side == "south":
-        overlap_length = inner.w
-        if overlap_length < 2:
-            raise DoorOverlapTooSmallError(
-                f"Southern wall of '{inner.room_id}' has overlap {overlap_length}, need at least 2"
-            )
-        rel_offset = offset if offset is not None else inner.w // 2
-        door_x = inner.x + min(rel_offset, inner.w - 1)
-        door_y = inner.y2 - 1
-        return (door_x, door_y)
-    elif side == "north":
-        overlap_length = inner.w
-        if overlap_length < 2:
-            raise DoorOverlapTooSmallError(
-                f"Northern wall of '{inner.room_id}' has overlap {overlap_length}, need at least 2"
-            )
-        rel_offset = offset if offset is not None else inner.w // 2
-        door_x = inner.x + min(rel_offset, inner.w - 1)
-        door_y = inner.y1
-        return (door_x, door_y)
-    elif side == "east":
-        overlap_length = inner.h
-        if overlap_length < 2:
-            raise DoorOverlapTooSmallError(
-                f"Eastern wall of '{inner.room_id}' has overlap {overlap_length}, need at least 2"
-            )
-        rel_offset = offset if offset is not None else inner.h // 2
-        door_x = inner.x2 - 1
-        door_y = inner.y + min(rel_offset, inner.h - 1)
-        return (door_x, door_y)
-    elif side == "west":
-        overlap_length = inner.h
-        if overlap_length < 2:
-            raise DoorOverlapTooSmallError(
-                f"Western wall of '{inner.room_id}' has overlap {overlap_length}, need at least 2"
-            )
-        rel_offset = offset if offset is not None else inner.h // 2
-        door_x = inner.x1
-        door_y = inner.y + min(rel_offset, inner.h - 1)
-        return (door_x, door_y)
-    else:
+    config = _SIDE_CONFIG.get(side)
+    if config is None:
         raise ValueError(f"Unknown side: '{side}'")
+
+    get_overlap, get_pos = config
+    overlap_length = get_overlap(inner)
+    if overlap_length < 2:
+        raise DoorOverlapTooSmallError(
+            f"{_DIRECTION_NAMES.get(side, side.capitalize())} wall of '{inner.room_id}' "
+            f"has overlap {overlap_length}, need at least 2"
+        )
+    offset_used = offset if offset is not None else overlap_length // 2
+    return get_pos(inner, offset_used)

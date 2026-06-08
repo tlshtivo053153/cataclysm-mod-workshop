@@ -1,4 +1,5 @@
 import pytest
+from mapgen import OutOfBoundsError
 from mapgen.grid import Grid
 
 
@@ -21,16 +22,16 @@ class TestGrid:
 
     def test_place_out_of_bounds_raises(self):
         grid = Grid()
-        with pytest.raises(ValueError, match="out of bounds"):
+        with pytest.raises(OutOfBoundsError, match="out of bounds"):
             grid.place(24, 0, "#")
-        with pytest.raises(ValueError, match="out of bounds"):
+        with pytest.raises(OutOfBoundsError, match="out of bounds"):
             grid.place(-1, 0, "#")
-        with pytest.raises(ValueError, match="out of bounds"):
+        with pytest.raises(OutOfBoundsError, match="out of bounds"):
             grid.place(0, 24, "#")
 
     def test_get_out_of_bounds_raises(self):
         grid = Grid()
-        with pytest.raises(ValueError, match="out of bounds"):
+        with pytest.raises(OutOfBoundsError, match="out of bounds"):
             grid.get(-1, 5)
 
     def test_is_in_bounds(self):

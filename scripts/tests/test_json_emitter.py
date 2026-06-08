@@ -96,8 +96,10 @@ class TestJsonEmitter:
             warnings=[],
         )
         result = emit_entry(ctx)
-        assert "terrain" not in result["object"]
-        assert "furniture" not in result["object"]
+        assert "terrain" in result["object"]
+        assert "furniture" in result["object"]
+        assert result["object"]["terrain"] == {}
+        assert result["object"]["furniture"] == {}
 
     def test_multi_entry_array(self):
         grid1 = Grid()

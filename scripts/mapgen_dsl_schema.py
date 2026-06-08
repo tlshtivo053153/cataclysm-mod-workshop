@@ -13,6 +13,7 @@ from mapgen import (
     RoomOverlapError,
 )
 from mapgen.room import Room
+from mapgen.grid import MAPGEN_SIZE
 
 KNOWN_KEYS = {"om_terrain", "fill_ter", "palette", "rooms", "doors", "features", "global"}
 
@@ -113,7 +114,7 @@ def _validate_entry(entry_data: dict) -> EntrySpec:
             raise InvalidRoomSizeError(
                 f"Room '{spec.id}': w={spec.w}, h={spec.h} — both must be >= 1"
             )
-        if spec.x < 0 or spec.y < 0 or spec.x + spec.w > 24 or spec.y + spec.h > 24:
+        if spec.x < 0 or spec.y < 0 or spec.x + spec.w > MAPGEN_SIZE or spec.y + spec.h > MAPGEN_SIZE:
             raise OutOfBoundsError(
                 f"Room '{spec.id}': coordinates out of bounds ({spec.x},{spec.y}) w={spec.w},h={spec.h}"
             )
@@ -196,14 +197,14 @@ def _validate_entry(entry_data: dict) -> EntrySpec:
         except KeyError as e:
             raise CompileError(f"Global tile missing required field: {e}") from e
         for x_val in _resolve_global_coords(gt.x):
-            if x_val < 0 or x_val > 23:
+            if x_val < 0 or x_val > MAPGEN_SIZE - 1:
                 raise FeatureOutOfGridError(
-                    f"Global tile x={x_val} out of bounds (0-23)"
+                    f"Global tile x={x_val} out of bounds (0-{MAPGEN_SIZE - 1})"
                 )
         for y_val in _resolve_global_coords(gt.y):
-            if y_val < 0 or y_val > 23:
+            if y_val < 0 or y_val > MAPGEN_SIZE - 1:
                 raise FeatureOutOfGridError(
-                    f"Global tile y={y_val} out of bounds (0-23)"
+                    f"Global tile y={y_val} out of bounds (0-{MAPGEN_SIZE - 1})"
                 )
         global_tiles.append(gt)
 

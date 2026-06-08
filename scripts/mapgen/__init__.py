@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from mapgen.grid import Grid
@@ -85,5 +85,5 @@ class EntryContext:
     fill_ter: str
     palette: list[str]
     grid: "Grid"
-    pass_through: dict
+    pass_through: dict[str, Any]
     warnings: list[Warning]

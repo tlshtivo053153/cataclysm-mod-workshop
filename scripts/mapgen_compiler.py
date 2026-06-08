@@ -13,9 +13,9 @@ from mapgen import (
     StairMismatchError,
     Warning,
 )
-from mapgen.grid import Grid
+from mapgen.grid import Grid, MAPGEN_SIZE
 from mapgen.json_emitter import emit_json_array
-from mapgen.known_palettes import KNOWN_PALETTES
+from mapgen.known_palettes import get_palette, is_char_known
 from mapgen.room import Room, compute_contained_door_position, compute_door_position
 from mapgen_dsl_schema import (
     EntrySpec,
@@ -211,8 +211,8 @@ class Compiler:
             next_stairs_up: set[tuple[int, int]] = set()
             next_ladders: set[tuple[int, int]] = set()
 
-            for y in range(Grid.HEIGHT):
-                for x in range(Grid.WIDTH):
+            for y in range(MAPGEN_SIZE):
+                for x in range(MAPGEN_SIZE):
                     ch = current.grid.get(x, y)
                     if ch == "<":
                         current_stairs_up.add((x, y))
@@ -264,16 +264,16 @@ class Compiler:
                     if grid.is_in_bounds(x, y) and grid.get(x, y) in passable_chars]
 
         perimeter_passable: list[tuple[int, int]] = []
-        for x in range(Grid.WIDTH):
+        for x in range(MAPGEN_SIZE):
             if grid.get(x, 0) in passable_chars:
                 perimeter_passable.append((x, 0))
-            if grid.get(x, Grid.HEIGHT - 1) in passable_chars:
-                perimeter_passable.append((x, Grid.HEIGHT - 1))
-        for y in range(1, Grid.HEIGHT - 1):
+            if grid.get(x, MAPGEN_SIZE - 1) in passable_chars:
+                perimeter_passable.append((x, MAPGEN_SIZE - 1))
+        for y in range(1, MAPGEN_SIZE - 1):
             if grid.get(0, y) in passable_chars:
                 perimeter_passable.append((0, y))
-            if grid.get(Grid.WIDTH - 1, y) in passable_chars:
-                perimeter_passable.append((Grid.WIDTH - 1, y))
+            if grid.get(MAPGEN_SIZE - 1, y) in passable_chars:
+                perimeter_passable.append((MAPGEN_SIZE - 1, y))
 
         if not perimeter_passable:
             raise NoEntryPointError(
@@ -288,14 +288,10 @@ class Compiler:
         warnings: list[Warning] = []
         used_chars = grid.collect_used_chars(fill_char=fill_char)
         for palette_name in palette_names:
-            palette = KNOWN_PALETTES.get(palette_name)
-            if palette is None:
+            if get_palette(palette_name) is None:
                 continue
-            terrain_chars = set(palette.get("terrain", {}).keys())
-            furniture_chars = set(palette.get("furniture", {}).keys())
-            known = terrain_chars | furniture_chars
             for ch in used_chars:
-                if ch not in known:
+                if not is_char_known(palette_name, ch):
                     warnings.append(Warning(
                         code="undefined_palette_char",
                         message=f"Character '{ch}' not defined in palette '{palette_name}'",
