@@ -1,0 +1,10 @@
+entries:
+  - om_terrain: "invalid_size"
+    rooms:
+      - id: "bad"
+        x: 4
+        y: 4
+        w: 0
+        h: 5
+        wall: "#"
+        floor: "."

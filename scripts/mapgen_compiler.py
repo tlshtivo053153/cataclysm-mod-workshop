@@ -6,34 +6,28 @@ import yaml
 from common import backup_file, save_json
 from mapgen import (
     CompileError,
+    CompileErrorGroup,
     DoorNotOnWallError,
     EntryContext,
-    NoEntryPointError,
     RoomNotAdjacentError,
     StairMismatchError,
     Warning,
 )
 from mapgen.grid import Grid, MAPGEN_SIZE
 from mapgen.json_emitter import emit_json_array
-from mapgen.known_palettes import get_palette, is_char_known
+from mapgen.known_palettes import PaletteRegistry
 from mapgen.room import Room, compute_contained_door_position, compute_door_position
-from mapgen_dsl_schema import (
+from mapgen.schema import (
     EntrySpec,
     FeatureSpec,
     GlobalTile,
     RoomSpec,
     _resolve_global_coords,
+    make_room,
     parse_dsl,
 )
 
 STAIR_CHARS = {">", "<", "*", "^"}
-
-
-def _make_room(spec: RoomSpec) -> Room:
-    return Room(
-        room_id=spec.id, x=spec.x, y=spec.y, w=spec.w, h=spec.h,
-        wall_char=spec.wall, floor_char=spec.floor,
-    )
 
 
 def _collect_stair_positions(
@@ -67,17 +61,29 @@ def _resolve_coord_range(value: int | list[int]) -> list[int]:
 
 
 class Compiler:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, palette_paths: list[Path] | None = None) -> None:
+        self.palette_registry = PaletteRegistry(palette_paths)
 
     def compile_entry(self, spec: EntrySpec) -> EntryContext:
+        grid, rooms, room_specs, build_warnings = self.build_grid(spec)
+        post_warnings = self.validate_post(grid, rooms, room_specs, spec)
+        return EntryContext(
+            om_terrain=spec.om_terrain,
+            fill_ter=spec.fill_ter,
+            palette=spec.palette,
+            grid=grid,
+            pass_through=spec.pass_through,
+            warnings=build_warnings + post_warnings,
+        )
+
+    def build_grid(self, spec: EntrySpec) -> tuple[Grid, dict[str, Room], dict[str, RoomSpec], list[Warning]]:
         warnings: list[Warning] = []
         grid = Grid(fill_char=" ")
         rooms: dict[str, Room] = {}
         room_specs: dict[str, RoomSpec] = {r.id: r for r in spec.rooms}
 
         for room_spec in spec.rooms:
-            room = _make_room(room_spec)
+            room = make_room(room_spec)
             rooms[room_spec.id] = room
             room.draw(grid)
 
@@ -141,6 +147,17 @@ class Compiler:
                 for y in y_vals:
                     grid.place(x, y, gt.char)
 
+        return grid, rooms, room_specs, warnings
+
+    def validate_post(
+        self,
+        grid: Grid,
+        rooms: dict[str, Room],
+        room_specs: dict[str, RoomSpec],
+        spec: EntrySpec,
+    ) -> list[Warning]:
+        warnings: list[Warning] = []
+
         passable_chars: set[str] = {" "}
         wall_chars_all: set[str] = {r.wall_char for r in rooms.values()}
         for room in rooms.values():
@@ -160,25 +177,24 @@ class Compiler:
             grid, passable_chars, spec.features, spec.global_tiles, rooms, room_specs,
         )
 
-        unreachable = grid.check_reachability(entry_points, passable_chars)
-        if unreachable:
+        if entry_points:
+            unreachable = grid.check_reachability(entry_points, passable_chars)
+            if unreachable:
+                warnings.append(Warning(
+                    code="unreachable_cells",
+                    message=f"{len(unreachable)} passable cells are unreachable",
+                    detail=str(unreachable[:5]) + ("..." if len(unreachable) > 5 else ""),
+                ))
+        else:
             warnings.append(Warning(
-                code="unreachable_cells",
-                message=f"{len(unreachable)} passable cells are unreachable",
-                detail=str(unreachable[:5]) + ("..." if len(unreachable) > 5 else ""),
+                code="no_entry_point",
+                message="No entry point found — skipping reachability check",
             ))
 
         palette_warnings = self._check_palette_chars(grid, " ", spec.palette)
         warnings.extend(palette_warnings)
 
-        return EntryContext(
-            om_terrain=spec.om_terrain,
-            fill_ter=spec.fill_ter,
-            palette=spec.palette,
-            grid=grid,
-            pass_through=spec.pass_through,
-            warnings=warnings,
-        )
+        return warnings
 
     def compile(self, doc) -> list[EntryContext]:
         entries: list[EntryContext] = []
@@ -190,19 +206,19 @@ class Compiler:
             except CompileError as e:
                 errors.append(e)
         if errors:
-            raise CompileError(
-                f"{len(errors)} compilation error(s): "
-                + "; ".join(str(e) for e in errors)
-            )
+            raise CompileErrorGroup(errors)
         stair_errors = self.validate_stairs(entries)
         if stair_errors:
-            raise CompileError(
-                f"{len(stair_errors)} stair validation error(s): "
-                + "; ".join(str(e) for e in stair_errors)
-            )
+            raise CompileErrorGroup(stair_errors)
         return entries
 
     def validate_stairs(self, entries: list[EntryContext]) -> list[CompileError]:
+        """Validate stair/ladder position matching between adjacent z-levels.
+
+        Entries are expected to be in z-order (top to bottom: roof → ground → underground).
+        This validation relies on that ordering — adjacent entries in the list are treated
+        as vertically adjacent z-levels.
+        """
         errors: list[CompileError] = []
         for i in range(len(entries) - 1):
             current = entries[i]
@@ -266,13 +282,27 @@ class Compiler:
                 return True
         return False
 
+    def _resolve_wall_merge(self, a: Room, b: Room, edge) -> tuple[Room, Room]:
+        """Determine which room keeps the wall and which gets its wall replaced by floor.
+
+        For east-west adjacency, the eastern room's wall is replaced.
+        For north-south adjacency, the southern room's wall is replaced.
+        Returns (room_to_keep_wall, room_to_replace_wall).
+        """
+        direction_replace: dict[str, tuple[Room, Room]] = {
+            "east":  (a, b),   # a is west, b is east → replace b's wall
+            "west":  (b, a),   # b is west, a is east → replace a's wall
+            "south": (a, b),   # a is north, b is south → replace b's wall
+            "north": (b, a),   # b is north, a is south → replace a's wall
+        }
+        return direction_replace[edge.direction]
+
     def _merge_adjacent_walls(self, rooms: dict[str, Room], grid: Grid) -> None:
         """Replace one side of double walls between adjacent rooms with floor.
 
-        For east-west adjacency, the eastern room's west wall is merged.
-        For north-south adjacency, the southern room's north wall is merged.
-        Only the interior portion of the wall (excluding horizontal-wall corners)
-        is merged.  Tiles already replaced by doors are left intact.
+        Uses _resolve_wall_merge to determine which room's wall is replaced.
+        Only the interior portion of the wall (excluding corners) is merged.
+        Tiles already replaced by doors are left intact.
         """
         room_list = list(rooms.values())
         for i in range(len(room_list)):
@@ -286,41 +316,22 @@ class Compiler:
                 if edge is None:
                     continue
 
-                if edge.direction == "east":
-                    # a is left, b is right — merge b's west wall (vertical)
-                    y_start = max(edge.overlap_start, b.y + 1)
-                    y_end = min(edge.overlap_end, b.y + b.h - 1)
-                    for y in range(y_start, y_end):
-                        x = b.x1
-                        if grid.get(x, y) == b.wall_char:
-                            grid.place(x, y, b.floor_char)
+                _keeper, replacer = self._resolve_wall_merge(a, b, edge)
 
-                elif edge.direction == "west":
-                    # a is right, b is left — merge a's west wall (vertical)
-                    y_start = max(edge.overlap_start, a.y + 1)
-                    y_end = min(edge.overlap_end, a.y + a.h - 1)
-                    for y in range(y_start, y_end):
-                        x = a.x1
-                        if grid.get(x, y) == a.wall_char:
-                            grid.place(x, y, a.floor_char)
-
-                elif edge.direction == "south":
-                    # a is top, b is bottom — merge b's north wall (horizontal)
-                    x_start = max(edge.overlap_start, b.x + 1)
-                    x_end = min(edge.overlap_end, b.x + b.w - 1)
-                    for x in range(x_start, x_end):
-                        y = b.y1
-                        if grid.get(x, y) == b.wall_char:
-                            grid.place(x, y, b.floor_char)
-
-                elif edge.direction == "north":
-                    # a is bottom, b is top — merge a's north wall (horizontal)
-                    x_start = max(edge.overlap_start, a.x + 1)
-                    x_end = min(edge.overlap_end, a.x + a.w - 1)
-                    for x in range(x_start, x_end):
-                        y = a.y1
-                        if grid.get(x, y) == a.wall_char:
-                            grid.place(x, y, a.floor_char)
+                if edge.direction in ("east", "west"):
+                    lo = max(edge.overlap_start, replacer.y + 1)
+                    hi = min(edge.overlap_end, replacer.y + replacer.h - 1)
+                    x = replacer.x1
+                    for y in range(lo, hi):
+                        if grid.get(x, y) == replacer.wall_char:
+                            grid.place(x, y, replacer.floor_char)
+                else:
+                    lo = max(edge.overlap_start, replacer.x + 1)
+                    hi = min(edge.overlap_end, replacer.x + replacer.w - 1)
+                    y = replacer.y1
+                    for x in range(lo, hi):
+                        if grid.get(x, y) == replacer.wall_char:
+                            grid.place(x, y, replacer.floor_char)
 
     def _find_entry_points(
         self,
@@ -349,9 +360,7 @@ class Compiler:
                 perimeter_passable.append((MAPGEN_SIZE - 1, y))
 
         if not perimeter_passable:
-            raise NoEntryPointError(
-                "No stairs found and no passable cells on perimeter"
-            )
+            return []
 
         return perimeter_passable
 
@@ -361,10 +370,10 @@ class Compiler:
         warnings: list[Warning] = []
         used_chars = grid.collect_used_chars(fill_char=fill_char)
         for palette_name in palette_names:
-            if get_palette(palette_name) is None:
+            if self.palette_registry.get_palette(palette_name) is None:
                 continue
             for ch in used_chars:
-                if not is_char_known(palette_name, ch):
+                if not self.palette_registry.is_char_known(palette_name, ch):
                     warnings.append(Warning(
                         code="undefined_palette_char",
                         message=f"Character '{ch}' not defined in palette '{palette_name}'",
@@ -383,6 +392,8 @@ def main() -> None:
     parser.add_argument("--mod-dir", type=Path, help="Mod directory for batch compilation")
     parser.add_argument("--dsl-dir", type=str, default="data/mapgen_dsl",
                         help="DSL source directory within mod-dir (default: data/mapgen_dsl)")
+    parser.add_argument("--palette-dir", type=Path, nargs="*", default=None,
+                        help="Additional palette directory(s) to load")
     parser.add_argument("--backup", action="store_true", default=True,
                         help="Create .bak backup before overwriting (default: True)")
     parser.add_argument("--no-backup", dest="backup", action="store_false",
@@ -390,23 +401,29 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    palette_paths: list[Path] = list(args.palette_dir) if args.palette_dir else []
+
     if args.mod_dir:
-        _run_mod_dir(args.mod_dir, args.dsl_dir, args.backup, args.check_only)
+        auto_palette = args.mod_dir / "data" / "palettes"
+        if auto_palette.is_dir() and auto_palette not in palette_paths:
+            palette_paths.append(auto_palette)
+        _run_mod_dir(args.mod_dir, args.dsl_dir, args.backup, args.check_only, palette_paths)
     elif args.input:
-        _run_single_file(args.input, args.output, args.backup, args.check_only)
+        _run_single_file(args.input, args.output, args.backup, args.check_only, palette_paths)
     else:
         parser.print_help()
         sys.exit(2)
 
 
 def _run_single_file(
-    input_path: Path, output_path: Path | None, backup: bool, check_only: bool
+    input_path: Path, output_path: Path | None, backup: bool, check_only: bool,
+    palette_paths: list[Path],
 ) -> None:
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)
         sys.exit(2)
 
-    compiler = Compiler()
+    compiler = Compiler(palette_paths=palette_paths if palette_paths else None)
     try:
         doc = parse_dsl(input_path)
         entries = compiler.compile(doc)
@@ -417,6 +434,8 @@ def _run_single_file(
         print(f"Compile error in {input_path}: {e}", file=sys.stderr)
         sys.exit(1)
 
+    data = compiler.emit(entries)
+
     for entry in entries:
         for w in entry.warnings:
             print(f"WARNING [{w.code}] {w.message}", file=sys.stderr)
@@ -426,20 +445,20 @@ def _run_single_file(
             output_path = input_path.with_suffix(".json")
         if backup and output_path.exists():
             backup_file(output_path)
-        data = compiler.emit(entries)
         save_json(output_path, data)
         print(f"Compiled: {output_path}")
 
 
 def _run_mod_dir(
-    mod_dir: Path, dsl_dir: str, backup: bool, check_only: bool
+    mod_dir: Path, dsl_dir: str, backup: bool, check_only: bool,
+    palette_paths: list[Path],
 ) -> None:
     dsl_path = mod_dir / dsl_dir
     if not dsl_path.exists():
         print(f"DSL directory not found: {dsl_path}", file=sys.stderr)
         sys.exit(2)
 
-    compiler = Compiler()
+    compiler = Compiler(palette_paths=palette_paths if palette_paths else None)
     yaml_files = sorted(dsl_path.glob("*.yml"))
     compiled_count = 0
     error_count = 0
@@ -457,6 +476,8 @@ def _run_mod_dir(
             error_count += 1
             continue
 
+        data = compiler.emit(entries)
+
         for entry in entries:
             for w in entry.warnings:
                 print(f"WARNING [{w.code}] {entry.om_terrain}: {w.message}", file=sys.stderr)
@@ -467,7 +488,6 @@ def _run_mod_dir(
             output_file = output_dir / f"{yml_file.stem}.json"
             if backup and output_file.exists():
                 backup_file(output_file)
-            data = compiler.emit(entries)
             save_json(output_file, data)
             compiled_count += 1
             print(f"Compiled: {output_file}")

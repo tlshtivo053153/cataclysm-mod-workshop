@@ -1,0 +1,17 @@
+entries:
+  - om_terrain: "overlap"
+    rooms:
+      - id: "a"
+        x: 2
+        y: 2
+        w: 6
+        h: 6
+        wall: "#"
+        floor: "."
+      - id: "b"
+        x: 4
+        y: 4
+        w: 6
+        h: 6
+        wall: "#"
+        floor: "."

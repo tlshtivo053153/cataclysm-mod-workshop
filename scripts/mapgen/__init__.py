@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "CompileError",
+    "CompileErrorGroup",
     "RoomOverlapError",
     "RoomNotAdjacentError",
     "DoorOverlapTooSmallError",
@@ -26,6 +27,13 @@ class CompileError(Exception):
     def __init__(self, message: str, detail: str = "") -> None:
         self.detail = detail
         super().__init__(message)
+
+
+class CompileErrorGroup(CompileError):
+    def __init__(self, errors: list[CompileError]) -> None:
+        self.errors = errors
+        summary = f"{len(errors)} compilation error(s): " + "; ".join(str(e) for e in errors)
+        super().__init__(summary)
 
 
 class RoomOverlapError(CompileError):

@@ -87,6 +87,9 @@ class Grid:
         chars: set[str] = set()
         for row in self._cells:
             for ch in row:
-                if ch != " " and ch != fill_char:
-                    chars.add(ch)
+                if ch == fill_char:
+                    continue
+                if fill_char != " " and ch == " ":
+                    continue
+                chars.add(ch)
         return chars
