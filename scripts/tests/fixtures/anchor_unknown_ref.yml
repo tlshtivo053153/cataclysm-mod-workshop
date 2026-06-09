@@ -1,0 +1,12 @@
+entries:
+  - om_terrain: "anchor_unknown_test"
+    fill_ter: "t_floor"
+    rooms:
+      - id: "kitchen"
+        place:
+          relative_to: "nonexistent"
+          side: "east"
+        w: 7
+        h: 10
+        wall: "#"
+        floor: "."

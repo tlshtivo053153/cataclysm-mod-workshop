@@ -50,6 +50,16 @@ class PaletteRegistry:
             return False
         return char in palette.get("terrain", {}) or char in palette.get("furniture", {})
 
+    def explain_char(self, palette_name: str, char: str) -> str | None:
+        palette = self.get_palette(palette_name)
+        if palette is None:
+            return None
+        for key in ("terrain", "furniture", "items", "monsters", "traps", "fields", "vehicles", "nested"):
+            entry = palette.get(key, {}).get(char)
+            if entry:
+                return entry
+        return None
+
 
 _default_registry: PaletteRegistry | None = None
 

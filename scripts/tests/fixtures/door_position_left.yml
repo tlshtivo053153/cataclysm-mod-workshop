@@ -1,0 +1,23 @@
+entries:
+  - om_terrain: "door_position_left_test"
+    fill_ter: "t_floor"
+    rooms:
+      - id: "a"
+        x: 0
+        y: 2
+        w: 4
+        h: 6
+        wall: "#"
+        floor: "."
+      - id: "b"
+        x: 4
+        y: 2
+        w: 4
+        h: 6
+        wall: "#"
+        floor: "."
+    doors:
+      - from: "a"
+        to: "b"
+        char: "="
+        position: "left"

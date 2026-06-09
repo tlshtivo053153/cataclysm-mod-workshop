@@ -1,0 +1,21 @@
+entries:
+  - om_terrain: "anchor_conflict_test"
+    fill_ter: "t_floor"
+    rooms:
+      - id: "living"
+        x: 3
+        y: 4
+        w: 8
+        h: 10
+        wall: "#"
+        floor: "."
+      - id: "kitchen"
+        place:
+          relative_to: "living"
+          side: "east"
+        x: 5
+        y: 5
+        w: 7
+        h: 10
+        wall: "#"
+        floor: "."

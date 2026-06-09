@@ -1,0 +1,15 @@
+canvas:
+  w: 32
+  h: 32
+
+entries:
+  - om_terrain: "canvas_test"
+    fill_ter: "t_floor"
+    rooms:
+      - id: "main"
+        x: 2
+        y: 2
+        w: 28
+        h: 28
+        wall: "#"
+        floor: "."

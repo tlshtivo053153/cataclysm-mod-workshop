@@ -1,0 +1,19 @@
+entries:
+  - om_terrain: "anchor_oob_test"
+    fill_ter: "t_floor"
+    rooms:
+      - id: "living"
+        x: 20
+        y: 4
+        w: 8
+        h: 10
+        wall: "#"
+        floor: "."
+      - id: "kitchen"
+        place:
+          relative_to: "living"
+          side: "east"
+        w: 7
+        h: 10
+        wall: "#"
+        floor: "."

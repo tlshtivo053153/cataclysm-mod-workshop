@@ -6,25 +6,25 @@ MAPGEN_SIZE = 24
 
 
 class Grid:
-    WIDTH = MAPGEN_SIZE
-    HEIGHT = MAPGEN_SIZE
     DIRECTIONS: tuple[tuple[int, int], ...] = ((0, -1), (-1, 0), (1, 0), (0, 1))
 
-    def __init__(self, fill_char: str = " ") -> None:
-        self._cells = [[fill_char for _ in range(self.WIDTH)] for _ in range(self.HEIGHT)]
+    def __init__(self, width: int = MAPGEN_SIZE, height: int = MAPGEN_SIZE, fill_char: str = " ") -> None:
+        self.width = width
+        self.height = height
+        self._cells = [[fill_char for _ in range(width)] for _ in range(height)]
 
     def place(self, x: int, y: int, char: str) -> None:
         if not self.is_in_bounds(x, y):
-            raise OutOfBoundsError(f"Coordinates ({x}, {y}) out of bounds (0-{self.WIDTH - 1}, 0-{self.HEIGHT - 1})")
+            raise OutOfBoundsError(f"Coordinates ({x}, {y}) out of bounds (0-{self.width - 1}, 0-{self.height - 1})")
         self._cells[y][x] = char
 
     def get(self, x: int, y: int) -> str:
         if not self.is_in_bounds(x, y):
-            raise OutOfBoundsError(f"Coordinates ({x}, {y}) out of bounds (0-{self.WIDTH - 1}, 0-{self.HEIGHT - 1})")
+            raise OutOfBoundsError(f"Coordinates ({x}, {y}) out of bounds (0-{self.width - 1}, 0-{self.height - 1})")
         return self._cells[y][x]
 
     def is_in_bounds(self, x: int, y: int) -> bool:
-        return 0 <= x < self.WIDTH and 0 <= y < self.HEIGHT
+        return 0 <= x < self.width and 0 <= y < self.height
 
     def to_rows(self) -> list[str]:
         return ["".join(row) for row in self._cells]
@@ -76,8 +76,8 @@ class Grid:
                     queue.append((nx, ny))
 
         unreachable: list[tuple[int, int]] = []
-        for y in range(self.HEIGHT):
-            for x in range(self.WIDTH):
+        for y in range(self.height):
+            for x in range(self.width):
                 if self._cells[y][x] in passable_chars and (x, y) not in reachable:
                     unreachable.append((x, y))
 

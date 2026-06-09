@@ -1,0 +1,19 @@
+entries:
+  - om_terrain: "meaning_unknown_test"
+    fill_ter: "t_floor"
+    palette: ["fortified_shelter"]
+    rooms:
+      - id: "room"
+        x: 3
+        y: 3
+        w: 8
+        h: 8
+        wall: "#"
+        floor: "."
+    features:
+      - room: "room"
+        tiles:
+          - char: "Z"
+            meaning: "f_mystery_item"
+            x: 1
+            y: 1

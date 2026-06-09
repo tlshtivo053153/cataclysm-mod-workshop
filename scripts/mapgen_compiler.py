@@ -64,9 +64,9 @@ class Compiler:
     def __init__(self, palette_paths: list[Path] | None = None) -> None:
         self.palette_registry = PaletteRegistry(palette_paths)
 
-    def compile_entry(self, spec: EntrySpec) -> EntryContext:
-        grid, rooms, room_specs, build_warnings = self.build_grid(spec)
-        post_warnings = self.validate_post(grid, rooms, room_specs, spec)
+    def compile_entry(self, spec: EntrySpec, canvas_size: int = MAPGEN_SIZE) -> EntryContext:
+        grid, rooms, room_specs, build_warnings = self.build_grid(spec, canvas_size=canvas_size)
+        post_warnings = self.validate_post(grid, rooms, room_specs, spec, canvas_size=canvas_size)
         return EntryContext(
             om_terrain=spec.om_terrain,
             fill_ter=spec.fill_ter,
@@ -74,11 +74,12 @@ class Compiler:
             grid=grid,
             pass_through=spec.pass_through,
             warnings=build_warnings + post_warnings,
+            features=spec.features,
         )
 
-    def build_grid(self, spec: EntrySpec) -> tuple[Grid, dict[str, Room], dict[str, RoomSpec], list[Warning]]:
+    def build_grid(self, spec: EntrySpec, canvas_size: int = MAPGEN_SIZE) -> tuple[Grid, dict[str, Room], dict[str, RoomSpec], list[Warning]]:
         warnings: list[Warning] = []
-        grid = Grid(fill_char=" ")
+        grid = Grid(width=canvas_size, height=canvas_size, fill_char=" ")
         rooms: dict[str, Room] = {}
         room_specs: dict[str, RoomSpec] = {r.id: r for r in spec.rooms}
 
@@ -91,21 +92,23 @@ class Compiler:
             room_a = rooms[door.from_room]
             room_b = rooms[door.to_room]
 
+            offset = self._resolve_door_offset(door, room_a, room_b)
+
             if room_a.contains(room_b) or room_b.contains(room_a):
                 container = room_a if room_a.contains(room_b) else room_b
                 inner = room_b if room_a.contains(room_b) else room_a
                 side = door.side if door.side else "south"
                 door_x, door_y = compute_contained_door_position(
-                    container, inner, offset=door.offset, side=side,
+                    container, inner, offset=offset, side=side,
                 )
             elif room_a.is_adjacent_to(room_b):
                 try:
                     door_x, door_y = compute_door_position(
-                        room_a, room_b, offset=door.offset,
+                        room_a, room_b, offset=offset,
                     )
                 except RoomNotAdjacentError:
                     door_x, door_y = compute_door_position(
-                        room_b, room_a, offset=door.offset,
+                        room_b, room_a, offset=offset,
                     )
             else:
                 raise RoomNotAdjacentError(
@@ -155,6 +158,7 @@ class Compiler:
         rooms: dict[str, Room],
         room_specs: dict[str, RoomSpec],
         spec: EntrySpec,
+        canvas_size: int = MAPGEN_SIZE,
     ) -> list[Warning]:
         warnings: list[Warning] = []
 
@@ -174,7 +178,7 @@ class Compiler:
                 passable_chars.add(gt.char)
 
         entry_points = self._find_entry_points(
-            grid, passable_chars, spec.features, spec.global_tiles, rooms, room_specs,
+            grid, passable_chars, spec.features, spec.global_tiles, rooms, room_specs, canvas_size=canvas_size,
         )
 
         if entry_points:
@@ -194,25 +198,30 @@ class Compiler:
         palette_warnings = self._check_palette_chars(grid, " ", spec.palette)
         warnings.extend(palette_warnings)
 
+        meaning_warnings = self._check_meaning_consistency(spec)
+        warnings.extend(meaning_warnings)
+
         return warnings
 
     def compile(self, doc) -> list[EntryContext]:
+        canvas_size: int = getattr(doc, "canvas_size", MAPGEN_SIZE)
+
         entries: list[EntryContext] = []
         errors: list[CompileError] = []
         for entry_spec in doc.entries:
             try:
-                ctx = self.compile_entry(entry_spec)
+                ctx = self.compile_entry(entry_spec, canvas_size=canvas_size)
                 entries.append(ctx)
             except CompileError as e:
                 errors.append(e)
         if errors:
             raise CompileErrorGroup(errors)
-        stair_errors = self.validate_stairs(entries)
+        stair_errors = self.validate_stairs(entries, canvas_size=canvas_size)
         if stair_errors:
             raise CompileErrorGroup(stair_errors)
         return entries
 
-    def validate_stairs(self, entries: list[EntryContext]) -> list[CompileError]:
+    def validate_stairs(self, entries: list[EntryContext], canvas_size: int = MAPGEN_SIZE) -> list[CompileError]:
         """Validate stair/ladder position matching between adjacent z-levels.
 
         Entries are expected to be in z-order (top to bottom: roof → ground → underground).
@@ -231,8 +240,8 @@ class Compiler:
             next_stairs_up: set[tuple[int, int]] = set()
             next_ladders: set[tuple[int, int]] = set()
 
-            for y in range(MAPGEN_SIZE):
-                for x in range(MAPGEN_SIZE):
+            for y in range(canvas_size):
+                for x in range(canvas_size):
                     ch = current.grid.get(x, y)
                     if ch == "<":
                         current_stairs_up.add((x, y))
@@ -268,6 +277,40 @@ class Compiler:
                 ))
 
         return errors
+
+    def _resolve_door_offset(
+        self, door, room_a: Room, room_b: Room,
+    ) -> int | None:
+        if door.position is None:
+            return door.offset
+        if room_a.contains(room_b) or room_b.contains(room_a):
+            inner = room_b if room_a.contains(room_b) else room_a
+            side = door.side if door.side else "south"
+            from mapgen.room import _SIDE_CONFIG
+            config = _SIDE_CONFIG.get(side)
+            if config is None:
+                return door.offset
+            overlap_length = config[0](inner)
+        else:
+            edge = room_a.adjacent_edge(room_b)
+            if edge is None:
+                edge = room_b.adjacent_edge(room_a)
+            if edge is None:
+                return door.offset
+            overlap_length = edge.overlap_length
+
+        if overlap_length <= 0:
+            raise CompileError(
+                f"Door between '{door.from_room}' and '{door.to_room}': "
+                f"no overlapping edge to place door (position='{door.position}')"
+            )
+        if door.position == "left":
+            return 0
+        elif door.position == "center":
+            return overlap_length // 2
+        elif door.position == "right":
+            return overlap_length - 1
+        return door.offset
 
     def _is_inside_contained_room(
         self, ax: int, ay: int, parent: Room, rooms: dict[str, Room],
@@ -341,6 +384,7 @@ class Compiler:
         global_tiles: list[GlobalTile],
         rooms: dict[str, Room],
         room_specs: dict[str, RoomSpec],
+        canvas_size: int = MAPGEN_SIZE,
     ) -> list[tuple[int, int]]:
         stair_positions = _collect_stair_positions(features, global_tiles, room_specs)
         if stair_positions:
@@ -348,16 +392,16 @@ class Compiler:
                     if grid.is_in_bounds(x, y) and grid.get(x, y) in passable_chars]
 
         perimeter_passable: list[tuple[int, int]] = []
-        for x in range(MAPGEN_SIZE):
+        for x in range(canvas_size):
             if grid.get(x, 0) in passable_chars:
                 perimeter_passable.append((x, 0))
-            if grid.get(x, MAPGEN_SIZE - 1) in passable_chars:
-                perimeter_passable.append((x, MAPGEN_SIZE - 1))
-        for y in range(1, MAPGEN_SIZE - 1):
+            if grid.get(x, canvas_size - 1) in passable_chars:
+                perimeter_passable.append((x, canvas_size - 1))
+        for y in range(1, canvas_size - 1):
             if grid.get(0, y) in passable_chars:
                 perimeter_passable.append((0, y))
-            if grid.get(MAPGEN_SIZE - 1, y) in passable_chars:
-                perimeter_passable.append((MAPGEN_SIZE - 1, y))
+            if grid.get(canvas_size - 1, y) in passable_chars:
+                perimeter_passable.append((canvas_size - 1, y))
 
         if not perimeter_passable:
             return []
@@ -383,6 +427,55 @@ class Compiler:
     def emit(self, entries: list[EntryContext]) -> list[dict]:
         return emit_json_array(entries)
 
+    def explain_chars(self, context: EntryContext, features: list[FeatureSpec] | None = None) -> list[str]:
+        lines: list[str] = []
+        used_chars = context.grid.collect_used_chars(fill_char=" ")
+        if not used_chars:
+            return lines
+
+        meaning_map: dict[str, str] = {}
+        if features:
+            for feat in features:
+                for tile in feat.tiles:
+                    if tile.meaning and tile.char not in meaning_map:
+                        meaning_map[tile.char] = tile.meaning
+
+        lines.append("Characters used:")
+        for ch in sorted(used_chars):
+            if ch in meaning_map:
+                lines.append(f"  {ch} → {meaning_map[ch]:<18} (meaning annotation)")
+                continue
+            for palette_name in context.palette:
+                palette_meaning = self.palette_registry.explain_char(palette_name, ch)
+                if palette_meaning is not None:
+                    lines.append(f"  {ch} → {palette_meaning:<18} (palette: {palette_name})")
+                    break
+            else:
+                lines.append(f"  {ch} → {'(unknown)':<18}")
+        return lines
+
+    def _check_meaning_consistency(self, spec: EntrySpec) -> list[Warning]:
+        warnings: list[Warning] = []
+        for feat in spec.features:
+            for tile in feat.tiles:
+                if tile.meaning is None:
+                    continue
+                palette_meanings: list[str | None] = []
+                for palette_name in spec.palette:
+                    palette_meanings.append(self.palette_registry.explain_char(palette_name, tile.char))
+                if all(pm is None for pm in palette_meanings):
+                    warnings.append(Warning(
+                        code="meaning_not_in_palette",
+                        message=f"Meaning '{tile.meaning}' for char '{tile.char}' not found in any palette",
+                    ))
+                elif not any(pm == tile.meaning for pm in palette_meanings):
+                    first_conflict = next(pm for pm in palette_meanings if pm is not None)
+                    warnings.append(Warning(
+                        code="meaning_conflict",
+                        message=f"Meaning '{tile.meaning}' for char '{tile.char}' conflicts with palette definition '{first_conflict}'",
+                    ))
+        return warnings
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Mapgen DSL compiler for CDDA")
@@ -398,6 +491,8 @@ def main() -> None:
                         help="Create .bak backup before overwriting (default: True)")
     parser.add_argument("--no-backup", dest="backup", action="store_false",
                         help="Disable backup creation")
+    parser.add_argument("--explain", action="store_true",
+                        help="Show palette character meanings used in the compiled map")
 
     args = parser.parse_args()
 
@@ -407,9 +502,9 @@ def main() -> None:
         auto_palette = args.mod_dir / "data" / "palettes"
         if auto_palette.is_dir() and auto_palette not in palette_paths:
             palette_paths.append(auto_palette)
-        _run_mod_dir(args.mod_dir, args.dsl_dir, args.backup, args.check_only, palette_paths)
+        _run_mod_dir(args.mod_dir, args.dsl_dir, args.backup, args.check_only, palette_paths, args.explain)
     elif args.input:
-        _run_single_file(args.input, args.output, args.backup, args.check_only, palette_paths)
+        _run_single_file(args.input, args.output, args.backup, args.check_only, palette_paths, args.explain)
     else:
         parser.print_help()
         sys.exit(2)
@@ -417,7 +512,7 @@ def main() -> None:
 
 def _run_single_file(
     input_path: Path, output_path: Path | None, backup: bool, check_only: bool,
-    palette_paths: list[Path],
+    palette_paths: list[Path], explain: bool = False,
 ) -> None:
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)
@@ -440,6 +535,12 @@ def _run_single_file(
         for w in entry.warnings:
             print(f"WARNING [{w.code}] {w.message}", file=sys.stderr)
 
+    if explain:
+        for entry in entries:
+            lines = compiler.explain_chars(entry, features=entry.features)
+            for line in lines:
+                print(line)
+
     if not check_only:
         if output_path is None:
             output_path = input_path.with_suffix(".json")
@@ -451,7 +552,7 @@ def _run_single_file(
 
 def _run_mod_dir(
     mod_dir: Path, dsl_dir: str, backup: bool, check_only: bool,
-    palette_paths: list[Path],
+    palette_paths: list[Path], explain: bool = False,
 ) -> None:
     dsl_path = mod_dir / dsl_dir
     if not dsl_path.exists():
@@ -481,6 +582,12 @@ def _run_mod_dir(
         for entry in entries:
             for w in entry.warnings:
                 print(f"WARNING [{w.code}] {entry.om_terrain}: {w.message}", file=sys.stderr)
+
+        if explain:
+            for entry in entries:
+                lines = compiler.explain_chars(entry, features=entry.features)
+                for line in lines:
+                    print(line)
 
         if not check_only:
             output_dir = mod_dir / "data" / "mapgen"

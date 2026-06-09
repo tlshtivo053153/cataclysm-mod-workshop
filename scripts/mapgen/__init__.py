@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -95,3 +95,4 @@ class EntryContext:
     grid: "Grid"
     pass_through: dict[str, Any]
     warnings: list[Warning]
+    features: list = field(default_factory=list)
