@@ -93,6 +93,7 @@ class DSLDocument:
     entries: list[EntrySpec] = field(default_factory=list)
     canvas: dict | None = None
     canvas_size: int = MAPGEN_SIZE
+    center: bool = False
 
 
 def make_room(spec: RoomSpec) -> Room:
@@ -968,10 +969,14 @@ def parse_dsl(yaml_path: Path) -> DSLDocument:
             )
         canvas_size = cw
 
+    center = raw.get("center", False)
+    if not isinstance(center, bool):
+        raise CompileError("'center' must be a boolean")
+
     entries: list[EntrySpec] = []
     for entry_data in entries_data:
         entry = _validate_entry(entry_data, canvas_size=canvas_size)
         _validate_room_overlaps(entry)
         entries.append(entry)
 
-    return DSLDocument(entries=entries, canvas=canvas_data, canvas_size=canvas_size)
+    return DSLDocument(entries=entries, canvas=canvas_data, canvas_size=canvas_size, center=center)
