@@ -8,6 +8,7 @@ from mapgen import (
     CompileError,
     CompileErrorGroup,
     DoorNotOnWallError,
+    DoorOverlapTooSmallError,
     EntryContext,
     RoomNotAdjacentError,
     StairMismatchError,
@@ -128,6 +129,9 @@ class Compiler:
 
             grid.place(door_x, door_y, door.char)
 
+        if spec.auto_doors:
+            self._generate_auto_doors(rooms, grid, spec)
+
         self._merge_adjacent_walls(rooms, grid)
 
         for feat in spec.features:
@@ -165,6 +169,10 @@ class Compiler:
         for door in spec.doors:
             if door.char not in wall_chars_all:
                 passable_chars.add(door.char)
+        if spec.auto_doors:
+            door_char = spec.default_door_char
+            if door_char not in wall_chars_all:
+                passable_chars.add(door_char)
         for feat in spec.features:
             for tile in feat.tiles:
                 if tile.char in STAIR_CHARS:
@@ -371,6 +379,42 @@ class Compiler:
                     for x in range(lo, hi):
                         if grid.get(x, y) == replacer.wall_char:
                             grid.place(x, y, replacer.floor_char)
+
+    def _generate_auto_doors(
+        self, rooms: dict[str, Room], grid: Grid, spec: EntrySpec,
+    ) -> None:
+        room_list = list(rooms.values())
+        explicit_pairs: set[tuple[str, str]] = set()
+        for door in spec.doors:
+            explicit_pairs.add((door.from_room, door.to_room))
+            explicit_pairs.add((door.to_room, door.from_room))
+
+        for i in range(len(room_list)):
+            for j in range(i + 1, len(room_list)):
+                a = room_list[i]
+                b = room_list[j]
+                if (a.room_id, b.room_id) in explicit_pairs:
+                    continue
+                if not a.is_adjacent_to(b):
+                    continue
+                try:
+                    door_x, door_y = compute_door_position(a, b)
+                except (RoomNotAdjacentError, DoorOverlapTooSmallError):
+                    try:
+                        door_x, door_y = compute_door_position(b, a)
+                    except (RoomNotAdjacentError, DoorOverlapTooSmallError):
+                        continue
+
+                wall_chars = {a.wall_char, b.wall_char}
+                cell_char = grid.get(door_x, door_y)
+                if cell_char not in wall_chars:
+                    continue
+
+                door_char = spec.default_door_char
+                if door_char in wall_chars:
+                    door_char = "+"
+
+                grid.place(door_x, door_y, door_char)
 
     def _find_entry_points(
         self,

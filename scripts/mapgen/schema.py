@@ -15,7 +15,8 @@ from mapgen import (
 from mapgen.room import Room
 from mapgen.grid import MAPGEN_SIZE
 
-KNOWN_KEYS = {"om_terrain", "fill_ter", "palette", "rooms", "doors", "features", "global"}
+KNOWN_KEYS = {"om_terrain", "fill_ter", "palette", "rooms", "doors", "features", "global",
+               "canvas", "layout", "auto_doors", "default_door_char"}
 
 
 @dataclass
@@ -27,6 +28,7 @@ class PlaceSpec:
     margin: int = 0
     x: int | None = None
     y: int | None = None
+    _align_style: str | None = None
 
 
 @dataclass
@@ -39,6 +41,7 @@ class RoomSpec:
     wall: str = ""
     floor: str = ""
     place: PlaceSpec | None = None
+    layout_resolved: bool = False
 
 
 @dataclass
@@ -82,6 +85,8 @@ class EntrySpec:
     features: list[FeatureSpec] = field(default_factory=list)
     global_tiles: list[GlobalTile] = field(default_factory=list)
     pass_through: dict = field(default_factory=dict)
+    auto_doors: bool = False
+    default_door_char: str = "+"
 
 
 @dataclass
@@ -98,6 +103,135 @@ def make_room(spec: RoomSpec) -> Room:
     )
 
 
+_RELATIVE_KEYS = {"right_of", "left_of", "above", "below", "inside", "align", "gap"}
+
+
+def _detect_new_placement_keys(
+    room_data: dict, room_id: str, has_x: bool, has_y: bool, has_place: bool,
+) -> PlaceSpec | None:
+    new_keys = _RELATIVE_KEYS & set(room_data.keys())
+    if not new_keys:
+        return None
+
+    if has_place:
+        raise CompileError(
+            f"Room '{room_id}': cannot mix new placement keys ({', '.join(sorted(new_keys))}) "
+            f"with 'place' — use one or the other"
+        )
+    if has_x or has_y:
+        raise CompileError(
+            f"Room '{room_id}': cannot mix new placement keys ({', '.join(sorted(new_keys))}) "
+            f"with 'x'/'y' absolute coordinates — use one or the other"
+        )
+
+    right_of = room_data.get("right_of")
+    left_of = room_data.get("left_of")
+    above = room_data.get("above")
+    below = room_data.get("below")
+    inside = room_data.get("inside")
+    align = room_data.get("align")
+    gap = room_data.get("gap", 0)
+
+    place_count = sum(1 for v in [right_of, left_of, above, below, inside] if v is not None)
+    if place_count == 0:
+        raise CompileError(
+            f"Room '{room_id}': must specify one of 'right_of', 'left_of', "
+            f"'above', 'below', or 'inside' for relative placement"
+        )
+    if place_count > 1:
+        raise CompileError(
+            f"Room '{room_id}': cannot specify multiple placement targets "
+            f"(right_of/left_of/above/below/inside) — use exactly one"
+        )
+
+    if gap < 0:
+        raise CompileError(
+            f"Room '{room_id}': 'gap' must be >= 0, got {gap}"
+        )
+
+    if inside is not None:
+        if align is None:
+            align = "north"
+        return _build_inside_placement(inside, align, gap, room_id)
+    else:
+        ref = right_of or left_of or above or below
+        if right_of is not None or left_of is not None:
+            if align is None:
+                align = "top"
+            return _build_adjacent_placement(ref, "east" if right_of is not None else "west", align, gap, room_id)
+        elif above is not None or below is not None:
+            if align is None:
+                align = "left"
+            return _build_adjacent_placement(ref, "north" if above is not None else "south", align, gap, room_id)
+
+
+def _build_adjacent_placement(
+    ref: str, side: str, align: str, gap: int, room_id: str,
+) -> PlaceSpec:
+    if side in ("east", "west"):
+        if align not in ("top", "bottom", "center", "middle"):
+            raise CompileError(
+                f"Room '{room_id}': 'align' for right_of/left_of must be "
+                f"top, bottom, center, or middle, got '{align}'"
+            )
+    else:
+        if align not in ("left", "right", "center", "middle"):
+            raise CompileError(
+                f"Room '{room_id}': 'align' for above/below must be "
+                f"left, right, center, or middle, got '{align}'"
+            )
+
+    return PlaceSpec(
+        relative_to=ref,
+        side=side,
+        anchor="south",
+        margin=gap,
+        x=None,
+        y=None,
+        _align_style=align,
+    )
+
+
+def _build_inside_placement(
+    inside: str, align: str, gap: int, room_id: str,
+) -> PlaceSpec:
+    valid_aligns = {
+        "top", "north", "bottom", "south", "left", "west", "right", "east",
+        "center", "middle",
+        "top-left", "north-west", "top-right", "north-east",
+        "bottom-left", "south-west", "bottom-right", "south-east",
+    }
+    if align not in valid_aligns:
+        raise CompileError(
+            f"Room '{room_id}': invalid 'align' for inside placement: '{align}' — "
+            f"must be one of: top, bottom, left, right, center, "
+            f"or compound like south-east, top-left, etc."
+        )
+
+    anchor_map = {
+        "top": "north", "north": "north",
+        "bottom": "south", "south": "south",
+        "left": "west", "west": "west",
+        "right": "east", "east": "east",
+        "center": "north", "middle": "north",
+        "top-left": "north", "north-west": "north",
+        "top-right": "north", "north-east": "north",
+        "bottom-left": "south", "south-west": "south",
+        "bottom-right": "south", "south-east": "south",
+    }
+    anchor = anchor_map.get(align, "south")
+
+    return PlaceSpec(
+        inside=inside,
+        side="south",
+        anchor=anchor,
+        margin=gap,
+        x=None,
+        y=None,
+        _align_style=align,
+    )
+
+
 def _resolve_global_coords(value: int | list[int]) -> list[int]:
     if isinstance(value, int):
         return [value]
@@ -111,26 +245,67 @@ def _resolve_global_coords(value: int | list[int]) -> list[int]:
     raise CompileError(f"Invalid global coordinate: {value}")
 
 
-def _parse_rooms(entry_data: dict, canvas_size: int) -> tuple[list[RoomSpec], dict[str, RoomSpec]]:
+def _parse_rooms(entry_data: dict, canvas_size: int, has_layout: bool = False) -> tuple[list[RoomSpec], dict[str, RoomSpec]]:
     room_specs: list[RoomSpec] = []
     resolved: dict[str, RoomSpec] = {}
     for room_data in entry_data.get("rooms", []):
         room_id = room_data.get("id")
         if not room_id:
             raise CompileError("Room missing required field: id")
+
+        inner_w = room_data.get("inner_w")
+        inner_h = room_data.get("inner_h")
         w = room_data.get("w")
         h = room_data.get("h")
-        if w is None or h is None:
-            raise CompileError(f"Room '{room_id}' missing required field: w or h")
+
+        if inner_w is not None and w is not None:
+            raise CompileError(
+                f"Room '{room_id}': cannot specify both 'w' and 'inner_w' — "
+                f"use 'inner_w' for interior width (walls added automatically: w = inner_w + 2) "
+                f"or 'w' for total width including walls"
+            )
+        if inner_h is not None and h is not None:
+            raise CompileError(
+                f"Room '{room_id}': cannot specify both 'h' and 'inner_h' — "
+                f"use 'inner_h' for interior height (walls added automatically: h = inner_h + 2) "
+                f"or 'h' for total height including walls"
+            )
+        if inner_w is not None:
+            if inner_w < 0:
+                raise CompileError(
+                    f"Room '{room_id}': inner_w must be >= 0, got {inner_w}"
+                )
+            w = inner_w + 2
+        if inner_h is not None:
+            if inner_h < 0:
+                raise CompileError(
+                    f"Room '{room_id}': inner_h must be >= 0, got {inner_h}"
+                )
+            h = inner_h + 2
 
         wall = room_data.get("wall")
         floor = room_data.get("floor")
         if wall is None or floor is None:
             raise CompileError(f"Room '{room_id}' missing required field: wall or floor")
 
-        place_data = room_data.get("place")
         has_x = "x" in room_data
         has_y = "y" in room_data
+
+        if w is None or h is None:
+            has_any_coords = has_x or has_y or "place" in room_data or _RELATIVE_KEYS & set(room_data.keys())
+            if has_any_coords:
+                missing = []
+                if w is None:
+                    missing.append("w")
+                if h is None:
+                    missing.append("h")
+                raise CompileError(f"Room '{room_id}' missing required field: {', '.join(missing)}")
+            w = w or 0
+            h = h or 0
+
+        place_data = room_data.get("place")
+
+        new_placement = _detect_new_placement_keys(room_data, room_id, has_x, has_y, place_data is not None)
 
         if place_data is not None:
             if has_x or has_y:
@@ -148,13 +323,21 @@ def _parse_rooms(entry_data: dict, canvas_size: int) -> tuple[list[RoomSpec], di
                 y=place_data.get("y"),
             )
             x, y = resolve_room_placement(place, w, h, resolved)
+        elif new_placement is not None:
+            place = new_placement
+            x, y = resolve_room_placement(place, w, h, resolved)
         elif has_x and has_y:
             x = room_data["x"]
             y = room_data["y"]
             place = None
+        elif has_layout:
+            x = 0
+            y = 0
+            place = None
         else:
             raise CompileError(
-                f"Room '{room_id}': must specify either 'place' or both 'x' and 'y' coordinates"
+                f"Room '{room_id}': must specify either 'place', 'x'/'y' coordinates, "
+                f"or a relative placement key (right_of/left_of/above/below/inside)"
             )
 
         spec = RoomSpec(
@@ -168,10 +351,15 @@ def _parse_rooms(entry_data: dict, canvas_size: int) -> tuple[list[RoomSpec], di
             place=place,
         )
         if spec.w < 1 or spec.h < 1:
-            raise InvalidRoomSizeError(
-                f"Room '{spec.id}': invalid size w={spec.w}, h={spec.h} — both must be >= 1"
-            )
-        if spec.x < 0 or spec.y < 0 or spec.x + spec.w > canvas_size or spec.y + spec.h > canvas_size:
+            if has_layout and spec.w == 0 and spec.h == 0:
+                pass
+            else:
+                raise InvalidRoomSizeError(
+                    f"Room '{spec.id}': invalid size w={spec.w}, h={spec.h} — both must be >= 1"
+                )
+        if has_layout:
+            pass
+        elif spec.x < 0 or spec.y < 0 or spec.x + spec.w > canvas_size or spec.y + spec.h > canvas_size:
             overflows: list[str] = []
             if spec.x < 0:
                 overflows.append(f"west by {-spec.x}")
@@ -181,9 +369,19 @@ def _parse_rooms(entry_data: dict, canvas_size: int) -> tuple[list[RoomSpec], di
                 overflows.append(f"east by {spec.x + spec.w - canvas_size}")
             if spec.y + spec.h > canvas_size:
                 overflows.append(f"south by {spec.y + spec.h - canvas_size}")
+            detail = ""
+            if overflows:
+                if "east" in " ".join(overflows):
+                    detail = " — try reducing w, inner_w, or x"
+                if "south" in " ".join(overflows):
+                    detail = " — try reducing h, inner_h, or y"
+                if "west" in " ".join(overflows):
+                    detail = " — increase x to 0 or higher"
+                if "north" in " ".join(overflows):
+                    detail = " — increase y to 0 or higher"
             raise OutOfBoundsError(
                 f"Room '{spec.id}': out of bounds at ({spec.x},{spec.y}) w={spec.w},h={spec.h} "
-                f"(canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}"
+                f"(canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}{detail}"
             )
         if room_id in resolved:
             raise DuplicateRoomIdError(
@@ -219,12 +417,16 @@ def _parse_doors(entry_data: dict, resolved: dict[str, RoomSpec]) -> list[DoorSp
                 f"invalid position '{spec.position}' — must be left, center, or right"
             )
         if spec.from_room not in resolved:
+            known = list(resolved.keys())
             raise RoomNotAdjacentError(
-                f"Door references unknown room: '{spec.from_room}'"
+                f"Door references unknown room: '{spec.from_room}'. "
+                f"Known rooms: {', '.join(known)}"
             )
         if spec.to_room not in resolved:
+            known = list(resolved.keys())
             raise RoomNotAdjacentError(
-                f"Door references unknown room: '{spec.to_room}'"
+                f"Door references unknown room: '{spec.to_room}'. "
+                f"Known rooms: {', '.join(known)}"
             )
         if spec.side is not None:
             room_a = make_room(resolved[spec.from_room])
@@ -311,8 +513,25 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
 
     fill_ter = entry_data.get("fill_ter", "t_floor")
     palette = entry_data.get("palette", [])
+    auto_doors = entry_data.get("auto_doors", False)
+    default_door_char = entry_data.get("default_door_char", "+")
 
-    room_specs, resolved = _parse_rooms(entry_data, canvas_size)
+    layout_matrix = entry_data.get("layout")
+    has_layout = layout_matrix is not None
+    room_specs, resolved = _parse_rooms(entry_data, canvas_size, has_layout=has_layout)
+
+    layout_canvas = entry_data.get("canvas")
+    if layout_canvas is not None and layout_matrix is not None:
+        _resolve_entry_layout(layout_canvas, layout_matrix, room_specs, resolved, canvas_size)
+    elif layout_matrix is not None:
+        raise CompileError(
+            "'layout' requires 'canvas' with 'cols' and 'rows' to define cell sizes"
+        )
+    elif layout_canvas is not None and "cols" in layout_canvas:
+        raise CompileError(
+            "'canvas' with 'cols'/'rows' requires 'layout' matrix to define room placement"
+        )
+
     door_specs = _parse_doors(entry_data, resolved)
     feature_specs = _parse_features(entry_data, resolved)
     global_tiles = _parse_global_tiles(entry_data, canvas_size)
@@ -327,6 +546,8 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
         features=feature_specs,
         global_tiles=global_tiles,
         pass_through=pass_through,
+        auto_doors=auto_doors,
+        default_door_char=default_door_char,
     )
 
 
@@ -370,16 +591,16 @@ def resolve_room_placement(
         side = place.side
         if side == "east":
             x = ref.x + ref.w + place.margin
-            y = place.y if place.y is not None else ref.y
+            y = place.y if place.y is not None else _resolve_align_y(place, ref, h)
         elif side == "west":
             x = ref.x - w - place.margin
-            y = place.y if place.y is not None else ref.y
+            y = place.y if place.y is not None else _resolve_align_y(place, ref, h)
         elif side == "south":
             y = ref.y + ref.h + place.margin
-            x = place.x if place.x is not None else ref.x
+            x = place.x if place.x is not None else _resolve_align_x(place, ref, w)
         elif side == "north":
             y = ref.y - h - place.margin
-            x = place.x if place.x is not None else ref.x
+            x = place.x if place.x is not None else _resolve_align_x(place, ref, w)
         else:
             raise CompileError(
                 f"Invalid side: '{side}' — must be north, south, east, or west"
@@ -395,24 +616,202 @@ def resolve_room_placement(
                 f"Room with w={w},h={h} and margin={place.margin} does not fit inside "
                 f"'{place.inside}' (w={ref.w},h={ref.h})"
             )
-        anchor = place.anchor
-        if anchor == "south":
-            x = ref.x + place.margin
-            y = ref.y + ref.h - h - place.margin
-        elif anchor == "east":
-            x = ref.x + ref.w - w - place.margin
-            y = ref.y + place.margin
-        elif anchor in ("north", "west"):
-            x = ref.x + place.margin
-            y = ref.y + place.margin
+        if place._align_style is not None:
+            x, y = _resolve_inside_compound_align(place, ref, w, h)
         else:
-            raise CompileError(
-                f"Invalid anchor: '{anchor}' — must be north, south, east, or west"
-            )
+            anchor = place.anchor
+            if anchor == "south":
+                x = ref.x + place.margin
+                y = ref.y + ref.h - h - place.margin
+            elif anchor == "east":
+                x = ref.x + ref.w - w - place.margin
+                y = ref.y + place.margin
+            elif anchor in ("north", "west"):
+                x = ref.x + place.margin
+                y = ref.y + place.margin
+            else:
+                raise CompileError(
+                    f"Invalid anchor: '{anchor}' — must be north, south, east, or west"
+                )
     else:
         raise CompileError("Unreachable: place must have relative_to or inside")  # pragma: no cover
 
     return x, y
+
+
+def _resolve_align_y(place: PlaceSpec, ref: RoomSpec, h: int) -> int:
+    style = place._align_style
+    if style is None:
+        return ref.y
+    if style == "top":
+        return ref.y
+    elif style == "bottom":
+        return ref.y + ref.h - h
+    elif style in ("center", "middle"):
+        return ref.y + (ref.h - h) // 2
+    return ref.y
+
+
+def _resolve_align_x(place: PlaceSpec, ref: RoomSpec, w: int) -> int:
+    style = place._align_style
+    if style is None:
+        return ref.x
+    if style == "left":
+        return ref.x
+    elif style == "right":
+        return ref.x + ref.w - w
+    elif style in ("center", "middle"):
+        return ref.x + (ref.w - w) // 2
+    return ref.x
+
+
+def _resolve_inside_compound_align(
+    place: PlaceSpec, ref: RoomSpec, w: int, h: int,
+) -> tuple[int, int]:
+    style = place._align_style or "top-left"
+    margin = place.margin
+
+    compound_map: dict[str, tuple[int, int]] = {
+        "top":          (ref.x + margin, ref.y + margin),
+        "north":        (ref.x + margin, ref.y + margin),
+        "bottom":       (ref.x + margin, ref.y + ref.h - h - margin),
+        "south":        (ref.x + margin, ref.y + ref.h - h - margin),
+        "left":         (ref.x + margin, ref.y + margin),
+        "west":         (ref.x + margin, ref.y + margin),
+        "right":        (ref.x + ref.w - w - margin, ref.y + margin),
+        "east":         (ref.x + ref.w - w - margin, ref.y + margin),
+        "top-left":     (ref.x + margin, ref.y + margin),
+        "north-west":   (ref.x + margin, ref.y + margin),
+        "top-right":    (ref.x + ref.w - w - margin, ref.y + margin),
+        "north-east":   (ref.x + ref.w - w - margin, ref.y + margin),
+        "bottom-left":  (ref.x + margin, ref.y + ref.h - h - margin),
+        "south-west":   (ref.x + margin, ref.y + ref.h - h - margin),
+        "bottom-right": (ref.x + ref.w - w - margin, ref.y + ref.h - h - margin),
+        "south-east":   (ref.x + ref.w - w - margin, ref.y + ref.h - h - margin),
+        "center":       (ref.x + (ref.w - w) // 2, ref.y + (ref.h - h) // 2),
+        "middle":       (ref.x + (ref.w - w) // 2, ref.y + (ref.h - h) // 2),
+    }
+    
+    if style in compound_map:
+        return compound_map[style]
+    
+    raise CompileError(
+        f"Invalid align style for inside placement: '{style}'"
+    )
+
+
+def _resolve_entry_layout(
+    layout_canvas: dict,
+    layout_matrix: list[list[str]],
+    room_specs: list[RoomSpec],
+    resolved: dict[str, RoomSpec],
+    canvas_size: int,
+) -> None:
+    if not isinstance(layout_canvas, dict):
+        raise CompileError("'canvas' for layout must be a mapping with 'cols' and 'rows' keys")
+    cols: list[int] = layout_canvas.get("cols", [])
+    rows: list[int] = layout_canvas.get("rows", [])
+    if not cols or not rows:
+        raise CompileError("'canvas' for layout must contain non-empty 'cols' and 'rows' lists")
+    if not isinstance(cols, list) or not all(isinstance(c, int) and c > 0 for c in cols):
+        raise CompileError("'canvas.cols' must be a list of positive integers")
+    if not isinstance(rows, list) or not all(isinstance(r, int) and r > 0 for r in rows):
+        raise CompileError("'canvas.rows' must be a list of positive integers")
+
+    total_w = sum(cols)
+    total_h = sum(rows)
+    if total_w > canvas_size or total_h > canvas_size:
+        raise CompileError(
+            f"Layout canvas ({total_w}x{total_h}) exceeds mapgen canvas ({canvas_size}x{canvas_size}) — "
+            f"reduce column widths or row heights"
+        )
+
+    if not isinstance(layout_matrix, list) or not layout_matrix:
+        raise CompileError("'layout' must be a non-empty list of rows")
+    for i, row in enumerate(layout_matrix):
+        if not isinstance(row, list) or len(row) != len(cols):
+            raise CompileError(
+                f"Layout row {i} has {len(row) if isinstance(row, list) else 'non-list'} cells, "
+                f"but {len(cols)} columns are defined in canvas.cols"
+            )
+
+    if len(layout_matrix) != len(rows):
+        raise CompileError(
+            f"Layout has {len(layout_matrix)} rows, but {len(rows)} rows are defined in canvas.rows"
+        )
+
+    room_by_id: dict[str, RoomSpec] = {r.id: r for r in room_specs}
+
+    room_cells: dict[str, tuple[int, int, int, int]] = {}
+    for ri, row in enumerate(layout_matrix):
+        for ci, cell_id in enumerate(row):
+            if cell_id not in room_by_id:
+                raise CompileError(
+                    f"Layout cell [{ri}][{ci}] references unknown room: '{cell_id}'"
+                )
+            if cell_id not in room_cells:
+                room_cells[cell_id] = (ci, ri, ci + 1, ri + 1)
+            else:
+                c_min, r_min, c_max, r_max = room_cells[cell_id]
+                room_cells[cell_id] = (
+                    min(c_min, ci), min(r_min, ri),
+                    max(c_max, ci + 1), max(r_max, ri + 1),
+                )
+
+    all_room_ids = {r.id for r in room_specs}
+    for cell_id in all_room_ids:
+        if cell_id not in room_cells:
+            raise CompileError(
+                f"Room '{cell_id}' is defined in rooms but not placed in layout matrix — "
+                f"all rooms must be assigned to at least one cell in layout"
+            )
+
+    for cell_id, (c_min, r_min, c_max, r_max) in room_cells.items():
+        computed_w = sum(cols[c_min:c_max])
+        computed_h = sum(rows[r_min:r_max])
+        computed_x = sum(cols[:c_min])
+        computed_y = sum(rows[:r_min])
+
+        spec = room_by_id[cell_id]
+        if spec.w > 0 and spec.h > 0:
+            if spec.w != computed_w:
+                raise CompileError(
+                    f"Room '{cell_id}': specified w={spec.w} conflicts with layout-computed "
+                    f"width {computed_w} (spans columns {c_min}-{c_max - 1}). "
+                    f"Omit 'w'/'h' or 'inner_w'/'inner_h' to use layout-derived sizes."
+                )
+            if spec.h != computed_h:
+                raise CompileError(
+                    f"Room '{cell_id}': specified h={spec.h} conflicts with layout-computed "
+                    f"height {computed_h} (spans rows {r_min}-{r_max - 1}). "
+                    f"Omit 'w'/'h' or 'inner_w'/'inner_h' to use layout-derived sizes."
+                )
+
+        spec.w = computed_w
+        spec.h = computed_h
+        spec.x = computed_x
+        spec.y = computed_y
+        spec.layout_resolved = True
+
+        if spec.w < 1 or spec.h < 1:
+            raise InvalidRoomSizeError(
+                f"Room '{cell_id}': layout-computed size w={spec.w}, h={spec.h} — both must be >= 1"
+            )
+        if spec.x < 0 or spec.y < 0 or spec.x + spec.w > canvas_size or spec.y + spec.h > canvas_size:
+            overflows: list[str] = []
+            if spec.x < 0:
+                overflows.append(f"west by {-spec.x}")
+            if spec.y < 0:
+                overflows.append(f"north by {-spec.y}")
+            if spec.x + spec.w > canvas_size:
+                overflows.append(f"east by {spec.x + spec.w - canvas_size}")
+            if spec.y + spec.h > canvas_size:
+                overflows.append(f"south by {spec.y + spec.h - canvas_size}")
+            raise OutOfBoundsError(
+                f"Room '{cell_id}': layout-resolved position ({spec.x},{spec.y}) w={spec.w},h={spec.h} "
+                f"out of bounds (canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}"
+            )
+
 
 
 def _validate_room_overlaps(entry: EntrySpec) -> None:
@@ -430,7 +829,9 @@ def _validate_room_overlaps(entry: EntrySpec) -> None:
             raise RoomOverlapError(
                 f"Rooms '{a.room_id}' (x={a.x},y={a.y},w={a.w},h={a.h}) and "
                 f"'{b.room_id}' (x={b.x},y={b.y},w={b.w},h={b.h}) partially overlap — "
-                f"adjust one room's position or size to eliminate overlap"
+                f"adjust one room's position or size to eliminate overlap. "
+                f"Try: move '{a.room_id}' x to {b.x + b.w} or '{b.room_id}' x to {a.x + a.w}, "
+                f"or reduce width of one room."
             )
 
 
