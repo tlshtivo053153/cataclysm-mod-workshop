@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from mapgen.grid import Grid
+    from mapgen.schema import FeatureSpec
 
 __all__ = [
     "CompileError",
@@ -95,4 +98,4 @@ class EntryContext:
     grid: "Grid"
     pass_through: dict[str, Any]
     warnings: list[Warning]
-    features: list = field(default_factory=list)
+    features: list[FeatureSpec] = field(default_factory=list)

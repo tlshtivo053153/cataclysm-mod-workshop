@@ -4,25 +4,48 @@ from typing import Callable, Literal
 from mapgen import DoorOverlapTooSmallError, RoomNotAdjacentError
 from mapgen.grid import Grid
 
-_SIDE_CONFIG: dict[str, tuple[Callable[["Room"], int], Callable[["Room", int], tuple[int, int]]]] = {
-    "south": (lambda r: r.w, lambda r, o: (r.x + min(o, r.w - 1), r.y2 - 1)),
-    "north": (lambda r: r.w, lambda r, o: (r.x + min(o, r.w - 1), r.y1)),
-    "east":  (lambda r: r.h, lambda r, o: (r.x2 - 1, r.y + min(o, r.h - 1))),
-    "west":  (lambda r: r.h, lambda r, o: (r.x1, r.y + min(o, r.h - 1))),
+@dataclass(frozen=True)
+class _SideGeometry:
+    direction: str
+    display_name: str
+    overlap_length: Callable[[Room], int]
+    door_at: Callable[[Room, int], tuple[int, int]]
+
+
+@dataclass(frozen=True)
+class _EdgeGeometry:
+    direction: str
+    pos_at: Callable[[Room, int], tuple[int, int]]
+
+
+_SIDES: dict[str, _SideGeometry] = {
+    "south": _SideGeometry(
+        direction="south", display_name="Southern",
+        overlap_length=lambda r: r.w,
+        door_at=lambda r, o: (r.x + min(o, r.w - 1), r.y2 - 1),
+    ),
+    "north": _SideGeometry(
+        direction="north", display_name="Northern",
+        overlap_length=lambda r: r.w,
+        door_at=lambda r, o: (r.x + min(o, r.w - 1), r.y1),
+    ),
+    "east": _SideGeometry(
+        direction="east", display_name="Eastern",
+        overlap_length=lambda r: r.h,
+        door_at=lambda r, o: (r.x2 - 1, r.y + min(o, r.h - 1)),
+    ),
+    "west": _SideGeometry(
+        direction="west", display_name="Western",
+        overlap_length=lambda r: r.h,
+        door_at=lambda r, o: (r.x1, r.y + min(o, r.h - 1)),
+    ),
 }
 
-_DIRECTION_NAMES: dict[str, str] = {
-    "south": "Southern",
-    "north": "Northern",
-    "east": "Eastern",
-    "west": "Western",
-}
-
-_EDGE_POS: dict[str, Callable[["Room", int], tuple[int, int]]] = {
-    "east":  lambda r, c: (r.x2 - 1, c),
-    "west":  lambda r, c: (r.x1, c),
-    "south": lambda r, c: (c, r.y2 - 1),
-    "north": lambda r, c: (c, r.y1),
+_EDGES: dict[str, _EdgeGeometry] = {
+    "east":  _EdgeGeometry(direction="east", pos_at=lambda r, c: (r.x2 - 1, c)),
+    "west":  _EdgeGeometry(direction="west", pos_at=lambda r, c: (r.x1, c)),
+    "south": _EdgeGeometry(direction="south", pos_at=lambda r, c: (c, r.y2 - 1)),
+    "north": _EdgeGeometry(direction="north", pos_at=lambda r, c: (c, r.y1)),
 }
 
 
@@ -175,12 +198,12 @@ def compute_door_position(
     pos = offset if offset is not None else edge.overlap_length // 2
     coord = edge.overlap_start + pos
 
-    pos_fn = _EDGE_POS.get(edge.direction)
-    if pos_fn is None:
+    edge_geo = _EDGES.get(edge.direction)
+    if edge_geo is None:
         raise RoomNotAdjacentError(
             f"Unknown edge direction: {edge.direction}"
         )
-    return pos_fn(room_a, coord)
+    return edge_geo.pos_at(room_a, coord)
 
 
 def compute_contained_door_position(
@@ -194,16 +217,15 @@ def compute_contained_door_position(
             f"Room '{container.room_id}' does not strictly contain '{inner.room_id}'"
         )
 
-    config = _SIDE_CONFIG.get(side)
-    if config is None:
+    side_geo = _SIDES.get(side)
+    if side_geo is None:
         raise ValueError(f"Unknown side: '{side}'")
 
-    get_overlap, get_pos = config
-    overlap_length = get_overlap(inner)
+    overlap_length = side_geo.overlap_length(inner)
     if overlap_length < 2:
         raise DoorOverlapTooSmallError(
-            f"{_DIRECTION_NAMES.get(side, side.capitalize())} wall of '{inner.room_id}' "
+            f"{side_geo.display_name} wall of '{inner.room_id}' "
             f"has overlap {overlap_length}, need at least 2"
         )
     offset_used = offset if offset is not None else overlap_length // 2
-    return get_pos(inner, offset_used)
+    return side_geo.door_at(inner, offset_used)

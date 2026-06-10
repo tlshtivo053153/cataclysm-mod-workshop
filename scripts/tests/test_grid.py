@@ -88,7 +88,7 @@ class TestGridToRows:
 class TestGridCheckReachability:
     def test_all_reachable(self):
         g = Grid(fill_char=".")
-        unreachable = g.check_reachability([(0, 0)], {"."})
+        unreachable = g.find_unreachable_cells([(0, 0)], {"."})
         assert len(unreachable) == 0
 
     def test_wall_blocked(self):
@@ -98,13 +98,13 @@ class TestGridCheckReachability:
         g.place(12, 2, "#")
         for y in range(3, MAPGEN_SIZE):
             g.place(12, y, "#")
-        unreachable = g.check_reachability([(0, 0)], {"."})
+        unreachable = g.find_unreachable_cells([(0, 0)], {"."})
         right_side = [(x, y) for x, y in unreachable if x > 12]
         assert len(right_side) > 0
 
     def test_empty_entry_points(self):
         g = Grid(fill_char=".")
-        unreachable = g.check_reachability([], {"."})
+        unreachable = g.find_unreachable_cells([], {"."})
         assert len(unreachable) == MAPGEN_SIZE * MAPGEN_SIZE
 
 

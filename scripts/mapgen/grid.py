@@ -52,7 +52,7 @@ class Grid:
         for y in range(y1, y2 + 1):
             self.place(x, y, char)
 
-    def check_reachability(
+    def find_unreachable_cells(
         self, entry_candidates: list[tuple[int, int]], passable_chars: set[str]
     ) -> list[tuple[int, int]]:
         reachable: set[tuple[int, int]] = set()
@@ -84,6 +84,16 @@ class Grid:
         return unreachable
 
     def collect_used_chars(self, fill_char: str = " ") -> set[str]:
+        """Return the set of non-empty characters used in the grid.
+
+        With the default ``fill_char=" "`` (the BFS passable filler), space
+        characters are always excluded — they represent empty walkable cells,
+        not meaningful tiles. All other characters are collected.
+
+        When ``fill_char`` is something other than ``" "`` (e.g. ``#`` for a
+        wall-filled grid), the space character may carry semantic meaning
+        (doors, floor openings, etc.), so it is included in the result set.
+        """
         chars: set[str] = set()
         for row in self._cells:
             for ch in row:

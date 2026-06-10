@@ -111,14 +111,7 @@ def _resolve_global_coords(value: int | list[int]) -> list[int]:
     raise CompileError(f"Invalid global coordinate: {value}")
 
 
-def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySpec:
-    om_terrain = entry_data.get("om_terrain")
-    if not om_terrain:
-        raise CompileError("Entry missing required field: om_terrain")
-
-    fill_ter = entry_data.get("fill_ter", "t_floor")
-    palette = entry_data.get("palette", [])
-
+def _parse_rooms(entry_data: dict, canvas_size: int) -> tuple[list[RoomSpec], dict[str, RoomSpec]]:
     room_specs: list[RoomSpec] = []
     resolved: dict[str, RoomSpec] = {}
     for room_data in entry_data.get("rooms", []):
@@ -192,18 +185,16 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
                 f"Room '{spec.id}': out of bounds at ({spec.x},{spec.y}) w={spec.w},h={spec.h} "
                 f"(canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}"
             )
+        if room_id in resolved:
+            raise DuplicateRoomIdError(
+                f"Duplicate room id: '{room_id}' — each room must have a unique id"
+            )
         room_specs.append(spec)
         resolved[room_id] = spec
+    return room_specs, resolved
 
-    room_ids = [r.id for r in room_specs]
-    seen: set[str] = set()
-    for rid in room_ids:
-        if rid in seen:
-            raise DuplicateRoomIdError(
-                f"Duplicate room id: '{rid}' — each room must have a unique id"
-            )
-        seen.add(rid)
 
+def _parse_doors(entry_data: dict, resolved: dict[str, RoomSpec]) -> list[DoorSpec]:
     door_specs: list[DoorSpec] = []
     for door_data in entry_data.get("doors", []):
         try:
@@ -227,35 +218,38 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
                 f"Door between '{spec.from_room}' and '{spec.to_room}': "
                 f"invalid position '{spec.position}' — must be left, center, or right"
             )
-        if spec.from_room not in seen:
+        if spec.from_room not in resolved:
             raise RoomNotAdjacentError(
                 f"Door references unknown room: '{spec.from_room}'"
             )
-        if spec.to_room not in seen:
+        if spec.to_room not in resolved:
             raise RoomNotAdjacentError(
                 f"Door references unknown room: '{spec.to_room}'"
             )
         if spec.side is not None:
-            room_a = make_room_from_spec(room_specs, spec.from_room)
-            room_b = make_room_from_spec(room_specs, spec.to_room)
+            room_a = make_room(resolved[spec.from_room])
+            room_b = make_room(resolved[spec.to_room])
             if room_a.is_adjacent_to(room_b):
                 raise CompileError(
                     f"Door between '{spec.from_room}' and '{spec.to_room}': "
                     f"'side' is only valid for contained rooms, but rooms are adjacent"
                 )
         door_specs.append(spec)
+    return door_specs
 
+
+def _parse_features(entry_data: dict, resolved: dict[str, RoomSpec]) -> list[FeatureSpec]:
     feature_specs: list[FeatureSpec] = []
     for feat_data in entry_data.get("features", []):
         try:
             room_name = feat_data["room"]
         except KeyError as e:
             raise CompileError(f"Feature missing required field: {e}") from e
-        if room_name not in seen:
+        if room_name not in resolved:
             raise FeatureOutOfRoomError(
                 f"Feature references unknown room: '{room_name}'"
             )
-        room_spec = _find_room_spec(room_specs, room_name)
+        room_spec = resolved[room_name]
         tiles: list[FeatureTile] = []
         for tile_data in feat_data.get("tiles", []):
             try:
@@ -274,7 +268,10 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
                 )
             tiles.append(tile)
         feature_specs.append(FeatureSpec(room=room_name, tiles=tiles))
+    return feature_specs
 
+
+def _parse_global_tiles(entry_data: dict, canvas_size: int) -> list[GlobalTile]:
     global_tiles: list[GlobalTile] = []
     for gt_data in entry_data.get("global", []):
         try:
@@ -296,11 +293,30 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
                     f"Global tile y={y_val} out of bounds (0-{canvas_size - 1})"
                 )
         global_tiles.append(gt)
+    return global_tiles
 
+
+def _extract_pass_through(entry_data: dict) -> dict:
     pass_through: dict = {}
     for key, value in entry_data.items():
         if key not in KNOWN_KEYS:
             pass_through[key] = value
+    return pass_through
+
+
+def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySpec:
+    om_terrain = entry_data.get("om_terrain")
+    if not om_terrain:
+        raise CompileError("Entry missing required field: om_terrain")
+
+    fill_ter = entry_data.get("fill_ter", "t_floor")
+    palette = entry_data.get("palette", [])
+
+    room_specs, resolved = _parse_rooms(entry_data, canvas_size)
+    door_specs = _parse_doors(entry_data, resolved)
+    feature_specs = _parse_features(entry_data, resolved)
+    global_tiles = _parse_global_tiles(entry_data, canvas_size)
+    pass_through = _extract_pass_through(entry_data)
 
     return EntrySpec(
         om_terrain=om_terrain,

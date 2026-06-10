@@ -45,19 +45,15 @@ def _collect_stair_positions(
                 positions.add((room_spec.x + tile.x, room_spec.y + tile.y))
     for gt in global_tiles:
         if gt.char in STAIR_CHARS:
-            x_vals = _resolve_coord_range(gt.x)
-            y_vals = _resolve_coord_range(gt.y)
+            x_vals = _resolve_global_coords(gt.x)
+            y_vals = _resolve_global_coords(gt.y)
             for x in x_vals:
                 for y in y_vals:
                     positions.add((x, y))
     return positions
 
 
-def _resolve_coord_range(value: int | list[int]) -> list[int]:
-    try:
-        return _resolve_global_coords(value)
-    except CompileError:
-        return []
+
 
 
 class Compiler:
@@ -144,8 +140,8 @@ class Compiler:
                 grid.place(ax, ay, tile.char)
 
         for gt in spec.global_tiles:
-            x_vals = _resolve_coord_range(gt.x)
-            y_vals = _resolve_coord_range(gt.y)
+            x_vals = _resolve_global_coords(gt.x)
+            y_vals = _resolve_global_coords(gt.y)
             for x in x_vals:
                 for y in y_vals:
                     grid.place(x, y, gt.char)
@@ -182,7 +178,7 @@ class Compiler:
         )
 
         if entry_points:
-            unreachable = grid.check_reachability(entry_points, passable_chars)
+            unreachable = grid.find_unreachable_cells(entry_points, passable_chars)
             if unreachable:
                 warnings.append(Warning(
                     code="unreachable_cells",
@@ -286,11 +282,11 @@ class Compiler:
         if room_a.contains(room_b) or room_b.contains(room_a):
             inner = room_b if room_a.contains(room_b) else room_a
             side = door.side if door.side else "south"
-            from mapgen.room import _SIDE_CONFIG
-            config = _SIDE_CONFIG.get(side)
+            from mapgen.room import _SIDES
+            config = _SIDES.get(side)
             if config is None:
                 return door.offset
-            overlap_length = config[0](inner)
+            overlap_length = config.overlap_length(inner)
         else:
             edge = room_a.adjacent_edge(room_b)
             if edge is None:
