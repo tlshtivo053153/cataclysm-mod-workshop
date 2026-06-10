@@ -3,17 +3,14 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "outer"
-        x: 2
-        y: 2
         w: 10
         h: 10
         wall: "#"
         floor: "."
       - id: "inner"
-        place:
-          inside: "outer"
-          anchor: "south"
-          margin: 1
+        inside: "outer"
+        align: "south"
+        gap: 1
         w: 3
         h: 3
         wall: "#"

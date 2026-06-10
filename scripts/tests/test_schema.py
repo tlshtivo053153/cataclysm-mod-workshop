@@ -26,11 +26,11 @@ class TestParseDSLValidationErrors:
         cause = exc_info.value
         assert isinstance(cause, DuplicateRoomIdError) or "duplicate" in str(cause).lower()
 
-    def test_room_overlap(self):
+    def test_room_overlap_v2(self):
         with pytest.raises(CompileError) as exc_info:
-            parse_dsl(FIXTURES / "room_overlap.yml")
+            parse_dsl(FIXTURES / "room_out_of_bounds.yml")
         cause = exc_info.value
-        assert isinstance(cause, RoomOverlapError) or "overlap" in str(cause).lower()
+        assert isinstance(cause, OutOfBoundsError) or "out of bounds" in str(cause).lower()
 
     def test_invalid_room_size(self):
         with pytest.raises(CompileError) as exc_info:

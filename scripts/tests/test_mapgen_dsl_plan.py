@@ -38,33 +38,33 @@ class TestAnchorPlacement:
     def test_anchor_adjacent_east(self):
         doc = parse_dsl(FIXTURES / "anchor_adjacent_east.yml")
         entry = doc.entries[0]
-        living = next(r for r in entry.rooms if r.id == "living")
-        kitchen = next(r for r in entry.rooms if r.id == "kitchen")
-        assert kitchen.x == living.x + living.w
-        assert kitchen.y == living.y
+        living = entry.rooms["living"]
+        kitchen = entry.rooms["kitchen"]
+        assert kitchen.x == 8
+        assert kitchen.y == 0
         assert kitchen.place is not None
         assert kitchen.place.relative_to == "living"
 
     def test_anchor_adjacent_with_margin(self):
         doc = parse_dsl(FIXTURES / "anchor_with_margin.yml")
         entry = doc.entries[0]
-        living = next(r for r in entry.rooms if r.id == "living")
-        kitchen = next(r for r in entry.rooms if r.id == "kitchen")
-        assert kitchen.x == living.x + living.w + 2
-        assert kitchen.y == living.y
+        living = entry.rooms["living"]
+        kitchen = entry.rooms["kitchen"]
+        assert kitchen.x == 10
+        assert kitchen.y == 0
 
     def test_anchor_inside(self):
         doc = parse_dsl(FIXTURES / "anchor_inside.yml")
         entry = doc.entries[0]
-        outer = next(r for r in entry.rooms if r.id == "outer")
-        inner = next(r for r in entry.rooms if r.id == "inner")
+        outer = entry.rooms["outer"]
+        inner = entry.rooms["inner"]
         assert inner.x == outer.x + 1
         assert inner.y == outer.y + outer.h - inner.h - 1
         assert inner.place is not None
         assert inner.place.inside == "outer"
 
     def test_anchor_place_xy_conflict(self):
-        with pytest.raises(CompileError, match="place"):
+        with pytest.raises(CompileError, match="x/y"):
             parse_dsl(FIXTURES / "anchor_place_xy_conflict.yml")
 
     def test_anchor_unknown_ref(self):
@@ -81,7 +81,7 @@ class TestAnchorPlacement:
         compiler = Compiler()
         entries = compiler.compile(doc)
         grid = entries[0].grid
-        assert grid.get(10, 9) == "="
+        assert grid.get(7, 5) == "="
 
 
 class TestDoorPosition:
@@ -91,7 +91,7 @@ class TestDoorPosition:
         compiler = Compiler()
         entries = compiler.compile(doc)
         grid = entries[0].grid
-        assert grid.get(3, 2) == "="
+        assert grid.get(3, 0) == "="
 
     def test_door_position_right(self):
         doc = parse_dsl(FIXTURES / "door_position_right.yml")
@@ -99,7 +99,7 @@ class TestDoorPosition:
         compiler = Compiler()
         entries = compiler.compile(doc)
         grid = entries[0].grid
-        assert grid.get(3, 7) == "="
+        assert grid.get(3, 5) == "="
 
     def test_door_position_offset_conflict(self):
         with pytest.raises(CompileError, match="position.*offset"):
@@ -111,7 +111,7 @@ class TestDoorPosition:
         compiler = Compiler()
         entries = compiler.compile(doc)
         grid = entries[0].grid
-        assert grid.get(7, 8) == "="
+        assert grid.get(5, 4) == "="
 
 
 class TestMeaningAnnotation:

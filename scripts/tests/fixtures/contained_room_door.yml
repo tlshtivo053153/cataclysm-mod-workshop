@@ -4,15 +4,13 @@ entries:
     palette: ["test_palette"]
     rooms:
       - id: "outer"
-        x: 2
-        y: 2
         w: 14
         h: 14
         wall: "#"
         floor: "."
       - id: "inner"
-        x: 5
-        y: 5
+        inside: "outer"
+        gap: 3
         w: 6
         h: 6
         wall: "#"

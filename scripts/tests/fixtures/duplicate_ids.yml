@@ -2,15 +2,12 @@ entries:
   - om_terrain: "duplicate_ids"
     rooms:
       - id: "dup"
-        x: 2
-        y: 2
         w: 4
         h: 4
         wall: "#"
         floor: "."
       - id: "dup"
-        x: 8
-        y: 8
+        right_of: "dup"
         w: 4
         h: 4
         wall: "#"

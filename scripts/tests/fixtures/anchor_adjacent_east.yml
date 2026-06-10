@@ -3,17 +3,12 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "living"
-        x: 3
-        y: 4
         w: 8
         h: 10
         wall: "#"
         floor: "."
       - id: "kitchen"
-        place:
-          relative_to: "living"
-          side: "east"
-          margin: 0
+        right_of: "living"
         w: 7
         h: 10
         wall: "#"

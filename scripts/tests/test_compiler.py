@@ -30,7 +30,7 @@ class TestParseDSL:
 
     def test_room_ids(self):
         doc = parse_dsl(FIXTURES / "demo_mapgen.yml")
-        ids = {r.id for r in doc.entries[0].rooms}
+        ids = set(doc.entries[0].rooms.keys())
         assert ids == {"living", "kitchen", "closet"}
 
 

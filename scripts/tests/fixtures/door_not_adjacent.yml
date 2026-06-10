@@ -2,15 +2,13 @@ entries:
   - om_terrain: "door_bad"
     rooms:
       - id: "r1"
-        x: 2
-        y: 2
         w: 4
         h: 4
         wall: "#"
         floor: "."
       - id: "r2"
-        x: 10
-        y: 10
+        right_of: "r1"
+        gap: 6
         w: 4
         h: 4
         wall: "#"

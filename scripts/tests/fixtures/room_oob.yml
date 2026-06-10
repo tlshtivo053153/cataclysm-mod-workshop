@@ -2,9 +2,7 @@ entries:
   - om_terrain: "room_oob"
     rooms:
       - id: "bad"
-        x: 20
-        y: 20
-        w: 10
+        w: 30
         h: 10
         wall: "#"
         floor: "."

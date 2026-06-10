@@ -16,7 +16,7 @@ from mapgen.room import Room
 from mapgen.grid import MAPGEN_SIZE
 
 KNOWN_KEYS = {"om_terrain", "fill_ter", "palette", "rooms", "doors", "features", "global",
-               "canvas", "layout", "auto_doors", "default_door_char"}
+               "canvas", "layout", "auto_doors", "default_door_char", "no_door"}
 
 
 @dataclass
@@ -26,8 +26,6 @@ class PlaceSpec:
     side: str = "south"
     anchor: str = "south"
     margin: int = 0
-    x: int | None = None
-    y: int | None = None
     _align_style: str | None = None
 
 
@@ -64,7 +62,7 @@ class FeatureTile:
 
 @dataclass
 class FeatureSpec:
-    room: str
+    room: str | None = None
     tiles: list[FeatureTile] = field(default_factory=list)
 
 
@@ -80,13 +78,14 @@ class EntrySpec:
     om_terrain: str
     fill_ter: str
     palette: list[str] = field(default_factory=list)
-    rooms: list[RoomSpec] = field(default_factory=list)
+    rooms: dict[str, RoomSpec] = field(default_factory=dict)
     doors: list[DoorSpec] = field(default_factory=list)
     features: list[FeatureSpec] = field(default_factory=list)
     global_tiles: list[GlobalTile] = field(default_factory=list)
     pass_through: dict = field(default_factory=dict)
-    auto_doors: bool = False
+    auto_doors: bool = True
     default_door_char: str = "+"
+    no_door: list[tuple[str, str]] = field(default_factory=list)
 
 
 @dataclass
@@ -186,8 +185,6 @@ def _build_adjacent_placement(
         side=side,
         anchor="south",
         margin=gap,
-        x=None,
-        y=None,
         _align_style=align,
     )
 
@@ -226,8 +223,6 @@ def _build_inside_placement(
         side="south",
         anchor=anchor,
         margin=gap,
-        x=None,
-        y=None,
         _align_style=align,
     )
 
@@ -245,13 +240,50 @@ def _resolve_global_coords(value: int | list[int]) -> list[int]:
     raise CompileError(f"Invalid global coordinate: {value}")
 
 
-def _parse_rooms(entry_data: dict, canvas_size: int, has_layout: bool = False) -> tuple[list[RoomSpec], dict[str, RoomSpec]]:
-    room_specs: list[RoomSpec] = []
-    resolved: dict[str, RoomSpec] = {}
-    for room_data in entry_data.get("rooms", []):
-        room_id = room_data.get("id")
-        if not room_id:
-            raise CompileError("Room missing required field: id")
+def _check_deps_cycle(
+    room_id: str, start: str, deps: dict[str, set[str]], visited: set[str],
+) -> None:
+    if room_id in visited:
+        if room_id == start:
+            cycle_path = " → ".join(list(visited) + [room_id])
+            raise CompileError(
+                f"Circular room placement dependency detected: {cycle_path} — "
+                f"relative placement must form a directed acyclic graph"
+            )
+        return
+    visited.add(room_id)
+    for dep in deps.get(room_id, set()):
+        _check_deps_cycle(dep, start, deps, visited)
+    visited.discard(room_id)
+
+
+def _parse_rooms(entry_data: dict, canvas_size: int, has_layout: bool = False) -> dict[str, RoomSpec]:
+    rooms_data = entry_data.get("rooms", [])
+
+    room_items: list[tuple[str, dict]] = []
+    if isinstance(rooms_data, dict):
+        for room_id, room_data in rooms_data.items():
+            if not isinstance(room_data, dict):
+                raise CompileError(f"Room '{room_id}': value must be a mapping")
+            room_items.append((room_id, room_data))
+    elif isinstance(rooms_data, list):
+        for room_data in rooms_data:
+            room_id = room_data.get("id")
+            if not room_id:
+                raise CompileError("Room missing required field: id")
+            room_items.append((room_id, room_data))
+    else:
+        raise CompileError("'rooms' must be a list or mapping")
+
+    specs: dict[str, RoomSpec] = {}
+    deps: dict[str, set[str]] = {}
+    is_first = True
+
+    for room_id, room_data in room_items:
+        if room_id in specs:
+            raise DuplicateRoomIdError(
+                f"Duplicate room id: '{room_id}' — each room must have a unique id"
+            )
 
         inner_w = room_data.get("inner_w")
         inner_h = room_data.get("inner_h")
@@ -290,106 +322,154 @@ def _parse_rooms(entry_data: dict, canvas_size: int, has_layout: bool = False) -
 
         has_x = "x" in room_data
         has_y = "y" in room_data
+        has_place = "place" in room_data
+        has_new_placement = bool(_RELATIVE_KEYS & set(room_data.keys()))
 
-        if w is None or h is None:
-            has_any_coords = has_x or has_y or "place" in room_data or _RELATIVE_KEYS & set(room_data.keys())
-            if has_any_coords:
+        if has_x or has_y:
+            raise CompileError(
+                f"Room '{room_id}': x/y absolute coordinates are no longer supported. "
+                f"Use right_of/left_of/above/below/inside for relative placement, "
+                f"or 'layout' with 'canvas.cols'/'canvas.rows' for grid-based placement."
+            )
+
+        if has_place:
+            raise CompileError(
+                f"Room '{room_id}': 'place' dict is no longer supported. "
+                f"Use right_of/left_of/above/below/inside for relative placement instead."
+            )
+
+        if w is None and h is None:
+            if has_layout:
+                w = 0
+                h = 0
+            elif has_new_placement:
                 missing = []
                 if w is None:
                     missing.append("w")
                 if h is None:
                     missing.append("h")
                 raise CompileError(f"Room '{room_id}' missing required field: {', '.join(missing)}")
+            else:
+                missing = []
+                if w is None:
+                    missing.append("w")
+                if h is None:
+                    missing.append("h")
+                raise CompileError(f"Room '{room_id}' missing required field: {', '.join(missing)}")
+        else:
             w = w or 0
             h = h or 0
 
-        place_data = room_data.get("place")
+        place = None
+        dep_rooms: set[str] = set()
 
-        new_placement = _detect_new_placement_keys(room_data, room_id, has_x, has_y, place_data is not None)
-
-        if place_data is not None:
-            if has_x or has_y:
-                raise CompileError(
-                    f"Room '{room_id}': cannot specify both 'place' and 'x'/'y' — "
-                    f"use 'place' for automatic placement, or 'x'/'y' for absolute coordinates"
-                )
-            place = PlaceSpec(
-                relative_to=place_data.get("relative_to"),
-                inside=place_data.get("inside"),
-                side=place_data.get("side", "south"),
-                anchor=place_data.get("anchor", "south"),
-                margin=place_data.get("margin", 0),
-                x=place_data.get("x"),
-                y=place_data.get("y"),
-            )
-            x, y = resolve_room_placement(place, w, h, resolved)
-        elif new_placement is not None:
-            place = new_placement
-            x, y = resolve_room_placement(place, w, h, resolved)
-        elif has_x and has_y:
-            x = room_data["x"]
-            y = room_data["y"]
-            place = None
-        elif has_layout:
-            x = 0
-            y = 0
-            place = None
-        else:
+        if has_new_placement:
+            place = _detect_new_placement_keys(room_data, room_id, has_x, has_y, has_place)
+            if place:
+                if place.relative_to:
+                    dep_rooms.add(place.relative_to)
+                if place.inside:
+                    dep_rooms.add(place.inside)
+        elif not has_layout and not is_first:
             raise CompileError(
-                f"Room '{room_id}': must specify either 'place', 'x'/'y' coordinates, "
-                f"or a relative placement key (right_of/left_of/above/below/inside)"
+                f"Room '{room_id}': must specify a relative placement key "
+                f"(right_of/left_of/above/below/inside) or use 'layout' for grid placement. "
+                f"The first room in the list can be the anchor (placed at 0,0)."
             )
 
-        spec = RoomSpec(
+        specs[room_id] = RoomSpec(
             id=room_id,
-            x=x,
-            y=y,
+            x=0,
+            y=0,
             w=w,
             h=h,
             wall=wall,
             floor=floor,
             place=place,
         )
-        if spec.w < 1 or spec.h < 1:
-            if has_layout and spec.w == 0 and spec.h == 0:
-                pass
+        deps[room_id] = dep_rooms
+        is_first = False
+
+    for room_id, dep_set in deps.items():
+        for dep in dep_set:
+            if dep not in specs:
+                raise CompileError(
+                    f"Room '{room_id}': references unknown room '{dep}'. "
+                    f"Known rooms: {', '.join(sorted(specs.keys()))}"
+                )
+
+    for room_id in deps:
+        if deps[room_id]:
+            _check_deps_cycle(room_id, room_id, deps, set())
+
+    unresolved = set(specs.keys())
+    resolved: dict[str, RoomSpec] = {}
+
+    while unresolved:
+        progress = False
+        for room_id in specs:
+            if room_id not in unresolved:
+                continue
+            spec = specs[room_id]
+            if has_layout:
+                resolved[room_id] = spec
+                unresolved.discard(room_id)
+                progress = True
+            elif spec.place is not None:
+                req_rooms = deps[room_id]
+                if all(r in resolved for r in req_rooms):
+                    x, y = resolve_room_placement(spec.place, spec.w, spec.h, resolved)
+                    spec.x = x
+                    spec.y = y
+                    resolved[room_id] = spec
+                    unresolved.discard(room_id)
+                    progress = True
             else:
+                spec.x = 0
+                spec.y = 0
+                resolved[room_id] = spec
+                unresolved.discard(room_id)
+                progress = True
+
+        if not progress and unresolved:
+            unresolved_ids = ", ".join(sorted(unresolved))
+            raise CompileError(
+                f"Circular room placement dependency detected involving: {unresolved_ids}. "
+                f"Check that all right_of/left_of/above/below/inside references form a directed acyclic graph."
+            )
+
+    if not has_layout:
+        for spec in resolved.values():
+            if spec.w < 1 or spec.h < 1:
                 raise InvalidRoomSizeError(
                     f"Room '{spec.id}': invalid size w={spec.w}, h={spec.h} — both must be >= 1"
                 )
-        if has_layout:
-            pass
-        elif spec.x < 0 or spec.y < 0 or spec.x + spec.w > canvas_size or spec.y + spec.h > canvas_size:
-            overflows: list[str] = []
-            if spec.x < 0:
-                overflows.append(f"west by {-spec.x}")
-            if spec.y < 0:
-                overflows.append(f"north by {-spec.y}")
-            if spec.x + spec.w > canvas_size:
-                overflows.append(f"east by {spec.x + spec.w - canvas_size}")
-            if spec.y + spec.h > canvas_size:
-                overflows.append(f"south by {spec.y + spec.h - canvas_size}")
-            detail = ""
-            if overflows:
-                if "east" in " ".join(overflows):
-                    detail = " — try reducing w, inner_w, or x"
-                if "south" in " ".join(overflows):
-                    detail = " — try reducing h, inner_h, or y"
-                if "west" in " ".join(overflows):
-                    detail = " — increase x to 0 or higher"
-                if "north" in " ".join(overflows):
-                    detail = " — increase y to 0 or higher"
-            raise OutOfBoundsError(
-                f"Room '{spec.id}': out of bounds at ({spec.x},{spec.y}) w={spec.w},h={spec.h} "
-                f"(canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}{detail}"
-            )
-        if room_id in resolved:
-            raise DuplicateRoomIdError(
-                f"Duplicate room id: '{room_id}' — each room must have a unique id"
-            )
-        room_specs.append(spec)
-        resolved[room_id] = spec
-    return room_specs, resolved
+            if spec.x < 0 or spec.y < 0 or spec.x + spec.w > canvas_size or spec.y + spec.h > canvas_size:
+                overflows: list[str] = []
+                if spec.x < 0:
+                    overflows.append(f"west by {-spec.x}")
+                if spec.y < 0:
+                    overflows.append(f"north by {-spec.y}")
+                if spec.x + spec.w > canvas_size:
+                    overflows.append(f"east by {spec.x + spec.w - canvas_size}")
+                if spec.y + spec.h > canvas_size:
+                    overflows.append(f"south by {spec.y + spec.h - canvas_size}")
+                detail = ""
+                if overflows:
+                    if "east" in " ".join(overflows):
+                        detail = " — try reducing w, inner_w, or x"
+                    if "south" in " ".join(overflows):
+                        detail = " — try reducing h, inner_h, or y"
+                    if "west" in " ".join(overflows):
+                        detail = " — increase x to 0 or higher"
+                    if "north" in " ".join(overflows):
+                        detail = " — increase y to 0 or higher"
+                raise OutOfBoundsError(
+                    f"Room '{spec.id}': out of bounds at ({spec.x},{spec.y}) w={spec.w},h={spec.h} "
+                    f"(canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}{detail}"
+                )
+
+    return resolved
 
 
 def _parse_doors(entry_data: dict, resolved: dict[str, RoomSpec]) -> list[DoorSpec]:
@@ -440,18 +520,15 @@ def _parse_doors(entry_data: dict, resolved: dict[str, RoomSpec]) -> list[DoorSp
     return door_specs
 
 
-def _parse_features(entry_data: dict, resolved: dict[str, RoomSpec]) -> list[FeatureSpec]:
+def _parse_features(entry_data: dict, resolved: dict[str, RoomSpec], canvas_size: int) -> list[FeatureSpec]:
     feature_specs: list[FeatureSpec] = []
     for feat_data in entry_data.get("features", []):
-        try:
-            room_name = feat_data["room"]
-        except KeyError as e:
-            raise CompileError(f"Feature missing required field: {e}") from e
-        if room_name not in resolved:
+        room_name = feat_data.get("room")
+        if room_name is not None and room_name not in resolved:
             raise FeatureOutOfRoomError(
                 f"Feature references unknown room: '{room_name}'"
             )
-        room_spec = resolved[room_name]
+        room_spec = resolved.get(room_name) if room_name is not None else None
         tiles: list[FeatureTile] = []
         for tile_data in feat_data.get("tiles", []):
             try:
@@ -462,12 +539,21 @@ def _parse_features(entry_data: dict, resolved: dict[str, RoomSpec]) -> list[Fea
                     meaning=tile_data.get("meaning"),
                 )
             except KeyError as e:
-                raise CompileError(f"Feature tile in room '{room_name}' missing required field: {e}") from e
-            if tile.x < 0 or tile.x >= room_spec.w or tile.y < 0 or tile.y >= room_spec.h:
-                raise FeatureOutOfRoomError(
-                    f"Feature tile at ({tile.x},{tile.y}) is outside room '{room_name}' "
-                    f"(valid range: x=0-{room_spec.w - 1}, y=0-{room_spec.h - 1})"
-                )
+                room_label = f"room '{room_name}'" if room_name else "global space"
+                raise CompileError(f"Feature tile in {room_label} missing required field: {e}") from e
+
+            if room_spec is not None:
+                if tile.x < 0 or tile.x >= room_spec.w or tile.y < 0 or tile.y >= room_spec.h:
+                    raise FeatureOutOfRoomError(
+                        f"Feature tile at ({tile.x},{tile.y}) is outside room '{room_name}' "
+                        f"(valid range: x=0-{room_spec.w - 1}, y=0-{room_spec.h - 1})"
+                    )
+            else:
+                if tile.x < 0 or tile.x >= canvas_size or tile.y < 0 or tile.y >= canvas_size:
+                    raise FeatureOutOfGridError(
+                        f"Feature tile at ({tile.x},{tile.y}) is outside canvas "
+                        f"(valid range: x=0-{canvas_size - 1}, y=0-{canvas_size - 1})"
+                    )
             tiles.append(tile)
         feature_specs.append(FeatureSpec(room=room_name, tiles=tiles))
     return feature_specs
@@ -506,6 +592,26 @@ def _extract_pass_through(entry_data: dict) -> dict:
     return pass_through
 
 
+def _parse_no_door(entry_data: dict, resolved: dict[str, RoomSpec]) -> list[tuple[str, str]]:
+    no_door_pairs: list[tuple[str, str]] = []
+    for pair_data in entry_data.get("no_door", []):
+        if not isinstance(pair_data, list) or len(pair_data) != 2:
+            raise CompileError(
+                f"'no_door' entries must be lists of 2 room IDs, got: {pair_data}"
+            )
+        room_a, room_b = pair_data[0], pair_data[1]
+        if room_a not in resolved:
+            raise CompileError(
+                f"'no_door' references unknown room: '{room_a}'"
+            )
+        if room_b not in resolved:
+            raise CompileError(
+                f"'no_door' references unknown room: '{room_b}'"
+            )
+        no_door_pairs.append((room_a, room_b))
+    return no_door_pairs
+
+
 def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySpec:
     om_terrain = entry_data.get("om_terrain")
     if not om_terrain:
@@ -513,16 +619,16 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
 
     fill_ter = entry_data.get("fill_ter", "t_floor")
     palette = entry_data.get("palette", [])
-    auto_doors = entry_data.get("auto_doors", False)
+    auto_doors = entry_data.get("auto_doors", True)
     default_door_char = entry_data.get("default_door_char", "+")
 
     layout_matrix = entry_data.get("layout")
     has_layout = layout_matrix is not None
-    room_specs, resolved = _parse_rooms(entry_data, canvas_size, has_layout=has_layout)
+    rooms = _parse_rooms(entry_data, canvas_size, has_layout=has_layout)
 
     layout_canvas = entry_data.get("canvas")
     if layout_canvas is not None and layout_matrix is not None:
-        _resolve_entry_layout(layout_canvas, layout_matrix, room_specs, resolved, canvas_size)
+        _resolve_entry_layout(layout_canvas, layout_matrix, rooms, canvas_size)
     elif layout_matrix is not None:
         raise CompileError(
             "'layout' requires 'canvas' with 'cols' and 'rows' to define cell sizes"
@@ -532,35 +638,30 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
             "'canvas' with 'cols'/'rows' requires 'layout' matrix to define room placement"
         )
 
-    door_specs = _parse_doors(entry_data, resolved)
-    feature_specs = _parse_features(entry_data, resolved)
+    door_specs = _parse_doors(entry_data, rooms)
+    feature_specs = _parse_features(entry_data, rooms, canvas_size)
     global_tiles = _parse_global_tiles(entry_data, canvas_size)
     pass_through = _extract_pass_through(entry_data)
+    no_door_pairs = _parse_no_door(entry_data, rooms)
 
     return EntrySpec(
         om_terrain=om_terrain,
         fill_ter=fill_ter,
         palette=palette,
-        rooms=room_specs,
+        rooms=rooms,
         doors=door_specs,
         features=feature_specs,
         global_tiles=global_tiles,
         pass_through=pass_through,
         auto_doors=auto_doors,
         default_door_char=default_door_char,
+        no_door=no_door_pairs,
     )
 
 
-def make_room_from_spec(specs: list[RoomSpec], room_id: str) -> Room:
-    s = _find_room_spec(specs, room_id)
+def make_room_from_spec(specs: dict[str, RoomSpec], room_id: str) -> Room:
+    s = specs[room_id]
     return make_room(s)
-
-
-def _find_room_spec(specs: list[RoomSpec], room_id: str) -> RoomSpec:
-    for s in specs:
-        if s.id == room_id:
-            return s
-    raise KeyError(f"Room '{room_id}' not found")
 
 
 def resolve_room_placement(
@@ -591,16 +692,16 @@ def resolve_room_placement(
         side = place.side
         if side == "east":
             x = ref.x + ref.w + place.margin
-            y = place.y if place.y is not None else _resolve_align_y(place, ref, h)
+            y = _resolve_align_y(place, ref, h)
         elif side == "west":
             x = ref.x - w - place.margin
-            y = place.y if place.y is not None else _resolve_align_y(place, ref, h)
+            y = _resolve_align_y(place, ref, h)
         elif side == "south":
             y = ref.y + ref.h + place.margin
-            x = place.x if place.x is not None else _resolve_align_x(place, ref, w)
+            x = _resolve_align_x(place, ref, w)
         elif side == "north":
             y = ref.y - h - place.margin
-            x = place.x if place.x is not None else _resolve_align_x(place, ref, w)
+            x = _resolve_align_x(place, ref, w)
         else:
             raise CompileError(
                 f"Invalid side: '{side}' — must be north, south, east, or west"
@@ -703,8 +804,7 @@ def _resolve_inside_compound_align(
 def _resolve_entry_layout(
     layout_canvas: dict,
     layout_matrix: list[list[str]],
-    room_specs: list[RoomSpec],
-    resolved: dict[str, RoomSpec],
+    rooms: dict[str, RoomSpec],
     canvas_size: int,
 ) -> None:
     if not isinstance(layout_canvas, dict):
@@ -740,12 +840,10 @@ def _resolve_entry_layout(
             f"Layout has {len(layout_matrix)} rows, but {len(rows)} rows are defined in canvas.rows"
         )
 
-    room_by_id: dict[str, RoomSpec] = {r.id: r for r in room_specs}
-
     room_cells: dict[str, tuple[int, int, int, int]] = {}
     for ri, row in enumerate(layout_matrix):
         for ci, cell_id in enumerate(row):
-            if cell_id not in room_by_id:
+            if cell_id not in rooms:
                 raise CompileError(
                     f"Layout cell [{ri}][{ci}] references unknown room: '{cell_id}'"
                 )
@@ -758,7 +856,7 @@ def _resolve_entry_layout(
                     max(c_max, ci + 1), max(r_max, ri + 1),
                 )
 
-    all_room_ids = {r.id for r in room_specs}
+    all_room_ids = set(rooms.keys())
     for cell_id in all_room_ids:
         if cell_id not in room_cells:
             raise CompileError(
@@ -772,7 +870,7 @@ def _resolve_entry_layout(
         computed_x = sum(cols[:c_min])
         computed_y = sum(rows[:r_min])
 
-        spec = room_by_id[cell_id]
+        spec = rooms[cell_id]
         if spec.w > 0 and spec.h > 0:
             if spec.w != computed_w:
                 raise CompileError(
@@ -815,7 +913,8 @@ def _resolve_entry_layout(
 
 
 def _validate_room_overlaps(entry: EntrySpec) -> None:
-    rooms = [make_room(s) for s in entry.rooms]
+    room_values = list(entry.rooms.values())
+    rooms = [make_room(s) for s in room_values]
     for i in range(len(rooms)):
         for j in range(i + 1, len(rooms)):
             a = rooms[i]

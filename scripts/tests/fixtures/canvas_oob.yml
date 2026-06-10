@@ -6,9 +6,13 @@ entries:
   - om_terrain: "canvas_oob_test"
     fill_ter: "t_floor"
     rooms:
+      - id: "anchor"
+        w: 9
+        h: 5
+        wall: "#"
+        floor: "."
       - id: "r"
-        x: 8
-        y: 8
+        right_of: "anchor"
         w: 5
         h: 5
         wall: "#"

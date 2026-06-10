@@ -4,22 +4,20 @@ entries:
     palette: ["fortified_shelter"]
     rooms:
       - id: "living"
-        x: 3
-        y: 4
         w: 8
         h: 10
         wall: "#"
         floor: "."
       - id: "kitchen"
-        x: 11
-        y: 4
+        right_of: "living"
         w: 7
         h: 10
         wall: "#"
         floor: "."
       - id: "closet"
-        x: 5
-        y: 9
+        inside: "living"
+        align: "bottom"
+        gap: 2
         w: 3
         h: 3
         wall: "#"

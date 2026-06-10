@@ -38,12 +38,16 @@ def _collect_stair_positions(
 ) -> set[tuple[int, int]]:
     positions: set[tuple[int, int]] = set()
     for feat in features:
-        room_spec = rooms.get(feat.room)
-        if room_spec is None:
-            continue
         for tile in feat.tiles:
-            if tile.char in STAIR_CHARS:
+            if tile.char not in STAIR_CHARS:
+                continue
+            if feat.room is not None:
+                room_spec = rooms.get(feat.room)
+                if room_spec is None:
+                    continue
                 positions.add((room_spec.x + tile.x, room_spec.y + tile.y))
+            else:
+                positions.add((tile.x, tile.y))
     for gt in global_tiles:
         if gt.char in STAIR_CHARS:
             x_vals = _resolve_global_coords(gt.x)
@@ -52,7 +56,6 @@ def _collect_stair_positions(
                 for y in y_vals:
                     positions.add((x, y))
     return positions
-
 
 
 
@@ -78,11 +81,11 @@ class Compiler:
         warnings: list[Warning] = []
         grid = Grid(width=canvas_size, height=canvas_size, fill_char=" ")
         rooms: dict[str, Room] = {}
-        room_specs: dict[str, RoomSpec] = {r.id: r for r in spec.rooms}
+        room_specs: dict[str, RoomSpec] = spec.rooms
 
-        for room_spec in spec.rooms:
-            room = make_room(room_spec)
-            rooms[room_spec.id] = room
+        for spec_room in room_specs.values():
+            room = make_room(spec_room)
+            rooms[spec_room.id] = room
             room.draw(grid)
 
         for door in spec.doors:
@@ -130,17 +133,21 @@ class Compiler:
             grid.place(door_x, door_y, door.char)
 
         if spec.auto_doors:
-            self._generate_auto_doors(rooms, grid, spec)
+            self._generate_auto_doors(rooms, grid, spec, warnings)
 
         self._merge_adjacent_walls(rooms, grid)
 
         for feat in spec.features:
-            room = rooms[feat.room]
             for tile in feat.tiles:
-                ax = room.x + tile.x
-                ay = room.y + tile.y
-                if self._is_inside_contained_room(ax, ay, room, rooms):
-                    continue
+                if feat.room is not None:
+                    room = rooms[feat.room]
+                    ax = room.x + tile.x
+                    ay = room.y + tile.y
+                    if self._is_inside_contained_room(ax, ay, room, rooms):
+                        continue
+                else:
+                    ax = tile.x
+                    ay = tile.y
                 grid.place(ax, ay, tile.char)
 
         for gt in spec.global_tiles:
@@ -380,8 +387,31 @@ class Compiler:
                         if grid.get(x, y) == replacer.wall_char:
                             grid.place(x, y, replacer.floor_char)
 
+    def _place_auto_door(
+        self, grid: Grid, room_a: Room, room_b: Room,
+        door_x: int, door_y: int, default_door_char: str,
+        warnings: list[Warning],
+    ) -> None:
+        wall_chars = {room_a.wall_char, room_b.wall_char}
+        cell_char = grid.get(door_x, door_y)
+        if cell_char not in wall_chars:
+            return
+
+        door_char = default_door_char
+        if door_char in wall_chars:
+            door_char = "+"
+        if door_char in wall_chars:
+            warnings.append(Warning(
+                code="invisible_door",
+                message=f"Auto-door char '{door_char}' matches wall char "
+                        f"of room '{room_a.room_id}' or '{room_b.room_id}'",
+            ))
+
+        grid.place(door_x, door_y, door_char)
+
     def _generate_auto_doors(
         self, rooms: dict[str, Room], grid: Grid, spec: EntrySpec,
+        warnings: list[Warning],
     ) -> None:
         room_list = list(rooms.values())
         explicit_pairs: set[tuple[str, str]] = set()
@@ -389,32 +419,55 @@ class Compiler:
             explicit_pairs.add((door.from_room, door.to_room))
             explicit_pairs.add((door.to_room, door.from_room))
 
+        suppressed_pairs: set[tuple[str, str]] = set()
+        for pair in spec.no_door:
+            suppressed_pairs.add(pair)
+            suppressed_pairs.add((pair[1], pair[0]))
+
         for i in range(len(room_list)):
             for j in range(i + 1, len(room_list)):
                 a = room_list[i]
                 b = room_list[j]
-                if (a.room_id, b.room_id) in explicit_pairs:
+                pair = (a.room_id, b.room_id)
+                if pair in explicit_pairs or pair in suppressed_pairs:
                     continue
-                if not a.is_adjacent_to(b):
-                    continue
-                try:
-                    door_x, door_y = compute_door_position(a, b)
-                except (RoomNotAdjacentError, DoorOverlapTooSmallError):
+
+                if a.is_adjacent_to(b):
                     try:
-                        door_x, door_y = compute_door_position(b, a)
+                        door_x, door_y = compute_door_position(a, b)
                     except (RoomNotAdjacentError, DoorOverlapTooSmallError):
+                        try:
+                            door_x, door_y = compute_door_position(b, a)
+                        except (RoomNotAdjacentError, DoorOverlapTooSmallError):
+                            continue
+
+                    self._place_auto_door(grid, a, b, door_x, door_y, spec.default_door_char, warnings)
+
+        for i in range(len(room_list)):
+            for j in range(len(room_list)):
+                if i == j:
+                    continue
+                container = room_list[i]
+                inner = room_list[j]
+                if not container.contains(inner):
+                    continue
+                pair = (container.room_id, inner.room_id)
+                if pair in explicit_pairs or pair in suppressed_pairs:
+                    continue
+
+                for side in ("south", "north", "east", "west"):
+                    try:
+                        door_x, door_y = compute_contained_door_position(
+                            container, inner, side=side,
+                        )
+                    except (ValueError, DoorOverlapTooSmallError):
                         continue
 
-                wall_chars = {a.wall_char, b.wall_char}
-                cell_char = grid.get(door_x, door_y)
-                if cell_char not in wall_chars:
-                    continue
+                    if grid.get(door_x, door_y) not in {container.wall_char, inner.wall_char}:
+                        continue
 
-                door_char = spec.default_door_char
-                if door_char in wall_chars:
-                    door_char = "+"
-
-                grid.place(door_x, door_y, door_char)
+                    self._place_auto_door(grid, container, inner, door_x, door_y, spec.default_door_char, warnings)
+                    break
 
     def _find_entry_points(
         self,

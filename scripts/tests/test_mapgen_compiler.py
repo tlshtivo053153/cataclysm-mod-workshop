@@ -30,20 +30,20 @@ class TestCompiler:
         entries = self.compiler.compile(doc)
         assert len(entries) == 1
         grid = entries[0].grid
-        assert grid.get(7, 8) == "="
+        assert grid.get(5, 4) == "="
 
     def test_contained_room_door(self):
         doc = parse_dsl(FIXTURES / "contained_room_door.yml")
         entries = self.compiler.compile(doc)
         assert len(entries) == 1
         grid = entries[0].grid
-        assert grid.get(8, 10) == "="
+        assert grid.get(6, 8) == "="
 
     def test_door_offset(self):
         doc = parse_dsl(FIXTURES / "door_offset.yml")
         entries = self.compiler.compile(doc)
         grid = entries[0].grid
-        assert grid.get(6, 7) == "="
+        assert grid.get(2, 5) == "="
 
     def test_unreachable_island_warning(self):
         doc = parse_dsl(FIXTURES / "unreachable_room.yml")
@@ -68,15 +68,12 @@ entries:
     palette: ["test_palette"]
     rooms:
       - id: "a"
-        x: 0
-        y: 2
         w: 4
         h: 6
         wall: "#"
         floor: "."
       - id: "b"
-        x: 4
-        y: 2
+        right_of: "a"
         w: 4
         h: 6
         wall: "#"

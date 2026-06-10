@@ -4,8 +4,6 @@ entries:
     palette: ["test_palette"]
     rooms:
       - id: "main"
-        x: 2
-        y: 2
         w: 10
         h: 10
         wall: "#"
@@ -21,8 +19,6 @@ entries:
     palette: ["test_palette"]
     rooms:
       - id: "main"
-        x: 2
-        y: 2
         w: 10
         h: 10
         wall: "#"

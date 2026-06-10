@@ -3,9 +3,13 @@ entries:
     fill_ter: "t_floor"
     palette: ["test_palette"]
     rooms:
+      - id: "anchor"
+        w: 20
+        h: 5
+        wall: "#"
+        floor: "."
       - id: "bad"
-        x: 20
-        y: 5
+        right_of: "anchor"
         w: 10
         h: 5
         wall: "#"

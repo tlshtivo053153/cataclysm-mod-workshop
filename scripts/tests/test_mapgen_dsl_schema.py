@@ -24,10 +24,10 @@ class TestMapgenDslSchema:
         assert entry.fill_ter == "t_floor"
         assert entry.palette == ["fortified_shelter"]
         assert len(entry.rooms) == 1
-        r = entry.rooms[0]
+        r = entry.rooms["main"]
         assert r.id == "main"
-        assert r.x == 5
-        assert r.y == 5
+        assert r.x == 0
+        assert r.y == 0
         assert r.w == 8
         assert r.h == 8
         assert r.wall == "#"
@@ -70,8 +70,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -133,15 +131,12 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "a"
-        x: 0
-        y: 0
         w: 3
         h: 3
         wall: "#"
         floor: "."
       - id: "a"
-        x: 10
-        y: 10
+        right_of: "a"
         w: 3
         h: 3
         wall: "#"
@@ -164,8 +159,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "a"
-        x: 0
-        y: 0
         w: 3
         h: 3
         wall: "#"
@@ -192,8 +185,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         w: 5
         h: 5
         wall: "#"
@@ -226,8 +217,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         w: 5
         h: 5
         wall: "#"
@@ -247,37 +236,6 @@ entries:
         finally:
             temp_path.unlink()
 
-    def test_error_partial_room_overlap(self):
-        yml = """\
-entries:
-  - om_terrain: "test"
-    fill_ter: "t_floor"
-    rooms:
-      - id: "a"
-        x: 2
-        y: 2
-        w: 4
-        h: 4
-        wall: "#"
-        floor: "."
-      - id: "b"
-        x: 3
-        y: 3
-        w: 4
-        h: 4
-        wall: "#"
-        floor: "."
-"""
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
-            f.write(yml)
-            temp_path = Path(f.name)
-        try:
-            with pytest.raises(RoomOverlapError):
-                parse_dsl(temp_path)
-        finally:
-            temp_path.unlink()
-
     def test_error_door_side_for_adjacent_rooms(self):
         yml = """\
 entries:
@@ -285,15 +243,12 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "a"
-        x: 0
-        y: 0
         w: 4
         h: 6
         wall: "#"
         floor: "."
       - id: "b"
-        x: 4
-        y: 0
+        right_of: "a"
         w: 4
         h: 6
         wall: "#"
@@ -321,10 +276,8 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "a"
-        x: 0
-        y: 0
         w: 0
-        h: 3
+        h: 5
         wall: "#"
         floor: "."
 """
@@ -335,5 +288,38 @@ entries:
         try:
             with pytest.raises(CompileError):
                 parse_dsl(temp_path)
+        finally:
+            temp_path.unlink()
+
+    def test_parse_rooms_as_mapping(self):
+        yml = """\
+entries:
+  - om_terrain: "test"
+    fill_ter: "t_floor"
+    rooms:
+      main:
+        w: 6
+        h: 6
+        wall: "#"
+        floor: "."
+      kitchen:
+        right_of: "main"
+        w: 4
+        h: 4
+        wall: "#"
+        floor: "."
+"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
+            f.write(yml)
+            temp_path = Path(f.name)
+        try:
+            doc = parse_dsl(temp_path)
+            entry = doc.entries[0]
+            assert isinstance(entry.rooms, dict)
+            assert "main" in entry.rooms
+            assert "kitchen" in entry.rooms
+            assert entry.rooms["main"].w == 6
+            assert entry.rooms["kitchen"].x == 6
         finally:
             temp_path.unlink()

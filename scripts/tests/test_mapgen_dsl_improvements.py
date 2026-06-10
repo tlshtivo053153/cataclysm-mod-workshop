@@ -33,15 +33,13 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         inner_w: 6
         inner_h: 4
         wall: "#"
         floor: "."
 """
         doc = _parse_yml(yml)
-        room = doc.entries[0].rooms[0]
+        room = doc.entries[0].rooms["main"]
         assert room.w == 8
         assert room.h == 6
 
@@ -52,15 +50,13 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         inner_w: 0
         inner_h: 0
         wall: "#"
         floor: "."
 """
         doc = _parse_yml(yml)
-        room = doc.entries[0].rooms[0]
+        room = doc.entries[0].rooms["main"]
         assert room.w == 2
         assert room.h == 2
 
@@ -71,8 +67,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         w: 8
         inner_w: 6
         h: 6
@@ -89,8 +83,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         h: 8
         inner_h: 4
         w: 6
@@ -107,8 +99,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         inner_w: -1
         h: 6
         wall: "#"
@@ -124,8 +114,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "main"
-        x: 0
-        y: 0
         inner_w: 4
         inner_h: 4
         wall: "#"
@@ -147,8 +135,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -161,7 +147,7 @@ entries:
         floor: "."
 """
         doc = _parse_yml(yml)
-        kitchen = [r for r in doc.entries[0].rooms if r.id == "kitchen"][0]
+        kitchen = doc.entries[0].rooms["kitchen"]
         assert kitchen.x == 6
         assert kitchen.y == 0
 
@@ -171,9 +157,14 @@ entries:
   - om_terrain: "test"
     fill_ter: "t_floor"
     rooms:
+      - id: "spacer"
+        w: 6
+        h: 6
+        wall: "#"
+        floor: "."
       - id: "hall"
-        x: 6
-        y: 0
+        right_of: "spacer"
+        gap: 6
         w: 6
         h: 6
         wall: "#"
@@ -181,13 +172,13 @@ entries:
       - id: "kitchen"
         left_of: "hall"
         w: 6
-        h: 6
+        h: 2
         wall: "#"
         floor: "."
 """
         doc = _parse_yml(yml)
-        kitchen = [r for r in doc.entries[0].rooms if r.id == "kitchen"][0]
-        assert kitchen.x == 0
+        kitchen = doc.entries[0].rooms["kitchen"]
+        assert kitchen.x == 6
         assert kitchen.y == 0
 
     def test_above_places_north(self):
@@ -196,24 +187,29 @@ entries:
   - om_terrain: "test"
     fill_ter: "t_floor"
     rooms:
+      - id: "spacer"
+        w: 6
+        h: 6
+        wall: "#"
+        floor: "."
       - id: "hall"
-        x: 0
-        y: 6
+        below: "spacer"
+        gap: 6
         w: 6
         h: 6
         wall: "#"
         floor: "."
       - id: "attic"
         above: "hall"
-        w: 6
+        w: 2
         h: 6
         wall: "#"
         floor: "."
 """
         doc = _parse_yml(yml)
-        attic = [r for r in doc.entries[0].rooms if r.id == "attic"][0]
+        attic = doc.entries[0].rooms["attic"]
         assert attic.x == 0
-        assert attic.y == 0
+        assert attic.y == 6
 
     def test_below_places_south(self):
         yml = """\
@@ -222,8 +218,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -236,7 +230,7 @@ entries:
         floor: "."
 """
         doc = _parse_yml(yml)
-        basement = [r for r in doc.entries[0].rooms if r.id == "basement"][0]
+        basement = doc.entries[0].rooms["basement"]
         assert basement.x == 0
         assert basement.y == 6
 
@@ -247,8 +241,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -262,7 +254,7 @@ entries:
         floor: "."
 """
         doc = _parse_yml(yml)
-        kitchen = [r for r in doc.entries[0].rooms if r.id == "kitchen"][0]
+        kitchen = doc.entries[0].rooms["kitchen"]
         assert kitchen.x == 8
 
     def test_right_of_align_bottom(self):
@@ -272,8 +264,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 10
         wall: "#"
@@ -287,7 +277,7 @@ entries:
         floor: "."
 """
         doc = _parse_yml(yml)
-        kitchen = [r for r in doc.entries[0].rooms if r.id == "kitchen"][0]
+        kitchen = doc.entries[0].rooms["kitchen"]
         assert kitchen.x == 6
         assert kitchen.y == 6
 
@@ -298,8 +288,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 10
         wall: "#"
@@ -313,7 +301,7 @@ entries:
         floor: "."
 """
         doc = _parse_yml(yml)
-        kitchen = [r for r in doc.entries[0].rooms if r.id == "kitchen"][0]
+        kitchen = doc.entries[0].rooms["kitchen"]
         assert kitchen.x == 6
         assert kitchen.y == 3
 
@@ -324,8 +312,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 10
         h: 6
         wall: "#"
@@ -339,7 +325,7 @@ entries:
         floor: "."
 """
         doc = _parse_yml(yml)
-        storage = [r for r in doc.entries[0].rooms if r.id == "storage"][0]
+        storage = doc.entries[0].rooms["storage"]
         assert storage.x == 4
         assert storage.y == 6
 
@@ -350,8 +336,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 10
         h: 6
         wall: "#"
@@ -365,7 +349,7 @@ entries:
         floor: "."
 """
         doc = _parse_yml(yml)
-        storage = [r for r in doc.entries[0].rooms if r.id == "storage"][0]
+        storage = doc.entries[0].rooms["storage"]
         assert storage.x == 2
         assert storage.y == 6
 
@@ -376,8 +360,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "outer"
-        x: 0
-        y: 0
         w: 10
         h: 10
         wall: "#"
@@ -392,7 +374,7 @@ entries:
         floor: "x"
 """
         doc = _parse_yml(yml)
-        inner = [r for r in doc.entries[0].rooms if r.id == "inner"][0]
+        inner = doc.entries[0].rooms["inner"]
         assert inner.x == 5
         assert inner.y == 5
 
@@ -403,8 +385,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "outer"
-        x: 0
-        y: 0
         w: 10
         h: 10
         wall: "#"
@@ -418,19 +398,17 @@ entries:
         floor: "x"
 """
         doc = _parse_yml(yml)
-        inner = [r for r in doc.entries[0].rooms if r.id == "inner"][0]
+        inner = doc.entries[0].rooms["inner"]
         assert inner.x == 3
         assert inner.y == 3
 
-    def test_error_mixing_new_keys_with_xy(self):
+    def test_error_x_y_rejected(self):
         yml = """\
 entries:
   - om_terrain: "test"
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -444,18 +422,16 @@ entries:
         wall: "#"
         floor: "."
 """
-        with pytest.raises(CompileError, match="cannot mix new placement keys"):
+        with pytest.raises(CompileError, match="x/y absolute coordinates are no longer supported"):
             _parse_yml(yml)
 
-    def test_error_mixing_new_keys_with_place(self):
+    def test_error_place_dict_rejected(self):
         yml = """\
 entries:
   - om_terrain: "test"
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -470,7 +446,7 @@ entries:
         wall: "#"
         floor: "."
 """
-        with pytest.raises(CompileError, match="cannot mix new placement keys"):
+        with pytest.raises(CompileError, match="'place' dict is no longer supported"):
             _parse_yml(yml)
 
     def test_error_multiple_targets(self):
@@ -480,8 +456,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -504,8 +478,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -528,8 +500,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -552,8 +522,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -576,8 +544,6 @@ entries:
     fill_ter: "t_floor"
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -617,17 +583,15 @@ entries:
         floor: "="
 """
         doc = _parse_yml(yml)
-        entry = doc.entries[0]
-        hall = [r for r in entry.rooms if r.id == "hall"][0]
-        kitchen = [r for r in entry.rooms if r.id == "kitchen"][0]
-        assert hall.x == 0
-        assert hall.y == 0
-        assert hall.w == 8
-        assert hall.h == 8
-        assert kitchen.x == 8
-        assert kitchen.y == 0
-        assert kitchen.w == 8
-        assert kitchen.h == 8
+        rooms = doc.entries[0].rooms
+        assert rooms["hall"].x == 0
+        assert rooms["hall"].y == 0
+        assert rooms["hall"].w == 8
+        assert rooms["hall"].h == 8
+        assert rooms["kitchen"].x == 8
+        assert rooms["kitchen"].y == 0
+        assert rooms["kitchen"].w == 8
+        assert rooms["kitchen"].h == 8
 
     def test_2x2_layout(self):
         yml = """\
@@ -663,8 +627,7 @@ entries:
         floor: "o"
 """
         doc = _parse_yml(yml)
-        entry = doc.entries[0]
-        rooms = {r.id: r for r in entry.rooms}
+        rooms = doc.entries[0].rooms
         assert rooms["hall"].x == 0
         assert rooms["hall"].y == 0
         assert rooms["hall"].w == 8
@@ -716,8 +679,7 @@ entries:
         floor: "o"
 """
         doc = _parse_yml(yml)
-        entry = doc.entries[0]
-        rooms = {r.id: r for r in entry.rooms}
+        rooms = doc.entries[0].rooms
         assert rooms["hall"].x == 0
         assert rooms["hall"].y == 0
         assert rooms["hall"].w == 16
@@ -754,8 +716,7 @@ entries:
         floor: ","
 """
         doc = _parse_yml(yml)
-        entry = doc.entries[0]
-        rooms = {r.id: r for r in entry.rooms}
+        rooms = doc.entries[0].rooms
         assert rooms["a"].w == 6
         assert rooms["a"].h == 6
         assert rooms["b"].w == 6
@@ -913,15 +874,12 @@ entries:
     default_door_char: "="
     rooms:
       - id: "left"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
         floor: "."
       - id: "right"
-        x: 6
-        y: 0
+        right_of: "left"
         w: 6
         h: 6
         wall: "#"
@@ -939,15 +897,12 @@ entries:
     auto_doors: true
     rooms:
       - id: "left"
-        x: 0
-        y: 0
         inner_w: 4
         inner_h: 4
         wall: "#"
         floor: "."
       - id: "right"
-        x: 6
-        y: 0
+        right_of: "left"
         inner_w: 4
         inner_h: 4
         wall: "#"
@@ -994,15 +949,12 @@ entries:
     default_door_char: "+"
     rooms:
       - id: "left"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
         floor: "."
       - id: "right"
-        x: 6
-        y: 0
+        right_of: "left"
         w: 6
         h: 6
         wall: "#"
@@ -1024,15 +976,12 @@ entries:
     auto_doors: true
     rooms:
       - id: "left"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
         floor: "."
       - id: "right"
-        x: 6
-        y: 0
+        right_of: "left"
         w: 6
         h: 6
         wall: "#"
@@ -1054,8 +1003,6 @@ entries:
     default_door_char: "="
     rooms:
       - id: "hall"
-        x: 0
-        y: 0
         inner_w: 4
         inner_h: 4
         wall: "#"
@@ -1115,8 +1062,6 @@ entries:
     default_door_char: "="
     rooms:
       - id: "top"
-        x: 0
-        y: 0
         w: 6
         h: 6
         wall: "#"
@@ -1141,15 +1086,13 @@ entries:
     default_door_char: "="
     rooms:
       - id: "left"
-        x: 0
-        y: 0
         w: 4
         h: 6
         wall: "#"
         floor: "."
       - id: "right"
-        x: 6
-        y: 0
+        right_of: "left"
+        gap: 2
         w: 4
         h: 6
         wall: "#"
