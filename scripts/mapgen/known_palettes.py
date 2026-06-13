@@ -1,34 +1,74 @@
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 
-def _load_json_palettes(path: Path) -> dict[str, dict[str, dict[str, str]]]:
+_PALETTE_FIELD_KEYS = (
+    "terrain",
+    "furniture",
+    "items",
+    "monsters",
+    "traps",
+    "fields",
+    "vehicles",
+    "nested",
+)
+
+
+def _extract_cdda_palette_fields(obj: dict) -> dict[str, dict[str, Any]]:
+    fields: dict[str, dict[str, Any]] = {}
+    for key in _PALETTE_FIELD_KEYS:
+        if key in obj and isinstance(obj[key], dict):
+            fields[key] = obj[key]
+    return fields
+
+
+def _cdda_list_to_palettes(items: list) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {}
+    for obj in items:
+        if isinstance(obj, dict) and obj.get("type") == "palette":
+            pid = obj.get("id")
+            if pid:
+                result[pid] = _extract_cdda_palette_fields(obj)
+    return result
+
+
+def _cdda_dict_to_palettes(obj: dict) -> dict[str, dict[str, Any]]:
+    pid = obj.get("id")
+    if pid:
+        return {pid: _extract_cdda_palette_fields(obj)}
+    return {}
+
+
+def _load_json_palettes(path: Path) -> dict[str, dict[str, Any]]:
     try:
         with open(path, encoding="utf-8") as f:
-            return json.load(f)
+            raw = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError) as e:
         print(f"Warning: Failed to load palettes from {path}: {e}", file=sys.stderr)
         return {}
 
+    if isinstance(raw, list):
+        return _cdda_list_to_palettes(raw)
+    if isinstance(raw, dict):
+        if raw.get("type") == "palette":
+            return _cdda_dict_to_palettes(raw)
+        return raw
+    return {}
 
-def _load_all_palettes(palette_paths: list[Path] | None = None) -> dict[str, dict[str, dict[str, str]]]:
+
+def _load_all_palettes(palette_paths: list[Path] | None = None) -> dict[str, dict[str, Any]]:
     builtin_path = Path(__file__).resolve().parent / "palettes.json"
-    merged: dict[str, dict[str, dict[str, str]]] = {}
-    builtin = _load_json_palettes(builtin_path)
-    if isinstance(builtin, dict):
-        merged.update(builtin)
+    merged: dict[str, dict[str, Any]] = {}
+    merged.update(_load_json_palettes(builtin_path))
     if palette_paths:
         for path in palette_paths:
             if path.is_file() and path.suffix == ".json":
-                data = _load_json_palettes(path)
-                if isinstance(data, dict):
-                    merged.update(data)
+                merged.update(_load_json_palettes(path))
             elif path.is_dir():
                 for f in sorted(path.glob("*.json")):
-                    data = _load_json_palettes(f)
-                    if isinstance(data, dict):
-                        merged.update(data)
+                    merged.update(_load_json_palettes(f))
     return merged
 
 
@@ -37,7 +77,7 @@ class PaletteRegistry:
         self._palettes = _load_all_palettes(palette_paths)
         self._unknown_reported: set[str] = set()
 
-    def get_palette(self, name: str) -> dict[str, dict[str, str]] | None:
+    def get_palette(self, name: str) -> dict[str, Any] | None:
         palette = self._palettes.get(name)
         if palette is None and name not in self._unknown_reported:
             self._unknown_reported.add(name)
@@ -54,10 +94,19 @@ class PaletteRegistry:
         palette = self.get_palette(palette_name)
         if palette is None:
             return None
-        for key in ("terrain", "furniture", "items", "monsters", "traps", "fields", "vehicles", "nested"):
+        for key in _PALETTE_FIELD_KEYS:
             entry = palette.get(key, {}).get(char)
-            if entry:
-                return entry
+            if entry is None:
+                continue
+            if isinstance(entry, dict):
+                if not entry:
+                    continue
+                if "ter" in entry:
+                    return entry["ter"]
+                if "terrain" in entry:
+                    return entry["terrain"]
+                continue
+            return entry
         return None
 
 
@@ -73,7 +122,7 @@ def get_registry(palette_paths: list[Path] | None = None) -> PaletteRegistry:
     return _default_registry
 
 
-def get_palette(name: str) -> dict[str, dict[str, str]] | None:
+def get_palette(name: str) -> dict[str, Any] | None:
     return get_registry().get_palette(name)
 
 
