@@ -244,69 +244,54 @@ class Compiler:
         return entries
 
     def _compute_global_bbox(self, entries: list[EntrySpec]) -> tuple[int, int, int, int] | None:
-        min_x: int | None = None
-        min_y: int | None = None
-        max_x: int | None = None
-        max_y: int | None = None
+        bounds: tuple[int | None, int | None, int | None, int | None] = (None, None, None, None)
         for spec in entries:
             for room in spec.rooms.values():
-                x1, y1 = room.x, room.y
-                x2, y2 = room.x + room.w, room.y + room.h
-                if min_x is None or x1 < min_x:
-                    min_x = x1
-                if min_y is None or y1 < min_y:
-                    min_y = y1
-                if max_x is None or x2 > max_x:
-                    max_x = x2
-                if max_y is None or y2 > max_y:
-                    max_y = y2
+                bounds = self._update_bbox(bounds, room.x, room.y, room.x + room.w, room.y + room.h)
             for feat in spec.features:
                 if feat.room is None:
                     for tile in feat.tiles:
-                        if min_x is None or tile.x < min_x:
-                            min_x = tile.x
-                        if max_x is None or tile.x + 1 > max_x:
-                            max_x = tile.x + 1
-                        if min_y is None or tile.y < min_y:
-                            min_y = tile.y
-                        if max_y is None or tile.y + 1 > max_y:
-                            max_y = tile.y + 1
+                        bounds = self._update_bbox(bounds, tile.x, tile.y, tile.x + 1, tile.y + 1)
             for gt in spec.global_tiles:
                 x_vals = _resolve_global_coords(gt.x)
                 y_vals = _resolve_global_coords(gt.y)
-                x_min, x_max = min(x_vals), max(x_vals)
-                y_min, y_max = min(y_vals), max(y_vals)
-                if min_x is None or x_min < min_x:
-                    min_x = x_min
-                if max_x is None or x_max + 1 > max_x:
-                    max_x = x_max + 1
-                if min_y is None or y_min < min_y:
-                    min_y = y_min
-                if max_y is None or y_max + 1 > max_y:
-                    max_y = y_max + 1
+                bounds = self._update_bbox(
+                    bounds, x_vals[0], y_vals[0], x_vals[-1] + 1, y_vals[-1] + 1
+                )
+        min_x, min_y, max_x, max_y = bounds
         if min_x is None:
             return None
+        return min_x, min_y, max_x, max_y
+
+    def _update_bbox(
+        self,
+        bounds: tuple[int | None, int | None, int | None, int | None],
+        x1: int,
+        y1: int,
+        x2: int,
+        y2: int,
+    ) -> tuple[int | None, int | None, int | None, int | None]:
+        min_x, min_y, max_x, max_y = bounds
+        if min_x is None or x1 < min_x:
+            min_x = x1
+        if min_y is None or y1 < min_y:
+            min_y = y1
+        if max_x is None or x2 > max_x:
+            max_x = x2
+        if max_y is None or y2 > max_y:
+            max_y = y2
         return min_x, min_y, max_x, max_y
 
     def _apply_centering(self, entries: list[EntrySpec], dx: int, dy: int) -> None:
         for spec in entries:
             for room in spec.rooms.values():
-                room.x += dx
-                room.y += dy
+                room.shift(dx, dy)
             for feat in spec.features:
                 if feat.room is None:
                     for tile in feat.tiles:
-                        tile.x += dx
-                        tile.y += dy
+                        tile.shift(dx, dy)
             for gt in spec.global_tiles:
-                if isinstance(gt.x, int):
-                    gt.x += dx
-                else:
-                    gt.x = [v + dx for v in gt.x]
-                if isinstance(gt.y, int):
-                    gt.y += dy
-                else:
-                    gt.y = [v + dy for v in gt.y]
+                gt.shift(dx, dy)
 
     def validate_stairs(self, entries: list[EntryContext], canvas_size: int = MAPGEN_SIZE) -> list[CompileError]:
         """Validate stair/ladder position matching between adjacent z-levels.

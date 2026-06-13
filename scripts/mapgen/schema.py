@@ -41,6 +41,10 @@ class RoomSpec:
     place: PlaceSpec | None = None
     layout_resolved: bool = False
 
+    def shift(self, dx: int, dy: int) -> None:
+        self.x += dx
+        self.y += dy
+
 
 @dataclass
 class DoorSpec:
@@ -59,6 +63,10 @@ class FeatureTile:
     y: int
     meaning: str | None = None
 
+    def shift(self, dx: int, dy: int) -> None:
+        self.x += dx
+        self.y += dy
+
 
 @dataclass
 class FeatureSpec:
@@ -71,6 +79,10 @@ class GlobalTile:
     char: str
     x: int | list[int]
     y: int | list[int]
+
+    def shift(self, dx: int, dy: int) -> None:
+        self.x = self.x + dx if isinstance(self.x, int) else [v + dx for v in self.x]
+        self.y = self.y + dy if isinstance(self.y, int) else [v + dy for v in self.y]
 
 
 @dataclass
