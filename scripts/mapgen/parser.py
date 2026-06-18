@@ -14,7 +14,7 @@ from mapgen import (
     RoomNotAdjacentError,
 )
 from mapgen.grid import MAPGEN_SIZE
-from mapgen.placement import _resolve_entry_layout, resolve_room_placement
+from mapgen.placement import resolve_entry_layout, resolve_room_placement
 from mapgen.schema import (
     _RELATIVE_KEYS,
     KNOWN_KEYS,
@@ -554,7 +554,7 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
 
     layout_canvas = entry_data.get("canvas")
     if layout_canvas is not None and layout_matrix is not None:
-        _resolve_entry_layout(layout_canvas, layout_matrix, rooms, canvas_size)
+        resolve_entry_layout(layout_canvas, layout_matrix, rooms, canvas_size)
     elif layout_matrix is not None:
         raise CompileError(
             "'layout' requires 'canvas' with 'cols' and 'rows' to define cell sizes"

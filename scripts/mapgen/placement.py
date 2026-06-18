@@ -141,7 +141,7 @@ def _resolve_inside_compound_align(
     )
 
 
-def _resolve_entry_layout(
+def resolve_entry_layout(
     layout_canvas: dict,
     layout_matrix: list[list[str]],
     rooms: dict[str, RoomSpec],

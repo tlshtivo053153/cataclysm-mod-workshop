@@ -111,6 +111,3 @@ def make_room_from_spec(specs: dict[str, RoomSpec], room_id: str) -> Room:
     return make_room(s)
 
 
-# Re-exports for backward compatibility
-from mapgen.parser import _resolve_global_coords, _validate_entry, parse_dsl  # noqa: E402, F401
-from mapgen.placement import resolve_room_placement  # noqa: E402, F401

@@ -14,18 +14,17 @@ from mapgen import (
     StairMismatchError,
     Warning,
 )
-from mapgen.grid import Grid, MAPGEN_SIZE
+from mapgen.grid import MAPGEN_SIZE, Grid
 from mapgen.json_emitter import emit_json_array
 from mapgen.known_palettes import PaletteRegistry
+from mapgen.parser import _resolve_global_coords, parse_dsl
 from mapgen.room import Room, compute_contained_door_position, compute_door_position
 from mapgen.schema import (
     EntrySpec,
     FeatureSpec,
     GlobalTile,
     RoomSpec,
-    _resolve_global_coords,
     make_room,
-    parse_dsl,
 )
 
 STAIR_CHARS = {">", "<", "*", "^"}

@@ -1,17 +1,9 @@
-import pytest
 from pathlib import Path
-from mapgen.schema import parse_dsl, RoomSpec, make_room
-from mapgen import (
-    CompileError,
-    OutOfBoundsError,
-    DuplicateRoomIdError,
-    InvalidRoomSizeError,
-    RoomOverlapError,
-    RoomNotAdjacentError,
-)
-from mapgen_compiler import Compiler
-from mapgen.grid import MAPGEN_SIZE
 
+from mapgen.grid import MAPGEN_SIZE
+from mapgen.parser import parse_dsl
+from mapgen.schema import RoomSpec
+from mapgen_compiler import Compiler
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -93,7 +85,7 @@ class TestCompilerIntegration:
         assert data[0]["object"]["fill_ter"] == "t_floor"
 
     def test_center_single_entry(self):
-        from mapgen.schema import EntrySpec, RoomSpec
+        from mapgen.schema import EntrySpec
         room = RoomSpec(id="r1", x=0, y=0, w=4, h=4)
         spec = EntrySpec(
             om_terrain="test",
@@ -107,7 +99,7 @@ class TestCompilerIntegration:
         assert room.y == 10
 
     def test_center_multiple_entries_same_offset(self):
-        from mapgen.schema import EntrySpec, RoomSpec
+        from mapgen.schema import EntrySpec
         room1 = RoomSpec(id="r1", x=0, y=0, w=4, h=4)
         room2 = RoomSpec(id="r2", x=2, y=2, w=4, h=4)
         spec1 = EntrySpec(om_terrain="test1", fill_ter="t_floor", rooms={"r1": room1})
@@ -122,7 +114,7 @@ class TestCompilerIntegration:
         assert room2.y == 11
 
     def test_center_no_shift_when_bbox_equals_canvas(self):
-        from mapgen.schema import EntrySpec, RoomSpec
+        from mapgen.schema import EntrySpec
         room = RoomSpec(id="r1", x=0, y=0, w=24, h=24)
         spec = EntrySpec(om_terrain="test", fill_ter="t_floor", rooms={"r1": room})
         doc = type("Doc", (), {"entries": [spec], "center": True, "canvas_size": 24})()
@@ -132,7 +124,7 @@ class TestCompilerIntegration:
         assert room.y == 0
 
     def test_center_with_global_tiles_and_features(self):
-        from mapgen.schema import EntrySpec, RoomSpec, FeatureSpec, FeatureTile, GlobalTile
+        from mapgen.schema import EntrySpec, FeatureSpec, FeatureTile, GlobalTile
         room = RoomSpec(id="r1", x=0, y=0, w=4, h=4)
         feature = FeatureSpec(room=None, tiles=[FeatureTile(char="f", x=3, y=3)])
         global_tile = GlobalTile(char="g", x=5, y=5)

@@ -5,7 +5,7 @@ import pytest
 from mapgen import (
     CompileError,
 )
-from mapgen.schema import parse_dsl
+from mapgen.parser import parse_dsl
 from mapgen_compiler import Compiler
 
 

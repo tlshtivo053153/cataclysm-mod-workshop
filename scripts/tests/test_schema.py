@@ -1,14 +1,13 @@
-import pytest
 from pathlib import Path
-from mapgen.schema import parse_dsl
+
+import pytest
 from mapgen import (
     CompileError,
-    OutOfBoundsError,
     DuplicateRoomIdError,
     InvalidRoomSizeError,
-    RoomOverlapError,
-    RoomNotAdjacentError,
+    OutOfBoundsError,
 )
+from mapgen.parser import parse_dsl
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -53,13 +52,11 @@ class TestParseDSLValidationErrors:
         assert entry.doors[0].side == "south"
 
     def test_missing_om_terrain(self):
-        import yaml
-        from mapgen.schema import _validate_entry
+        from mapgen.parser import _validate_entry
         with pytest.raises(CompileError, match="om_terrain"):
             _validate_entry({})
 
     def test_missing_entries_key(self):
-        import yaml
         import tempfile
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write("not_entries: []\n")
@@ -100,7 +97,7 @@ class TestMakeRoom:
         assert room.has_interior is True
 
     def test_resolve_global_coords(self):
-        from mapgen.schema import _resolve_global_coords
+        from mapgen.parser import _resolve_global_coords
         assert _resolve_global_coords(5) == [5]
         assert _resolve_global_coords([2, 5]) == [2, 3, 4, 5]
         with pytest.raises(CompileError):

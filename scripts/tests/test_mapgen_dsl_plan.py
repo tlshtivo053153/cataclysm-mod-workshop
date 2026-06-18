@@ -1,9 +1,9 @@
-import pytest
 from pathlib import Path
-from mapgen.schema import parse_dsl, RoomSpec, PlaceSpec, resolve_room_placement
-from mapgen import CompileError, OutOfBoundsError
-from mapgen.grid import MAPGEN_SIZE
 
+import pytest
+from mapgen import CompileError
+from mapgen.grid import MAPGEN_SIZE
+from mapgen.parser import parse_dsl
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -38,7 +38,6 @@ class TestAnchorPlacement:
     def test_anchor_adjacent_east(self):
         doc = parse_dsl(FIXTURES / "anchor_adjacent_east.yml")
         entry = doc.entries[0]
-        living = entry.rooms["living"]
         kitchen = entry.rooms["kitchen"]
         assert kitchen.x == 8
         assert kitchen.y == 0
@@ -48,7 +47,6 @@ class TestAnchorPlacement:
     def test_anchor_adjacent_with_margin(self):
         doc = parse_dsl(FIXTURES / "anchor_with_margin.yml")
         entry = doc.entries[0]
-        living = entry.rooms["living"]
         kitchen = entry.rooms["kitchen"]
         assert kitchen.x == 10
         assert kitchen.y == 0
