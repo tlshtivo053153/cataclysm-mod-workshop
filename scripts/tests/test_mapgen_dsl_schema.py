@@ -8,9 +8,8 @@ from mapgen import (
     FeatureOutOfRoomError,
     OutOfBoundsError,
     RoomNotAdjacentError,
-    RoomOverlapError,
 )
-from mapgen_dsl_schema import parse_dsl
+from mapgen.parser import parse_dsl
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 

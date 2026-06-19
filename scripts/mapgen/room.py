@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Literal
 
 from mapgen import DoorOverlapTooSmallError, RoomNotAdjacentError
 from mapgen.grid import Grid
+
+MIN_OVERLAP_FOR_DOOR = 2
+DEFAULT_DOOR_SIDE = "south"
+
 
 @dataclass(frozen=True)
 class _SideGeometry:
@@ -18,7 +25,7 @@ class _EdgeGeometry:
     pos_at: Callable[[Room, int], tuple[int, int]]
 
 
-_SIDES: dict[str, _SideGeometry] = {
+SIDES: dict[str, _SideGeometry] = {
     "south": _SideGeometry(
         direction="south", display_name="Southern",
         overlap_length=lambda r: r.w,
@@ -61,6 +68,8 @@ class Edge:
 
 
 class Room:
+    """A rectangular room with wall and floor tiles, supporting geometry queries."""
+
     def __init__(
         self,
         room_id: str,
@@ -115,7 +124,7 @@ class Room:
     def has_interior(self) -> bool:
         return self.w > 2 and self.h > 2
 
-    def intersects(self, other: "Room") -> bool:
+    def intersects(self, other: Room) -> bool:
         return (
             self.x1 < other.x2
             and self.x2 > other.x1
@@ -123,7 +132,7 @@ class Room:
             and self.y2 > other.y1
         )
 
-    def contains(self, other: "Room") -> bool:
+    def contains(self, other: Room) -> bool:
         return (
             self.x1 < other.x1
             and self.x2 > other.x2
@@ -137,7 +146,7 @@ class Room:
             )
         )
 
-    def is_adjacent_to(self, other: "Room") -> bool:
+    def is_adjacent_to(self, other: Room) -> bool:
         horiz = (self.x2 == other.x1) or (self.x1 == other.x2)
         vert_overlap = self.y1 < other.y2 and self.y2 > other.y1
         if horiz and vert_overlap:
@@ -148,7 +157,7 @@ class Room:
         return vert and horiz_overlap
 
     def _try_edge(
-        self, other: "Room",
+        self, other: Room,
         axis_self: int, axis_other: int,
         overlap_a1: int, overlap_a2: int,
         overlap_b1: int, overlap_b2: int,
@@ -162,7 +171,7 @@ class Room:
             return Edge(direction=direction, overlap_start=start, overlap_end=end)
         return None
 
-    def adjacent_edge(self, other: "Room") -> Edge | None:
+    def adjacent_edge(self, other: Room) -> Edge | None:
         return (
             self._try_edge(other, self.x2, other.x1, self.y1, self.y2, other.y1, other.y2, "east")
             or self._try_edge(other, self.x1, other.x2, self.y1, self.y2, other.y1, other.y2, "west")
@@ -185,12 +194,14 @@ def compute_door_position(
     room_b: Room,
     offset: int | None = None,
 ) -> tuple[int, int]:
+    """Compute the (x, y) position for a door between two adjacent rooms."""
+
     edge = room_a.adjacent_edge(room_b)
     if edge is None:
         raise RoomNotAdjacentError(
             f"Rooms '{room_a.room_id}' and '{room_b.room_id}' are not adjacent"
         )
-    if edge.overlap_length < 2:
+    if edge.overlap_length < MIN_OVERLAP_FOR_DOOR:
         raise DoorOverlapTooSmallError(
             f"Overlap between '{room_a.room_id}' and '{room_b.room_id}' is {edge.overlap_length}, need at least 2"
         )
@@ -210,22 +221,24 @@ def compute_contained_door_position(
     container: Room,
     inner: Room,
     offset: int | None = None,
-    side: str = "south",
+    side: str = DEFAULT_DOOR_SIDE,
 ) -> tuple[int, int]:
+    """Compute the (x, y) position for a door from a container room to a contained room."""
+
     if not container.contains(inner):
         raise ValueError(
             f"Room '{container.room_id}' does not strictly contain '{inner.room_id}'"
         )
 
-    side_geo = _SIDES.get(side)
+    side_geo = SIDES.get(side)
     if side_geo is None:
         raise ValueError(f"Unknown side: '{side}'")
 
     overlap_length = side_geo.overlap_length(inner)
-    if overlap_length < 2:
+    if overlap_length < MIN_OVERLAP_FOR_DOOR:
         raise DoorOverlapTooSmallError(
             f"{side_geo.display_name} wall of '{inner.room_id}' "
-            f"has overlap {overlap_length}, need at least 2"
+            f"has overlap {overlap_length}, need at least {MIN_OVERLAP_FOR_DOOR}"
         )
     offset_used = offset if offset is not None else overlap_length // 2
     return side_geo.door_at(inner, offset_used)

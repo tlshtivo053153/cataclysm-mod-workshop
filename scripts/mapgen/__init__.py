@@ -20,7 +20,6 @@ __all__ = [
     "DuplicateRoomIdError",
     "InvalidRoomSizeError",
     "StairMismatchError",
-    "NoEntryPointError",
     "Warning",
     "EntryContext",
 ]
@@ -79,10 +78,6 @@ class StairMismatchError(CompileError):
     pass
 
 
-class NoEntryPointError(CompileError):
-    pass
-
-
 @dataclass
 class Warning:
     code: str
@@ -95,7 +90,7 @@ class EntryContext:
     om_terrain: str
     fill_ter: str
     palette: list[str]
-    grid: "Grid"
+    grid: Grid
     pass_through: dict[str, Any]
     warnings: list[Warning]
     features: list[FeatureSpec] = field(default_factory=list)

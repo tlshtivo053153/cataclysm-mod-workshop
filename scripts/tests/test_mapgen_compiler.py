@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 from mapgen import CompileError
+from mapgen.parser import parse_dsl
 from mapgen_compiler import Compiler
-from mapgen_dsl_schema import parse_dsl
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 

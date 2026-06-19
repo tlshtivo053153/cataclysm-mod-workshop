@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mapgen import CompileError, InvalidRoomSizeError, OutOfBoundsError
+from mapgen import CompileError, InvalidRoomSizeError
 from mapgen.schema import PlaceSpec, RoomSpec
 
 
@@ -235,17 +235,4 @@ def resolve_entry_layout(
             raise InvalidRoomSizeError(
                 f"Room '{cell_id}': layout-computed size w={spec.w}, h={spec.h} — both must be >= 1"
             )
-        if spec.x < 0 or spec.y < 0 or spec.x + spec.w > canvas_size or spec.y + spec.h > canvas_size:
-            overflows: list[str] = []
-            if spec.x < 0:
-                overflows.append(f"west by {-spec.x}")
-            if spec.y < 0:
-                overflows.append(f"north by {-spec.y}")
-            if spec.x + spec.w > canvas_size:
-                overflows.append(f"east by {spec.x + spec.w - canvas_size}")
-            if spec.y + spec.h > canvas_size:
-                overflows.append(f"south by {spec.y + spec.h - canvas_size}")
-            raise OutOfBoundsError(
-                f"Room '{cell_id}': layout-resolved position ({spec.x},{spec.y}) w={spec.w},h={spec.h} "
-                f"out of bounds (canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}"
-            )
+        spec.validate_bounds(canvas_size, cell_id, "layout-resolved position")

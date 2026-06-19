@@ -77,7 +77,7 @@ class TestDSLDocument:
 
 
 class TestMakeRoom:
-    def test_make_room_from_spec(self):
+    def test_make_room(self):
         from mapgen.schema import RoomSpec, make_room
         spec = RoomSpec(id="test", x=1, y=2, w=5, h=6, wall="#", floor=".")
         room = make_room(spec)

@@ -3,12 +3,15 @@ from collections import deque
 from mapgen import OutOfBoundsError
 
 MAPGEN_SIZE = 24
+EMPTY_CELL_CHAR = " "
 
 
 class Grid:
+    """A fixed-size 2D grid of characters representing a CDDA mapgen canvas."""
+
     DIRECTIONS: tuple[tuple[int, int], ...] = ((0, -1), (-1, 0), (1, 0), (0, 1))
 
-    def __init__(self, width: int = MAPGEN_SIZE, height: int = MAPGEN_SIZE, fill_char: str = " ") -> None:
+    def __init__(self, width: int = MAPGEN_SIZE, height: int = MAPGEN_SIZE, fill_char: str = EMPTY_CELL_CHAR) -> None:
         self.width = width
         self.height = height
         self._cells = [[fill_char for _ in range(width)] for _ in range(height)]
@@ -83,14 +86,14 @@ class Grid:
 
         return unreachable
 
-    def collect_used_chars(self, fill_char: str = " ") -> set[str]:
+    def collect_used_chars(self, fill_char: str = EMPTY_CELL_CHAR) -> set[str]:
         """Return the set of non-empty characters used in the grid.
 
-        With the default ``fill_char=" "`` (the BFS passable filler), space
+        With the default ``fill_char=EMPTY_CELL_CHAR`` (the BFS passable filler), space
         characters are always excluded — they represent empty walkable cells,
         not meaningful tiles. All other characters are collected.
 
-        When ``fill_char`` is something other than ``" "`` (e.g. ``#`` for a
+        When ``fill_char`` is something other than ``EMPTY_CELL_CHAR`` (e.g. ``#`` for a
         wall-filled grid), the space character may carry semantic meaning
         (doors, floor openings, etc.), so it is included in the result set.
         """
@@ -99,7 +102,7 @@ class Grid:
             for ch in row:
                 if ch == fill_char:
                     continue
-                if fill_char != " " and ch == " ":
+                if fill_char != EMPTY_CELL_CHAR and ch == EMPTY_CELL_CHAR:
                     continue
                 chars.add(ch)
         return chars

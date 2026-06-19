@@ -1,10 +1,14 @@
 from dataclasses import dataclass, field
+from typing import Any
 
+from mapgen import OutOfBoundsError
 from mapgen.grid import MAPGEN_SIZE
 from mapgen.room import Room
 
 KNOWN_KEYS = {"om_terrain", "fill_ter", "palette", "rooms", "doors", "features", "global",
                "canvas", "layout", "auto_doors", "default_door_char", "no_door"}
+
+COMPILER_KEYS = {"fill_ter", "rows", "palettes"}
 
 
 @dataclass
@@ -19,6 +23,8 @@ class PlaceSpec:
 
 @dataclass
 class RoomSpec:
+    """Intermediate representation of a room during DSL parsing."""
+
     id: str
     x: int = 0
     y: int = 0
@@ -32,6 +38,34 @@ class RoomSpec:
     def shift(self, dx: int, dy: int) -> None:
         self.x += dx
         self.y += dy
+
+    def validate_bounds(self, canvas_size: int, room_id: str, context: str = "") -> None:
+        if self.x < 0 or self.y < 0 or self.x + self.w > canvas_size or self.y + self.h > canvas_size:
+            overflows: list[str] = []
+            if self.x < 0:
+                overflows.append(f"west by {-self.x}")
+            if self.y < 0:
+                overflows.append(f"north by {-self.y}")
+            if self.x + self.w > canvas_size:
+                overflows.append(f"east by {self.x + self.w - canvas_size}")
+            if self.y + self.h > canvas_size:
+                overflows.append(f"south by {self.y + self.h - canvas_size}")
+            hints: list[str] = []
+            overflows_text = ", ".join(overflows)
+            if "east" in overflows_text:
+                hints.append("try reducing w, inner_w, or x")
+            if "south" in overflows_text:
+                hints.append("try reducing h, inner_h, or y")
+            if "west" in overflows_text:
+                hints.append("increase x to 0 or higher")
+            if "north" in overflows_text:
+                hints.append("increase y to 0 or higher")
+            detail = " — " + "; ".join(hints) if hints else ""
+            prefix = f"{context} " if context else ""
+            raise OutOfBoundsError(
+                f"Room '{room_id}': {prefix}out of bounds at ({self.x},{self.y}) w={self.w},h={self.h} "
+                f"(canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}{detail}"
+            )
 
 
 @dataclass
@@ -75,6 +109,8 @@ class GlobalTile:
 
 @dataclass
 class EntrySpec:
+    """Parsed representation of a single mapgen entry (one z-level)."""
+
     om_terrain: str
     fill_ter: str
     palette: list[str] = field(default_factory=list)
@@ -82,7 +118,7 @@ class EntrySpec:
     doors: list[DoorSpec] = field(default_factory=list)
     features: list[FeatureSpec] = field(default_factory=list)
     global_tiles: list[GlobalTile] = field(default_factory=list)
-    pass_through: dict = field(default_factory=dict)
+    pass_through: dict[str, Any] = field(default_factory=dict)
     auto_doors: bool = True
     default_door_char: str = "+"
     no_door: list[tuple[str, str]] = field(default_factory=list)
@@ -90,6 +126,8 @@ class EntrySpec:
 
 @dataclass
 class DSLDocument:
+    """Top-level container for a parsed DSL YAML document."""
+
     entries: list[EntrySpec] = field(default_factory=list)
     canvas: dict | None = None
     canvas_size: int = MAPGEN_SIZE
@@ -104,10 +142,3 @@ def make_room(spec: RoomSpec) -> Room:
 
 
 _RELATIVE_KEYS = {"right_of", "left_of", "above", "below", "inside", "align", "gap"}
-
-
-def make_room_from_spec(specs: dict[str, RoomSpec], room_id: str) -> Room:
-    s = specs[room_id]
-    return make_room(s)
-
-

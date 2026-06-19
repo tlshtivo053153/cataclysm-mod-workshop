@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from mapgen.known_palettes import (
     PaletteRegistry,
     _cdda_dict_to_palettes,
@@ -159,12 +158,12 @@ class TestCddaFormat:
         p.write_text(json.dumps({"x": {"terrain": {"a": "t_a"}}}), encoding="utf-8")
         assert _load_json_palettes(p) == {"x": {"terrain": {"a": "t_a"}}}
 
-    def test_load_json_palettes_invalid_json(self, tmp_path: Path, capsys):
+    def test_load_json_palettes_invalid_json(self, tmp_path: Path, caplog):
         p = tmp_path / "p.json"
         p.write_text("{not json", encoding="utf-8")
         assert _load_json_palettes(p) == {}
-        err = capsys.readouterr().err
-        assert "Warning" in err and "p.json" in err
+        assert any("Failed to load palettes" in record.message and "p.json" in record.message
+                   for record in caplog.records)
 
     def test_extract_cdda_palette_fields_ignores_non_dict(self):
         result = _extract_cdda_palette_fields({

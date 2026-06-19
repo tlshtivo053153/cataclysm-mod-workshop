@@ -1,7 +1,9 @@
 import json
-import sys
+import logging
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 _PALETTE_FIELD_KEYS = (
@@ -46,7 +48,7 @@ def _load_json_palettes(path: Path) -> dict[str, dict[str, Any]]:
         with open(path, encoding="utf-8") as f:
             raw = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"Warning: Failed to load palettes from {path}: {e}", file=sys.stderr)
+        logger.warning("Failed to load palettes from %s: %s", path, e)
         return {}
 
     if isinstance(raw, list):
@@ -54,7 +56,14 @@ def _load_json_palettes(path: Path) -> dict[str, dict[str, Any]]:
     if isinstance(raw, dict):
         if raw.get("type") == "palette":
             return _cdda_dict_to_palettes(raw)
-        return raw
+        if all(isinstance(v, dict) for v in raw.values()):
+            return raw
+        logger.warning(
+            "Skipping %s — dict JSON without 'type: palette' "
+            "must contain only dict values (palette field mappings)",
+            path,
+        )
+        return {}
     return {}
 
 
@@ -73,6 +82,8 @@ def _load_all_palettes(palette_paths: list[Path] | None = None) -> dict[str, dic
 
 
 class PaletteRegistry:
+    """Registry of CDDA palette definitions, keyed by palette ID."""
+
     def __init__(self, palette_paths: list[Path] | None = None) -> None:
         self._palettes = _load_all_palettes(palette_paths)
         self._unknown_reported: set[str] = set()
@@ -81,7 +92,7 @@ class PaletteRegistry:
         palette = self._palettes.get(name)
         if palette is None and name not in self._unknown_reported:
             self._unknown_reported.add(name)
-            print(f"Info: unknown palette '{name}' — skipping", file=sys.stderr)
+            logger.info("Unknown palette '%s' — skipping", name)
         return palette
 
     def is_char_known(self, palette_name: str, char: str) -> bool:

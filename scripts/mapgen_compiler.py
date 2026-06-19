@@ -14,12 +14,20 @@ from mapgen import (
     StairMismatchError,
     Warning,
 )
-from mapgen.grid import MAPGEN_SIZE, Grid
+from mapgen.grid import EMPTY_CELL_CHAR, MAPGEN_SIZE, Grid
 from mapgen.json_emitter import emit_json_array
 from mapgen.known_palettes import PaletteRegistry
 from mapgen.parser import _resolve_global_coords, parse_dsl
-from mapgen.room import Room, compute_contained_door_position, compute_door_position
+from mapgen.room import (
+    DEFAULT_DOOR_SIDE,
+    SIDES,
+    Room,
+    compute_contained_door_position,
+    compute_door_position,
+)
 from mapgen.schema import (
+    DoorSpec,
+    DSLDocument,
     EntrySpec,
     FeatureSpec,
     GlobalTile,
@@ -28,6 +36,7 @@ from mapgen.schema import (
 )
 
 STAIR_CHARS = {">", "<", "*", "^"}
+FALLBACK_DOOR_CHAR = "+"
 
 
 def _collect_stair_positions(
@@ -60,6 +69,8 @@ def _collect_stair_positions(
 
 
 class Compiler:
+    """Compiles parsed DSL documents into CDDA mapgen JSON."""
+
     def __init__(self, palette_paths: list[Path] | None = None) -> None:
         self.palette_registry = PaletteRegistry(palette_paths)
 
@@ -78,25 +89,48 @@ class Compiler:
 
     def build_grid(self, spec: EntrySpec, canvas_size: int = MAPGEN_SIZE) -> tuple[Grid, dict[str, Room], dict[str, RoomSpec], list[Warning]]:
         warnings: list[Warning] = []
-        grid = Grid(width=canvas_size, height=canvas_size, fill_char=" ")
-        rooms: dict[str, Room] = {}
-        room_specs: dict[str, RoomSpec] = spec.rooms
+        grid = Grid(width=canvas_size, height=canvas_size, fill_char=EMPTY_CELL_CHAR)
+        rooms = self._draw_rooms(spec, grid)
+        containment = self._build_containment_map(rooms)
+        self._place_doors(spec, rooms, grid, warnings)
+        if spec.auto_doors:
+            self._generate_auto_doors(rooms, grid, spec, warnings)
+        self._merge_adjacent_walls(rooms, grid)
+        self._place_features(spec, rooms, grid, containment)
+        self._place_global_tiles(spec, grid)
+        return grid, rooms, spec.rooms, warnings
 
-        for spec_room in room_specs.values():
+    def _draw_rooms(self, spec: EntrySpec, grid: Grid) -> dict[str, Room]:
+        rooms: dict[str, Room] = {}
+        for spec_room in spec.rooms.values():
             room = make_room(spec_room)
             rooms[spec_room.id] = room
             room.draw(grid)
+        return rooms
 
+    @staticmethod
+    def _build_containment_map(rooms: dict[str, Room]) -> dict[str, list[Room]]:
+        containment: dict[str, list[Room]] = {}
+        room_list = list(rooms.values())
+        for i in range(len(room_list)):
+            for j in range(len(room_list)):
+                if i == j:
+                    continue
+                if room_list[i].contains(room_list[j]):
+                    containment.setdefault(room_list[i].room_id, []).append(room_list[j])
+        return containment
+
+    def _place_doors(
+        self, spec: EntrySpec, rooms: dict[str, Room], grid: Grid, warnings: list[Warning],
+    ) -> None:
         for door in spec.doors:
             room_a = rooms[door.from_room]
             room_b = rooms[door.to_room]
-
             offset = self._resolve_door_offset(door, room_a, room_b)
-
             if room_a.contains(room_b) or room_b.contains(room_a):
                 container = room_a if room_a.contains(room_b) else room_b
                 inner = room_b if room_a.contains(room_b) else room_a
-                side = door.side if door.side else "south"
+                side = door.side if door.side else DEFAULT_DOOR_SIDE
                 door_x, door_y = compute_contained_door_position(
                     container, inner, offset=offset, side=side,
                 )
@@ -113,7 +147,6 @@ class Compiler:
                 raise RoomNotAdjacentError(
                     f"Rooms '{door.from_room}' and '{door.to_room}' are neither adjacent nor contained"
                 )
-
             cell_char = grid.get(door_x, door_y)
             wall_chars = {room_a.wall_char, room_b.wall_char}
             if cell_char not in wall_chars:
@@ -121,42 +154,38 @@ class Compiler:
                     f"Door at ({door_x},{door_y}) between '{door.from_room}' and "
                     f"'{door.to_room}' is not on a wall (found '{cell_char}')"
                 )
-
             if door.char in wall_chars:
                 warnings.append(Warning(
                     code="invisible_door",
                     message=f"Door char '{door.char}' matches wall char "
                             f"of room '{door.from_room}' or '{door.to_room}'",
                 ))
-
             grid.place(door_x, door_y, door.char)
 
-        if spec.auto_doors:
-            self._generate_auto_doors(rooms, grid, spec, warnings)
-
-        self._merge_adjacent_walls(rooms, grid)
-
+    def _place_features(
+        self, spec: EntrySpec, rooms: dict[str, Room], grid: Grid,
+        containment: dict[str, list[Room]],
+    ) -> None:
         for feat in spec.features:
             for tile in feat.tiles:
                 if feat.room is not None:
                     room = rooms[feat.room]
                     ax = room.x + tile.x
                     ay = room.y + tile.y
-                    if self._is_inside_contained_room(ax, ay, room, rooms):
+                    if self._is_inside_contained_room(ax, ay, room, rooms, containment):
                         continue
                 else:
                     ax = tile.x
                     ay = tile.y
                 grid.place(ax, ay, tile.char)
 
+    def _place_global_tiles(self, spec: EntrySpec, grid: Grid) -> None:
         for gt in spec.global_tiles:
             x_vals = _resolve_global_coords(gt.x)
             y_vals = _resolve_global_coords(gt.y)
             for x in x_vals:
                 for y in y_vals:
                     grid.place(x, y, gt.char)
-
-        return grid, rooms, room_specs, warnings
 
     def validate_post(
         self,
@@ -168,7 +197,7 @@ class Compiler:
     ) -> list[Warning]:
         warnings: list[Warning] = []
 
-        passable_chars: set[str] = {" "}
+        passable_chars: set[str] = {EMPTY_CELL_CHAR}
         wall_chars_all: set[str] = {r.wall_char for r in rooms.values()}
         for room in rooms.values():
             passable_chars.add(room.floor_char)
@@ -205,7 +234,7 @@ class Compiler:
                 message="No entry point found — skipping reachability check",
             ))
 
-        palette_warnings = self._check_palette_chars(grid, " ", spec.palette)
+        palette_warnings = self._check_palette_chars(grid, EMPTY_CELL_CHAR, spec.palette)
         warnings.extend(palette_warnings)
 
         meaning_warnings = self._check_meaning_consistency(spec)
@@ -213,7 +242,7 @@ class Compiler:
 
         return warnings
 
-    def compile(self, doc) -> list[EntryContext]:
+    def compile(self, doc: DSLDocument) -> list[EntryContext]:
         canvas_size: int = getattr(doc, "canvas_size", MAPGEN_SIZE)
 
         if doc.center:
@@ -350,15 +379,14 @@ class Compiler:
         return errors
 
     def _resolve_door_offset(
-        self, door, room_a: Room, room_b: Room,
+        self, door: DoorSpec, room_a: Room, room_b: Room,
     ) -> int | None:
         if door.position is None:
             return door.offset
         if room_a.contains(room_b) or room_b.contains(room_a):
             inner = room_b if room_a.contains(room_b) else room_a
-            side = door.side if door.side else "south"
-            from mapgen.room import _SIDES
-            config = _SIDES.get(side)
+            side = door.side if door.side else DEFAULT_DOOR_SIDE
+            config = SIDES.get(side)
             if config is None:
                 return door.offset
             overlap_length = config.overlap_length(inner)
@@ -385,16 +413,16 @@ class Compiler:
 
     def _is_inside_contained_room(
         self, ax: int, ay: int, parent: Room, rooms: dict[str, Room],
+        containment: dict[str, list[Room]],
     ) -> bool:
         """Check if absolute coordinates (ax, ay) fall within any room contained by parent."""
-        for other in rooms.values():
-            if other.room_id == parent.room_id:
-                continue
-            if not parent.contains(other):
-                continue
-            if other.x1 <= ax < other.x2 and other.y1 <= ay < other.y2:
-                return True
-        return False
+        children = containment.get(parent.room_id)
+        if children is None:
+            return False
+        return any(
+            other.x1 <= ax < other.x2 and other.y1 <= ay < other.y2
+            for other in children
+        )
 
     def _resolve_wall_merge(self, a: Room, b: Room, edge) -> tuple[Room, Room]:
         """Determine which room keeps the wall and which gets its wall replaced by floor.
@@ -459,7 +487,7 @@ class Compiler:
 
         door_char = default_door_char
         if door_char in wall_chars:
-            door_char = "+"
+            door_char = FALLBACK_DOOR_CHAR
         if door_char in wall_chars:
             warnings.append(Warning(
                 code="invisible_door",
@@ -582,7 +610,7 @@ class Compiler:
 
     def explain_chars(self, context: EntryContext, features: list[FeatureSpec] | None = None) -> list[str]:
         lines: list[str] = []
-        used_chars = context.grid.collect_used_chars(fill_char=" ")
+        used_chars = context.grid.collect_used_chars(fill_char=EMPTY_CELL_CHAR)
         if not used_chars:
             return lines
 
@@ -631,6 +659,9 @@ class Compiler:
 
 
 def main() -> None:
+    import logging
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
     parser = argparse.ArgumentParser(description="Mapgen DSL compiler for CDDA")
     parser.add_argument("--input", "-i", type=Path, help="Input YAML file")
     parser.add_argument("--output", "-o", type=Path, help="Output JSON file")

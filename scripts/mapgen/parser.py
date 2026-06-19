@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -10,8 +11,8 @@ from mapgen import (
     FeatureOutOfGridError,
     FeatureOutOfRoomError,
     InvalidRoomSizeError,
-    OutOfBoundsError,
     RoomNotAdjacentError,
+    RoomOverlapError,
 )
 from mapgen.grid import MAPGEN_SIZE
 from mapgen.placement import resolve_entry_layout, resolve_room_placement
@@ -28,7 +29,6 @@ from mapgen.schema import (
     RoomSpec,
     make_room,
 )
-from mapgen.validation import _validate_room_overlaps
 
 
 def _detect_new_placement_keys(
@@ -370,30 +370,7 @@ def _parse_rooms(entry_data: dict, canvas_size: int, has_layout: bool = False) -
                 raise InvalidRoomSizeError(
                     f"Room '{spec.id}': invalid size w={spec.w}, h={spec.h} — both must be >= 1"
                 )
-            if spec.x < 0 or spec.y < 0 or spec.x + spec.w > canvas_size or spec.y + spec.h > canvas_size:
-                overflows: list[str] = []
-                if spec.x < 0:
-                    overflows.append(f"west by {-spec.x}")
-                if spec.y < 0:
-                    overflows.append(f"north by {-spec.y}")
-                if spec.x + spec.w > canvas_size:
-                    overflows.append(f"east by {spec.x + spec.w - canvas_size}")
-                if spec.y + spec.h > canvas_size:
-                    overflows.append(f"south by {spec.y + spec.h - canvas_size}")
-                detail = ""
-                if overflows:
-                    if "east" in " ".join(overflows):
-                        detail = " — try reducing w, inner_w, or x"
-                    if "south" in " ".join(overflows):
-                        detail = " — try reducing h, inner_h, or y"
-                    if "west" in " ".join(overflows):
-                        detail = " — increase x to 0 or higher"
-                    if "north" in " ".join(overflows):
-                        detail = " — increase y to 0 or higher"
-                raise OutOfBoundsError(
-                    f"Room '{spec.id}': out of bounds at ({spec.x},{spec.y}) w={spec.w},h={spec.h} "
-                    f"(canvas {canvas_size}x{canvas_size}) — overflows: {', '.join(overflows)}{detail}"
-                )
+            spec.validate_bounds(canvas_size, spec.id)
 
     return resolved
 
@@ -510,8 +487,8 @@ def _parse_global_tiles(entry_data: dict, canvas_size: int) -> list[GlobalTile]:
     return global_tiles
 
 
-def _extract_pass_through(entry_data: dict) -> dict:
-    pass_through: dict = {}
+def _extract_pass_through(entry_data: dict[str, Any]) -> dict[str, Any]:
+    pass_through: dict[str, Any] = {}
     for key, value in entry_data.items():
         if key not in KNOWN_KEYS:
             pass_through[key] = value
@@ -583,6 +560,28 @@ def _validate_entry(entry_data: dict, canvas_size: int = MAPGEN_SIZE) -> EntrySp
         default_door_char=default_door_char,
         no_door=no_door_pairs,
     )
+
+
+def _validate_room_overlaps(entry: EntrySpec) -> None:
+    room_values = list(entry.rooms.values())
+    rooms = [make_room(s) for s in room_values]
+    for i in range(len(rooms)):
+        for j in range(i + 1, len(rooms)):
+            a = rooms[i]
+            b = rooms[j]
+            if not a.intersects(b):
+                continue
+            if a.contains(b) or b.contains(a):
+                continue
+            if a.is_adjacent_to(b):
+                continue
+            raise RoomOverlapError(
+                f"Rooms '{a.room_id}' (x={a.x},y={a.y},w={a.w},h={a.h}) and "
+                f"'{b.room_id}' (x={b.x},y={b.y},w={b.w},h={b.h}) partially overlap — "
+                f"adjust one room's position or size to eliminate overlap. "
+                f"Try: move '{a.room_id}' x to {b.x + b.w} or '{b.room_id}' x to {a.x + a.w}, "
+                f"or reduce width of one room."
+            )
 
 
 def parse_dsl(yaml_path: Path) -> DSLDocument:

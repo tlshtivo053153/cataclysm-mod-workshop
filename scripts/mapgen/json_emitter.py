@@ -1,8 +1,7 @@
 from typing import Any
 
 from mapgen import EntryContext, Warning
-
-COMPILER_KEYS = {"fill_ter", "rows", "palettes"}
+from mapgen.schema import COMPILER_KEYS
 
 
 def emit_entry(entry: EntryContext) -> dict[str, Any]:

@@ -1,6 +1,6 @@
 import pytest
-from mapgen.grid import Grid, MAPGEN_SIZE
 from mapgen import OutOfBoundsError
+from mapgen.grid import MAPGEN_SIZE, Grid
 
 
 class TestGridPlaceGet:

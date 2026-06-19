@@ -1,6 +1,6 @@
 import pytest
-from mapgen.room import Room, Edge, compute_door_position, compute_contained_door_position
-from mapgen import RoomNotAdjacentError, DoorOverlapTooSmallError
+from mapgen import DoorOverlapTooSmallError, RoomNotAdjacentError
+from mapgen.room import Room, compute_contained_door_position, compute_door_position
 
 
 class TestRoomIntersects:
