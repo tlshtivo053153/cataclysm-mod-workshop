@@ -6,7 +6,7 @@ from mapgen import (
     CompileError,
 )
 from mapgen.parser import parse_dsl
-from mapgen_compiler import Compiler
+from mapgen.compiler import Compiler
 
 
 def _parse_yml(yml: str):

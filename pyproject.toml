@@ -47,3 +47,55 @@ testpaths = ["scripts/tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-ra -q"
+
+[tool.mypy]
+mypy_path = "scripts"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+# Test files are out of strict scope (they use dynamic fixtures/tempfiles).
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "tests.helpers"
+ignore_errors = true
+
+# Flat transformation scripts share a loose runtime contract; keep them
+# non-strict so the mapgen package can enforce strict typing independently.
+[[tool.mypy.overrides]]
+module = "common"
+strict = false
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "convert_item_types"
+strict = false
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "convert_price"
+strict = false
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "add_activity_level"
+strict = false
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "remove_armor_bullet"
+strict = false
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "remove_invalid_fields"
+strict = false
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "summarize_debug_log"
+strict = false
+ignore_errors = true

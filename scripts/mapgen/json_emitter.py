@@ -1,7 +1,12 @@
+"""Pure JSON emission for compiled mapgen entries.
+
+``emit_entry`` deliberately avoids mutating ``entry.warnings``. Pass-through
+collision detection is performed during post-compilation validation instead.
+"""
+
 from typing import Any
 
-from mapgen import EntryContext, Warning
-from mapgen.schema import COMPILER_KEYS
+from mapgen import EntryContext
 
 
 def emit_entry(entry: EntryContext) -> dict[str, Any]:
@@ -10,12 +15,6 @@ def emit_entry(entry: EntryContext) -> dict[str, Any]:
         "rows": entry.grid.to_rows(),
         "palettes": entry.palette,
     }
-    collisions = set(entry.pass_through.keys()) & COMPILER_KEYS
-    if collisions:
-        entry.warnings.append(Warning(
-            code="passthrough_collision",
-            message=f"Pass-through keys {collisions} will override compiler-generated fields",
-        ))
     for key, value in entry.pass_through.items():
         if value is not None:
             obj[key] = value

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from mapgen import CompileError, InvalidRoomSizeError
 from mapgen.schema import PlaceSpec, RoomSpec
 
@@ -15,13 +17,9 @@ def resolve_room_placement(
             "Room 'place' must specify exactly one of 'relative_to' or 'inside', not both"
         )
     if place.relative_to is None and place.inside is None:
-        raise CompileError(
-            "Room 'place' must specify either 'relative_to' or 'inside'"
-        )
+        raise CompileError("Room 'place' must specify either 'relative_to' or 'inside'")
     if place.margin < 0:
-        raise CompileError(
-            f"Room 'place.margin' must be >= 0, got {place.margin}"
-        )
+        raise CompileError(f"Room 'place.margin' must be >= 0, got {place.margin}")
 
     if place.relative_to is not None:
         ref = resolved.get(place.relative_to)
@@ -43,15 +41,11 @@ def resolve_room_placement(
             y = ref.y - h - place.margin
             x = _resolve_align_x(place, ref, w)
         else:
-            raise CompileError(
-                f"Invalid side: '{side}' — must be north, south, east, or west"
-            )
+            raise CompileError(f"Invalid side: '{side}' — must be north, south, east, or west")
     elif place.inside is not None:
         ref = resolved.get(place.inside)
         if ref is None:
-            raise CompileError(
-                f"Room 'place.inside' references unknown room: '{place.inside}'"
-            )
+            raise CompileError(f"Room 'place.inside' references unknown room: '{place.inside}'")
         if w + 2 * place.margin > ref.w or h + 2 * place.margin > ref.h:
             raise CompileError(
                 f"Room with w={w},h={h} and margin={place.margin} does not fit inside "
@@ -107,42 +101,43 @@ def _resolve_align_x(place: PlaceSpec, ref: RoomSpec, w: int) -> int:
 
 
 def _resolve_inside_compound_align(
-    place: PlaceSpec, ref: RoomSpec, w: int, h: int,
+    place: PlaceSpec,
+    ref: RoomSpec,
+    w: int,
+    h: int,
 ) -> tuple[int, int]:
     style = place._align_style or "top-left"
     margin = place.margin
 
     compound_map: dict[str, tuple[int, int]] = {
-        "top":          (ref.x + margin, ref.y + margin),
-        "north":        (ref.x + margin, ref.y + margin),
-        "bottom":       (ref.x + margin, ref.y + ref.h - h - margin),
-        "south":        (ref.x + margin, ref.y + ref.h - h - margin),
-        "left":         (ref.x + margin, ref.y + margin),
-        "west":         (ref.x + margin, ref.y + margin),
-        "right":        (ref.x + ref.w - w - margin, ref.y + margin),
-        "east":         (ref.x + ref.w - w - margin, ref.y + margin),
-        "top-left":     (ref.x + margin, ref.y + margin),
-        "north-west":   (ref.x + margin, ref.y + margin),
-        "top-right":    (ref.x + ref.w - w - margin, ref.y + margin),
-        "north-east":   (ref.x + ref.w - w - margin, ref.y + margin),
-        "bottom-left":  (ref.x + margin, ref.y + ref.h - h - margin),
-        "south-west":   (ref.x + margin, ref.y + ref.h - h - margin),
+        "top": (ref.x + margin, ref.y + margin),
+        "north": (ref.x + margin, ref.y + margin),
+        "bottom": (ref.x + margin, ref.y + ref.h - h - margin),
+        "south": (ref.x + margin, ref.y + ref.h - h - margin),
+        "left": (ref.x + margin, ref.y + margin),
+        "west": (ref.x + margin, ref.y + margin),
+        "right": (ref.x + ref.w - w - margin, ref.y + margin),
+        "east": (ref.x + ref.w - w - margin, ref.y + margin),
+        "top-left": (ref.x + margin, ref.y + margin),
+        "north-west": (ref.x + margin, ref.y + margin),
+        "top-right": (ref.x + ref.w - w - margin, ref.y + margin),
+        "north-east": (ref.x + ref.w - w - margin, ref.y + margin),
+        "bottom-left": (ref.x + margin, ref.y + ref.h - h - margin),
+        "south-west": (ref.x + margin, ref.y + ref.h - h - margin),
         "bottom-right": (ref.x + ref.w - w - margin, ref.y + ref.h - h - margin),
-        "south-east":   (ref.x + ref.w - w - margin, ref.y + ref.h - h - margin),
-        "center":       (ref.x + (ref.w - w) // 2, ref.y + (ref.h - h) // 2),
-        "middle":       (ref.x + (ref.w - w) // 2, ref.y + (ref.h - h) // 2),
+        "south-east": (ref.x + ref.w - w - margin, ref.y + ref.h - h - margin),
+        "center": (ref.x + (ref.w - w) // 2, ref.y + (ref.h - h) // 2),
+        "middle": (ref.x + (ref.w - w) // 2, ref.y + (ref.h - h) // 2),
     }
 
     if style in compound_map:
         return compound_map[style]
 
-    raise CompileError(
-        f"Invalid align style for inside placement: '{style}'"
-    )
+    raise CompileError(f"Invalid align style for inside placement: '{style}'")
 
 
 def resolve_entry_layout(
-    layout_canvas: dict,
+    layout_canvas: dict[str, Any],
     layout_matrix: list[list[str]],
     rooms: dict[str, RoomSpec],
     canvas_size: int,
@@ -184,16 +179,16 @@ def resolve_entry_layout(
     for ri, row in enumerate(layout_matrix):
         for ci, cell_id in enumerate(row):
             if cell_id not in rooms:
-                raise CompileError(
-                    f"Layout cell [{ri}][{ci}] references unknown room: '{cell_id}'"
-                )
+                raise CompileError(f"Layout cell [{ri}][{ci}] references unknown room: '{cell_id}'")
             if cell_id not in room_cells:
                 room_cells[cell_id] = (ci, ri, ci + 1, ri + 1)
             else:
                 c_min, r_min, c_max, r_max = room_cells[cell_id]
                 room_cells[cell_id] = (
-                    min(c_min, ci), min(r_min, ri),
-                    max(c_max, ci + 1), max(r_max, ri + 1),
+                    min(c_min, ci),
+                    min(r_min, ri),
+                    max(c_max, ci + 1),
+                    max(r_max, ri + 1),
                 )
 
     all_room_ids = set(rooms.keys())

@@ -1,9 +1,9 @@
 from pathlib import Path
 
+from mapgen.compiler import Compiler
 from mapgen.grid import MAPGEN_SIZE
 from mapgen.parser import parse_dsl
 from mapgen.schema import RoomSpec
-from mapgen_compiler import Compiler
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -53,58 +53,65 @@ class TestCompilerIntegration:
         assert "palettes" in obj["object"]
 
     def test_passthrough_collision_warning(self):
-        from mapgen.schema import EntrySpec
+        from mapgen.schema import DSLDocument, EntrySpec
+
         spec = EntrySpec(
             om_terrain="test",
             fill_ter="t_floor",
             pass_through={"fill_ter": "t_dirt"},
         )
         compiler = Compiler()
-        entries = compiler.compile(type("Doc", (), {"entries": [spec], "center": False})())
+        doc = DSLDocument(entries=[spec], center=False)
+        entries = compiler.compile(doc)
         assert len(entries) == 1
         entry = entries[0]
+        # Collision is now detected during post-compilation validation (not emit),
+        # so the warning is visible immediately after compile().
         collision_warnings = [w for w in entry.warnings if w.code == "passthrough_collision"]
-        assert len(collision_warnings) == 0  # collision is added in emit_entry, not compile
+        assert len(collision_warnings) == 1
         data = compiler.emit(entries)
         assert data[0]["object"]["fill_ter"] == "t_dirt"
-        # Verify warning was added by emit
-        collision_warnings = [w for w in entry.warnings if w.code == "passthrough_collision"]
+        # emit_entry is pure: it must not append additional warnings.
         assert len(collision_warnings) == 1
 
     def test_passthrough_no_collision(self):
-        from mapgen.schema import EntrySpec
+        from mapgen.schema import DSLDocument, EntrySpec
+
         spec = EntrySpec(
             om_terrain="test",
             fill_ter="t_floor",
             pass_through={"place_loot": [1, 2, 3]},
         )
         compiler = Compiler()
-        entries = compiler.compile(type("Doc", (), {"entries": [spec], "center": False})())
+        doc = DSLDocument(entries=[spec], center=False)
+        entries = compiler.compile(doc)
         data = compiler.emit(entries)
         assert data[0]["object"]["place_loot"] == [1, 2, 3]
         assert data[0]["object"]["fill_ter"] == "t_floor"
 
     def test_center_single_entry(self):
-        from mapgen.schema import EntrySpec
+        from mapgen.schema import DSLDocument, EntrySpec
+
         room = RoomSpec(id="r1", x=0, y=0, w=4, h=4)
         spec = EntrySpec(
             om_terrain="test",
             fill_ter="t_floor",
             rooms={"r1": room},
         )
-        doc = type("Doc", (), {"entries": [spec], "center": True, "canvas_size": 24})()
+        doc = DSLDocument(entries=[spec], center=True, canvas_size=24)
         compiler = Compiler()
         compiler.compile(doc)
         assert room.x == 10  # (24 - 4) // 2 - 0
         assert room.y == 10
 
     def test_center_multiple_entries_same_offset(self):
-        from mapgen.schema import EntrySpec
+        from mapgen.schema import DSLDocument, EntrySpec
+
         room1 = RoomSpec(id="r1", x=0, y=0, w=4, h=4)
         room2 = RoomSpec(id="r2", x=2, y=2, w=4, h=4)
         spec1 = EntrySpec(om_terrain="test1", fill_ter="t_floor", rooms={"r1": room1})
         spec2 = EntrySpec(om_terrain="test2", fill_ter="t_floor", rooms={"r2": room2})
-        doc = type("Doc", (), {"entries": [spec1, spec2], "center": True, "canvas_size": 24})()
+        doc = DSLDocument(entries=[spec1, spec2], center=True, canvas_size=24)
         compiler = Compiler()
         compiler.compile(doc)
         # Global bbox: min=0, max=6, w=6, dx=(24-6)//2=9
@@ -114,17 +121,19 @@ class TestCompilerIntegration:
         assert room2.y == 11
 
     def test_center_no_shift_when_bbox_equals_canvas(self):
-        from mapgen.schema import EntrySpec
+        from mapgen.schema import DSLDocument, EntrySpec
+
         room = RoomSpec(id="r1", x=0, y=0, w=24, h=24)
         spec = EntrySpec(om_terrain="test", fill_ter="t_floor", rooms={"r1": room})
-        doc = type("Doc", (), {"entries": [spec], "center": True, "canvas_size": 24})()
+        doc = DSLDocument(entries=[spec], center=True, canvas_size=24)
         compiler = Compiler()
         compiler.compile(doc)
         assert room.x == 0
         assert room.y == 0
 
     def test_center_with_global_tiles_and_features(self):
-        from mapgen.schema import EntrySpec, FeatureSpec, FeatureTile, GlobalTile
+        from mapgen.schema import DSLDocument, EntrySpec, FeatureSpec, FeatureTile, GlobalTile
+
         room = RoomSpec(id="r1", x=0, y=0, w=4, h=4)
         feature = FeatureSpec(room=None, tiles=[FeatureTile(char="f", x=3, y=3)])
         global_tile = GlobalTile(char="g", x=5, y=5)
@@ -135,7 +144,7 @@ class TestCompilerIntegration:
             features=[feature],
             global_tiles=[global_tile],
         )
-        doc = type("Doc", (), {"entries": [spec], "center": True, "canvas_size": 24})()
+        doc = DSLDocument(entries=[spec], center=True, canvas_size=24)
         compiler = Compiler()
         compiler.compile(doc)
         # Global bbox: min=0, max=6 (room edge=4, global tile edge=6), w=6, dx=9

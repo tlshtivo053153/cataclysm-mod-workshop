@@ -5,7 +5,9 @@ import argparse
 import json
 import shutil
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 
 def create_parser(description: str) -> argparse.ArgumentParser:
@@ -99,7 +101,7 @@ def save_json(path: Path, data: list | dict, indent: int = 4) -> None:
 def process_directory(
     input_dir: Path,
     output_dir: Path,
-    processor: callable,
+    processor: Callable[..., Any],
     backup: bool = True,
     pattern: str = "*.json",
 ) -> int:
@@ -140,7 +142,7 @@ def process_directory(
 def process_file(
     input_path: Path,
     output_path: Path,
-    processor: callable,
+    processor: Callable[..., Any],
     backup: bool = True,
 ) -> bool:
     """Apply processor to a single file and write result.
@@ -164,7 +166,7 @@ def process_file(
         return False
 
 
-def run_standard_pipeline(description: str, processor: callable) -> None:
+def run_standard_pipeline(description: str, processor: Callable[..., Any]) -> None:
     """Run a standard input/output pipeline for a transformation script.
 
     Handles argument parsing, path resolution, and dispatches to

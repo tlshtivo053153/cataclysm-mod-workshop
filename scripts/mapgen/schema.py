@@ -5,11 +5,6 @@ from mapgen import OutOfBoundsError
 from mapgen.grid import MAPGEN_SIZE
 from mapgen.room import Room
 
-KNOWN_KEYS = {"om_terrain", "fill_ter", "palette", "rooms", "doors", "features", "global",
-               "canvas", "layout", "auto_doors", "default_door_char", "no_door"}
-
-COMPILER_KEYS = {"fill_ter", "rows", "palettes"}
-
 
 @dataclass
 class PlaceSpec:
@@ -40,7 +35,12 @@ class RoomSpec:
         self.y += dy
 
     def validate_bounds(self, canvas_size: int, room_id: str, context: str = "") -> None:
-        if self.x < 0 or self.y < 0 or self.x + self.w > canvas_size or self.y + self.h > canvas_size:
+        if (
+            self.x < 0
+            or self.y < 0
+            or self.x + self.w > canvas_size
+            or self.y + self.h > canvas_size
+        ):
             overflows: list[str] = []
             if self.x < 0:
                 overflows.append(f"west by {-self.x}")
@@ -129,16 +129,18 @@ class DSLDocument:
     """Top-level container for a parsed DSL YAML document."""
 
     entries: list[EntrySpec] = field(default_factory=list)
-    canvas: dict | None = None
+    canvas: dict[str, Any] | None = None
     canvas_size: int = MAPGEN_SIZE
     center: bool = False
 
 
 def make_room(spec: RoomSpec) -> Room:
     return Room(
-        room_id=spec.id, x=spec.x, y=spec.y, w=spec.w, h=spec.h,
-        wall_char=spec.wall, floor_char=spec.floor,
+        room_id=spec.id,
+        x=spec.x,
+        y=spec.y,
+        w=spec.w,
+        h=spec.h,
+        wall_char=spec.wall,
+        floor_char=spec.floor,
     )
-
-
-_RELATIVE_KEYS = {"right_of", "left_of", "above", "below", "inside", "align", "gap"}

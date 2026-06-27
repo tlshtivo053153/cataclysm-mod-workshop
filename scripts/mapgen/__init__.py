@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from mapgen.grid import Grid
-    from mapgen.schema import FeatureSpec
 
 __all__ = [
     "CompileError",
@@ -31,7 +30,7 @@ class CompileError(Exception):
         super().__init__(message)
 
 
-class CompileErrorGroup(CompileError):
+class CompileErrorGroup(CompileError):  # noqa: N818
     def __init__(self, errors: list[CompileError]) -> None:
         self.errors = errors
         summary = f"{len(errors)} compilation error(s): " + "; ".join(str(e) for e in errors)
@@ -93,4 +92,4 @@ class EntryContext:
     grid: Grid
     pass_through: dict[str, Any]
     warnings: list[Warning]
-    features: list[FeatureSpec] = field(default_factory=list)
+    stair_positions: set[tuple[int, int]] = field(default_factory=set)

@@ -18,7 +18,7 @@ fi
 source "${VENV_DIR}/bin/activate"
 
 pip install --upgrade pip
-pip install black ruff pytest
+pip install black ruff pytest mypy types-PyYAML
 
 echo ""
 echo "Setup complete. To activate the environment, run:"

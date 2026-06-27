@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ _PALETTE_FIELD_KEYS = (
 )
 
 
-def _extract_cdda_palette_fields(obj: dict) -> dict[str, dict[str, Any]]:
+def _extract_cdda_palette_fields(obj: dict[str, Any]) -> dict[str, dict[str, Any]]:
     fields: dict[str, dict[str, Any]] = {}
     for key in _PALETTE_FIELD_KEYS:
         if key in obj and isinstance(obj[key], dict):
@@ -26,7 +26,7 @@ def _extract_cdda_palette_fields(obj: dict) -> dict[str, dict[str, Any]]:
     return fields
 
 
-def _cdda_list_to_palettes(items: list) -> dict[str, dict[str, Any]]:
+def _cdda_list_to_palettes(items: list[Any]) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
     for obj in items:
         if isinstance(obj, dict) and obj.get("type") == "palette":
@@ -36,7 +36,7 @@ def _cdda_list_to_palettes(items: list) -> dict[str, dict[str, Any]]:
     return result
 
 
-def _cdda_dict_to_palettes(obj: dict) -> dict[str, dict[str, Any]]:
+def _cdda_dict_to_palettes(obj: dict[str, Any]) -> dict[str, dict[str, Any]]:
     pid = obj.get("id")
     if pid:
         return {pid: _extract_cdda_palette_fields(obj)}
@@ -113,11 +113,11 @@ class PaletteRegistry:
                 if not entry:
                     continue
                 if "ter" in entry:
-                    return entry["ter"]
+                    return cast(str, entry["ter"])
                 if "terrain" in entry:
-                    return entry["terrain"]
+                    return cast(str, entry["terrain"])
                 continue
-            return entry
+            return cast(str, entry)
         return None
 
 

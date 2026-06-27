@@ -39,7 +39,8 @@ class TestParseDSLValidationErrors:
 
     def test_door_not_adjacent_compile_fails(self):
         doc = parse_dsl(FIXTURES / "door_not_adjacent.yml")
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
+
         compiler = Compiler()
         with pytest.raises(CompileError):
             compiler.compile(doc)
@@ -53,11 +54,13 @@ class TestParseDSLValidationErrors:
 
     def test_missing_om_terrain(self):
         from mapgen.parser import _validate_entry
+
         with pytest.raises(CompileError, match="om_terrain"):
             _validate_entry({})
 
     def test_missing_entries_key(self):
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write("not_entries: []\n")
             tmp_path = f.name
@@ -79,6 +82,7 @@ class TestDSLDocument:
 class TestMakeRoom:
     def test_make_room(self):
         from mapgen.schema import RoomSpec, make_room
+
         spec = RoomSpec(id="test", x=1, y=2, w=5, h=6, wall="#", floor=".")
         room = make_room(spec)
         assert room.room_id == "test"
@@ -97,10 +101,11 @@ class TestMakeRoom:
         assert room.has_interior is True
 
     def test_resolve_global_coords(self):
-        from mapgen.parser import _resolve_global_coords
-        assert _resolve_global_coords(5) == [5]
-        assert _resolve_global_coords([2, 5]) == [2, 3, 4, 5]
+        from mapgen.utils import resolve_global_coords
+
+        assert resolve_global_coords(5) == [5]
+        assert resolve_global_coords([2, 5]) == [2, 3, 4, 5]
         with pytest.raises(CompileError):
-            _resolve_global_coords([5, 2])
+            resolve_global_coords([5, 2])
         with pytest.raises(CompileError):
-            _resolve_global_coords("invalid")
+            resolve_global_coords("invalid")

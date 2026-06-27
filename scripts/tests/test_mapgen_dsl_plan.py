@@ -21,7 +21,7 @@ class TestCanvas:
     def test_canvas_default(self):
         doc = parse_dsl(FIXTURES / "single_room.yml")
         assert doc.canvas is None
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
         compiler = Compiler()
         entries = compiler.compile(doc)
         assert len(entries) == 1
@@ -75,7 +75,7 @@ class TestAnchorPlacement:
 
     def test_anchor_south(self):
         doc = parse_dsl(FIXTURES / "anchor_adjacent_east.yml")
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
         compiler = Compiler()
         entries = compiler.compile(doc)
         grid = entries[0].grid
@@ -85,7 +85,7 @@ class TestAnchorPlacement:
 class TestDoorPosition:
     def test_door_position_left(self):
         doc = parse_dsl(FIXTURES / "door_position_left.yml")
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
         compiler = Compiler()
         entries = compiler.compile(doc)
         grid = entries[0].grid
@@ -93,7 +93,7 @@ class TestDoorPosition:
 
     def test_door_position_right(self):
         doc = parse_dsl(FIXTURES / "door_position_right.yml")
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
         compiler = Compiler()
         entries = compiler.compile(doc)
         grid = entries[0].grid
@@ -105,7 +105,7 @@ class TestDoorPosition:
 
     def test_door_position_center_default(self):
         doc = parse_dsl(FIXTURES / "two_rooms_door.yml")
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
         compiler = Compiler()
         entries = compiler.compile(doc)
         grid = entries[0].grid
@@ -115,7 +115,7 @@ class TestDoorPosition:
 class TestMeaningAnnotation:
     def test_meaning_match_no_warning(self):
         doc = parse_dsl(FIXTURES / "meaning_annotation.yml")
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
         compiler = Compiler()
         entries = compiler.compile(doc)
         meaning_warnings = [w for w in entries[0].warnings if w.code in ("meaning_conflict", "meaning_not_in_palette")]
@@ -123,7 +123,7 @@ class TestMeaningAnnotation:
 
     def test_meaning_conflict_warning(self):
         doc = parse_dsl(FIXTURES / "meaning_annotation.yml")
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
         compiler = Compiler()
         entries = compiler.compile(doc)
         conflict_warnings = [w for w in entries[0].warnings if w.code == "meaning_conflict"]
@@ -133,7 +133,7 @@ class TestMeaningAnnotation:
 
     def test_meaning_not_in_palette_warning(self):
         doc = parse_dsl(FIXTURES / "meaning_unknown.yml")
-        from mapgen_compiler import Compiler
+        from mapgen.compiler import Compiler
         compiler = Compiler()
         entries = compiler.compile(doc)
         meaning_warnings = [w for w in entries[0].warnings if w.code == "meaning_not_in_palette"]
