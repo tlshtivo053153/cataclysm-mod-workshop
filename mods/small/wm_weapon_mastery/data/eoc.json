@@ -331,5 +331,16 @@
     "recurrence": "30 seconds",
     "condition": "u_is_avatar",
     "effect": { "run_eocs": "wm_update_effects" }
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_on_wield_item",
+    "eoc_type": "EVENT",
+    "required_event": "character_wields_item",
+    "condition": "u_is_avatar",
+    "effect": [
+      { "u_message": "[WM] wield event fired", "type": "info" },
+      { "run_eocs": "wm_update_effects" }
+    ]
   }
 ]
