@@ -329,6 +329,24 @@ GUNMOD（武器アタッチメント）を新規追加する場合は `rules/pat
 - 活性化側にダミー `use_action: { "type": "message" }` で再活性化を防止
 - `countdown_action` の type に `"explosion"` を指定すると、爆風パワーに比例した暗黙ノイズを生成。純粋ノイズ目的でもアイテム消費の確実性から爆発型を推奨
 
+## EOC（Effect on Condition）の実装
+
+EOC を新規追加する場合は `rules/patterns/eoc.md` を参照すること。特に以下の点に注意：
+- `u_run_inv_eocs` 内で effect 更新系の処理を per-item に呼ぶと、最後のアイテムの結果だけが残る。全アイテムの状態に依存する更新は `u_run_inv_eocs` の後に一度だけ実行する
+- `u_is_avatar` 等の boolean 条件は `"condition": "u_is_avatar"` のように**裸の文字列**で指定する。`{ "u_is_avatar": true }` のようなオブジェクト形式は `unrecognized condition` エラーになる
+- `character_kills_monster` イベントは全キャラクターで発火する。avatar のみに限定できない場合は trait ベースのフィルターで対応する
+- `math` の `n_` スコープ変数（アイテム変数）の永続性は実機確認が必要
+- message 内の `<npc_val:xxx>` タグの動作も実機確認が必要
+
+## enchantment / effect_type の実装
+
+enchantment や effect_type を新規追加する場合は `rules/patterns/enchantment.md` を参照すること。特に以下の点に注意：
+- `ATTACK_SPEED` は move cost を表すため、**負値で攻撃が高速化**する（`"add": -10` で高速化、`"multiply": 1.5` で低速化）
+- `WEAPON_DISPERSION` は `multiply` のみが実例で確認されている。`add` の使用は避け、`"multiply": -0.05` のように指定する
+- 旧防具フラグ（`ARMOR_BALLISTIC`, `ARMOR_ACID` 等）は enchantment では使用不可
+- effect を付け替える際は、まず全 tier effect を `u_lose_effect` で除去してから新しい effect を `u_add_effect` で付与する
+- `duration` は次の recheck 間隔より長く設定する
+
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
 - 値は `external/cdda/data/json/recipes/` の同カテゴリファイルを参照して選ぶ

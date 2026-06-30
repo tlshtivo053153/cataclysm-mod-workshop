@@ -1,0 +1,149 @@
+# enchantment / effect_type 実装パターン
+
+CDDA 0.I RC で enchantment と effect_type を定義する際のパターンと値セマンティクス。
+
+## effect_type の基本構成
+
+```json
+{
+  "type": "effect_type",
+  "id": "mymod_tier_1",
+  "name": [ "Effect Display Name" ],
+  "desc": [ "Description shown in character sheet." ],
+  "rating": "good",
+  "max_intensity": 1,
+  "enchantments": [
+    {
+      "condition": "ALWAYS",
+      "values": [
+        { "value": "MELEE_DAMAGE", "add": 2 },
+        { "value": "MELEE_TO_HIT", "add": 2 }
+      ]
+    }
+  ]
+}
+```
+
+### 必須フィールド
+- `type`: 常に `"effect_type"`
+- `id`: 一意の識別子
+- `name`: 表示名（文字列の配列）
+- `enchantments`: 効果の配列
+
+### 任意フィールド
+- `desc`: 説明文（文字列オブジェクトの配列）
+- `rating`: `"good"` / `"bad"` / `"neutral"` / `"mixed"`
+- `max_intensity`: 最大強度（デフォルト 1）
+- `max_duration`: 最大持続時間
+- `show_in_info`: `true` でキャラクターシートに表示
+
+## enchantment value のセマンティクス早見表
+
+### 攻撃系
+
+| value 名 | `add` | `multiply` | 備考 |
+|----------|-------|-----------|------|
+| `MELEE_DAMAGE` | ダメージ加算 | 倍率（0.15 = +15%） | 近接ダメージ |
+| `MELEE_TO_HIT` | 命中加算 | 倍率 | 近接命中 |
+| `RANGED_DAMAGE` | ダメージ加算 | 倍率 | 遠隔ダメージ |
+
+### 射撃系
+
+| value 名 | `add` | `multiply` | 備考 |
+|----------|-------|-----------|------|
+| `WEAPON_DISPERSION` | **実例なし** | 倍率（負値で精度向上） | `-0.25` = 拡散 25% 減 |
+| `RANGE` | 射程加算 | 倍率 | |
+
+### 速度系
+
+| value 名 | `add` | `multiply` | 備考 |
+|----------|-------|-----------|------|
+| `ATTACK_SPEED` | move cost 加減算 | 倍率 | **負値で攻撃高速化** |
+| `SPEED` | 移動速度加算 | 倍率 | |
+| `MOVE_COST` | move cost 加減算 | 倍率 | **負値で移動高速化** |
+
+### その他
+
+| value 名 | `add` | `multiply` | 備考 |
+|----------|-------|-----------|------|
+| `STRENGTH` | 能力値加算 | 倍率 | |
+| `DEXTERITY` | 能力値加算 | 倍率 | |
+| `PERCEPTION` | 能力値加算 | 倍率 | |
+| `CARRY_WEIGHT` | 重量加算 | 倍率 | |
+| `LUMINATION` | 光度加算 | 倍率 | |
+| `HEARING_MULT` | — | 倍率 | `-0.75` = 聴覚 75% 減 |
+| `THIRST` | — | 倍率 | 喉の渇き量 |
+| `PAIN` | — | 倍率 | `-0.99` = 痛み 99% 減 |
+
+## 重要なセマンティクス
+
+### `ATTACK_SPEED` は move cost（注意）
+- **負値で攻撃が速くなる**（move cost を減らすため）
+- `"add": -10` = 攻撃の move cost を 10 減らす（約 10% 高速化）
+- `"multiply": -0.1` = 攻撃の move cost を 10% 減らす
+- `"multiply": 1.5` = 攻撃が 50% 遅くなる
+
+### `WEAPON_DISPERSION` は `multiply` のみ
+- CDDA 0.I RC の実例では `multiply` のみ使用されている（`add` の使用例は未確認）
+- `"multiply": -0.05` = 拡散 5% 減（tier ごとに累積）
+- `"multiply": -1` = 拡散 100% 減（完全な精度）
+- `add` を使う場合は実機で動作確認すること
+
+## enchantment の condition（条件付き発動）
+
+```json
+"enchantments": [
+  {
+    "condition": "ALWAYS",
+    "values": [ ... ]
+  },
+  {
+    "condition": { "u_has_wielded_with_skill": "pistol" },
+    "values": [ ... ]
+  },
+  {
+    "condition": { "u_has_effect": "cig" },
+    "values": [ ... ]
+  }
+]
+```
+
+- `"ALWAYS"` — 常時発動
+- 条件オブジェクト — 条件を満たすときのみ発動（EOC condition と同じ構文）
+
+## effect_type + EOC の組み合わせパターン
+
+```
+character_kills_monster → u_run_inv_eocs → XP加算
+                                          ↓
+                          u_add_effect("mymod_tier_N") → effect_type → enchantments → ステータス反映
+```
+
+1. `effect_type` で enchantment を定義（静的な効果）
+2. EOC で `u_add_effect` / `u_lose_effect` を使って動的に effect を付与・解除
+3. RECURRING EOC で定期的に effect を再評価・更新
+
+### 更新パターン
+```json
+// 1. 全 tier effect を除去
+{ "u_lose_effect": [ "mymod_tier_1", "mymod_tier_2", "mymod_tier_3", "mymod_tier_4" ] },
+// 2. 現在の状態に応じて該当 tier を付与
+{ "u_add_effect": "mymod_tier_2", "duration": "1 hour" }
+```
+
+- `duration` は次の recheck より長く設定する（recheck 間隔が 30 秒なら 1 時間で十分）
+- effect を付け替えるときは、まず古い effect を `u_lose_effect` で全て除去してから新しい effect を付与する
+
+## 使用できない旧 enchantment value
+
+0.I で削除された値（`common_errors.md` も参照）:
+- `ARMOR_BALLISTIC`, `ARMOR_ACID`, `ARMOR_BASH`, `ARMOR_BIO`, `ARMOR_STAB`, `ARMOR_HEAT`, `ARMOR_ELEC`, `ARMOR_CUT`, `ARMOR_COLD`
+
+## 参照先
+
+- バニラ effect 定義: `external/cdda/data/json/effects.json`
+- バニラ enchantment: `external/cdda/data/json/enchantments.json`
+- 実装例:
+  - `external/cdda/data/mods/BombasticPerks/perkdata/empath.json` — effect_type + enchantments
+  - `external/cdda/data/mods/MindOverMatter/effects/effects_psionic.json` — 複雑な条件付き enchantment
+  - `external/cdda/data/mods/Aftershock/items/item_enchants.json` — スタンドアロン enchantment 定義

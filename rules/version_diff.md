@@ -71,6 +71,11 @@
   - エラー: `Invalid or misplaced field name "compare_int"`
 - `target_params` 内の `search_range` が無効化
   - `target_params` から `search_range` フィールドを削除する
+- **`condition` の boolean 条件は文字列で指定する**
+  - `"condition": { "u_is_avatar": true }` → 誤り（`unrecognized condition` エラー）
+  - `"condition": "u_is_avatar"` → 正しい（裸の文字列）
+  - 同様に: `"u_is_npc"`, `"u_is_character"`, `"u_is_outside"`, `"u_is_alive"`, `"u_is_deaf"`, `"u_is_underwater"` 等も文字列形式
+  - 実装例: `external/cdda/data/mods/MindOverMatter/`, `external/cdda/data/mods/Xedra_Evolved/` 等で多数使用
 
 ### rot_spawn 形式変更（破壊的変更）
 - `rot_spawn` の形式が配列からオブジェクトに変更
