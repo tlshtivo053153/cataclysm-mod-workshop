@@ -1,0 +1,27 @@
+[
+  {
+    "type": "json_flag",
+    "id": "WM_SUPPORTED"
+  },
+  {
+    "type": "ITEM",
+    "id": "wm_training_staff",
+    "symbol": "/",
+    "color": "brown",
+    "name": { "str_sp": "training staff" },
+    "description": "A well-balanced wooden staff designed for martial training.  Its craftsmanship allows the wielder to develop a deeper bond with the weapon through combat experience.",
+    "price": "40 USD",
+    "price_postapoc": "10 USD",
+    "material": [ "wood" ],
+    "techniques": [ "WBLOCK_2", "RAPID", "SWEEP" ],
+    "flags": [ "SHEATH_SPEAR", "ALWAYS_TWOHAND", "WM_SUPPORTED" ],
+    "faults": [ { "fault_group": "staff_long" } ],
+    "weapon_category": [ "QUARTERSTAVES" ],
+    "weight": "800 g",
+    "volume": "1500 ml",
+    "longest_side": "160 cm",
+    "category": "weapons",
+    "to_hit": { "grip": "weapon", "length": "long", "surface": "any", "balance": "good" },
+    "melee_damage": { "bash": 14 }
+  }
+]

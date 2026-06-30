@@ -1,0 +1,210 @@
+[
+  {
+    "type": "effect_type",
+    "id": "wm_melee_tier_1",
+    "name": [ "Weapon Mastery: Melee I" ],
+    "desc": [ "You have developed basic familiarity with this melee weapon, slightly improving your combat effectiveness." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "MELEE_DAMAGE", "add": 1 },
+          { "value": "MELEE_TO_HIT", "add": 1 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_melee_tier_2",
+    "name": [ "Weapon Mastery: Melee II" ],
+    "desc": [ "You have honed your skill with this melee weapon, gaining a noticeable edge in combat." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "MELEE_DAMAGE", "add": 2 },
+          { "value": "MELEE_TO_HIT", "add": 2 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_melee_tier_3",
+    "name": [ "Weapon Mastery: Melee III" ],
+    "desc": [ "Your bond with this melee weapon has deepened, significantly enhancing your combat prowess." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "MELEE_DAMAGE", "add": 3 },
+          { "value": "MELEE_TO_HIT", "add": 3 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_melee_tier_4",
+    "name": [ "Weapon Mastery: Melee IV" ],
+    "desc": [ "You have achieved mastery over this melee weapon, wielding it with devastating precision and power." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "MELEE_DAMAGE", "add": 4 },
+          { "value": "MELEE_TO_HIT", "add": 4 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_ranged_tier_1",
+    "name": [ "Weapon Mastery: Ranged I" ],
+    "desc": [ "You have developed basic familiarity with this ranged weapon, slightly improving your aim and stopping power." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "RANGED_DAMAGE", "add": 1 },
+          { "value": "WEAPON_DISPERSION", "multiply": -0.05 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_ranged_tier_2",
+    "name": [ "Weapon Mastery: Ranged II" ],
+    "desc": [ "You have honed your skill with this ranged weapon, gaining a noticeable improvement in accuracy and damage." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "RANGED_DAMAGE", "add": 2 },
+          { "value": "WEAPON_DISPERSION", "multiply": -0.10 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_ranged_tier_3",
+    "name": [ "Weapon Mastery: Ranged III" ],
+    "desc": [ "Your bond with this ranged weapon has deepened, significantly enhancing your marksmanship." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "RANGED_DAMAGE", "add": 3 },
+          { "value": "WEAPON_DISPERSION", "multiply": -0.15 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_ranged_tier_4",
+    "name": [ "Weapon Mastery: Ranged IV" ],
+    "desc": [ "You have achieved mastery over this ranged weapon, delivering lethal shots with unmatched precision." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "RANGED_DAMAGE", "add": 4 },
+          { "value": "WEAPON_DISPERSION", "multiply": -0.20 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_supported_tier_1",
+    "name": [ "Weapon Mastery: Training I" ],
+    "desc": [ "Your training staff has begun to resonate with your combat experience, enhancing its effectiveness in your hands." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "MELEE_DAMAGE", "add": 2 },
+          { "value": "MELEE_TO_HIT", "add": 2 },
+          { "value": "ATTACK_SPEED", "add": -10 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_supported_tier_2",
+    "name": [ "Weapon Mastery: Training II" ],
+    "desc": [ "The bond with your training staff deepens, granting swifter and more powerful strikes." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "MELEE_DAMAGE", "add": 4 },
+          { "value": "MELEE_TO_HIT", "add": 4 },
+          { "value": "ATTACK_SPEED", "add": -20 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_supported_tier_3",
+    "name": [ "Weapon Mastery: Training III" ],
+    "desc": [ "Your training staff feels like an extension of your body, flowing through combat with remarkable speed and force." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "MELEE_DAMAGE", "add": 6 },
+          { "value": "MELEE_TO_HIT", "add": 6 },
+          { "value": "ATTACK_SPEED", "add": -30 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_type",
+    "id": "wm_supported_tier_4",
+    "name": [ "Weapon Mastery: Training IV" ],
+    "desc": [ "You have mastered your training staff, unleashing a relentless flurry of devastating blows upon your foes." ],
+    "rating": "good",
+    "max_intensity": 1,
+    "enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [
+          { "value": "MELEE_DAMAGE", "add": 8 },
+          { "value": "MELEE_TO_HIT", "add": 8 },
+          { "value": "ATTACK_SPEED", "add": -40 }
+        ]
+      }
+    ]
+  }
+]

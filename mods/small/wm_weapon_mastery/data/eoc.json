@@ -1,0 +1,335 @@
+[
+  {
+    "type": "effect_on_condition",
+    "id": "wm_on_kill_monster",
+    "eoc_type": "EVENT",
+    "required_event": "character_kills_monster",
+    "condition": "u_is_avatar",
+    "effect": [
+      { "u_message": "[WM] kill event fired", "type": "info" },
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_add_xp" ]
+      },
+      { "run_eocs": "wm_update_effects" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_add_xp",
+    "effect": [
+      {
+        "if": { "npc_has_flag": "WM_SUPPORTED" },
+        "then": [
+          { "u_message": "[WM] supported weapon, old XP = <npc_val:wm_xp>", "type": "info" },
+          { "math": [ "n_wm_xp = n_wm_xp + 1" ] },
+          { "u_message": "[WM] supported weapon, new XP = <npc_val:wm_xp>", "type": "good" }
+        ]
+      },
+      {
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "bashing" },
+                { "u_has_wielded_with_skill": "cutting" },
+                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "unarmed" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          { "u_message": "[WM] generic melee, old XP = <npc_val:wm_xp>", "type": "info" },
+          { "math": [ "n_wm_xp = n_wm_xp + 1" ] },
+          { "u_message": "[WM] generic melee, new XP = <npc_val:wm_xp>", "type": "good" }
+        ]
+      },
+      {
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "pistol" },
+                { "u_has_wielded_with_skill": "rifle" },
+                { "u_has_wielded_with_skill": "shotgun" },
+                { "u_has_wielded_with_skill": "smg" },
+                { "u_has_wielded_with_skill": "launcher" },
+                { "u_has_wielded_with_skill": "archery" },
+                { "u_has_wielded_with_skill": "throw" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          { "u_message": "[WM] generic ranged, old XP = <npc_val:wm_xp>", "type": "info" },
+          { "math": [ "n_wm_xp = n_wm_xp + 1" ] },
+          { "u_message": "[WM] generic ranged, new XP = <npc_val:wm_xp>", "type": "good" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_update_effects",
+    "effect": [
+      { "u_message": "[WM] updating effects", "type": "info" },
+      {
+        "u_lose_effect": [
+          "wm_melee_tier_1", "wm_melee_tier_2", "wm_melee_tier_3", "wm_melee_tier_4",
+          "wm_ranged_tier_1", "wm_ranged_tier_2", "wm_ranged_tier_3", "wm_ranged_tier_4",
+          "wm_supported_tier_1", "wm_supported_tier_2", "wm_supported_tier_3", "wm_supported_tier_4"
+        ]
+      },
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_apply_tier" ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_apply_tier",
+    "effect": [
+      { "u_message": "[WM] current XP = <npc_val:wm_xp>", "type": "info" },
+      {
+        "if": { "math": [ "n_wm_xp >= 100" ] },
+        "then": [
+          {
+            "if": { "npc_has_flag": "WM_SUPPORTED" },
+            "then": [
+              { "u_add_effect": "wm_supported_tier_4", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_supported_tier_4", "type": "good" }
+            ]
+          },
+          {
+            "if": {
+              "and": [
+                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+                {
+                  "or": [
+                    { "u_has_wielded_with_skill": "bashing" },
+                    { "u_has_wielded_with_skill": "cutting" },
+                    { "u_has_wielded_with_skill": "piercing" },
+                    { "u_has_wielded_with_skill": "unarmed" }
+                  ]
+                }
+              ]
+            },
+            "then": [
+              { "u_add_effect": "wm_melee_tier_4", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_melee_tier_4", "type": "good" }
+            ]
+          },
+          {
+            "if": {
+              "and": [
+                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+                {
+                  "or": [
+                    { "u_has_wielded_with_skill": "pistol" },
+                    { "u_has_wielded_with_skill": "rifle" },
+                    { "u_has_wielded_with_skill": "shotgun" },
+                    { "u_has_wielded_with_skill": "smg" },
+                    { "u_has_wielded_with_skill": "launcher" },
+                    { "u_has_wielded_with_skill": "archery" },
+                    { "u_has_wielded_with_skill": "throw" }
+                  ]
+                }
+              ]
+            },
+            "then": [
+              { "u_add_effect": "wm_ranged_tier_4", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_ranged_tier_4", "type": "good" }
+            ]
+          }
+        ]
+      },
+      {
+        "if": {
+          "and": [
+            { "math": [ "n_wm_xp >= 60" ] },
+            { "math": [ "n_wm_xp < 100" ] }
+          ]
+        },
+        "then": [
+          {
+            "if": { "npc_has_flag": "WM_SUPPORTED" },
+            "then": [
+              { "u_add_effect": "wm_supported_tier_3", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_supported_tier_3", "type": "good" }
+            ]
+          },
+          {
+            "if": {
+              "and": [
+                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+                {
+                  "or": [
+                    { "u_has_wielded_with_skill": "bashing" },
+                    { "u_has_wielded_with_skill": "cutting" },
+                    { "u_has_wielded_with_skill": "piercing" },
+                    { "u_has_wielded_with_skill": "unarmed" }
+                  ]
+                }
+              ]
+            },
+            "then": [
+              { "u_add_effect": "wm_melee_tier_3", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_melee_tier_3", "type": "good" }
+            ]
+          },
+          {
+            "if": {
+              "and": [
+                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+                {
+                  "or": [
+                    { "u_has_wielded_with_skill": "pistol" },
+                    { "u_has_wielded_with_skill": "rifle" },
+                    { "u_has_wielded_with_skill": "shotgun" },
+                    { "u_has_wielded_with_skill": "smg" },
+                    { "u_has_wielded_with_skill": "launcher" },
+                    { "u_has_wielded_with_skill": "archery" },
+                    { "u_has_wielded_with_skill": "throw" }
+                  ]
+                }
+              ]
+            },
+            "then": [
+              { "u_add_effect": "wm_ranged_tier_3", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_ranged_tier_3", "type": "good" }
+            ]
+          }
+        ]
+      },
+      {
+        "if": {
+          "and": [
+            { "math": [ "n_wm_xp >= 30" ] },
+            { "math": [ "n_wm_xp < 60" ] }
+          ]
+        },
+        "then": [
+          {
+            "if": { "npc_has_flag": "WM_SUPPORTED" },
+            "then": [
+              { "u_add_effect": "wm_supported_tier_2", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_supported_tier_2", "type": "good" }
+            ]
+          },
+          {
+            "if": {
+              "and": [
+                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+                {
+                  "or": [
+                    { "u_has_wielded_with_skill": "bashing" },
+                    { "u_has_wielded_with_skill": "cutting" },
+                    { "u_has_wielded_with_skill": "piercing" },
+                    { "u_has_wielded_with_skill": "unarmed" }
+                  ]
+                }
+              ]
+            },
+            "then": [
+              { "u_add_effect": "wm_melee_tier_2", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_melee_tier_2", "type": "good" }
+            ]
+          },
+          {
+            "if": {
+              "and": [
+                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+                {
+                  "or": [
+                    { "u_has_wielded_with_skill": "pistol" },
+                    { "u_has_wielded_with_skill": "rifle" },
+                    { "u_has_wielded_with_skill": "shotgun" },
+                    { "u_has_wielded_with_skill": "smg" },
+                    { "u_has_wielded_with_skill": "launcher" },
+                    { "u_has_wielded_with_skill": "archery" },
+                    { "u_has_wielded_with_skill": "throw" }
+                  ]
+                }
+              ]
+            },
+            "then": [
+              { "u_add_effect": "wm_ranged_tier_2", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_ranged_tier_2", "type": "good" }
+            ]
+          }
+        ]
+      },
+      {
+        "if": {
+          "and": [
+            { "math": [ "n_wm_xp >= 10" ] },
+            { "math": [ "n_wm_xp < 30" ] }
+          ]
+        },
+        "then": [
+          {
+            "if": { "npc_has_flag": "WM_SUPPORTED" },
+            "then": [
+              { "u_add_effect": "wm_supported_tier_1", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_supported_tier_1", "type": "good" }
+            ]
+          },
+          {
+            "if": {
+              "and": [
+                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+                {
+                  "or": [
+                    { "u_has_wielded_with_skill": "bashing" },
+                    { "u_has_wielded_with_skill": "cutting" },
+                    { "u_has_wielded_with_skill": "piercing" },
+                    { "u_has_wielded_with_skill": "unarmed" }
+                  ]
+                }
+              ]
+            },
+            "then": [
+              { "u_add_effect": "wm_melee_tier_1", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_melee_tier_1", "type": "good" }
+            ]
+          },
+          {
+            "if": {
+              "and": [
+                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+                {
+                  "or": [
+                    { "u_has_wielded_with_skill": "pistol" },
+                    { "u_has_wielded_with_skill": "rifle" },
+                    { "u_has_wielded_with_skill": "shotgun" },
+                    { "u_has_wielded_with_skill": "smg" },
+                    { "u_has_wielded_with_skill": "launcher" },
+                    { "u_has_wielded_with_skill": "archery" },
+                    { "u_has_wielded_with_skill": "throw" }
+                  ]
+                }
+              ]
+            },
+            "then": [
+              { "u_add_effect": "wm_ranged_tier_1", "duration": "1 hour" },
+              { "u_message": "[WM] applied wm_ranged_tier_1", "type": "good" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_recheck",
+    "recurrence": "30 seconds",
+    "condition": "u_is_avatar",
+    "effect": { "run_eocs": "wm_update_effects" }
+  }
+]

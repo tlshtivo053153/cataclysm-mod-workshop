@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "wm_weapon_mastery",
+    "name": "Weapon Mastery",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Weapons gain experience as you kill monsters, granting combat bonuses at higher mastery levels.",
+    "category": "rebalance",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
