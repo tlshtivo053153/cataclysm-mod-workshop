@@ -83,6 +83,15 @@
 - **解決策:** EOC 条件から `compare_int` を削除する
 - **詳細:** [`version_diff.md#eoc`](version_diff.md)
 
+### `Invalid or misplaced field name "open_dialogue"` (EOC)
+
+- **現象:** debug.log に `Unread data.  Invalid or misplaced field name "open_dialogue" in JSON data` と表示される
+- **原因:** EOC effect 内の `open_dialogue` に裸の文字列を指定している
+- **解決策:** `"open_dialogue"` の値は **`topic` キーを持つオブジェクト**で指定する
+  - 誤: `{ "open_dialogue": "TALK_MY_DIALOGUE" }`
+  - 正: `{ "open_dialogue": { "topic": "TALK_MY_DIALOGUE" } }`
+- **参照:** `rules/patterns/eoc.md#open_dialogue-の構文`
+
 ### `rot_spawn` 形式エラー
 - **解決策:** 配列形式からオブジェクト形式へ変更
   - 旧: `[{"monster": "zombie", "probability": 10}]`

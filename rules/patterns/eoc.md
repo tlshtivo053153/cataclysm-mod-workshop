@@ -130,7 +130,69 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 - `<global_val:変数名>` — グローバル変数
 - `<context_val:変数名>` — イベントコンテキスト変数
 - `<npc_val:変数名>` — NPC/アイテム変数（`u_run_inv_eocs` 内でのみ意味を持つ）
+- **`<u_val:変数名>` は存在しない。** キャラクター変数は `u_` prefix だが、message 内で直接埋め込むタグは用意されていない。`u_` 変数値の表示が必要な場合は math で `n_` または `global_` 変数にコピーしてから表示する。
 - **未定義変数のタグが正しく置換されるかは実機確認が必要**（空文字列になる可能性がある）
+
+## `open_dialogue` の構文
+
+EOC の effect から対話（talk_topic）を開くには `open_dialogue` を使用する。値は **`topic` キーを持つオブジェクト**で指定する。
+
+```json
+// 正しい
+{ "open_dialogue": { "topic": "TALK_MY_DIALOGUE" } }
+
+// 誤り（Unread data エラー。裸の文字列は不可）
+{ "open_dialogue": "TALK_MY_DIALOGUE" }
+```
+
+### EOC から talk_topic へ遷移した後の戻り先制御
+
+`open_dialogue` で対話を開いた後、結果ページ（TALK_RESULT）から元の対話に戻る必要がある場合、**`u_` 変数に戻り先を記録**するパターンを使う。
+
+```json
+// 対話を開く前に u_ 変数で戻り先をマーク
+{ "math": [ "u_wm_last_dialogue = 1" ] },
+{ "open_dialogue": { "topic": "TALK_WM_ENHANCE_MELEE" } }
+
+// TALK_RESULT の「続ける」選択肢で呼ばれる EOC:
+{
+  "type": "effect_on_condition",
+  "id": "EOC_RETURN_TO_DIALOGUE",
+  "effect": [
+    {
+      "if": { "math": [ "u_wm_last_dialogue == 1" ] },
+      "then": [ { "open_dialogue": { "topic": "TALK_WM_ENHANCE_MELEE" } } ]
+    },
+    {
+      "if": { "math": [ "u_wm_last_dialogue == 2" ] },
+      "then": [ { "open_dialogue": { "topic": "TALK_WM_ENHANCE_RANGED" } } ]
+    }
+  ]
+}
+```
+
+### talk_topic 応答からの EOC 呼び出し
+
+talk_topic の response から EOC を実行するには `"effect"` フィールドに `"run_eocs"` を指定する。
+
+```json
+{
+  "type": "talk_topic",
+  "id": "TALK_WM_ENHANCE_MELEE",
+  "dynamic_line": "強化項目を選んでください。",
+  "responses": [
+    {
+      "text": "近接ダメージ強化",
+      "topic": "TALK_WM_RESULT",
+      "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_DAMAGE" ] }
+    }
+  ]
+}
+```
+
+**制約:**
+- `talk_topic` の `dynamic_line` からは **item/npc 変数 (`n_`) を直接参照できない**。XP や buff レベル等の情報表示は EOC の `u_message` で行う。
+- `talk_topic` の response `topic` フィールドには **変数による条件分岐が使えない**。動的な戻り先選択が必要な場合は上記の `u_` 変数 + 専用 EOC パターンを使う。
 
 ## EOC の最小構成と推奨構成
 
