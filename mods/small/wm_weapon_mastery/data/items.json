@@ -23,5 +23,24 @@
     "category": "weapons",
     "to_hit": { "grip": "weapon", "length": "long", "surface": "any", "balance": "good" },
     "melee_damage": { "bash": 14 }
+  },
+  {
+    "type": "ITEM",
+    "id": "wm_enhance_workbench_kit",
+    "subtypes": [ "TOOL" ],
+    "symbol": ";",
+    "color": "light_gray",
+    "name": { "str": "weapon enhancement workbench kit" },
+    "description": "A portable kit containing tools and materials needed to set up a weapon enhancement workbench.  Allows you to spend accumulated weapon XP to apply specialized combat enhancements to your weapon.",
+    "price": "100 USD",
+    "price_postapoc": "25 USD",
+    "material": [ "steel", "wood" ],
+    "weight": "5000 g",
+    "volume": "5000 ml",
+    "category": "tools",
+    "use_action": {
+      "type": "deploy_furn",
+      "furn_type": "f_wm_enhance_workbench"
+    }
   }
 ]

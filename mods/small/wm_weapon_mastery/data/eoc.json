@@ -74,259 +74,6 @@
   },
   {
     "type": "effect_on_condition",
-    "id": "wm_update_effects",
-    "effect": [
-      { "u_message": "[WM] updating effects", "type": "info" },
-      {
-        "u_lose_effect": [
-          "wm_melee_tier_1", "wm_melee_tier_2", "wm_melee_tier_3", "wm_melee_tier_4",
-          "wm_ranged_tier_1", "wm_ranged_tier_2", "wm_ranged_tier_3", "wm_ranged_tier_4",
-          "wm_supported_tier_1", "wm_supported_tier_2", "wm_supported_tier_3", "wm_supported_tier_4"
-        ]
-      },
-      {
-        "u_run_inv_eocs": "all",
-        "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_apply_tier" ]
-      }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "wm_apply_tier",
-    "effect": [
-      { "u_message": "[WM] current XP = <npc_val:wm_xp>", "type": "info" },
-      {
-        "if": { "math": [ "n_wm_xp >= 100" ] },
-        "then": [
-          {
-            "if": { "npc_has_flag": "WM_SUPPORTED" },
-            "then": [
-              { "u_add_effect": "wm_supported_tier_4", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_supported_tier_4", "type": "good" }
-            ]
-          },
-          {
-            "if": {
-              "and": [
-                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-                {
-                  "or": [
-                    { "u_has_wielded_with_skill": "bashing" },
-                    { "u_has_wielded_with_skill": "cutting" },
-                    { "u_has_wielded_with_skill": "piercing" },
-                    { "u_has_wielded_with_skill": "unarmed" }
-                  ]
-                }
-              ]
-            },
-            "then": [
-              { "u_add_effect": "wm_melee_tier_4", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_melee_tier_4", "type": "good" }
-            ]
-          },
-          {
-            "if": {
-              "and": [
-                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-                {
-                  "or": [
-                    { "u_has_wielded_with_skill": "pistol" },
-                    { "u_has_wielded_with_skill": "rifle" },
-                    { "u_has_wielded_with_skill": "shotgun" },
-                    { "u_has_wielded_with_skill": "smg" },
-                    { "u_has_wielded_with_skill": "launcher" },
-                    { "u_has_wielded_with_skill": "archery" },
-                    { "u_has_wielded_with_skill": "throw" }
-                  ]
-                }
-              ]
-            },
-            "then": [
-              { "u_add_effect": "wm_ranged_tier_4", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_ranged_tier_4", "type": "good" }
-            ]
-          }
-        ]
-      },
-      {
-        "if": {
-          "and": [
-            { "math": [ "n_wm_xp >= 60" ] },
-            { "math": [ "n_wm_xp < 100" ] }
-          ]
-        },
-        "then": [
-          {
-            "if": { "npc_has_flag": "WM_SUPPORTED" },
-            "then": [
-              { "u_add_effect": "wm_supported_tier_3", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_supported_tier_3", "type": "good" }
-            ]
-          },
-          {
-            "if": {
-              "and": [
-                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-                {
-                  "or": [
-                    { "u_has_wielded_with_skill": "bashing" },
-                    { "u_has_wielded_with_skill": "cutting" },
-                    { "u_has_wielded_with_skill": "piercing" },
-                    { "u_has_wielded_with_skill": "unarmed" }
-                  ]
-                }
-              ]
-            },
-            "then": [
-              { "u_add_effect": "wm_melee_tier_3", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_melee_tier_3", "type": "good" }
-            ]
-          },
-          {
-            "if": {
-              "and": [
-                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-                {
-                  "or": [
-                    { "u_has_wielded_with_skill": "pistol" },
-                    { "u_has_wielded_with_skill": "rifle" },
-                    { "u_has_wielded_with_skill": "shotgun" },
-                    { "u_has_wielded_with_skill": "smg" },
-                    { "u_has_wielded_with_skill": "launcher" },
-                    { "u_has_wielded_with_skill": "archery" },
-                    { "u_has_wielded_with_skill": "throw" }
-                  ]
-                }
-              ]
-            },
-            "then": [
-              { "u_add_effect": "wm_ranged_tier_3", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_ranged_tier_3", "type": "good" }
-            ]
-          }
-        ]
-      },
-      {
-        "if": {
-          "and": [
-            { "math": [ "n_wm_xp >= 30" ] },
-            { "math": [ "n_wm_xp < 60" ] }
-          ]
-        },
-        "then": [
-          {
-            "if": { "npc_has_flag": "WM_SUPPORTED" },
-            "then": [
-              { "u_add_effect": "wm_supported_tier_2", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_supported_tier_2", "type": "good" }
-            ]
-          },
-          {
-            "if": {
-              "and": [
-                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-                {
-                  "or": [
-                    { "u_has_wielded_with_skill": "bashing" },
-                    { "u_has_wielded_with_skill": "cutting" },
-                    { "u_has_wielded_with_skill": "piercing" },
-                    { "u_has_wielded_with_skill": "unarmed" }
-                  ]
-                }
-              ]
-            },
-            "then": [
-              { "u_add_effect": "wm_melee_tier_2", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_melee_tier_2", "type": "good" }
-            ]
-          },
-          {
-            "if": {
-              "and": [
-                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-                {
-                  "or": [
-                    { "u_has_wielded_with_skill": "pistol" },
-                    { "u_has_wielded_with_skill": "rifle" },
-                    { "u_has_wielded_with_skill": "shotgun" },
-                    { "u_has_wielded_with_skill": "smg" },
-                    { "u_has_wielded_with_skill": "launcher" },
-                    { "u_has_wielded_with_skill": "archery" },
-                    { "u_has_wielded_with_skill": "throw" }
-                  ]
-                }
-              ]
-            },
-            "then": [
-              { "u_add_effect": "wm_ranged_tier_2", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_ranged_tier_2", "type": "good" }
-            ]
-          }
-        ]
-      },
-      {
-        "if": {
-          "and": [
-            { "math": [ "n_wm_xp >= 10" ] },
-            { "math": [ "n_wm_xp < 30" ] }
-          ]
-        },
-        "then": [
-          {
-            "if": { "npc_has_flag": "WM_SUPPORTED" },
-            "then": [
-              { "u_add_effect": "wm_supported_tier_1", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_supported_tier_1", "type": "good" }
-            ]
-          },
-          {
-            "if": {
-              "and": [
-                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-                {
-                  "or": [
-                    { "u_has_wielded_with_skill": "bashing" },
-                    { "u_has_wielded_with_skill": "cutting" },
-                    { "u_has_wielded_with_skill": "piercing" },
-                    { "u_has_wielded_with_skill": "unarmed" }
-                  ]
-                }
-              ]
-            },
-            "then": [
-              { "u_add_effect": "wm_melee_tier_1", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_melee_tier_1", "type": "good" }
-            ]
-          },
-          {
-            "if": {
-              "and": [
-                { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-                {
-                  "or": [
-                    { "u_has_wielded_with_skill": "pistol" },
-                    { "u_has_wielded_with_skill": "rifle" },
-                    { "u_has_wielded_with_skill": "shotgun" },
-                    { "u_has_wielded_with_skill": "smg" },
-                    { "u_has_wielded_with_skill": "launcher" },
-                    { "u_has_wielded_with_skill": "archery" },
-                    { "u_has_wielded_with_skill": "throw" }
-                  ]
-                }
-              ]
-            },
-            "then": [
-              { "u_add_effect": "wm_ranged_tier_1", "duration": "1 hour" },
-              { "u_message": "[WM] applied wm_ranged_tier_1", "type": "good" }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
     "id": "wm_recheck",
     "recurrence": "30 seconds",
     "condition": "u_is_avatar",
@@ -341,6 +88,779 @@
     "effect": [
       { "u_message": "[WM] wield event fired", "type": "info" },
       { "run_eocs": "wm_update_effects" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_update_effects",
+    "effect": [
+      {
+        "u_lose_effect": [
+          "wm_buff_melee_damage_1", "wm_buff_melee_damage_2", "wm_buff_melee_damage_3", "wm_buff_melee_damage_4",
+          "wm_buff_melee_tohit_1", "wm_buff_melee_tohit_2", "wm_buff_melee_tohit_3", "wm_buff_melee_tohit_4",
+          "wm_buff_attack_speed_1", "wm_buff_attack_speed_2", "wm_buff_attack_speed_3", "wm_buff_attack_speed_4",
+          "wm_buff_ranged_damage_1", "wm_buff_ranged_damage_2", "wm_buff_ranged_damage_3", "wm_buff_ranged_damage_4",
+          "wm_buff_dispersion_1", "wm_buff_dispersion_2", "wm_buff_dispersion_3", "wm_buff_dispersion_4"
+        ]
+      },
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_apply_buffs" ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_apply_buffs",
+    "effect": [
+      {
+        "if": { "math": [ "n_wm_buff_melee_damage == 1" ] },
+        "then": [ { "u_add_effect": "wm_buff_melee_damage_1", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_melee_damage == 2" ] },
+        "then": [ { "u_add_effect": "wm_buff_melee_damage_2", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_melee_damage == 3" ] },
+        "then": [ { "u_add_effect": "wm_buff_melee_damage_3", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_melee_damage == 4" ] },
+        "then": [ { "u_add_effect": "wm_buff_melee_damage_4", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_melee_tohit == 1" ] },
+        "then": [ { "u_add_effect": "wm_buff_melee_tohit_1", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_melee_tohit == 2" ] },
+        "then": [ { "u_add_effect": "wm_buff_melee_tohit_2", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_melee_tohit == 3" ] },
+        "then": [ { "u_add_effect": "wm_buff_melee_tohit_3", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_melee_tohit == 4" ] },
+        "then": [ { "u_add_effect": "wm_buff_melee_tohit_4", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_attack_speed == 1" ] },
+        "then": [ { "u_add_effect": "wm_buff_attack_speed_1", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_attack_speed == 2" ] },
+        "then": [ { "u_add_effect": "wm_buff_attack_speed_2", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_attack_speed == 3" ] },
+        "then": [ { "u_add_effect": "wm_buff_attack_speed_3", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_attack_speed == 4" ] },
+        "then": [ { "u_add_effect": "wm_buff_attack_speed_4", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_ranged_damage == 1" ] },
+        "then": [ { "u_add_effect": "wm_buff_ranged_damage_1", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_ranged_damage == 2" ] },
+        "then": [ { "u_add_effect": "wm_buff_ranged_damage_2", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_ranged_damage == 3" ] },
+        "then": [ { "u_add_effect": "wm_buff_ranged_damage_3", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_ranged_damage == 4" ] },
+        "then": [ { "u_add_effect": "wm_buff_ranged_damage_4", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_dispersion == 1" ] },
+        "then": [ { "u_add_effect": "wm_buff_dispersion_1", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_dispersion == 2" ] },
+        "then": [ { "u_add_effect": "wm_buff_dispersion_2", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_dispersion == 3" ] },
+        "then": [ { "u_add_effect": "wm_buff_dispersion_3", "duration": "1 hour" } ]
+      },
+      {
+        "if": { "math": [ "n_wm_buff_dispersion == 4" ] },
+        "then": [ { "u_add_effect": "wm_buff_dispersion_4", "duration": "1 hour" } ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_OPEN_DIALOGUE",
+    "condition": "u_is_avatar",
+    "effect": [
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_open_dialogue_detect" ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_open_dialogue_detect",
+    "effect": [
+      {
+        "if": { "npc_has_flag": "WM_SUPPORTED" },
+        "then": [
+          { "math": [ "u_wm_last_dialogue = 3" ] },
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_SUPPORTED" } }
+        ]
+      },
+      {
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "bashing" },
+                { "u_has_wielded_with_skill": "cutting" },
+                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "unarmed" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          { "math": [ "u_wm_last_dialogue = 1" ] },
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_MELEE" } }
+        ]
+      },
+      {
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "pistol" },
+                { "u_has_wielded_with_skill": "rifle" },
+                { "u_has_wielded_with_skill": "shotgun" },
+                { "u_has_wielded_with_skill": "smg" },
+                { "u_has_wielded_with_skill": "launcher" },
+                { "u_has_wielded_with_skill": "archery" },
+                { "u_has_wielded_with_skill": "throw" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          { "math": [ "u_wm_last_dialogue = 2" ] },
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_RANGED" } }
+        ]
+      },
+      {
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            {
+              "not": {
+                "or": [
+                  { "u_has_wielded_with_skill": "bashing" },
+                  { "u_has_wielded_with_skill": "cutting" },
+                  { "u_has_wielded_with_skill": "piercing" },
+                  { "u_has_wielded_with_skill": "unarmed" },
+                  { "u_has_wielded_with_skill": "pistol" },
+                  { "u_has_wielded_with_skill": "rifle" },
+                  { "u_has_wielded_with_skill": "shotgun" },
+                  { "u_has_wielded_with_skill": "smg" },
+                  { "u_has_wielded_with_skill": "launcher" },
+                  { "u_has_wielded_with_skill": "archery" },
+                  { "u_has_wielded_with_skill": "throw" }
+                ]
+              }
+            }
+          ]
+        },
+        "then": [
+          { "u_message": "この武器は強化に対応していません。", "type": "bad" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_ENHANCE_MELEE_DAMAGE",
+    "effect": [
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_enhance_melee_damage_nested" ]
+      },
+      { "run_eocs": "wm_update_effects" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_ENHANCE_MELEE_TOHIT",
+    "effect": [
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_enhance_melee_tohit_nested" ]
+      },
+      { "run_eocs": "wm_update_effects" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_ENHANCE_ATTACK_SPEED",
+    "effect": [
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_enhance_attack_speed_nested" ]
+      },
+      { "run_eocs": "wm_update_effects" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_ENHANCE_RANGED_DAMAGE",
+    "effect": [
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_enhance_ranged_damage_nested" ]
+      },
+      { "run_eocs": "wm_update_effects" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_ENHANCE_DISPERSION",
+    "effect": [
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_enhance_dispersion_nested" ]
+      },
+      { "run_eocs": "wm_update_effects" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_enhance_melee_damage_nested",
+    "effect": [
+      {
+        "if": {
+          "or": [
+            { "npc_has_flag": "WM_SUPPORTED" },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "bashing" },
+                { "u_has_wielded_with_skill": "cutting" },
+                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "unarmed" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          {
+            "if": { "math": [ "n_wm_buff_melee_damage >= 4" ] },
+            "then": [
+              { "u_message": "近接ダメージは既に最大レベルです。", "type": "bad" }
+            ],
+            "else": [
+              {
+                "if": { "math": [ "n_wm_buff_melee_damage == 0" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 2" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
+                      { "math": [ "n_wm_buff_melee_damage = 1" ] },
+                      { "u_message": "近接ダメージ強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_melee_damage == 1" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 3" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
+                      { "math": [ "n_wm_buff_melee_damage = 2" ] },
+                      { "u_message": "近接ダメージ強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_melee_damage == 2" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 4" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
+                      { "math": [ "n_wm_buff_melee_damage = 3" ] },
+                      { "u_message": "近接ダメージ強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_melee_damage == 3" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 5" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
+                      { "math": [ "n_wm_buff_melee_damage = 4" ] },
+                      { "u_message": "近接ダメージ強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "else": [
+          { "u_message": "この武器では近接ダメージ強化は利用できません。", "type": "bad" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_enhance_melee_tohit_nested",
+    "effect": [
+      {
+        "if": {
+          "or": [
+            { "npc_has_flag": "WM_SUPPORTED" },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "bashing" },
+                { "u_has_wielded_with_skill": "cutting" },
+                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "unarmed" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          {
+            "if": { "math": [ "n_wm_buff_melee_tohit >= 4" ] },
+            "then": [
+              { "u_message": "近接命中は既に最大レベルです。", "type": "bad" }
+            ],
+            "else": [
+              {
+                "if": { "math": [ "n_wm_buff_melee_tohit == 0" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 2" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
+                      { "math": [ "n_wm_buff_melee_tohit = 1" ] },
+                      { "u_message": "近接命中強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_melee_tohit == 1" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 3" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
+                      { "math": [ "n_wm_buff_melee_tohit = 2" ] },
+                      { "u_message": "近接命中強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_melee_tohit == 2" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 4" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
+                      { "math": [ "n_wm_buff_melee_tohit = 3" ] },
+                      { "u_message": "近接命中強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_melee_tohit == 3" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 5" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
+                      { "math": [ "n_wm_buff_melee_tohit = 4" ] },
+                      { "u_message": "近接命中強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "else": [
+          { "u_message": "この武器では近接命中強化は利用できません。", "type": "bad" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_enhance_attack_speed_nested",
+    "effect": [
+      {
+        "if": {
+          "or": [
+            { "npc_has_flag": "WM_SUPPORTED" },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "bashing" },
+                { "u_has_wielded_with_skill": "cutting" },
+                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "unarmed" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          {
+            "if": { "math": [ "n_wm_buff_attack_speed >= 4" ] },
+            "then": [
+              { "u_message": "攻撃速度は既に最大レベルです。", "type": "bad" }
+            ],
+            "else": [
+              {
+                "if": { "math": [ "n_wm_buff_attack_speed == 0" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 2" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
+                      { "math": [ "n_wm_buff_attack_speed = 1" ] },
+                      { "u_message": "攻撃速度強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_attack_speed == 1" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 3" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
+                      { "math": [ "n_wm_buff_attack_speed = 2" ] },
+                      { "u_message": "攻撃速度強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_attack_speed == 2" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 4" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
+                      { "math": [ "n_wm_buff_attack_speed = 3" ] },
+                      { "u_message": "攻撃速度強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_attack_speed == 3" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 5" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
+                      { "math": [ "n_wm_buff_attack_speed = 4" ] },
+                      { "u_message": "攻撃速度強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "else": [
+          { "u_message": "この武器では攻撃速度強化は利用できません。", "type": "bad" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_enhance_ranged_damage_nested",
+    "effect": [
+      {
+        "if": {
+          "or": [
+            { "npc_has_flag": "WM_SUPPORTED" },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "pistol" },
+                { "u_has_wielded_with_skill": "rifle" },
+                { "u_has_wielded_with_skill": "shotgun" },
+                { "u_has_wielded_with_skill": "smg" },
+                { "u_has_wielded_with_skill": "launcher" },
+                { "u_has_wielded_with_skill": "archery" },
+                { "u_has_wielded_with_skill": "throw" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          {
+            "if": { "math": [ "n_wm_buff_ranged_damage >= 4" ] },
+            "then": [
+              { "u_message": "遠隔ダメージは既に最大レベルです。", "type": "bad" }
+            ],
+            "else": [
+              {
+                "if": { "math": [ "n_wm_buff_ranged_damage == 0" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 2" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
+                      { "math": [ "n_wm_buff_ranged_damage = 1" ] },
+                      { "u_message": "遠隔ダメージ強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_ranged_damage == 1" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 3" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
+                      { "math": [ "n_wm_buff_ranged_damage = 2" ] },
+                      { "u_message": "遠隔ダメージ強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_ranged_damage == 2" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 4" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
+                      { "math": [ "n_wm_buff_ranged_damage = 3" ] },
+                      { "u_message": "遠隔ダメージ強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_ranged_damage == 3" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 5" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
+                      { "math": [ "n_wm_buff_ranged_damage = 4" ] },
+                      { "u_message": "遠隔ダメージ強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "else": [
+          { "u_message": "この武器では遠隔ダメージ強化は利用できません。", "type": "bad" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_enhance_dispersion_nested",
+    "effect": [
+      {
+        "if": {
+          "or": [
+            { "npc_has_flag": "WM_SUPPORTED" },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "pistol" },
+                { "u_has_wielded_with_skill": "rifle" },
+                { "u_has_wielded_with_skill": "shotgun" },
+                { "u_has_wielded_with_skill": "smg" },
+                { "u_has_wielded_with_skill": "launcher" },
+                { "u_has_wielded_with_skill": "archery" },
+                { "u_has_wielded_with_skill": "throw" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          {
+            "if": { "math": [ "n_wm_buff_dispersion >= 4" ] },
+            "then": [
+              { "u_message": "遠隔精度は既に最大レベルです。", "type": "bad" }
+            ],
+            "else": [
+              {
+                "if": { "math": [ "n_wm_buff_dispersion == 0" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 2" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
+                      { "math": [ "n_wm_buff_dispersion = 1" ] },
+                      { "u_message": "遠隔精度強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_dispersion == 1" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 3" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
+                      { "math": [ "n_wm_buff_dispersion = 2" ] },
+                      { "u_message": "遠隔精度強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_dispersion == 2" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 4" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
+                      { "math": [ "n_wm_buff_dispersion = 3" ] },
+                      { "u_message": "遠隔精度強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              },
+              {
+                "if": { "math": [ "n_wm_buff_dispersion == 3" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_xp >= 5" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
+                      { "math": [ "n_wm_buff_dispersion = 4" ] },
+                      { "u_message": "遠隔精度強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "else": [
+          { "u_message": "この武器では遠隔精度強化は利用できません。", "type": "bad" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_RETURN_TO_DIALOGUE",
+    "effect": [
+      {
+        "if": { "math": [ "u_wm_last_dialogue == 1" ] },
+        "then": [ { "open_dialogue": { "topic": "TALK_WM_ENHANCE_MELEE" } } ]
+      },
+      {
+        "if": { "math": [ "u_wm_last_dialogue == 2" ] },
+        "then": [ { "open_dialogue": { "topic": "TALK_WM_ENHANCE_RANGED" } } ]
+      },
+      {
+        "if": { "math": [ "u_wm_last_dialogue == 3" ] },
+        "then": [ { "open_dialogue": { "topic": "TALK_WM_ENHANCE_SUPPORTED" } } ]
+      }
     ]
   }
 ]

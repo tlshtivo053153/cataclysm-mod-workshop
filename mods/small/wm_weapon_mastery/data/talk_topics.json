@@ -1,0 +1,100 @@
+[
+  {
+    "type": "talk_topic",
+    "id": "TALK_WM_ENHANCE_MELEE",
+    "dynamic_line": "強化したい近接バフを選んでください。",
+    "responses": [
+      {
+        "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_DAMAGE" ] }
+      },
+      {
+        "text": "近接命中強化 (MELEE_TO_HIT) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_TOHIT" ] }
+      },
+      {
+        "text": "攻撃速度強化 (ATTACK_SPEED) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_ATTACK_SPEED" ] }
+      },
+      {
+        "text": "何もしない",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_WM_ENHANCE_RANGED",
+    "dynamic_line": "強化したい遠隔バフを選んでください。",
+    "responses": [
+      {
+        "text": "遠隔ダメージ強化 (RANGED_DAMAGE) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_RANGED_DAMAGE" ] }
+      },
+      {
+        "text": "遠隔精度強化 (DISPERSION) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_DISPERSION" ] }
+      },
+      {
+        "text": "何もしない",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_WM_ENHANCE_SUPPORTED",
+    "dynamic_line": "この武器は全バフを利用できます。強化したい項目を選んでください。",
+    "responses": [
+      {
+        "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_DAMAGE" ] }
+      },
+      {
+        "text": "近接命中強化 (MELEE_TO_HIT) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_TOHIT" ] }
+      },
+      {
+        "text": "攻撃速度強化 (ATTACK_SPEED) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_ATTACK_SPEED" ] }
+      },
+      {
+        "text": "遠隔ダメージ強化 (RANGED_DAMAGE) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_RANGED_DAMAGE" ] }
+      },
+      {
+        "text": "遠隔精度強化 (DISPERSION) [2/3/4/5 XP]",
+        "topic": "TALK_WM_RESULT",
+        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_DISPERSION" ] }
+      },
+      {
+        "text": "何もしない",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_WM_RESULT",
+    "dynamic_line": "どうしますか？",
+    "responses": [
+      {
+        "text": "続けて強化する",
+        "effect": { "run_eocs": [ "EOC_WM_RETURN_TO_DIALOGUE" ] }
+      },
+      {
+        "text": "作業を終える",
+        "topic": "TALK_DONE"
+      }
+    ]
+  }
+]
