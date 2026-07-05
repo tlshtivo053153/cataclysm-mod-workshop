@@ -35,7 +35,7 @@
               "or": [
                 { "u_has_wielded_with_skill": "bashing" },
                 { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "stabbing" },
                 { "u_has_wielded_with_skill": "unarmed" }
               ]
             }
@@ -136,7 +136,7 @@
               "or": [
                 { "u_has_wielded_with_skill": "bashing" },
                 { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "stabbing" },
                 { "u_has_wielded_with_skill": "unarmed" }
               ]
             }
@@ -210,7 +210,7 @@
               "or": [
                 { "u_has_wielded_with_skill": "bashing" },
                 { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "stabbing" },
                 { "u_has_wielded_with_skill": "unarmed" }
               ]
             }
@@ -252,7 +252,7 @@
                 "or": [
                   { "u_has_wielded_with_skill": "bashing" },
                   { "u_has_wielded_with_skill": "cutting" },
-                  { "u_has_wielded_with_skill": "piercing" },
+                  { "u_has_wielded_with_skill": "stabbing" },
                   { "u_has_wielded_with_skill": "unarmed" },
                   { "u_has_wielded_with_skill": "pistol" },
                   { "u_has_wielded_with_skill": "rifle" },
@@ -344,7 +344,7 @@
               "or": [
                 { "u_has_wielded_with_skill": "bashing" },
                 { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "stabbing" },
                 { "u_has_wielded_with_skill": "unarmed" }
               ]
             }
@@ -442,7 +442,7 @@
               "or": [
                 { "u_has_wielded_with_skill": "bashing" },
                 { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "stabbing" },
                 { "u_has_wielded_with_skill": "unarmed" }
               ]
             }
@@ -540,7 +540,7 @@
               "or": [
                 { "u_has_wielded_with_skill": "bashing" },
                 { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "stabbing" },
                 { "u_has_wielded_with_skill": "unarmed" }
               ]
             }
