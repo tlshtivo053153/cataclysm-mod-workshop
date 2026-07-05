@@ -1,320 +1,55 @@
 [
   {
     "type": "effect_type",
-    "id": "wm_buff_melee_damage_1",
-    "name": [ "Weapon Mastery: Melee Damage I" ],
-    "desc": [ "This weapon's melee damage has been slightly enhanced through mastery." ],
+    "id": "wm_buff_supported",
+    "name": [ "Weapon Mastery" ],
+    "desc": [ "This weapon's combat performance has been enhanced through mastery." ],
     "rating": "good",
     "max_intensity": 1,
     "enchantments": [
       {
         "condition": "ALWAYS",
         "values": [
-          { "value": "MELEE_DAMAGE", "add": 1 }
+          { "value": "MELEE_DAMAGE", "add": { "math": [ "u_wm_melee_damage" ] } },
+          { "value": "MELEE_TO_HIT", "add": { "math": [ "u_wm_melee_tohit" ] } },
+          { "value": "ATTACK_SPEED", "add": { "math": [ "u_wm_attack_speed * -10" ] } },
+          { "value": "RANGED_DAMAGE", "add": { "math": [ "u_wm_ranged_damage" ] } },
+          { "value": "WEAPON_DISPERSION", "multiply": { "math": [ "u_wm_dispersion * -0.05" ] } }
         ]
       }
     ]
   },
   {
     "type": "effect_type",
-    "id": "wm_buff_melee_damage_2",
-    "name": [ "Weapon Mastery: Melee Damage II" ],
-    "desc": [ "This weapon's melee damage has been moderately enhanced through mastery." ],
+    "id": "wm_buff_melee",
+    "name": [ "Weapon Mastery: Melee" ],
+    "desc": [ "This weapon's melee performance has been enhanced through mastery." ],
     "rating": "good",
     "max_intensity": 1,
     "enchantments": [
       {
         "condition": "ALWAYS",
         "values": [
-          { "value": "MELEE_DAMAGE", "add": 2 }
+          { "value": "MELEE_DAMAGE", "add": { "math": [ "u_wm_melee_damage" ] } },
+          { "value": "MELEE_TO_HIT", "add": { "math": [ "u_wm_melee_tohit" ] } },
+          { "value": "ATTACK_SPEED", "add": { "math": [ "u_wm_attack_speed * -10" ] } }
         ]
       }
     ]
   },
   {
     "type": "effect_type",
-    "id": "wm_buff_melee_damage_3",
-    "name": [ "Weapon Mastery: Melee Damage III" ],
-    "desc": [ "This weapon's melee damage has been greatly enhanced through mastery." ],
+    "id": "wm_buff_ranged",
+    "name": [ "Weapon Mastery: Ranged" ],
+    "desc": [ "This weapon's ranged performance has been enhanced through mastery." ],
     "rating": "good",
     "max_intensity": 1,
     "enchantments": [
       {
         "condition": "ALWAYS",
         "values": [
-          { "value": "MELEE_DAMAGE", "add": 3 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_melee_damage_4",
-    "name": [ "Weapon Mastery: Melee Damage IV" ],
-    "desc": [ "This weapon's melee damage has been maximally enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "MELEE_DAMAGE", "add": 4 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_melee_tohit_1",
-    "name": [ "Weapon Mastery: Melee Accuracy I" ],
-    "desc": [ "This weapon's melee accuracy has been slightly enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "MELEE_TO_HIT", "add": 1 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_melee_tohit_2",
-    "name": [ "Weapon Mastery: Melee Accuracy II" ],
-    "desc": [ "This weapon's melee accuracy has been moderately enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "MELEE_TO_HIT", "add": 2 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_melee_tohit_3",
-    "name": [ "Weapon Mastery: Melee Accuracy III" ],
-    "desc": [ "This weapon's melee accuracy has been greatly enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "MELEE_TO_HIT", "add": 3 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_melee_tohit_4",
-    "name": [ "Weapon Mastery: Melee Accuracy IV" ],
-    "desc": [ "This weapon's melee accuracy has been maximally enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "MELEE_TO_HIT", "add": 4 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_attack_speed_1",
-    "name": [ "Weapon Mastery: Attack Speed I" ],
-    "desc": [ "This weapon swings slightly faster through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "ATTACK_SPEED", "add": -10 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_attack_speed_2",
-    "name": [ "Weapon Mastery: Attack Speed II" ],
-    "desc": [ "This weapon swings moderately faster through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "ATTACK_SPEED", "add": -20 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_attack_speed_3",
-    "name": [ "Weapon Mastery: Attack Speed III" ],
-    "desc": [ "This weapon swings much faster through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "ATTACK_SPEED", "add": -30 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_attack_speed_4",
-    "name": [ "Weapon Mastery: Attack Speed IV" ],
-    "desc": [ "This weapon swings at blinding speed through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "ATTACK_SPEED", "add": -40 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_ranged_damage_1",
-    "name": [ "Weapon Mastery: Ranged Damage I" ],
-    "desc": [ "This weapon's ranged damage has been slightly enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "RANGED_DAMAGE", "add": 1 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_ranged_damage_2",
-    "name": [ "Weapon Mastery: Ranged Damage II" ],
-    "desc": [ "This weapon's ranged damage has been moderately enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "RANGED_DAMAGE", "add": 2 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_ranged_damage_3",
-    "name": [ "Weapon Mastery: Ranged Damage III" ],
-    "desc": [ "This weapon's ranged damage has been greatly enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "RANGED_DAMAGE", "add": 3 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_ranged_damage_4",
-    "name": [ "Weapon Mastery: Ranged Damage IV" ],
-    "desc": [ "This weapon's ranged damage has been maximally enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "RANGED_DAMAGE", "add": 4 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_dispersion_1",
-    "name": [ "Weapon Mastery: Accuracy I" ],
-    "desc": [ "This weapon's accuracy has been slightly enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "WEAPON_DISPERSION", "multiply": -0.05 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_dispersion_2",
-    "name": [ "Weapon Mastery: Accuracy II" ],
-    "desc": [ "This weapon's accuracy has been moderately enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "WEAPON_DISPERSION", "multiply": -0.10 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_dispersion_3",
-    "name": [ "Weapon Mastery: Accuracy III" ],
-    "desc": [ "This weapon's accuracy has been greatly enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "WEAPON_DISPERSION", "multiply": -0.15 }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_dispersion_4",
-    "name": [ "Weapon Mastery: Accuracy IV" ],
-    "desc": [ "This weapon's accuracy has been maximally enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
-          { "value": "WEAPON_DISPERSION", "multiply": -0.20 }
+          { "value": "RANGED_DAMAGE", "add": { "math": [ "u_wm_ranged_damage" ] } },
+          { "value": "WEAPON_DISPERSION", "multiply": { "math": [ "u_wm_dispersion * -0.05" ] } }
         ]
       }
     ]

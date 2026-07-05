@@ -96,11 +96,9 @@
     "effect": [
       {
         "u_lose_effect": [
-          "wm_buff_melee_damage_1", "wm_buff_melee_damage_2", "wm_buff_melee_damage_3", "wm_buff_melee_damage_4",
-          "wm_buff_melee_tohit_1", "wm_buff_melee_tohit_2", "wm_buff_melee_tohit_3", "wm_buff_melee_tohit_4",
-          "wm_buff_attack_speed_1", "wm_buff_attack_speed_2", "wm_buff_attack_speed_3", "wm_buff_attack_speed_4",
-          "wm_buff_ranged_damage_1", "wm_buff_ranged_damage_2", "wm_buff_ranged_damage_3", "wm_buff_ranged_damage_4",
-          "wm_buff_dispersion_1", "wm_buff_dispersion_2", "wm_buff_dispersion_3", "wm_buff_dispersion_4"
+          "wm_buff_supported",
+          "wm_buff_melee",
+          "wm_buff_ranged"
         ]
       },
       {
@@ -114,85 +112,70 @@
     "type": "effect_on_condition",
     "id": "wm_apply_buffs",
     "effect": [
+      { "math": [ "u_wm_melee_damage = 0" ] },
+      { "math": [ "u_wm_melee_tohit = 0" ] },
+      { "math": [ "u_wm_attack_speed = 0" ] },
+      { "math": [ "u_wm_ranged_damage = 0" ] },
+      { "math": [ "u_wm_dispersion = 0" ] },
       {
-        "if": { "math": [ "n_wm_buff_melee_damage == 1" ] },
-        "then": [ { "u_add_effect": "wm_buff_melee_damage_1", "duration": "1 hour" } ]
+        "if": { "npc_has_flag": "WM_SUPPORTED" },
+        "then": [
+          { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
+          { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
+          { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
+          { "math": [ "u_wm_ranged_damage = n_wm_buff_ranged_damage" ] },
+          { "math": [ "u_wm_dispersion = n_wm_buff_dispersion" ] },
+          { "u_add_effect": "wm_buff_supported", "duration": "1 hour" }
+        ]
       },
       {
-        "if": { "math": [ "n_wm_buff_melee_damage == 2" ] },
-        "then": [ { "u_add_effect": "wm_buff_melee_damage_2", "duration": "1 hour" } ]
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "bashing" },
+                { "u_has_wielded_with_skill": "cutting" },
+                { "u_has_wielded_with_skill": "piercing" },
+                { "u_has_wielded_with_skill": "unarmed" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
+          { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
+          { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
+          { "math": [ "u_wm_ranged_damage = 0" ] },
+          { "math": [ "u_wm_dispersion = 0" ] },
+          { "u_add_effect": "wm_buff_melee", "duration": "1 hour" }
+        ]
       },
       {
-        "if": { "math": [ "n_wm_buff_melee_damage == 3" ] },
-        "then": [ { "u_add_effect": "wm_buff_melee_damage_3", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_melee_damage == 4" ] },
-        "then": [ { "u_add_effect": "wm_buff_melee_damage_4", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_melee_tohit == 1" ] },
-        "then": [ { "u_add_effect": "wm_buff_melee_tohit_1", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_melee_tohit == 2" ] },
-        "then": [ { "u_add_effect": "wm_buff_melee_tohit_2", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_melee_tohit == 3" ] },
-        "then": [ { "u_add_effect": "wm_buff_melee_tohit_3", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_melee_tohit == 4" ] },
-        "then": [ { "u_add_effect": "wm_buff_melee_tohit_4", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_attack_speed == 1" ] },
-        "then": [ { "u_add_effect": "wm_buff_attack_speed_1", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_attack_speed == 2" ] },
-        "then": [ { "u_add_effect": "wm_buff_attack_speed_2", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_attack_speed == 3" ] },
-        "then": [ { "u_add_effect": "wm_buff_attack_speed_3", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_attack_speed == 4" ] },
-        "then": [ { "u_add_effect": "wm_buff_attack_speed_4", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_ranged_damage == 1" ] },
-        "then": [ { "u_add_effect": "wm_buff_ranged_damage_1", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_ranged_damage == 2" ] },
-        "then": [ { "u_add_effect": "wm_buff_ranged_damage_2", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_ranged_damage == 3" ] },
-        "then": [ { "u_add_effect": "wm_buff_ranged_damage_3", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_ranged_damage == 4" ] },
-        "then": [ { "u_add_effect": "wm_buff_ranged_damage_4", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_dispersion == 1" ] },
-        "then": [ { "u_add_effect": "wm_buff_dispersion_1", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_dispersion == 2" ] },
-        "then": [ { "u_add_effect": "wm_buff_dispersion_2", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_dispersion == 3" ] },
-        "then": [ { "u_add_effect": "wm_buff_dispersion_3", "duration": "1 hour" } ]
-      },
-      {
-        "if": { "math": [ "n_wm_buff_dispersion == 4" ] },
-        "then": [ { "u_add_effect": "wm_buff_dispersion_4", "duration": "1 hour" } ]
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            {
+              "or": [
+                { "u_has_wielded_with_skill": "pistol" },
+                { "u_has_wielded_with_skill": "rifle" },
+                { "u_has_wielded_with_skill": "shotgun" },
+                { "u_has_wielded_with_skill": "smg" },
+                { "u_has_wielded_with_skill": "launcher" },
+                { "u_has_wielded_with_skill": "archery" },
+                { "u_has_wielded_with_skill": "throw" }
+              ]
+            }
+          ]
+        },
+        "then": [
+          { "math": [ "u_wm_melee_damage = 0" ] },
+          { "math": [ "u_wm_melee_tohit = 0" ] },
+          { "math": [ "u_wm_attack_speed = 0" ] },
+          { "math": [ "u_wm_ranged_damage = n_wm_buff_ranged_damage" ] },
+          { "math": [ "u_wm_dispersion = n_wm_buff_dispersion" ] },
+          { "u_add_effect": "wm_buff_ranged", "duration": "1 hour" }
+        ]
       }
     ]
   },
