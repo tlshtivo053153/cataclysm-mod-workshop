@@ -120,6 +120,7 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 - `n_` スコープの変数は `u_run_inv_eocs` の nested EOC 内でのみアイテムに保存される
 - アイテム変数の永続性（セーブロード後も維持されるか）は**実機確認が必要**
 - 変数が未定義の場合、math では `0` として扱われる
+- **`n_` 変数は enchantment の math 式から直接アクセス不可。** enchantment の math はキャラクターコンテキスト（`u_`）で評価されるため、アイテム変数を参照したい場合は EOC で `n_` → `u_` にコピーしてから effect を付与する（`rules/patterns/enchantment.md` の「変数スコープの制約」参照）
 
 ## message 内の変数埋め込み
 
