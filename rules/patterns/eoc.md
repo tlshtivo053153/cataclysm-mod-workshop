@@ -143,6 +143,22 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 - **`<u_val:変数名>` は存在しない。** キャラクター変数は `u_` prefix だが、message 内で直接埋め込むタグは用意されていない。`u_` 変数値の表示が必要な場合は math で `n_` または `global_` 変数にコピーしてから表示する。
 - **未定義変数のタグが正しく置換されるかは実機確認が必要**（空文字列になる可能性がある）
 
+### `<npc_val>` の評価タイミングと逐次実行
+
+`then` 配列（または `effect` 配列）内のアクションは**上から下へ逐次実行**される。このため、math 代入の**後**に `u_message` を配置すれば、message 内の `<npc_val:変数>` タグは代入後の新しい値を表示する。
+
+```jsonc
+// 正しい: 代入→表示の順で逐次実行されるため、<npc_val:wm_buff_melee_damage> は新しいTier(1〜4)を表示
+"then": [
+  { "math": [ "n_wm_buff_melee_damage = n_wm_buff_melee_damage + 1" ] },
+  { "u_message": "近接ダメージ強化 Tier <npc_val:wm_buff_melee_damage> を取得しました！", "type": "good" }
+]
+
+// もし順序を逆にすると、古い値が表示される
+```
+
+この逐次実行の保証は CDDA の EOC エンジン（`effect_on_condition.cpp`）の実装に基づく。同一配列内の要素は `for (auto &eff : effects)` のループで順次処理される。
+
 ## `open_dialogue` の構文
 
 EOC の effect から対話（talk_topic）を開くには `open_dialogue` を使用する。値は **`topic` キーを持つオブジェクト**で指定する。
@@ -268,6 +284,75 @@ CDDA の `math` 式は C 言語風だが、以下の演算子は **未サポー�
 ```
 
 **理由**: `math` 式は算術演算のみをサポートし、論理演算子は EOC 条件レベルで JSON 構造として扱われる。CDDA 0.I RC 時点。
+
+### 複合算術式（括弧付き演算）の使用
+
+`math` 条件式では、**括弧を使った複合算術式がサポートされている**。変数を含む演算式の一部として動的コスト計算が可能。
+
+```jsonc
+// 条件: n_wm_xp >= (n_wm_buff_melee_damage + 2) — 動的XPコスト
+{ "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_damage + 2)" ] } }
+
+// 代入: XPから動的コストを減算
+{ "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_damage + 2)" ] }
+```
+
+**実績**:
+- `MindOverMatter/nether_attunement.json` L18: `u_vitamin(...) >= (2 + u_skill(...) * 2)`
+- `hallucination_eocs.json` L110: `(u_hp('ALL') * 1.4) < u_hp_max('bp_null')`
+- `mods/small/wm_weapon_mastery/data/eoc.json` — 動的ティアコスト計算（後述）
+
+### 動的ティアアップグレードパターン
+
+ティア段階（レベル1〜4）のアップグレードを実装する際、各ティアを個別の条件分岐でハードコードする代わりに、現在のティア値を用いた**動的コスト計算**で全ティアを単一の条件ブロックに統合できる。
+
+**ハードコードパターン（非推奨, ~90行）**:
+```jsonc
+// 各ティアごとに分岐を書く（4ティア分で約56行）
+{ "if": { "math": [ "n_buff == 0" ] }, "then": [
+  { "if": { "math": [ "n_xp >= 2" ] }, "then": [
+    { "math": [ "n_xp = n_xp - 2" ] },
+    { "math": [ "n_buff = 1" ] }
+  ], "else": [ { "u_message": "XP不足。必要: 2" } ] }
+] },
+{ "if": { "math": [ "n_buff == 1" ] }, "then": [
+  { "if": { "math": [ "n_xp >= 3" ] }, "then": [ ... ] }
+] },
+// ... tier 2, 3 も同様
+```
+
+**動的パターン（推奨, ~27行）**:
+```jsonc
+{
+  "if": { "math": [ "n_buff >= 4" ] },
+  "then": [
+    { "u_message": "既に最大レベルです。", "type": "bad" }
+  ],
+  "else": [
+    {
+      "if": { "math": [ "n_xp >= (n_buff + 2)" ] },
+      "then": [
+        { "math": [ "n_xp = n_xp - (n_buff + 2)" ] },
+        { "math": [ "n_buff = n_buff + 1" ] },
+        { "u_message": "強化 Tier <npc_val:buff> を取得しました！", "type": "good" }
+      ],
+      "else": [
+        { "u_message": "XPが不足しています。 (現在XP: <npc_val:xp>)", "type": "bad" }
+      ]
+    }
+  ]
+}
+```
+
+**コストの設計**:
+- `buff_var + N` で動的コストを計算。`N` は定数（例: Tier 0→1 の場合は `N=2`、XPコストは 2→3→4→5 と進行）
+- コストが線形増加する場合に特に有効。非線形の場合は別途検討
+- `<npc_val:buff_var>` の評価タイミングは上記「逐次実行」セクションを参照
+
+**複数EOCでのテンプレート化**:
+CDDA の EOC はパラメータを受け取れないため、同じ構造で変数名とメッセージだけが異なる EOC を複数定義する場合は、1つ目のEOCをテンプレートとして実装→検証→残りを複製する手順が安全。
+
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — 5つの nested EOC を動的パターンで統一（728行→463行, -36%）
 
 ## 文字列変数による条件分岐
 
