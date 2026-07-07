@@ -271,67 +271,14 @@
             ],
             "else": [
               {
-                "if": { "math": [ "n_wm_buff_melee_damage == 0" ] },
+                "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_damage + 2)" ] },
                 "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 2" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
-                      { "math": [ "n_wm_buff_melee_damage = 1" ] },
-                      { "u_message": "近接ダメージ強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_melee_damage == 1" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 3" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
-                      { "math": [ "n_wm_buff_melee_damage = 2" ] },
-                      { "u_message": "近接ダメージ強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_melee_damage == 2" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 4" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
-                      { "math": [ "n_wm_buff_melee_damage = 3" ] },
-                      { "u_message": "近接ダメージ強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_melee_damage == 3" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 5" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
-                      { "math": [ "n_wm_buff_melee_damage = 4" ] },
-                      { "u_message": "近接ダメージ強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
+                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_damage + 2)" ] },
+                  { "math": [ "n_wm_buff_melee_damage = n_wm_buff_melee_damage + 1" ] },
+                  { "u_message": "近接ダメージ強化 Tier <npc_val:wm_buff_melee_damage> を取得しました！", "type": "good" }
+                ],
+                "else": [
+                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
                 ]
               }
             ]
@@ -362,67 +309,14 @@
             ],
             "else": [
               {
-                "if": { "math": [ "n_wm_buff_melee_tohit == 0" ] },
+                "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_tohit + 2)" ] },
                 "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 2" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
-                      { "math": [ "n_wm_buff_melee_tohit = 1" ] },
-                      { "u_message": "近接命中強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_melee_tohit == 1" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 3" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
-                      { "math": [ "n_wm_buff_melee_tohit = 2" ] },
-                      { "u_message": "近接命中強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_melee_tohit == 2" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 4" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
-                      { "math": [ "n_wm_buff_melee_tohit = 3" ] },
-                      { "u_message": "近接命中強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_melee_tohit == 3" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 5" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
-                      { "math": [ "n_wm_buff_melee_tohit = 4" ] },
-                      { "u_message": "近接命中強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
+                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_tohit + 2)" ] },
+                  { "math": [ "n_wm_buff_melee_tohit = n_wm_buff_melee_tohit + 1" ] },
+                  { "u_message": "近接命中強化 Tier <npc_val:wm_buff_melee_tohit> を取得しました！", "type": "good" }
+                ],
+                "else": [
+                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
                 ]
               }
             ]
@@ -453,67 +347,14 @@
             ],
             "else": [
               {
-                "if": { "math": [ "n_wm_buff_attack_speed == 0" ] },
+                "if": { "math": [ "n_wm_xp >= (n_wm_buff_attack_speed + 2)" ] },
                 "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 2" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
-                      { "math": [ "n_wm_buff_attack_speed = 1" ] },
-                      { "u_message": "攻撃速度強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_attack_speed == 1" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 3" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
-                      { "math": [ "n_wm_buff_attack_speed = 2" ] },
-                      { "u_message": "攻撃速度強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_attack_speed == 2" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 4" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
-                      { "math": [ "n_wm_buff_attack_speed = 3" ] },
-                      { "u_message": "攻撃速度強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_attack_speed == 3" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 5" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
-                      { "math": [ "n_wm_buff_attack_speed = 4" ] },
-                      { "u_message": "攻撃速度強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
+                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_attack_speed + 2)" ] },
+                  { "math": [ "n_wm_buff_attack_speed = n_wm_buff_attack_speed + 1" ] },
+                  { "u_message": "攻撃速度強化 Tier <npc_val:wm_buff_attack_speed> を取得しました！", "type": "good" }
+                ],
+                "else": [
+                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
                 ]
               }
             ]
@@ -544,67 +385,14 @@
             ],
             "else": [
               {
-                "if": { "math": [ "n_wm_buff_ranged_damage == 0" ] },
+                "if": { "math": [ "n_wm_xp >= (n_wm_buff_ranged_damage + 2)" ] },
                 "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 2" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
-                      { "math": [ "n_wm_buff_ranged_damage = 1" ] },
-                      { "u_message": "遠隔ダメージ強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_ranged_damage == 1" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 3" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
-                      { "math": [ "n_wm_buff_ranged_damage = 2" ] },
-                      { "u_message": "遠隔ダメージ強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_ranged_damage == 2" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 4" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
-                      { "math": [ "n_wm_buff_ranged_damage = 3" ] },
-                      { "u_message": "遠隔ダメージ強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_ranged_damage == 3" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 5" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
-                      { "math": [ "n_wm_buff_ranged_damage = 4" ] },
-                      { "u_message": "遠隔ダメージ強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
+                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_ranged_damage + 2)" ] },
+                  { "math": [ "n_wm_buff_ranged_damage = n_wm_buff_ranged_damage + 1" ] },
+                  { "u_message": "遠隔ダメージ強化 Tier <npc_val:wm_buff_ranged_damage> を取得しました！", "type": "good" }
+                ],
+                "else": [
+                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
                 ]
               }
             ]
@@ -635,67 +423,14 @@
             ],
             "else": [
               {
-                "if": { "math": [ "n_wm_buff_dispersion == 0" ] },
+                "if": { "math": [ "n_wm_xp >= (n_wm_buff_dispersion + 2)" ] },
                 "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 2" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 2" ] },
-                      { "math": [ "n_wm_buff_dispersion = 1" ] },
-                      { "u_message": "遠隔精度強化 Tier 1 を取得しました！ (消費XP: 2)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 2 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_dispersion == 1" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 3" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 3" ] },
-                      { "math": [ "n_wm_buff_dispersion = 2" ] },
-                      { "u_message": "遠隔精度強化 Tier 2 を取得しました！ (消費XP: 3)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 3 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_dispersion == 2" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 4" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 4" ] },
-                      { "math": [ "n_wm_buff_dispersion = 3" ] },
-                      { "u_message": "遠隔精度強化 Tier 3 を取得しました！ (消費XP: 4)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 4 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
-                ]
-              },
-              {
-                "if": { "math": [ "n_wm_buff_dispersion == 3" ] },
-                "then": [
-                  {
-                    "if": { "math": [ "n_wm_xp >= 5" ] },
-                    "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - 5" ] },
-                      { "math": [ "n_wm_buff_dispersion = 4" ] },
-                      { "u_message": "遠隔精度強化 Tier 4 を取得しました！ (消費XP: 5)", "type": "good" }
-                    ],
-                    "else": [
-                      { "u_message": "XPが不足しています。必要XP: 5 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                    ]
-                  }
+                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_dispersion + 2)" ] },
+                  { "math": [ "n_wm_buff_dispersion = n_wm_buff_dispersion + 1" ] },
+                  { "u_message": "遠隔精度強化 Tier <npc_val:wm_buff_dispersion> を取得しました！", "type": "good" }
+                ],
+                "else": [
+                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
                 ]
               }
             ]
