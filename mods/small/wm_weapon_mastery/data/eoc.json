@@ -1,6 +1,48 @@
 [
   {
     "type": "effect_on_condition",
+    "id": "wm_detect_category",
+    "effect": [
+      { "npc_add_var": "wm_wcat", "value": "unsupported" },
+      {
+        "if": { "npc_has_flag": "WM_SUPPORTED" },
+        "then": [ { "npc_add_var": "wm_wcat", "value": "supported" } ]
+      },
+      {
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            { "or": [
+              { "u_has_wielded_with_skill": "bashing" },
+              { "u_has_wielded_with_skill": "cutting" },
+              { "u_has_wielded_with_skill": "stabbing" },
+              { "u_has_wielded_with_skill": "unarmed" }
+            ]}
+          ]
+        },
+        "then": [ { "npc_add_var": "wm_wcat", "value": "melee" } ]
+      },
+      {
+        "if": {
+          "and": [
+            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
+            { "or": [
+              { "u_has_wielded_with_skill": "pistol" },
+              { "u_has_wielded_with_skill": "rifle" },
+              { "u_has_wielded_with_skill": "shotgun" },
+              { "u_has_wielded_with_skill": "smg" },
+              { "u_has_wielded_with_skill": "launcher" },
+              { "u_has_wielded_with_skill": "archery" },
+              { "u_has_wielded_with_skill": "throw" }
+            ]}
+          ]
+        },
+        "then": [ { "npc_add_var": "wm_wcat", "value": "ranged" } ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
     "id": "wm_on_kill_monster",
     "eoc_type": "EVENT",
     "required_event": "character_kills_monster",
@@ -10,7 +52,7 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_add_xp" ]
+        "true_eocs": [ "wm_detect_category", "wm_add_xp" ]
       },
       { "run_eocs": "wm_update_effects" }
     ]
@@ -20,54 +62,9 @@
     "id": "wm_add_xp",
     "effect": [
       {
-        "if": { "npc_has_flag": "WM_SUPPORTED" },
+        "if": { "not": { "compare_string": [ "unsupported", { "npc_val": "wm_wcat" } ] } },
         "then": [
-          { "u_message": "[WM] supported weapon, old XP = <npc_val:wm_xp>", "type": "info" },
-          { "math": [ "n_wm_xp = n_wm_xp + 1" ] },
-          { "u_message": "[WM] supported weapon, new XP = <npc_val:wm_xp>", "type": "good" }
-        ]
-      },
-      {
-        "if": {
-          "and": [
-            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "bashing" },
-                { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "stabbing" },
-                { "u_has_wielded_with_skill": "unarmed" }
-              ]
-            }
-          ]
-        },
-        "then": [
-          { "u_message": "[WM] generic melee, old XP = <npc_val:wm_xp>", "type": "info" },
-          { "math": [ "n_wm_xp = n_wm_xp + 1" ] },
-          { "u_message": "[WM] generic melee, new XP = <npc_val:wm_xp>", "type": "good" }
-        ]
-      },
-      {
-        "if": {
-          "and": [
-            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "pistol" },
-                { "u_has_wielded_with_skill": "rifle" },
-                { "u_has_wielded_with_skill": "shotgun" },
-                { "u_has_wielded_with_skill": "smg" },
-                { "u_has_wielded_with_skill": "launcher" },
-                { "u_has_wielded_with_skill": "archery" },
-                { "u_has_wielded_with_skill": "throw" }
-              ]
-            }
-          ]
-        },
-        "then": [
-          { "u_message": "[WM] generic ranged, old XP = <npc_val:wm_xp>", "type": "info" },
-          { "math": [ "n_wm_xp = n_wm_xp + 1" ] },
-          { "u_message": "[WM] generic ranged, new XP = <npc_val:wm_xp>", "type": "good" }
+          { "math": [ "n_wm_xp = n_wm_xp + 1" ] }
         ]
       }
     ]
@@ -104,7 +101,7 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_apply_buffs" ]
+        "true_eocs": [ "wm_detect_category", "wm_apply_buffs" ]
       }
     ]
   },
@@ -118,7 +115,7 @@
       { "math": [ "u_wm_ranged_damage = 0" ] },
       { "math": [ "u_wm_dispersion = 0" ] },
       {
-        "if": { "npc_has_flag": "WM_SUPPORTED" },
+        "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
         "then": [
           { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
           { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
@@ -129,19 +126,7 @@
         ]
       },
       {
-        "if": {
-          "and": [
-            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "bashing" },
-                { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "stabbing" },
-                { "u_has_wielded_with_skill": "unarmed" }
-              ]
-            }
-          ]
-        },
+        "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
         "then": [
           { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
           { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
@@ -152,22 +137,7 @@
         ]
       },
       {
-        "if": {
-          "and": [
-            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "pistol" },
-                { "u_has_wielded_with_skill": "rifle" },
-                { "u_has_wielded_with_skill": "shotgun" },
-                { "u_has_wielded_with_skill": "smg" },
-                { "u_has_wielded_with_skill": "launcher" },
-                { "u_has_wielded_with_skill": "archery" },
-                { "u_has_wielded_with_skill": "throw" }
-              ]
-            }
-          ]
-        },
+        "if": { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
         "then": [
           { "math": [ "u_wm_melee_damage = 0" ] },
           { "math": [ "u_wm_melee_tohit = 0" ] },
@@ -187,7 +157,7 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_open_dialogue_detect" ]
+        "true_eocs": [ "wm_detect_category", "wm_open_dialogue_detect" ]
       }
     ]
   },
@@ -196,78 +166,28 @@
     "id": "wm_open_dialogue_detect",
     "effect": [
       {
-        "if": { "npc_has_flag": "WM_SUPPORTED" },
-        "then": [
-          { "math": [ "u_wm_last_dialogue = 3" ] },
-          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_SUPPORTED" } }
-        ]
+        "if": { "compare_string": [ "unsupported", { "npc_val": "wm_wcat" } ] },
+        "then": [ { "u_message": "この武器は強化に対応していません。", "type": "bad" } ]
       },
       {
-        "if": {
-          "and": [
-            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "bashing" },
-                { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "stabbing" },
-                { "u_has_wielded_with_skill": "unarmed" }
-              ]
-            }
-          ]
-        },
+        "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
         "then": [
           { "math": [ "u_wm_last_dialogue = 1" ] },
           { "open_dialogue": { "topic": "TALK_WM_ENHANCE_MELEE" } }
         ]
       },
       {
-        "if": {
-          "and": [
-            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "pistol" },
-                { "u_has_wielded_with_skill": "rifle" },
-                { "u_has_wielded_with_skill": "shotgun" },
-                { "u_has_wielded_with_skill": "smg" },
-                { "u_has_wielded_with_skill": "launcher" },
-                { "u_has_wielded_with_skill": "archery" },
-                { "u_has_wielded_with_skill": "throw" }
-              ]
-            }
-          ]
-        },
+        "if": { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
         "then": [
           { "math": [ "u_wm_last_dialogue = 2" ] },
           { "open_dialogue": { "topic": "TALK_WM_ENHANCE_RANGED" } }
         ]
       },
       {
-        "if": {
-          "and": [
-            { "not": { "npc_has_flag": "WM_SUPPORTED" } },
-            {
-              "not": {
-                "or": [
-                  { "u_has_wielded_with_skill": "bashing" },
-                  { "u_has_wielded_with_skill": "cutting" },
-                  { "u_has_wielded_with_skill": "stabbing" },
-                  { "u_has_wielded_with_skill": "unarmed" },
-                  { "u_has_wielded_with_skill": "pistol" },
-                  { "u_has_wielded_with_skill": "rifle" },
-                  { "u_has_wielded_with_skill": "shotgun" },
-                  { "u_has_wielded_with_skill": "smg" },
-                  { "u_has_wielded_with_skill": "launcher" },
-                  { "u_has_wielded_with_skill": "archery" },
-                  { "u_has_wielded_with_skill": "throw" }
-                ]
-              }
-            }
-          ]
-        },
+        "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "u_message": "この武器は強化に対応していません。", "type": "bad" }
+          { "math": [ "u_wm_last_dialogue = 3" ] },
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_SUPPORTED" } }
         ]
       }
     ]
@@ -279,7 +199,7 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_enhance_melee_damage_nested" ]
+        "true_eocs": [ "wm_detect_category", "wm_enhance_melee_damage_nested" ]
       },
       { "run_eocs": "wm_update_effects" }
     ]
@@ -291,7 +211,7 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_enhance_melee_tohit_nested" ]
+        "true_eocs": [ "wm_detect_category", "wm_enhance_melee_tohit_nested" ]
       },
       { "run_eocs": "wm_update_effects" }
     ]
@@ -303,7 +223,7 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_enhance_attack_speed_nested" ]
+        "true_eocs": [ "wm_detect_category", "wm_enhance_attack_speed_nested" ]
       },
       { "run_eocs": "wm_update_effects" }
     ]
@@ -315,7 +235,7 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_enhance_ranged_damage_nested" ]
+        "true_eocs": [ "wm_detect_category", "wm_enhance_ranged_damage_nested" ]
       },
       { "run_eocs": "wm_update_effects" }
     ]
@@ -327,7 +247,7 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_enhance_dispersion_nested" ]
+        "true_eocs": [ "wm_detect_category", "wm_enhance_dispersion_nested" ]
       },
       { "run_eocs": "wm_update_effects" }
     ]
@@ -339,15 +259,8 @@
       {
         "if": {
           "or": [
-            { "npc_has_flag": "WM_SUPPORTED" },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "bashing" },
-                { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "stabbing" },
-                { "u_has_wielded_with_skill": "unarmed" }
-              ]
-            }
+            { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
           ]
         },
         "then": [
@@ -437,15 +350,8 @@
       {
         "if": {
           "or": [
-            { "npc_has_flag": "WM_SUPPORTED" },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "bashing" },
-                { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "stabbing" },
-                { "u_has_wielded_with_skill": "unarmed" }
-              ]
-            }
+            { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
           ]
         },
         "then": [
@@ -535,15 +441,8 @@
       {
         "if": {
           "or": [
-            { "npc_has_flag": "WM_SUPPORTED" },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "bashing" },
-                { "u_has_wielded_with_skill": "cutting" },
-                { "u_has_wielded_with_skill": "stabbing" },
-                { "u_has_wielded_with_skill": "unarmed" }
-              ]
-            }
+            { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
           ]
         },
         "then": [
@@ -633,18 +532,8 @@
       {
         "if": {
           "or": [
-            { "npc_has_flag": "WM_SUPPORTED" },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "pistol" },
-                { "u_has_wielded_with_skill": "rifle" },
-                { "u_has_wielded_with_skill": "shotgun" },
-                { "u_has_wielded_with_skill": "smg" },
-                { "u_has_wielded_with_skill": "launcher" },
-                { "u_has_wielded_with_skill": "archery" },
-                { "u_has_wielded_with_skill": "throw" }
-              ]
-            }
+            { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
+            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
           ]
         },
         "then": [
@@ -734,18 +623,8 @@
       {
         "if": {
           "or": [
-            { "npc_has_flag": "WM_SUPPORTED" },
-            {
-              "or": [
-                { "u_has_wielded_with_skill": "pistol" },
-                { "u_has_wielded_with_skill": "rifle" },
-                { "u_has_wielded_with_skill": "shotgun" },
-                { "u_has_wielded_with_skill": "smg" },
-                { "u_has_wielded_with_skill": "launcher" },
-                { "u_has_wielded_with_skill": "archery" },
-                { "u_has_wielded_with_skill": "throw" }
-              ]
-            }
+            { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
+            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
           ]
         },
         "then": [
