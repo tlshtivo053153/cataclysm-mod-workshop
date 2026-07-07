@@ -102,11 +102,20 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 - `u_run_inv_eocs` の nested EOC では**個別アイテムの状態変更のみ**を行う
 - **全アイテムの状態に依存する処理**（effect の再計算など）は `u_run_inv_eocs` の**後**に一度だけ実行する
 
+### `true_eocs` の複数ID指定
+
+`true_eocs` は **複数の EOC ID を配列で指定可能**。配列順に逐次実行される。
+
+```json
+"true_eocs": [ "wm_detect_category", "wm_add_xp" ]
+```
+
+これにより、カテゴリ判定（detect）と後続処理（add_xp）を別 EOC に分離しつつ、同一 `u_run_inv_eocs` 内で連続実行できる。実績: `external/cdda/data/mods/TEST_DATA/EOC.json`（3ID同時指定）、`Xedra_Evolved/mutations/dhampir_eocs.json`（2〜3ID指定）。
+
 ## `character_kills_monster` イベントの注意点
 
 - `character_kills_monster` は**プレイヤー・NPC を問わず**全キャラクターで発火する
-- 0.I RC では avatar のみに限定する `u_is_avatar` 条件が使えないため、全キャラクター対象になることを前提に設計する
-- 代替フィルターが必要な場合: `u_has_trait` で特定の mutation/trait を持つキャラクターのみに限定する
+- avatar のみに限定するには `"condition": "u_is_avatar"` を使用する
 
 ## `math` の変数スコープ
 
@@ -217,6 +226,116 @@ talk_topic の response から EOC を実行するには `"effect"` フィール
   "effect": [ { "u_message": "kill event", "type": "info" } ]
 }
 ```
+
+## `math` 式の演算子制約
+
+CDDA の `math` 式は C 言語風だが、以下の演算子は **未サポート**:
+
+| 未サポート | 代替手段 |
+|---|---|
+| `\|\|` (論理OR) | JSON レベルの `"or"` 条件で囲む（後述） |
+| `&&` (論理AND) | JSON レベルの `"and"` 条件で囲む |
+| `!` (論理NOT) | `"not"` 条件で囲むか、`!=` / `==` の反転 |
+
+### `||` の代替: JSON `"or"` 条件
+
+```json
+// 誤り（"Unknown operator |" エラー）
+{ "math": [ "n_wm_wcat == 1 || n_wm_wcat == 3" ] }
+
+// 正しい
+{
+  "or": [
+    { "math": [ "n_wm_wcat == 1" ] },
+    { "math": [ "n_wm_wcat == 3" ] }
+  ]
+}
+```
+
+### `&&` の代替: JSON `"and"` 条件
+
+```json
+// 誤り
+{ "math": [ "n_val > 0 && n_val < 10" ] }
+
+// 正しい
+{
+  "and": [
+    { "math": [ "n_val > 0" ] },
+    { "math": [ "n_val < 10" ] }
+  ]
+}
+```
+
+**理由**: `math` 式は算術演算のみをサポートし、論理演算子は EOC 条件レベルで JSON 構造として扱われる。CDDA 0.I RC 時点。
+
+## 文字列変数による条件分岐
+
+`math` で使われる `n_` / `u_` 変数は**数値のみ**だが、CDDA には**文字列を保持できるコンテキスト変数**の仕組みがある。`u_run_inv_eocs` 内でアイテムにカテゴリ文字列を保存し、後続 EOC で条件分岐するパターン。
+
+### 変数の設定
+
+```json
+// アイテム変数に文字列を保存（u_run_inv_eocs 内）
+{ "npc_add_var": "wm_wcat", "value": "melee" }
+
+// プレイヤー変数に文字列を保存
+{ "u_add_var": "wm_last_action", "value": "enhance" }
+```
+
+`npc_add_var` は同じキーで複数回呼んでも**累積せず上書き**される。毎回初期値を設定してから条件付きで上書きするパターンが安全:
+
+```json
+{ "npc_add_var": "wm_wcat", "value": "unsupported" },    // デフォルト
+{ "if": { "npc_has_flag": "WM_SUPPORTED" },
+  "then": [ { "npc_add_var": "wm_wcat", "value": "supported" } ] }
+```
+
+### 条件分岐での利用
+
+```json
+{
+  "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+  "then": [ ... ]
+}
+```
+
+### 複数値の OR 判定
+
+```json
+{
+  "if": {
+    "or": [
+      { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+      { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
+    ]
+  },
+  "then": [ ... ]
+}
+```
+
+### 未定義変数との比較
+
+未設定の変数は空文字列 `""` として扱われる:
+
+```json
+{ "compare_string": [ "", { "u_val": "some_var" } ] }
+```
+
+### 数値変数との使い分け
+
+| 要件 | 方式 | 例 |
+|---|---|---|
+| 数値計算が必要（加算・乗算） | `math` (`n_`/`u_`) | `n_wm_xp = n_wm_xp + 1` |
+| 条件分岐のみ | `npc_add_var` + `compare_string` | `npc_add_var: "wm_wcat", "melee"` |
+
+文字列変数による分岐は値の意味が明確で読みやすいが、数値演算が必要な処理には使えない。
+
+### 実績
+
+- `external/cdda/data/mods/TEST_DATA/EOC.json` — `npc_add_var` のテストケース
+- `external/cdda/data/mods/aftershock_exoplanet/` — `compare_string` の豊富な使用例（talk_topic 条件分岐、EOC 条件判定）
+- `mods/small/wm_weapon_mastery/data/eoc.json` — `npc_add_var` + `compare_string` で武器カテゴリ判定を文字列化
 
 ## 参照先
 
