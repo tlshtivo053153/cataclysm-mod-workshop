@@ -194,252 +194,168 @@
   },
   {
     "type": "effect_on_condition",
-    "id": "EOC_WM_ENHANCE_MELEE_DAMAGE",
-    "effect": [
-      {
-        "u_run_inv_eocs": "all",
-        "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_detect_category", "wm_enhance_melee_damage_nested" ]
-      },
-      { "run_eocs": "wm_update_effects" }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "EOC_WM_ENHANCE_MELEE_TOHIT",
-    "effect": [
-      {
-        "u_run_inv_eocs": "all",
-        "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_detect_category", "wm_enhance_melee_tohit_nested" ]
-      },
-      { "run_eocs": "wm_update_effects" }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "EOC_WM_ENHANCE_ATTACK_SPEED",
-    "effect": [
-      {
-        "u_run_inv_eocs": "all",
-        "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_detect_category", "wm_enhance_attack_speed_nested" ]
-      },
-      { "run_eocs": "wm_update_effects" }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "EOC_WM_ENHANCE_RANGED_DAMAGE",
-    "effect": [
-      {
-        "u_run_inv_eocs": "all",
-        "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_detect_category", "wm_enhance_ranged_damage_nested" ]
-      },
-      { "run_eocs": "wm_update_effects" }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "EOC_WM_ENHANCE_DISPERSION",
-    "effect": [
-      {
-        "u_run_inv_eocs": "all",
-        "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_detect_category", "wm_enhance_dispersion_nested" ]
-      },
-      { "run_eocs": "wm_update_effects" }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "wm_enhance_melee_damage_nested",
+    "id": "wm_enhance_generic",
     "effect": [
       {
         "if": {
           "or": [
-            { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
-            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
+            { "and": [
+              { "math": [ "u_wm_enhance_type <= 3" ] },
+              { "or": [
+                { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+                { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
+              ]}
+            ]},
+            { "and": [
+              { "math": [ "u_wm_enhance_type >= 4" ] },
+              { "or": [
+                { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
+                { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
+              ]}
+            ]}
           ]
         },
         "then": [
           {
-            "if": { "math": [ "n_wm_buff_melee_damage >= 4" ] },
+            "if": { "math": [ "u_wm_enhance_type == 1" ] },
             "then": [
-              { "u_message": "近接ダメージは既に最大レベルです。", "type": "bad" }
-            ],
-            "else": [
               {
-                "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_damage + 2)" ] },
+                "if": { "math": [ "n_wm_buff_melee_damage >= 4" ] },
                 "then": [
-                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_damage + 2)" ] },
-                  { "math": [ "n_wm_buff_melee_damage = n_wm_buff_melee_damage + 1" ] },
-                  { "u_message": "近接ダメージ強化 Tier <npc_val:wm_buff_melee_damage> を取得しました！", "type": "good" }
+                  { "u_message": "近接ダメージは既に最大レベルです。", "type": "bad" }
                 ],
                 "else": [
-                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                  {
+                    "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_damage + 2)" ] },
+                    "then": [
+                      { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_damage + 2)" ] },
+                      { "math": [ "n_wm_buff_melee_damage = n_wm_buff_melee_damage + 1" ] },
+                      { "u_message": "近接ダメージ強化 Tier <npc_val:wm_buff_melee_damage> を取得しました！", "type": "good" }
+                    ],
+                    "else": [
+                      { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                    ]
+                  }
                 ]
               }
-            ]
+            ],
+            "else": {
+              "if": { "math": [ "u_wm_enhance_type == 2" ] },
+              "then": [
+                {
+                  "if": { "math": [ "n_wm_buff_melee_tohit >= 4" ] },
+                  "then": [
+                    { "u_message": "近接命中は既に最大レベルです。", "type": "bad" }
+                  ],
+                  "else": [
+                    {
+                      "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_tohit + 2)" ] },
+                      "then": [
+                        { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_tohit + 2)" ] },
+                        { "math": [ "n_wm_buff_melee_tohit = n_wm_buff_melee_tohit + 1" ] },
+                        { "u_message": "近接命中強化 Tier <npc_val:wm_buff_melee_tohit> を取得しました！", "type": "good" }
+                      ],
+                      "else": [
+                        { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "else": {
+                "if": { "math": [ "u_wm_enhance_type == 3" ] },
+                "then": [
+                  {
+                    "if": { "math": [ "n_wm_buff_attack_speed >= 4" ] },
+                    "then": [
+                      { "u_message": "攻撃速度は既に最大レベルです。", "type": "bad" }
+                    ],
+                    "else": [
+                      {
+                        "if": { "math": [ "n_wm_xp >= (n_wm_buff_attack_speed + 2)" ] },
+                        "then": [
+                          { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_attack_speed + 2)" ] },
+                          { "math": [ "n_wm_buff_attack_speed = n_wm_buff_attack_speed + 1" ] },
+                          { "u_message": "攻撃速度強化 Tier <npc_val:wm_buff_attack_speed> を取得しました！", "type": "good" }
+                        ],
+                        "else": [
+                          { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "else": {
+                  "if": { "math": [ "u_wm_enhance_type == 4" ] },
+                  "then": [
+                    {
+                      "if": { "math": [ "n_wm_buff_ranged_damage >= 4" ] },
+                      "then": [
+                        { "u_message": "遠隔ダメージは既に最大レベルです。", "type": "bad" }
+                      ],
+                      "else": [
+                        {
+                          "if": { "math": [ "n_wm_xp >= (n_wm_buff_ranged_damage + 2)" ] },
+                          "then": [
+                            { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_ranged_damage + 2)" ] },
+                            { "math": [ "n_wm_buff_ranged_damage = n_wm_buff_ranged_damage + 1" ] },
+                            { "u_message": "遠隔ダメージ強化 Tier <npc_val:wm_buff_ranged_damage> を取得しました！", "type": "good" }
+                          ],
+                          "else": [
+                            { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "else": {
+                    "if": { "math": [ "u_wm_enhance_type == 5" ] },
+                    "then": [
+                      {
+                        "if": { "math": [ "n_wm_buff_dispersion >= 4" ] },
+                        "then": [
+                          { "u_message": "遠隔精度は既に最大レベルです。", "type": "bad" }
+                        ],
+                        "else": [
+                          {
+                            "if": { "math": [ "n_wm_xp >= (n_wm_buff_dispersion + 2)" ] },
+                            "then": [
+                              { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_dispersion + 2)" ] },
+                              { "math": [ "n_wm_buff_dispersion = n_wm_buff_dispersion + 1" ] },
+                              { "u_message": "遠隔精度強化 Tier <npc_val:wm_buff_dispersion> を取得しました！", "type": "good" }
+                            ],
+                            "else": [
+                              { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "else": [
+                      { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
+                    ]
+                  }
+                }
+              }
+            }
           }
         ],
         "else": [
-          { "u_message": "この武器では近接ダメージ強化は利用できません。", "type": "bad" }
+          { "u_message": "この武器ではこの強化は利用できません。", "type": "bad" }
         ]
       }
     ]
   },
   {
     "type": "effect_on_condition",
-    "id": "wm_enhance_melee_tohit_nested",
+    "id": "EOC_WM_GENERIC_ENHANCE",
     "effect": [
       {
-        "if": {
-          "or": [
-            { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
-            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
-          ]
-        },
-        "then": [
-          {
-            "if": { "math": [ "n_wm_buff_melee_tohit >= 4" ] },
-            "then": [
-              { "u_message": "近接命中は既に最大レベルです。", "type": "bad" }
-            ],
-            "else": [
-              {
-                "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_tohit + 2)" ] },
-                "then": [
-                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_tohit + 2)" ] },
-                  { "math": [ "n_wm_buff_melee_tohit = n_wm_buff_melee_tohit + 1" ] },
-                  { "u_message": "近接命中強化 Tier <npc_val:wm_buff_melee_tohit> を取得しました！", "type": "good" }
-                ],
-                "else": [
-                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                ]
-              }
-            ]
-          }
-        ],
-        "else": [
-          { "u_message": "この武器では近接命中強化は利用できません。", "type": "bad" }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "wm_enhance_attack_speed_nested",
-    "effect": [
-      {
-        "if": {
-          "or": [
-            { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
-            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
-          ]
-        },
-        "then": [
-          {
-            "if": { "math": [ "n_wm_buff_attack_speed >= 4" ] },
-            "then": [
-              { "u_message": "攻撃速度は既に最大レベルです。", "type": "bad" }
-            ],
-            "else": [
-              {
-                "if": { "math": [ "n_wm_xp >= (n_wm_buff_attack_speed + 2)" ] },
-                "then": [
-                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_attack_speed + 2)" ] },
-                  { "math": [ "n_wm_buff_attack_speed = n_wm_buff_attack_speed + 1" ] },
-                  { "u_message": "攻撃速度強化 Tier <npc_val:wm_buff_attack_speed> を取得しました！", "type": "good" }
-                ],
-                "else": [
-                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                ]
-              }
-            ]
-          }
-        ],
-        "else": [
-          { "u_message": "この武器では攻撃速度強化は利用できません。", "type": "bad" }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "wm_enhance_ranged_damage_nested",
-    "effect": [
-      {
-        "if": {
-          "or": [
-            { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
-            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
-          ]
-        },
-        "then": [
-          {
-            "if": { "math": [ "n_wm_buff_ranged_damage >= 4" ] },
-            "then": [
-              { "u_message": "遠隔ダメージは既に最大レベルです。", "type": "bad" }
-            ],
-            "else": [
-              {
-                "if": { "math": [ "n_wm_xp >= (n_wm_buff_ranged_damage + 2)" ] },
-                "then": [
-                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_ranged_damage + 2)" ] },
-                  { "math": [ "n_wm_buff_ranged_damage = n_wm_buff_ranged_damage + 1" ] },
-                  { "u_message": "遠隔ダメージ強化 Tier <npc_val:wm_buff_ranged_damage> を取得しました！", "type": "good" }
-                ],
-                "else": [
-                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                ]
-              }
-            ]
-          }
-        ],
-        "else": [
-          { "u_message": "この武器では遠隔ダメージ強化は利用できません。", "type": "bad" }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "wm_enhance_dispersion_nested",
-    "effect": [
-      {
-        "if": {
-          "or": [
-            { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
-            { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
-          ]
-        },
-        "then": [
-          {
-            "if": { "math": [ "n_wm_buff_dispersion >= 4" ] },
-            "then": [
-              { "u_message": "遠隔精度は既に最大レベルです。", "type": "bad" }
-            ],
-            "else": [
-              {
-                "if": { "math": [ "n_wm_xp >= (n_wm_buff_dispersion + 2)" ] },
-                "then": [
-                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_dispersion + 2)" ] },
-                  { "math": [ "n_wm_buff_dispersion = n_wm_buff_dispersion + 1" ] },
-                  { "u_message": "遠隔精度強化 Tier <npc_val:wm_buff_dispersion> を取得しました！", "type": "good" }
-                ],
-                "else": [
-                  { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                ]
-              }
-            ]
-          }
-        ],
-        "else": [
-          { "u_message": "この武器では遠隔精度強化は利用できません。", "type": "bad" }
-        ]
-      }
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_detect_category", "wm_enhance_generic" ]
+      },
+      { "run_eocs": "wm_update_effects" }
     ]
   },
   {

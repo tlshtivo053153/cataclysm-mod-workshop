@@ -7,17 +7,26 @@
       {
         "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_DAMAGE" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 1" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "近接命中強化 (MELEE_TO_HIT) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_TOHIT" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 2" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "攻撃速度強化 (ATTACK_SPEED) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_ATTACK_SPEED" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 3" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "何もしない",
@@ -33,12 +42,18 @@
       {
         "text": "遠隔ダメージ強化 (RANGED_DAMAGE) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_RANGED_DAMAGE" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 4" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "遠隔精度強化 (DISPERSION) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_DISPERSION" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 5" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "何もしない",
@@ -54,27 +69,42 @@
       {
         "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_DAMAGE" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 1" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "近接命中強化 (MELEE_TO_HIT) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_TOHIT" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 2" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "攻撃速度強化 (ATTACK_SPEED) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_ATTACK_SPEED" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 3" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "遠隔ダメージ強化 (RANGED_DAMAGE) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_RANGED_DAMAGE" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 4" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "遠隔精度強化 (DISPERSION) [2/3/4/5 XP]",
         "topic": "TALK_WM_RESULT",
-        "effect": { "run_eocs": [ "EOC_WM_ENHANCE_DISPERSION" ] }
+        "effect": [
+          { "math": [ "u_wm_enhance_type = 5" ] },
+          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+        ]
       },
       {
         "text": "何もしない",
