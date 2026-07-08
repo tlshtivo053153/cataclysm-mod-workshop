@@ -130,6 +130,7 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 - アイテム変数の永続性（セーブロード後も維持されるか）は**実機確認が必要**
 - 変数が未定義の場合、math では `0` として扱われる
 - **`n_` 変数は enchantment の math 式から直接アクセス不可。** enchantment の math はキャラクターコンテキスト（`u_`）で評価されるため、アイテム変数を参照したい場合は EOC で `n_` → `u_` にコピーしてから effect を付与する（`rules/patterns/enchantment.md` の「変数スコープの制約」参照）
+- **`u_` 変数は `u_run_inv_eocs` 内から読み取り可能。** talk_topic や親EOCで設定した `u_` math 変数は、`u_run_inv_eocs` の nested EOC（アイテムスコープ）内でも `u_` プレフィックスでアクセス可能。CDDA 公式ドキュメント（`EFFECT_ON_CONDITION.md`）で `u_run_inv_eocs` はデュアルトーカーモデルを維持し、alpha talker（`u_`）はキャラクターのまま、beta talker（`n_`）にアイテムが割り当てられると明記されている。両スコープが同時にアクセス可能であり、math 変数の `u_` プレフィックスは常に alpha talker にスコープされる（`NPCs.md`）。実績: `wm_apply_buffs` が既に `u_run_inv_eocs` 内で `u_` math 変数への書き込みを行っている。
 
 ## message 内の変数埋め込み
 
@@ -219,6 +220,26 @@ talk_topic の response から EOC を実行するには `"effect"` フィール
 **制約:**
 - `talk_topic` の `dynamic_line` からは **item/npc 変数 (`n_`) を直接参照できない**。XP や buff レベル等の情報表示は EOC の `u_message` で行う。
 - `talk_topic` の response `topic` フィールドには **変数による条件分岐が使えない**。動的な戻り先選択が必要な場合は上記の `u_` 変数 + 専用 EOC パターンを使う。
+
+### talk_topic response effect の配列構文
+
+talk_topic の response `effect` は **配列形式**にも対応しており、`math` 代入と `run_eocs` を同一レスポンス内で順次実行できる。CDDA は配列要素を上から下へ逐次処理するため、代入→EOC呼び出しの順序が保証される。
+
+```json
+// 単一の run_eocs（従来）
+"effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_DAMAGE" ] }
+
+// 配列形式: math でルーティング変数を設定 → run_eocs で汎用EOCを呼ぶ
+"effect": [
+  { "math": [ "u_wm_enhance_type = 1" ] },
+  { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+]
+```
+
+**実績**:
+- `data/json/npcs/missiondef.json:927` — バニラで `effect` 配列に `math` + `run_eocs` 混在
+- `data/json/npcs/isherwood_farm/NPC_Chris_Isherwood.json:768` — 同様の使用例
+- `mods/small/wm_weapon_mastery/data/talk_topics.json` — 5つの response を配列形式で統一
 
 ## EOC の最小構成と推奨構成
 
@@ -353,6 +374,104 @@ CDDA の `math` 式は C 言語風だが、以下の演算子は **未サポー�
 CDDA の EOC はパラメータを受け取れないため、同じ構造で変数名とメッセージだけが異なる EOC を複数定義する場合は、1つ目のEOCをテンプレートとして実装→検証→残りを複製する手順が安全。
 
 **実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — 5つの nested EOC を動的パターンで統一（728行→463行, -36%）
+
+## EOC 統合リファクタリングパターン
+
+同一構造で変数名・メッセージのみ異なる複数の EOC を、**ルーティング変数 + 単一汎用 EOC** に統合するパターン。
+
+### 適用条件
+
+- 2つ以上の EOC が同一の if/else 構造を持つ
+- 違いが変数名（`n_wm_buff_melee_damage` vs `n_wm_buff_melee_tohit`）とメッセージ文字列のみ
+- カテゴリ制約（近接専用 / 遠隔専用 / 両方可）が異なる場合、outer gate で制御可能
+
+### 統合手順
+
+1. **ルーティング変数**を定義する（例: `u_wm_enhance_type` = 1〜5）
+2. **talk_topic 側**で response `effect` を配列形式にし、`math` でルーティング変数を設定
+3. **単一の汎用 EOC**（`wm_enhance_generic`）で if/else 連鎖による5-way分岐を実装
+4. **カテゴリ outer gate**: ルーティング変数の値に応じた武器カテゴリチェックを if/else 連鎖の外側に配置
+
+```jsonc
+// wm_enhance_generic: 汎用強化ロジック
+{
+  "type": "effect_on_condition",
+  "id": "wm_enhance_generic",
+  "effect": [
+    {
+      // カテゴリ outer gate: type 1-3 → melee/supported, type 4-5 → ranged/supported
+      "if": {
+        "or": [
+          { "and": [
+            { "math": [ "u_wm_enhance_type <= 3" ] },
+            { "or": [
+              { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+              { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
+            ]}
+          ]},
+          { "and": [
+            { "math": [ "u_wm_enhance_type >= 4" ] },
+            { "or": [
+              { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
+              { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
+            ]}
+          ]}
+        ]
+      },
+      "then": [
+        // 5-way if/else chain: enhance_type == 1 → ... == 2 → ... == 5
+        // 各分岐内では動的ティアアップグレードパターン（前述）を使う
+        {
+          "if": { "math": [ "u_wm_enhance_type == 1" ] },
+          "then": [ /* 変数: n_wm_buff_melee_damage, メッセージ: 近接ダメージ */ ],
+          "else": {
+            "if": { "math": [ "u_wm_enhance_type == 2" ] },
+            "then": [ /* 変数: n_wm_buff_melee_tohit, メッセージ: 近接命中 */ ],
+            "else": {
+              // ... 3, 4, 5 と続く
+              "else": [
+                { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
+              ]
+            }
+          }
+        }
+      ],
+      "else": [
+        { "u_message": "この武器ではこの強化は利用できません。", "type": "bad" }
+      ]
+    }
+  ]
+}
+```
+
+### 防御的 else の必須ルール
+
+if/else 連鎖で数値によるルーティングを行う場合、**連鎖の最末尾に未初期化値（`u_` 変数はデフォルト 0）を捕捉する防御的 else が必須**。
+
+```jsonc
+// 5-way if/else 連鎖の末尾
+"else": {
+  "if": { "math": [ "u_wm_enhance_type == 5" ] },
+  "then": [ /* 5番目の処理 */ ],
+  "else": [
+    // 防御的 else: 値が 1〜5 のいずれでもない場合（未初期化=0 など）
+    { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
+  ]
+}
+```
+
+**理由**: talk_topic で必ず 1〜5 が設定されていても、EOC チェーンに到達する前に例外パス（別mod の干渉、テストコードからの直接呼び出し等）で 0 のまま到達する可能性を排除できない。メッセージを出さずに沈黙で全分岐をスキップするより、エラーメッセージで開発者に通知する方がデバッグ容易。
+
+### 統合の効果
+
+| 指標 | 変更前 | 変更後 |
+|---|---|---|
+| EOC 数 | 10 (5 entry + 5 nested) | 2 (1 entry + 1 generic) |
+| 重複コード | 5組の同一構造 | 単一の 5-way if/else |
+| メンテナンス性 | 全EOCに修正が必要 | 1箇所の修正で全強化に反映 |
+| リスク | 低（構造同一の保証がある場合） | — |
+
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — 20 EOC → 12 EOC。5つのエントリポイント + 5つのネスト EOC を `EOC_WM_GENERIC_ENHANCE` + `wm_enhance_generic` の2 EOC に統合。
 
 ## 文字列変数による条件分岐
 
