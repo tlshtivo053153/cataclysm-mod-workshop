@@ -141,7 +141,7 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 - `<global_val:変数名>` — グローバル変数
 - `<context_val:変数名>` — イベントコンテキスト変数
 - `<npc_val:変数名>` — NPC/アイテム変数（`u_run_inv_eocs` 内でのみ意味を持つ）
-- **`<u_val:変数名>` は存在しない。** キャラクター変数は `u_` prefix だが、message 内で直接埋め込むタグは用意されていない。`u_` 変数値の表示が必要な場合は math で `n_` または `global_` 変数にコピーしてから表示する。
+- `<u_val:変数名>` — プレイヤー変数。`u_message` および `talk_topic` の `dynamic_line` で使用可能。math 変数（`u_xxx`）の値（数値）を表示できる。実績: BombasticPerks（`<u_val:current_level>`）、MindOverMatter（`<u_val:teleport_total_carried_volume>`）、Xedra Evolved（`<u_val:blood_amount_for_graph>`）
 - **未定義変数のタグが正しく置換されるかは実機確認が必要**（空文字列になる可能性がある）
 
 ### `<npc_val>` の評価タイミングと逐次実行
@@ -218,7 +218,7 @@ talk_topic の response から EOC を実行するには `"effect"` フィール
 ```
 
 **制約:**
-- `talk_topic` の `dynamic_line` からは **item/npc 変数 (`n_`) を直接参照できない**。XP や buff レベル等の情報表示は EOC の `u_message` で行う。
+- `talk_topic` の `dynamic_line` からは **item/npc 変数 (`n_`) を直接参照できない**。アイテム変数の値は `<npc_val:>` では表示不可（talk_topic に NPC がいない場合）。アイテム変数を表示するには、事前に `math` で `u_` 変数にコピーし、`<u_val:>` で表示する（後述の「`n_` → `u_` コピー + `<u_val:>` 表示パターン」参照）。
 - `talk_topic` の response `topic` フィールドには **変数による条件分岐が使えない**。動的な戻り先選択が必要な場合は上記の `u_` 変数 + 専用 EOC パターンを使う。
 
 ### talk_topic response effect の配列構文
@@ -240,6 +240,54 @@ talk_topic の response `effect` は **配列形式**にも対応しており、
 - `data/json/npcs/missiondef.json:927` — バニラで `effect` 配列に `math` + `run_eocs` 混在
 - `data/json/npcs/isherwood_farm/NPC_Chris_Isherwood.json:768` — 同様の使用例
 - `mods/small/wm_weapon_mastery/data/talk_topics.json` — 5つの response を配列形式で統一
+
+### `dynamic_line` での `u_` 変数表示: `n_` → `u_` コピー + `<u_val:>` パターン
+
+talk_topic の `dynamic_line` では `<u_val:変数名>` でプレイヤー変数の値を直接表示できる。アイテム変数（`n_`）を `dynamic_line` に表示したい場合は、対話を開く**前に**アイテム変数をプレイヤー変数にコピーする。
+
+```jsonc
+// EOC_WM_OPEN_DIALOGUE: 対話を開く前に wm_update_effects を実行
+// wm_update_effects → wm_apply_buffs が n_ → u_ コピーを行う
+{
+  "type": "effect_on_condition",
+  "id": "EOC_WM_OPEN_DIALOGUE",
+  "effect": [
+    { "run_eocs": "wm_update_effects" },  // ★ 事前に u_ 変数を同期
+    {
+      "u_run_inv_eocs": "all",
+      "search_data": [ { "wielded_only": true } ],
+      "true_eocs": [ "wm_detect_category", "wm_open_dialogue_detect" ]
+    }
+  ]
+}
+
+// wm_apply_buffs: item の n_wm_buff_* → player の u_wm_* にコピー
+// n_wm_xp → u_wm_xp もコピー（dynamic_line 表示用）
+"effect": [
+  { "math": [ "u_wm_xp = n_wm_xp" ] },  // ★ XP も u_ にコピー
+  { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
+  // ...
+]
+```
+
+コピー後、`dynamic_line` で `<u_val:>` を使って表示:
+
+```jsonc
+// talk_topics.json
+{
+  "type": "talk_topic",
+  "id": "TALK_WM_ENHANCE_MELEE",
+  "dynamic_line": "近接ダメージ: Tier <u_val:wm_melee_damage>/4\n保有XP: <u_val:wm_xp>"
+}
+```
+
+**注意点:**
+- `<u_val:>` は math 変数（`u_xxx`）の**数値**をそのまま表示する。文字列変数（`u_add_var` で設定）も表示可能
+- 未定義の変数は `0` として表示される
+- `u_run_inv_eocs` で複数アイテムを処理すると最後のアイテムの値だけが残るため、`wielded_only: true` で wield 中の武器だけに限定する
+- `dynamic_line` 内の `"math"` 条件（`{ "math": [...], "yes": "...", "no": "..." }`）では `&&` / `||` が使えず、`"and"` / `"or"` も利用不可。値の範囲チェックが必要な場合は `<u_val:>` で直接数値表示する方が簡潔
+
+**実績**: `mods/small/wm_weapon_mastery/data/talk_topics.json` — 3つの talk_topic で `<u_val:>` を使用したバフ状態表示
 
 ## EOC の最小構成と推奨構成
 
