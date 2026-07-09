@@ -109,6 +109,7 @@
     "type": "effect_on_condition",
     "id": "wm_apply_buffs",
     "effect": [
+      { "math": [ "u_wm_xp = n_wm_xp" ] },
       { "math": [ "u_wm_melee_damage = 0" ] },
       { "math": [ "u_wm_melee_tohit = 0" ] },
       { "math": [ "u_wm_attack_speed = 0" ] },
@@ -154,6 +155,7 @@
     "id": "EOC_WM_OPEN_DIALOGUE",
     "condition": "u_is_avatar",
     "effect": [
+      { "run_eocs": "wm_update_effects" },
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],

@@ -2,7 +2,7 @@
   {
     "type": "talk_topic",
     "id": "TALK_WM_ENHANCE_MELEE",
-    "dynamic_line": "強化したい近接バフを選んでください。",
+    "dynamic_line": "強化したい近接バフを選んでください。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>/4\n近接命中: Tier <u_val:wm_melee_tohit>/4\n攻撃速度: Tier <u_val:wm_attack_speed>/4\n\n保有XP: <u_val:wm_xp>",
     "responses": [
       {
         "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
@@ -37,7 +37,7 @@
   {
     "type": "talk_topic",
     "id": "TALK_WM_ENHANCE_RANGED",
-    "dynamic_line": "強化したい遠隔バフを選んでください。",
+    "dynamic_line": "強化したい遠隔バフを選んでください。\n\n【現在の強化状態】\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>/4\n遠隔精度: Tier <u_val:wm_dispersion>/4\n\n保有XP: <u_val:wm_xp>",
     "responses": [
       {
         "text": "遠隔ダメージ強化 (RANGED_DAMAGE) [2/3/4/5 XP]",
@@ -64,7 +64,7 @@
   {
     "type": "talk_topic",
     "id": "TALK_WM_ENHANCE_SUPPORTED",
-    "dynamic_line": "この武器は全バフを利用できます。強化したい項目を選んでください。",
+    "dynamic_line": "この武器は全バフを利用できます。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>/4\n近接命中: Tier <u_val:wm_melee_tohit>/4\n攻撃速度: Tier <u_val:wm_attack_speed>/4\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>/4\n遠隔精度: Tier <u_val:wm_dispersion>/4\n\n保有XP: <u_val:wm_xp>",
     "responses": [
       {
         "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
