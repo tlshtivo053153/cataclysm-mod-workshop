@@ -423,6 +423,67 @@ CDDA の EOC はパラメータを受け取れないため、同じ構造で変�
 
 **実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — 5つの nested EOC を動的パターンで統一（728行→463行, -36%）
 
+### 結果コードによる計算/表示の分離
+
+動的ティアアップグレードパターンと switch/case を組み合わせる際、**結果コード**（`u_wm_upgrade_result`）を使って計算フェーズと表示フェーズを分離する。
+
+**問題**: switch/case の各 case 内で if/else をネストさせると、メッセージ表示と計算ロジックが混在し、case 追加時のコピペ量が増える。
+
+**解法**: 計算結果を 3 値の結果コードに集約し、switch/case は結果コードだけを見る:
+
+```jsonc
+// 計算フェーズ: 結果コードに集約（デフォルト→上書きの順序で排他ルーティング）
+{ "math": [ "u_wm_upgrade_result = 3" ] },        // デフォルト: XP不足
+{
+  "if": { "math": [ "n_wm_upgrade_tier >= 4" ] },
+  "then": [ { "math": [ "u_wm_upgrade_result = 2" ] } ]  // 上書き: 最大レベル
+},
+{
+  "if": { "and": [
+    { "math": [ "n_wm_upgrade_tier < 4" ] },
+    { "math": [ "n_wm_xp >= (n_wm_upgrade_tier + 2)" ] }
+  ]},
+  "then": [
+    { "math": [ "n_wm_xp = ..." ] },
+    { "math": [ "n_wm_upgrade_tier = ..." ] },
+    { "math": [ "u_wm_upgrade_result = 1" ] }      // 上書き: 成功
+  ]
+},
+
+// 表示フェーズ: switch/case 内は結果コードの3-way if のみ
+{ "switch": { "math": [ "u_wm_enhance_type" ] },
+  "cases": [
+    { "case": 1, "effect": [
+      { "if": { "math": [ "u_wm_upgrade_result == 1" ] },
+        "then": [ { "u_message": "...取得しました！", "type": "good" } ] },
+      { "if": { "math": [ "u_wm_upgrade_result == 2" ] },
+        "then": [ { "u_message": "...既に最大レベルです。", "type": "bad" } ] },
+      { "if": { "math": [ "u_wm_upgrade_result == 3" ] },
+        "then": [ { "u_message": "XPが不足しています。", "type": "bad" } ] }
+    ] },
+    // case 2-5: 同構造。メッセージ文字列のみ異なる
+  ]
+}
+```
+
+**結果コードの設計**:
+
+| コード | 意味 | 設定タイミング |
+|---|---|---|
+| 1 | 成功 | XP支払い成功時（最後に上書き） |
+| 2 | 最大レベル | ティア >= 4 チェック（デフォルトを上書き） |
+| 3 | XP不足 | 初期値（デフォルト）。成功/最大のいずれにも該当しない場合 |
+
+**動作原理**: CDDA の逐次実行保証により、デフォルト値（3）→ 最大チェック（2）→ 成功チェック（1）の順に上書きされる。成功チェックの `and` ガード（`n_wm_upgrade_tier < 4`）により、最大レベルの時に成功条件が誤って発火するのを防ぐ。
+
+**利点**:
+
+- 計算（複雑な条件分岐）と表示（固定文字列の3択）が完全に分離される
+- 新しい強化タイプを追加する場合、case effect はメッセージ文字列の差し替えのみ
+- switch/case 内のネストが 1段に統一され、可読性が向上
+
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `wm_enhance_generic` の5 case を結果コードパターンで統一
+
 ## EOC 統合リファクタリングパターン
 
 同一構造で変数名・メッセージのみ異なる複数の EOC を、**ルーティング変数 + 単一汎用 EOC** に統合するパターン。
@@ -467,7 +528,7 @@ CDDA の EOC はパラメータを受け取れないため、同じ構造で変�
         ]
       },
       "then": [
-        // switch/case による値別ルーティング（しきい値マッチングで case 0 はフォールバック）
+        // switch/case による値別ルーティング（case 0 はフォールバック。型ガードを使う代替パターンもあり）
         // 各分岐内では動的ティアアップグレードパターン（前述）を使う
         {
           "switch": { "math": [ "u_wm_enhance_type" ] },
@@ -513,6 +574,32 @@ if/else 連鎖で数値によるルーティングを行う場合、**連鎖の�
 **理由**: talk_topic で必ず 1〜5 が設定されていても、EOC チェーンに到達する前に例外パス（別mod の干渉、テストコードからの直接呼び出し等）で 0 のまま到達する可能性を排除できない。メッセージを出さずに沈黙で全分岐をスキップするより、エラーメッセージで開発者に通知する方がデバッグ容易。
 
 **switch/case の場合**: 上記と同等の保護は `case 0` で実現できる。しきい値マッチングでは switch 値が 1〜5 のとき case 0 もマッチするが、常に最大の case 値が優先されるため通常動作に影響しない。未初期化値（0）の場合のみ case 0 が選択される。詳細は「switch/case による条件分岐」セクションを参照。
+
+### 型ガードによる代替
+
+switch/case の前に型ガード（`if { "and": [ ">= 1", "<= 5" ] }`）を配置し、`else` でエラーメッセージを出すパターンもある。この場合、switch/case 内の `case 0` は不要（型ガードで捕捉済み）。
+
+```jsonc
+{
+  "if": { "and": [
+    { "math": [ "u_wm_enhance_type >= 1" ] },
+    { "math": [ "u_wm_enhance_type <= 5" ] }
+  ]},
+  "then": [
+    // switch/case は cases 1-5 のみ（case 0 不要）
+    { "switch": { "math": [ "u_wm_enhance_type" ] }, "cases": [ ... ] }
+  ],
+  "else": [
+    { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
+  ]
+}
+```
+
+**使い分け**:
+- **型ガード方式**: switch 前にチェック。switch 本体が簡潔になる。型ガードを通過した後の値の妥当性が保証される
+- **case 0 方式**: しきい値マッチングに依存。switch 内にエラーハンドリングが局所化される
+
+いずれの場合も、未初期化値（0）の到達に対する防御は必須。
 
 ### 統合の効果
 
@@ -606,6 +693,8 @@ switch/case では case 0 を末尾に配置することで、if/else チェー�
 ]
 ```
 
+**注記**: 型ガード（`if` + 範囲チェック）を switch の前に配置する場合、`case 0` は省略可能。型ガードの `else` が未初期化値を捕捉するため。詳細は「防御的 else の必須ルール > 型ガードによる代替」を参照。
+
 ### 実績
 
 - CDDA バニラ: vitrification, portal_storm, LIXA, labyrinth 等で広く使用
@@ -678,6 +767,100 @@ switch/case では case 0 を末尾に配置することで、if/else チェー�
 - `external/cdda/data/mods/TEST_DATA/EOC.json` — `npc_add_var` のテストケース
 - `external/cdda/data/mods/aftershock_exoplanet/` — `compare_string` の豊富な使用例（talk_topic 条件分岐、EOC 条件判定）
 - `mods/small/wm_weapon_mastery/data/eoc.json` — `npc_add_var` + `compare_string` で武器カテゴリ判定を文字列化
+
+## `copy_var` / `var_val` による動的変数参照
+
+CDDA の `var_val` は変数名の文字列を解決して実変数にアクセスする二段階参照（double indirection）機構。`copy_var` と組み合わせることで、複数の case で重複するロジックをパラメータ化された単一ブロックに統合できる。
+
+### 基本構文
+
+`var_val` は context_val に格納された変数名文字列を以下のスコーププレフィックスで解決する:
+
+| プレフィックス | 解決先 | 例: context_val の値 | アクセスされる変数 |
+|---|---|---|---|
+| `n_` | npc_val | `"n_wm_buff_melee_damage"` | `{ "npc_val": "wm_buff_melee_damage" }` |
+| `u_` | u_val | `"u_wm_xp"` | `{ "u_val": "wm_xp" }` |
+| `_` | context_val | `"_some_context"` | `{ "context_val": "some_context" }` |
+| プレフィックスなし | global_val | `"global_var"` | `{ "global_val": "global_var" }` |
+
+プレフィックスは **`set_string_var` で格納する文字列に含める**（`var_val` 自身ではプレフィックスを付与しない）。
+
+### 操作用語
+
+- **`set_string_var`**: 文字列を context_val / npc_val に格納する。第1引数は値となる文字列、`target_var` で格納先を指定
+- **`context_val`**: EOC 実行中のみ有効なコンテキスト変数。`var_val` の名前解決に使われる
+- **`copy_var`**: source の変数値を target にコピーする。source / target_var は両方とも変数オブジェクト（`{ "npc_val": "..." }` 等）
+- **`var_val`**: 変数オブジェクト内で使用。context_val の文字列を実変数名に解決する
+
+### パターン: 複数 case の重複ロジック統合
+
+**背景**: 5つの強化タイプ（近接ダメージ/命中/速度、遠隔ダメージ/精度）がそれぞれ異なるバフ変数（`n_wm_buff_melee_damage` 等）を持つが、アップグレードロジック（最大レベルチェック → XP チェック → コスト支払い → レベル増加）は全タイプ同一。
+
+**解法**:
+
+```jsonc
+// Step 1: 型から変数名文字列を決定（context_val に格納）
+{ "if": { "math": [ "u_wm_enhance_type == 1" ] },
+  "then": [ { "set_string_var": "n_wm_buff_melee_damage",
+               "target_var": { "context_val": "wm_upgrade_source" } } ] },
+{ "if": { "math": [ "u_wm_enhance_type == 2" ] },
+  "then": [ { "set_string_var": "n_wm_buff_melee_tohit",
+               "target_var": { "context_val": "wm_upgrade_source" } } ] },
+// ... type 3, 4, 5 も同様
+
+// Step 2: var_val で動的読み出し → 汎用作業変数にコピー
+{ "copy_var": { "var_val": "wm_upgrade_source" },
+               "target_var": { "npc_val": "wm_upgrade_tier" } },
+
+// Step 3: 汎用アップグレードロジック（n_wm_upgrade_tier に対して一度だけ）
+{ "math": [ "u_wm_upgrade_result = 3" ] },
+{ "if": { "math": [ "n_wm_upgrade_tier >= 4" ] },
+  "then": [ { "math": [ "u_wm_upgrade_result = 2" ] } ] },
+{ "if": { "and": [
+    { "math": [ "n_wm_upgrade_tier < 4" ] },
+    { "math": [ "n_wm_xp >= (n_wm_upgrade_tier + 2)" ] }
+  ]},
+  "then": [
+    { "math": [ "n_wm_xp = n_wm_xp - (n_wm_upgrade_tier + 2)" ] },
+    { "math": [ "n_wm_upgrade_tier = n_wm_upgrade_tier + 1" ] },
+    { "math": [ "u_wm_upgrade_result = 1" ] }
+  ]
+},
+
+// Step 4: var_val で動的書き戻し → 元のバフ変数に反映
+{ "copy_var": { "npc_val": "wm_upgrade_tier" },
+               "target_var": { "var_val": "wm_upgrade_source" } },
+
+// Step 5: switch/case で結果表示（各 case は u_wm_upgrade_result のみ判定）
+```
+
+### 効果
+
+| 指標 | Before | After |
+|---|---|---|
+| アップグレードロジックの重複 | 5組（各 case 内） | 1組（共有） |
+| case あたりのネスト段数 | 3段（if → if/else → if/else） | 1段（result 別の3-way if） |
+| ネスト総深度 | 5段 | 3段 |
+
+### var_val の write 側制約
+
+`copy_var` の `target_var` に `var_val` を使うパターンには CDDA エコシステム内での使用実績がない。**実装前に必ず小規模なテスト EOC で検証すること**（テストパターン: `set_string_var` でターゲット名を設定 → `copy_var` + `var_val` target → `u_message` で結果確認）。
+
+テストが失敗する場合のフォールバック（Plan B）:
+```jsonc
+// 書き戻しを各 case 内で直接行う
+// 共有ロジック（Step 2-3）は維持、Step 4 のみ分離
+{ "case": 1, "effect": [
+  { "copy_var": { "npc_val": "wm_upgrade_tier" },
+                 "target_var": { "npc_val": "wm_buff_melee_damage" } },
+  { "if": { "math": [ "u_wm_upgrade_result == 1" ] }, ... }
+] }
+```
+
+### 実績
+
+- `external/cdda/data/mods/TEST_DATA/EOC.json:776-793` — `copy_var` + `var_val` source の全スコープテスト
+- `mods/small/wm_weapon_mastery/data/eoc.json` — 5-to-1 コード統合（~90行削減）
 
 ## 参照先
 
