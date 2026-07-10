@@ -26,7 +26,16 @@
 - **原因:** 必須フィールドが欠けている
 - **解決策:** `external/cdda/doc/JSON/JSON_INFO.md` で該当 type の必須フィールドを確認する
 
+### talk_topic response の `condition` で選択肢が表示されない
+- **原因:** `u_has_var` で変数をチェックしている。`u_has_var` は talk_topic の condition パーサーに**登録されていない無効なキーワード**であり、未認識キーワードは常に false を返す（`src/condition.cpp`）。`u_has_trait`, `u_has_item` 等の他の `u_has_*` キーワードは有効だが、`u_has_var` はパーサーテーブルに存在しない。文字列変数（`u_add_var`）に対しても機能しない。
+- **背景:** math 変数（`{ "math": [ "u_xxx = value" ] }`）と `u_add_var` で設定した文字列変数は、CDDA 内部では**同じ `values` マップ**に格納される（`src/creature.h:1258`）。したがってどちらの変数も `{ "math": [...] }` 形式でチェック可能であり、区別する必要はない。
+- **解決策:** `condition` 内では `{ "math": [ "u_var == value" ] }` 形式を使用する。
+  - 誤: `"condition": { "u_has_var": "wm_can_melee" }`
+  - 正: `"condition": { "math": [ "u_wm_can_melee == 1" ] }`
+- **参照:** `rules/patterns/eoc.md` の「推奨パターン: talk_topic response の condition で動的フィルタリング」
+
 ---
+
 
 ## 0.I 移植時の頻出エラー（バージョン固有）
 
