@@ -1,11 +1,12 @@
 [
   {
     "type": "talk_topic",
-    "id": "TALK_WM_ENHANCE_MELEE",
-    "dynamic_line": "強化したい近接バフを選んでください。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>/4\n近接命中: Tier <u_val:wm_melee_tohit>/4\n攻撃速度: Tier <u_val:wm_attack_speed>/4\n\n保有XP: <u_val:wm_xp>",
+    "id": "TALK_WM_ENHANCE",
+    "dynamic_line": "強化したいバフを選んでください。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>/4\n近接命中: Tier <u_val:wm_melee_tohit>/4\n攻撃速度: Tier <u_val:wm_attack_speed>/4\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>/4\n遠隔精度: Tier <u_val:wm_dispersion>/4\n\n保有XP: <u_val:wm_xp>",
     "responses": [
       {
         "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
+        "condition": { "math": [ "u_wm_can_melee == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 1" ] },
@@ -14,6 +15,7 @@
       },
       {
         "text": "近接命中強化 (MELEE_TO_HIT) [2/3/4/5 XP]",
+        "condition": { "math": [ "u_wm_can_melee == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 2" ] },
@@ -22,68 +24,7 @@
       },
       {
         "text": "攻撃速度強化 (ATTACK_SPEED) [2/3/4/5 XP]",
-        "topic": "TALK_WM_RESULT",
-        "effect": [
-          { "math": [ "u_wm_enhance_type = 3" ] },
-          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
-        ]
-      },
-      {
-        "text": "何もしない",
-        "topic": "TALK_DONE"
-      }
-    ]
-  },
-  {
-    "type": "talk_topic",
-    "id": "TALK_WM_ENHANCE_RANGED",
-    "dynamic_line": "強化したい遠隔バフを選んでください。\n\n【現在の強化状態】\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>/4\n遠隔精度: Tier <u_val:wm_dispersion>/4\n\n保有XP: <u_val:wm_xp>",
-    "responses": [
-      {
-        "text": "遠隔ダメージ強化 (RANGED_DAMAGE) [2/3/4/5 XP]",
-        "topic": "TALK_WM_RESULT",
-        "effect": [
-          { "math": [ "u_wm_enhance_type = 4" ] },
-          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
-        ]
-      },
-      {
-        "text": "遠隔精度強化 (DISPERSION) [2/3/4/5 XP]",
-        "topic": "TALK_WM_RESULT",
-        "effect": [
-          { "math": [ "u_wm_enhance_type = 5" ] },
-          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
-        ]
-      },
-      {
-        "text": "何もしない",
-        "topic": "TALK_DONE"
-      }
-    ]
-  },
-  {
-    "type": "talk_topic",
-    "id": "TALK_WM_ENHANCE_SUPPORTED",
-    "dynamic_line": "この武器は全バフを利用できます。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>/4\n近接命中: Tier <u_val:wm_melee_tohit>/4\n攻撃速度: Tier <u_val:wm_attack_speed>/4\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>/4\n遠隔精度: Tier <u_val:wm_dispersion>/4\n\n保有XP: <u_val:wm_xp>",
-    "responses": [
-      {
-        "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
-        "topic": "TALK_WM_RESULT",
-        "effect": [
-          { "math": [ "u_wm_enhance_type = 1" ] },
-          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
-        ]
-      },
-      {
-        "text": "近接命中強化 (MELEE_TO_HIT) [2/3/4/5 XP]",
-        "topic": "TALK_WM_RESULT",
-        "effect": [
-          { "math": [ "u_wm_enhance_type = 2" ] },
-          { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
-        ]
-      },
-      {
-        "text": "攻撃速度強化 (ATTACK_SPEED) [2/3/4/5 XP]",
+        "condition": { "math": [ "u_wm_can_melee == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 3" ] },
@@ -92,6 +33,7 @@
       },
       {
         "text": "遠隔ダメージ強化 (RANGED_DAMAGE) [2/3/4/5 XP]",
+        "condition": { "math": [ "u_wm_can_ranged == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 4" ] },
@@ -100,6 +42,7 @@
       },
       {
         "text": "遠隔精度強化 (DISPERSION) [2/3/4/5 XP]",
+        "condition": { "math": [ "u_wm_can_ranged == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 5" ] },
@@ -115,7 +58,7 @@
   {
     "type": "talk_topic",
     "id": "TALK_WM_RESULT",
-    "dynamic_line": "どうしますか？",
+    "dynamic_line": "強化の結果が表示されました。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>/4\n近接命中: Tier <u_val:wm_melee_tohit>/4\n攻撃速度: Tier <u_val:wm_attack_speed>/4\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>/4\n遠隔精度: Tier <u_val:wm_dispersion>/4\n\n保有XP: <u_val:wm_xp>",
     "responses": [
       {
         "text": "続けて強化する",

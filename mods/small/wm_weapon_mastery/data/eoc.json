@@ -169,27 +169,34 @@
     "effect": [
       {
         "if": { "compare_string": [ "unsupported", { "npc_val": "wm_wcat" } ] },
-        "then": [ { "u_message": "この武器は強化に対応していません。", "type": "bad" } ]
+        "then": [
+          { "math": [ "u_wm_can_melee = 0" ] },
+          { "math": [ "u_wm_can_ranged = 0" ] },
+          { "u_message": "この武器は強化に対応していません。", "type": "bad" }
+        ]
       },
       {
         "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "math": [ "u_wm_last_dialogue = 1" ] },
-          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_MELEE" } }
+          { "math": [ "u_wm_can_melee = 1" ] },
+          { "math": [ "u_wm_can_ranged = 0" ] },
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
         ]
       },
       {
         "if": { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "math": [ "u_wm_last_dialogue = 2" ] },
-          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_RANGED" } }
+          { "math": [ "u_wm_can_melee = 0" ] },
+          { "math": [ "u_wm_can_ranged = 1" ] },
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
         ]
       },
       {
         "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "math": [ "u_wm_last_dialogue = 3" ] },
-          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_SUPPORTED" } }
+          { "math": [ "u_wm_can_melee = 1" ] },
+          { "math": [ "u_wm_can_ranged = 1" ] },
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
         ]
       }
     ]
@@ -319,20 +326,7 @@
   {
     "type": "effect_on_condition",
     "id": "EOC_WM_RETURN_TO_DIALOGUE",
-    "effect": [
-      {
-        "if": { "math": [ "u_wm_last_dialogue == 1" ] },
-        "then": [ { "open_dialogue": { "topic": "TALK_WM_ENHANCE_MELEE" } } ]
-      },
-      {
-        "if": { "math": [ "u_wm_last_dialogue == 2" ] },
-        "then": [ { "open_dialogue": { "topic": "TALK_WM_ENHANCE_RANGED" } } ]
-      },
-      {
-        "if": { "math": [ "u_wm_last_dialogue == 3" ] },
-        "then": [ { "open_dialogue": { "topic": "TALK_WM_ENHANCE_SUPPORTED" } } ]
-      }
-    ]
+    "effect": { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
   },
   {
     "type": "effect_on_condition",
