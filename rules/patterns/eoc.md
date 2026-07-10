@@ -467,21 +467,23 @@ CDDA の EOC はパラメータを受け取れないため、同じ構造で変�
         ]
       },
       "then": [
-        // 5-way if/else chain: enhance_type == 1 → ... == 2 → ... == 5
+        // switch/case による値別ルーティング（しきい値マッチングで case 0 はフォールバック）
         // 各分岐内では動的ティアアップグレードパターン（前述）を使う
         {
-          "if": { "math": [ "u_wm_enhance_type == 1" ] },
-          "then": [ /* 変数: n_wm_buff_melee_damage, メッセージ: 近接ダメージ */ ],
-          "else": {
-            "if": { "math": [ "u_wm_enhance_type == 2" ] },
-            "then": [ /* 変数: n_wm_buff_melee_tohit, メッセージ: 近接命中 */ ],
-            "else": {
-              // ... 3, 4, 5 と続く
-              "else": [
+          "switch": { "math": [ "u_wm_enhance_type" ] },
+          "cases": [
+            { "case": 1, "effect": [ /* 変数: n_wm_buff_melee_damage, メッセージ: 近接ダメージ */ ] },
+            { "case": 2, "effect": [ /* 変数: n_wm_buff_melee_tohit, メッセージ: 近接命中 */ ] },
+            { "case": 3, "effect": [ /* ... */ ] },
+            { "case": 4, "effect": [ /* ... */ ] },
+            { "case": 5, "effect": [ /* ... */ ] },
+            {
+              "case": 0,
+              "effect": [
                 { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
               ]
             }
-          }
+          ]
         }
       ],
       "else": [
@@ -510,6 +512,8 @@ if/else 連鎖で数値によるルーティングを行う場合、**連鎖の�
 
 **理由**: talk_topic で必ず 1〜5 が設定されていても、EOC チェーンに到達する前に例外パス（別mod の干渉、テストコードからの直接呼び出し等）で 0 のまま到達する可能性を排除できない。メッセージを出さずに沈黙で全分岐をスキップするより、エラーメッセージで開発者に通知する方がデバッグ容易。
 
+**switch/case の場合**: 上記と同等の保護は `case 0` で実現できる。しきい値マッチングでは switch 値が 1〜5 のとき case 0 もマッチするが、常に最大の case 値が優先されるため通常動作に影響しない。未初期化値（0）の場合のみ case 0 が選択される。詳細は「switch/case による条件分岐」セクションを参照。
+
 ### 統合の効果
 
 | 指標 | 変更前 | 変更後 |
@@ -520,6 +524,92 @@ if/else 連鎖で数値によるルーティングを行う場合、**連鎖の�
 | リスク | 低（構造同一の保証がある場合） | — |
 
 **実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — 20 EOC → 12 EOC。5つのエントリポイント + 5つのネスト EOC を `EOC_WM_GENERIC_ENHANCE` + `wm_enhance_generic` の2 EOC に統合。
+
+## switch/case による条件分岐
+
+複数の値による分岐（enum-like dispatch）を if/else チェーンの代わりに `switch`/`case` で実装できる。CDDA の switch/case は**しきい値マッチング**で動作する。
+
+### マッチング動作
+
+switch 値が case 値**以上**である全 case のうち、**最大**の case 値が選択される。
+
+| switch値 | マッチする case | 選択される case |
+|---|---|---|
+| 0 | 0 | case 0 |
+| 1 | 0, 1 | case 1（最大値） |
+| 2 | 0, 1, 2 | case 2（最大値） |
+| 3 | 0, 1, 2, 3 | case 3（最大値） |
+
+**ポイント**: case 0 は switch 値が 1 以上のときもマッチするが、常に最大の case 値が勝つため干渉しない。この特性により case 0 をフォールバック（catch-all）として安全に使える。
+
+### 基本構文
+
+```jsonc
+{
+  "switch": { "math": [ "u_my_variable" ] },
+  "cases": [
+    {
+      "case": 1,
+      "effect": [
+        // 値が1のときの処理
+      ]
+    },
+    {
+      "case": 2,
+      "effect": [
+        // 値が2のときの処理
+      ]
+    },
+    {
+      "case": 0,
+      "effect": [
+        { "u_message": "内部エラー: 不明な値です。", "type": "bad" }
+      ]
+    }
+  ]
+}
+```
+
+**構文上の注意**:
+- `"effect"` フィールドには**必ず配列**を指定する。単一要素でも `[{...}]` でラップすること（配列内の if/then/else をネストさせるため）
+- `"switch"` には `{ "math": [ "変数名" ] }` を指定する
+- `"case"` は数値のみ。文字列は不可
+
+### ネスト削減効果
+
+if/else チェーンでは分岐の深さが値の数に比例して増加するが、switch/case ではネストが固定:
+
+| 方式 | ネスト段数（5値分岐の場合） |
+|---|---|
+| if/else チェーン | 4段（if → if → if → if） |
+| switch/case | 3段（if → switch case → if → if） |
+
+### 使い分け
+
+| シナリオ | 推奨 |
+|---|---|
+| 値が互いに排他的（enum-like） | switch/case |
+| 条件が複雑で大小比較が混在 | if/else チェーン |
+| 各分岐内で動的ティアアップグレードパターン（前述）を使う | switch/case（ネスト削減で読みやすくなる） |
+
+### 防御的フォールバック
+
+switch/case では case 0 を末尾に配置することで、if/else チェーンの「防御的 else」と同等の保護を実現できる。しきい値マッチングにより、switch 値が 1 以上のとき case 0 はマッチしても選択されず、0 のときだけ case 0 が発火する。
+
+```jsonc
+"cases": [
+  { "case": 1, "effect": [ /* 通常処理 */ ] },
+  { "case": 2, "effect": [ /* 通常処理 */ ] },
+  { "case": 0, "effect": [
+    { "u_message": "内部エラー: 不明な値です。", "type": "bad" }
+  ]}
+]
+```
+
+### 実績
+
+- CDDA バニラ: vitrification, portal_storm, LIXA, labyrinth 等で広く使用
+- `mods/small/wm_weapon_mastery/data/eoc.json` — 5つの強化タイプを switch/case に統合（ネスト 4段 → 3段）
 
 ## 文字列変数による条件分岐
 
