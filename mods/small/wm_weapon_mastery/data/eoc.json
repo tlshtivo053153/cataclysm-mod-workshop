@@ -219,54 +219,59 @@
         },
         "then": [
           {
-            "if": { "math": [ "u_wm_enhance_type == 1" ] },
-            "then": [
+            "switch": { "math": [ "u_wm_enhance_type" ] },
+            "cases": [
               {
-                "if": { "math": [ "n_wm_buff_melee_damage >= 4" ] },
-                "then": [
-                  { "u_message": "近接ダメージは既に最大レベルです。", "type": "bad" }
-                ],
-                "else": [
+                "case": 1,
+                "effect": [
                   {
-                    "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_damage + 2)" ] },
+                    "if": { "math": [ "n_wm_buff_melee_damage >= 4" ] },
                     "then": [
-                      { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_damage + 2)" ] },
-                      { "math": [ "n_wm_buff_melee_damage = n_wm_buff_melee_damage + 1" ] },
-                      { "u_message": "近接ダメージ強化 Tier <npc_val:wm_buff_melee_damage> を取得しました！", "type": "good" }
+                      { "u_message": "近接ダメージは既に最大レベルです。", "type": "bad" }
                     ],
                     "else": [
-                      { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                      {
+                        "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_damage + 2)" ] },
+                        "then": [
+                          { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_damage + 2)" ] },
+                          { "math": [ "n_wm_buff_melee_damage = n_wm_buff_melee_damage + 1" ] },
+                          { "u_message": "近接ダメージ強化 Tier <npc_val:wm_buff_melee_damage> を取得しました！", "type": "good" }
+                        ],
+                        "else": [
+                          { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                        ]
+                      }
                     ]
                   }
                 ]
-              }
-            ],
-            "else": {
-              "if": { "math": [ "u_wm_enhance_type == 2" ] },
-              "then": [
-                {
-                  "if": { "math": [ "n_wm_buff_melee_tohit >= 4" ] },
-                  "then": [
-                    { "u_message": "近接命中は既に最大レベルです。", "type": "bad" }
-                  ],
-                  "else": [
-                    {
-                      "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_tohit + 2)" ] },
-                      "then": [
-                        { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_tohit + 2)" ] },
-                        { "math": [ "n_wm_buff_melee_tohit = n_wm_buff_melee_tohit + 1" ] },
-                        { "u_message": "近接命中強化 Tier <npc_val:wm_buff_melee_tohit> を取得しました！", "type": "good" }
-                      ],
-                      "else": [
-                        { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                      ]
-                    }
-                  ]
-                }
-              ],
-              "else": {
-                "if": { "math": [ "u_wm_enhance_type == 3" ] },
-                "then": [
+              },
+              {
+                "case": 2,
+                "effect": [
+                  {
+                    "if": { "math": [ "n_wm_buff_melee_tohit >= 4" ] },
+                    "then": [
+                      { "u_message": "近接命中は既に最大レベルです。", "type": "bad" }
+                    ],
+                    "else": [
+                      {
+                        "if": { "math": [ "n_wm_xp >= (n_wm_buff_melee_tohit + 2)" ] },
+                        "then": [
+                          { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_melee_tohit + 2)" ] },
+                          { "math": [ "n_wm_buff_melee_tohit = n_wm_buff_melee_tohit + 1" ] },
+                          { "u_message": "近接命中強化 Tier <npc_val:wm_buff_melee_tohit> を取得しました！", "type": "good" }
+                        ],
+                        "else": [
+                          { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "case": 3,
+                "effect": [
                   {
                     "if": { "math": [ "n_wm_buff_attack_speed >= 4" ] },
                     "then": [
@@ -286,60 +291,63 @@
                       }
                     ]
                   }
-                ],
-                "else": {
-                  "if": { "math": [ "u_wm_enhance_type == 4" ] },
-                  "then": [
-                    {
-                      "if": { "math": [ "n_wm_buff_ranged_damage >= 4" ] },
-                      "then": [
-                        { "u_message": "遠隔ダメージは既に最大レベルです。", "type": "bad" }
-                      ],
-                      "else": [
-                        {
-                          "if": { "math": [ "n_wm_xp >= (n_wm_buff_ranged_damage + 2)" ] },
-                          "then": [
-                            { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_ranged_damage + 2)" ] },
-                            { "math": [ "n_wm_buff_ranged_damage = n_wm_buff_ranged_damage + 1" ] },
-                            { "u_message": "遠隔ダメージ強化 Tier <npc_val:wm_buff_ranged_damage> を取得しました！", "type": "good" }
-                          ],
-                          "else": [
-                            { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                          ]
-                        }
-                      ]
-                    }
-                  ],
-                  "else": {
-                    "if": { "math": [ "u_wm_enhance_type == 5" ] },
+                ]
+              },
+              {
+                "case": 4,
+                "effect": [
+                  {
+                    "if": { "math": [ "n_wm_buff_ranged_damage >= 4" ] },
                     "then": [
-                      {
-                        "if": { "math": [ "n_wm_buff_dispersion >= 4" ] },
-                        "then": [
-                          { "u_message": "遠隔精度は既に最大レベルです。", "type": "bad" }
-                        ],
-                        "else": [
-                          {
-                            "if": { "math": [ "n_wm_xp >= (n_wm_buff_dispersion + 2)" ] },
-                            "then": [
-                              { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_dispersion + 2)" ] },
-                              { "math": [ "n_wm_buff_dispersion = n_wm_buff_dispersion + 1" ] },
-                              { "u_message": "遠隔精度強化 Tier <npc_val:wm_buff_dispersion> を取得しました！", "type": "good" }
-                            ],
-                            "else": [
-                              { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
-                            ]
-                          }
-                        ]
-                      }
+                      { "u_message": "遠隔ダメージは既に最大レベルです。", "type": "bad" }
                     ],
                     "else": [
-                      { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
+                      {
+                        "if": { "math": [ "n_wm_xp >= (n_wm_buff_ranged_damage + 2)" ] },
+                        "then": [
+                          { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_ranged_damage + 2)" ] },
+                          { "math": [ "n_wm_buff_ranged_damage = n_wm_buff_ranged_damage + 1" ] },
+                          { "u_message": "遠隔ダメージ強化 Tier <npc_val:wm_buff_ranged_damage> を取得しました！", "type": "good" }
+                        ],
+                        "else": [
+                          { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                        ]
+                      }
                     ]
                   }
-                }
+                ]
+              },
+              {
+                "case": 5,
+                "effect": [
+                  {
+                    "if": { "math": [ "n_wm_buff_dispersion >= 4" ] },
+                    "then": [
+                      { "u_message": "遠隔精度は既に最大レベルです。", "type": "bad" }
+                    ],
+                    "else": [
+                      {
+                        "if": { "math": [ "n_wm_xp >= (n_wm_buff_dispersion + 2)" ] },
+                        "then": [
+                          { "math": [ "n_wm_xp = n_wm_xp - (n_wm_buff_dispersion + 2)" ] },
+                          { "math": [ "n_wm_buff_dispersion = n_wm_buff_dispersion + 1" ] },
+                          { "u_message": "遠隔精度強化 Tier <npc_val:wm_buff_dispersion> を取得しました！", "type": "good" }
+                        ],
+                        "else": [
+                          { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "case": 0,
+                "effect": [
+                  { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
+                ]
               }
-            }
+            ]
           }
         ],
         "else": [
