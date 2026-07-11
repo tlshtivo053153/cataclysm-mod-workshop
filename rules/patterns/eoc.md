@@ -129,7 +129,7 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 - `n_` スコープの変数は `u_run_inv_eocs` の nested EOC 内でのみアイテムに保存される
 - アイテム変数の永続性（セーブロード後も維持されるか）は**実機確認が必要**
 - 変数が未定義の場合、math では `0` として扱われる
-- **`u_` 変数は明示的な再代入がない限り前回の値が残留する。** 複数分岐を含む EOC では、全分岐で変数を明示的に設定しなければ、過去の EOC 実行で設定された値が次の実行で誤って参照される可能性がある。分岐が変数を使わない場合でも、防御的初期化として 0 代入を行うこと。実績: `wm_open_dialogue_detect` の `unsupported` 分岐で `u_wm_can_melee = 0` / `u_wm_can_ranged = 0` を設定（L173-174）
+- **`u_` 変数は明示的な再代入がない限り前回の値が残留する。** 複数分岐を含む EOC で `u_` 変数を使う場合、全分岐で変数を明示的に設定しなければ、過去の EOC 実行で設定された値が次の実行で誤って参照される可能性がある。分岐が変数を使わない場合でも、防御的初期化として 0 代入を行うこと。ただし、EOC 内で閉じた一時変数（`_` プレフィックス）を使う場合は残留リスクがないため、分岐の前に防御的初期化を置くだけでよい。実績: `EOC_WM_UPDATE_CAN_ENHANCE` の先頭で `_melee = 0` / `_ranged = 0` を防御的初期化し、分岐内で 1 を代入
 - **`n_` 変数は enchantment の math 式から直接アクセス不可。** enchantment の math はキャラクターコンテキスト（`u_`）で評価されるため、アイテム変数を参照したい場合は EOC で `n_` → `u_` にコピーしてから effect を付与する（`rules/patterns/enchantment.md` の「変数スコープの制約」参照）
 - **`u_` 変数は `u_run_inv_eocs` 内から読み取り可能。** talk_topic や親EOCで設定した `u_` math 変数は、`u_run_inv_eocs` の nested EOC（アイテムスコープ）内でも `u_` プレフィックスでアクセス可能。CDDA 公式ドキュメント（`EFFECT_ON_CONDITION.md`）で `u_run_inv_eocs` はデュアルトーカーモデルを維持し、alpha talker（`u_`）はキャラクターのまま、beta talker（`n_`）にアイテムが割り当てられると明記されている。両スコープが同時にアクセス可能であり、math 変数の `u_` プレフィックスは常に alpha talker にスコープされる（`NPCs.md`）。実績: `wm_apply_buffs` が既に `u_run_inv_eocs` 内で `u_` math 変数への書き込みを行っている。
 
@@ -197,25 +197,32 @@ talk_topic の response `condition`（`{ "math": [ "u_var == 1" ] }`）は `open
 
 **注意**: `open_dialogue` は EOC 実行を**中断しない**。`open_dialogue` の後にも effect 配列の残りは逐次実行されるが、ダイアログ表示は既に開始しているため、後続の変数代入は talk_topic の condition 評価に**反映されない**。すべての変数計算を `open_dialogue` より前に配置すること。
 
-**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `wm_open_dialogue_detect` で cost/can_melee/can_enh 全計算後に `open_dialogue` を配置。
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `EOC_WM_DIALOGUE_DETECT` で `EOC_WM_REFRESH_ENHANCE_STATE` を `run_eocs` で実行後に `open_dialogue` を配置。
 
 ### カテゴリフラグによるゲーティングパターン
 
-近接/遠隔などカテゴリによって表示を切り替える場合、カテゴリフラグ（`u_wm_can_melee` 等）を乗数に使うことで分岐内のゼロ初期化を省略できる。
+近接/遠隔などカテゴリによって表示を切り替える場合、カテゴリフラグ（`_melee` / `_ranged` 等の一時変数）を乗数に使うことで分岐内のゼロ初期化を省略できる。
 
 ```jsonc
-// 分岐（u_wm_can_melee を 0/1 に設定）の後に共通ブロックを配置
-{ "math": [ "u_wm_can_enh_melee_damage = u_wm_can_melee * (n_wm_buff_melee_damage < 4)" ] },
-// melee → u_wm_can_melee=1 → can_enh = 0 or 1 (buffに応じて)
-// ranged → u_wm_can_melee=0 → can_enh = 0 (常に非表示)
-// supported → u_wm_can_melee=1 → can_enh = 0 or 1
+// EOC の先頭で一時変数を防御的初期化、分岐で 0/1 に設定した後に共通ブロックを配置
+{ "math": [ "_melee = 0" ] },
+{ "math": [ "_ranged = 0" ] },
+// 分岐（_melee を 0/1 に設定）
+{ "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+  "then": [ { "math": [ "_melee = 1" ] } ] },
+// 共通ブロック
+{ "math": [ "u_wm_can_enh_melee_damage = _melee * (n_wm_buff_melee_damage < 4)" ] },
+// melee → _melee=1 → can_enh = 0 or 1 (buffに応じて)
+// ranged → _melee=0 → can_enh = 0 (常に非表示)
+// supported → _melee=1 → can_enh = 0 or 1
 
-{ "math": [ "u_wm_can_enh_ranged_damage = u_wm_can_ranged * (n_wm_buff_ranged_damage < 4)" ] },
-// ranged → u_wm_can_ranged=1, melee → 0 → can_enh は ranged 時のみ有効値
+{ "math": [ "u_wm_can_enh_ranged_damage = _ranged * (n_wm_buff_ranged_damage < 4)" ] },
+// ranged → _ranged=1, melee → 0 → can_enh は ranged 時のみ有効値
 ```
 
 **前提**:
-- ゲートに使うフラグ変数（`u_wm_can_melee`）がこの式より**前に**定義されていること
+- ゲートに使うフラグ変数（`_melee` / `_ranged`）がこの式より**前に**分岐内で定義されていること
+- EOC の先頭で防御的初期化（`_melee = 0`）を行っていること
 - 比較演算子 `<` `>` `>=` `<=` が math 代入文の右辺値として 0/1 を返すこと。CDDA 0.I RC で**実績あり**（`wm_test_math_comparison` EOC で確認済み）。
 
 **利点**:
@@ -223,7 +230,7 @@ talk_topic の response `condition`（`{ "math": [ "u_var == 1" ] }`）は `open
 - 全カテゴリ共通の計算を一箇所に集約できる
 - talk_topic の response `condition` に直接使える非ゼロの値が得られる
 
-**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `wm_open_dialogue_detect` で 5 種 × 2（can_enh/max）= 10 変数を共通ブロック化。30 行削減。
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `EOC_WM_UPDATE_CAN_ENHANCE` で 5 種の can_enh 変数を共通ブロック化。カテゴリ分岐から共通計算を分離。
 
 ### EOC から talk_topic へ遷移した後の戻り先制御（旧パターン・非推奨）
 
@@ -251,68 +258,70 @@ talk_topic の response `condition`（`{ "math": [ "u_var == 1" ] }`）は `open
 }
 ```
 
-### 推奨パターン: talk_topic response の `condition` で動的フィルタリング + 単一トピック
+### 推奨パターン: talk_topic response の `condition` で動的フィルタリング + 単一トピック + trial 判定
 
-talk_topic を**単一の共通トピック**に統合し、各 response に `condition` フィールドで表示可否を制御する。戻り先の分岐が不要になるため、EOC 側の `u_wm_last_dialogue` 管理が完全に不要になる。
+talk_topic を**単一の共通トピック**に統合し、各 response に `condition` フィールドで表示可否を制御する。さらに `trial` フィールドで必要 XP の有無をチェックし、成功/失敗で別トピックに分岐する。戻り先は直接 `topic` を指定するため、専用の戻り用 EOC は不要。
 
-```json
-// EOC 側: u_wm_can_melee / u_wm_can_ranged を設定し、全分岐で同一トピックを開く
+```jsonc
+// EOC 側: EOC_WM_REFRESH_ENHANCE_STATE で cost + can_enh を計算し、
+// EOC_WM_DIALOGUE_DETECT が run_eocs でリフレッシュ後に open_dialogue
 {
-  "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
-  "then": [
-    { "math": [ "u_wm_can_melee = 1" ] },
-    { "math": [ "u_wm_can_ranged = 0" ] },
-    { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
-  ]
-},
-{
-  "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
-  "then": [
-    { "math": [ "u_wm_can_melee = 1" ] },
-    { "math": [ "u_wm_can_ranged = 1" ] },
+  "id": "EOC_WM_DIALOGUE_DETECT",
+  "effect": [
+    { "run_eocs": "EOC_WM_REFRESH_ENHANCE_STATE" },
     { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
   ]
 }
 
-// 戻り先用 EOC: 単一トピックを開くだけに簡略化
-{
-  "type": "effect_on_condition",
-  "id": "EOC_WM_RETURN_TO_DIALOGUE",
-  "effect": { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
-}
-
-// talk_topic 側: response に condition でフィルタリング
+// talk_topic 側: response に condition + trial でフィルタリング
 {
   "type": "talk_topic",
   "id": "TALK_WM_ENHANCE",
   "responses": [
     {
-      "text": "近接ダメージ強化",
-      "condition": { "math": [ "u_wm_can_melee == 1" ] },
-      "topic": "TALK_WM_RESULT",
-      "effect": [ ... ]
-    },
+      "text": "近接ダメージ強化 [<u_val:wm_cost_melee_damage> XP]",
+      "condition": { "math": [ "u_wm_can_enh_melee_damage" ] },
+      "trial": { "type": "CONDITION", "condition": { "math": [ "u_wm_cost_melee_damage <= u_wm_xp" ] } },
+      "success": {
+        "topic": "TALK_WM_ENHANCE_SUCCESS",
+        "effect": [ { "math": [ "u_wm_enhance_type = 1" ] }, { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] } ]
+      },
+      "failure": { "topic": "TALK_WM_ENHANCE_FAILURE" }
+    }
+  ]
+}
+
+// 成功時の戻り: 直接 topic で戻る（EOC_WM_RETURN_TO_DIALOGUE 不要）
+{
+  "type": "talk_topic",
+  "id": "TALK_WM_ENHANCE_SUCCESS",
+  "dynamic_line": "強化の結果が表示されました。",
+  "responses": [
     {
-      "text": "遠隔ダメージ強化",
-      "condition": { "math": [ "u_wm_can_ranged == 1" ] },
-      "topic": "TALK_WM_RESULT",
-      "effect": [ ... ]
+      "text": "戻る",
+      "topic": "TALK_WM_ENHANCE",
+      "effect": {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": "EOC_WM_REFRESH_ENHANCE_STATE"
+      }
     }
   ]
 }
 ```
 
 **注意点**:
-- `condition` 内の `{ "math": [ "u_var == value" ] }` は、math 変数・文字列変数の両方に対して**推奨される汎用形式**。`u_has_var` は talk_topic の condition パーサーに**登録されていない無効なキーワード**であり（`u_has_trait` や `u_has_item` 等の他の `u_has_*` キーワードとは異なりパーサーテーブルに存在しない）、いかなる変数に対しても常に false を返す（`src/condition.cpp`）。なお、文字列変数との比較には `{ "compare_string": [ "expected", { "u_val": "var" } ] }` も使用可能。
-- 未定義の math 変数は `0` として評価される。このため `u_var == 1` は期待通り false になるが、`u_var == 0` での判定は未定義時も true になる点に注意。
-- 戻り先の再検出は不要。プレイヤーは対話中で武器が変わらないため、初回に設定された `u_wm_can_*` がそのまま有効。
+- `condition` 内の `{ "math": [ "u_var" ] }` は変数が非ゼロのとき true として評価される。`== 1` との明示比較は不要（math 変数はデフォルト 0）。なお、文字列変数との比較には `{ "compare_string": [ "expected", { "u_val": "var" } ] }` も使用可能。
+- 未定義の math 変数は `0` として評価される。このため `u_var` 単独での判定は未定義時も false（0）になる。
+- 戻り先の再検出は不要。プレイヤーは対話中で武器が変わらないため、初回に設定された `u_wm_can_enh_*` がそのまま有効。戻る際は `u_run_inv_eocs` で `EOC_WM_REFRESH_ENHANCE_STATE` を再実行して状態を最新化する。
+- `trial` フィールドを使うことで、talk_topic 内で XP 不足を判定して別トピックに分岐できる。talk_topic から EOC を介さずに成功/失敗の分岐が可能になる。
 
 **利点**:
 - 複数トピックの重複コードを単一トピックに統合できる
 - EOC 側の戻り先管理（`u_wm_last_dialogue`）が不要になり、コードが簡潔になる
 - 武器カテゴリに応じた選択肢の表示/非表示をトピックレベルで宣言的に記述できる
 
-**実績**: `mods/small/wm_weapon_mastery/data/talk_topics.json` — 3トピック→1トピック統合。近接/遠隔/全対応の3カテゴリを condition で動的フィルタリング。
+**実績**: `mods/small/wm_weapon_mastery/data/talk_topics.json` — 1トピックで condition + trial による動的フィルタリングとXPチェック。戻りは直接 `topic` によるリダイレクト。
 
 ### talk_topic 応答からの EOC 呼び出し
 
@@ -326,7 +335,7 @@ talk_topic の response から EOC を実行するには `"effect"` フィール
   "responses": [
     {
       "text": "近接ダメージ強化",
-      "topic": "TALK_WM_RESULT",
+      "topic": "TALK_WM_ENHANCE_SUCCESS",
       "effect": { "run_eocs": [ "EOC_WM_ENHANCE_MELEE_DAMAGE" ] }
     }
   ]
@@ -363,7 +372,8 @@ talk_topic の `dynamic_line` では `<u_val:変数名>` でプレイヤー変�
 
 ```jsonc
 // EOC_WM_OPEN_DIALOGUE: 対話を開く前に wm_update_effects を実行
-// wm_update_effects → wm_apply_buffs が n_ → u_ コピーを行う
+// wm_update_effects が wm_detect_category + wm_apply_buffs を呼び n_ → u_ コピーを行う
+// そのため 2つ目の u_run_inv_eocs では wm_detect_category は不要（実行済み）
 {
   "type": "effect_on_condition",
   "id": "EOC_WM_OPEN_DIALOGUE",
@@ -372,7 +382,7 @@ talk_topic の `dynamic_line` では `<u_val:変数名>` でプレイヤー変�
     {
       "u_run_inv_eocs": "all",
       "search_data": [ { "wielded_only": true } ],
-      "true_eocs": [ "wm_detect_category", "wm_open_dialogue_detect" ]
+      "true_eocs": "EOC_WM_DIALOGUE_DETECT"
     }
   ]
 }
