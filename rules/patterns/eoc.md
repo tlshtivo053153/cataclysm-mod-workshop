@@ -173,6 +173,58 @@ EOC の effect から対話（talk_topic）を開くには `open_dialogue` を�
 { "open_dialogue": "TALK_MY_DIALOGUE" }
 ```
 
+### `open_dialogue` と変数定義の順序
+
+talk_topic の response `condition`（`{ "math": [ "u_var == 1" ] }`）は `open_dialogue` が実行された**その時点**の変数値で評価される。変数定義より**前に** `open_dialogue` があると、未定義変数（math 変数はデフォルト 0）で condition が評価され、期待と異なる表示になる。
+
+```jsonc
+// 誤り: open_dialogue が先、can_enh 変数は後 → talk_topic condition 評価時は 0
+{
+  "effect": [
+    { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } },
+    { "math": [ "u_wm_can_enh_melee_damage = (n_wm_buff_melee_damage < 4)" ] }
+  ]
+}
+
+// 正しい: 全変数を定義した後で open_dialogue
+{
+  "effect": [
+    { "math": [ "u_wm_can_enh_melee_damage = (n_wm_buff_melee_damage < 4)" ] },
+    { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
+  ]
+}
+```
+
+**注意**: `open_dialogue` は EOC 実行を**中断しない**。`open_dialogue` の後にも effect 配列の残りは逐次実行されるが、ダイアログ表示は既に開始しているため、後続の変数代入は talk_topic の condition 評価に**反映されない**。すべての変数計算を `open_dialogue` より前に配置すること。
+
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `wm_open_dialogue_detect` で cost/can_melee/can_enh 全計算後に `open_dialogue` を配置。
+
+### カテゴリフラグによるゲーティングパターン
+
+近接/遠隔などカテゴリによって表示を切り替える場合、カテゴリフラグ（`u_wm_can_melee` 等）を乗数に使うことで分岐内のゼロ初期化を省略できる。
+
+```jsonc
+// 分岐（u_wm_can_melee を 0/1 に設定）の後に共通ブロックを配置
+{ "math": [ "u_wm_can_enh_melee_damage = u_wm_can_melee * (n_wm_buff_melee_damage < 4)" ] },
+// melee → u_wm_can_melee=1 → can_enh = 0 or 1 (buffに応じて)
+// ranged → u_wm_can_melee=0 → can_enh = 0 (常に非表示)
+// supported → u_wm_can_melee=1 → can_enh = 0 or 1
+
+{ "math": [ "u_wm_can_enh_ranged_damage = u_wm_can_ranged * (n_wm_buff_ranged_damage < 4)" ] },
+// ranged → u_wm_can_ranged=1, melee → 0 → can_enh は ranged 時のみ有効値
+```
+
+**前提**:
+- ゲートに使うフラグ変数（`u_wm_can_melee`）がこの式より**前に**定義されていること
+- 比較演算子 `<` `>` `>=` `<=` が math 代入文の右辺値として 0/1 を返すこと。CDDA 0.I RC で**実績あり**（`wm_test_math_comparison` EOC で確認済み）。
+
+**利点**:
+- 分岐（melee/ranged/supported）内のゼロ初期化が不要になる
+- 全カテゴリ共通の計算を一箇所に集約できる
+- talk_topic の response `condition` に直接使える非ゼロの値が得られる
+
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `wm_open_dialogue_detect` で 5 種 × 2（can_enh/max）= 10 変数を共通ブロック化。30 行削減。
+
 ### EOC から talk_topic へ遷移した後の戻り先制御（旧パターン・非推奨）
 
 かつては `open_dialogue` で対話を開いた後、結果ページから元の対話に戻る際に **`u_` 変数に戻り先を記録**するパターンが使われていた。このパターンでは複数の talk_topic を用意し、`u_wm_last_dialogue` で戻り先を分岐する必要があった。
