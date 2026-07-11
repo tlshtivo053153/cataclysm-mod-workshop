@@ -5,8 +5,8 @@
     "dynamic_line": "強化したいバフを選んでください。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>/4\n近接命中: Tier <u_val:wm_melee_tohit>/4\n攻撃速度: Tier <u_val:wm_attack_speed>/4\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>/4\n遠隔精度: Tier <u_val:wm_dispersion>/4\n\n保有XP: <u_val:wm_xp>",
     "responses": [
       {
-        "text": "近接ダメージ強化 (MELEE_DAMAGE) [2/3/4/5 XP]",
-        "condition": { "math": [ "u_wm_can_melee == 1" ] },
+        "text": "近接ダメージ強化 [<u_val:wm_cost_melee_damage> XP]",
+        "condition": { "math": [ "u_wm_can_enh_melee_damage == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 1" ] },
@@ -14,8 +14,8 @@
         ]
       },
       {
-        "text": "近接命中強化 (MELEE_TO_HIT) [2/3/4/5 XP]",
-        "condition": { "math": [ "u_wm_can_melee == 1" ] },
+        "text": "近接命中強化 [<u_val:wm_cost_melee_tohit> XP]",
+        "condition": { "math": [ "u_wm_can_enh_melee_tohit == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 2" ] },
@@ -23,8 +23,8 @@
         ]
       },
       {
-        "text": "攻撃速度強化 (ATTACK_SPEED) [2/3/4/5 XP]",
-        "condition": { "math": [ "u_wm_can_melee == 1" ] },
+        "text": "攻撃速度強化 [<u_val:wm_cost_attack_speed> XP]",
+        "condition": { "math": [ "u_wm_can_enh_attack_speed == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 3" ] },
@@ -32,8 +32,8 @@
         ]
       },
       {
-        "text": "遠隔ダメージ強化 (RANGED_DAMAGE) [2/3/4/5 XP]",
-        "condition": { "math": [ "u_wm_can_ranged == 1" ] },
+        "text": "遠隔ダメージ強化 [<u_val:wm_cost_ranged_damage> XP]",
+        "condition": { "math": [ "u_wm_can_enh_ranged_damage == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 4" ] },
@@ -41,8 +41,8 @@
         ]
       },
       {
-        "text": "遠隔精度強化 (DISPERSION) [2/3/4/5 XP]",
-        "condition": { "math": [ "u_wm_can_ranged == 1" ] },
+        "text": "遠隔精度強化 [<u_val:wm_cost_dispersion> XP]",
+        "condition": { "math": [ "u_wm_can_enh_dispersion == 1" ] },
         "topic": "TALK_WM_RESULT",
         "effect": [
           { "math": [ "u_wm_enhance_type = 5" ] },

@@ -167,6 +167,11 @@
     "type": "effect_on_condition",
     "id": "wm_open_dialogue_detect",
     "effect": [
+      { "math": [ "u_wm_cost_melee_damage = n_wm_buff_melee_damage + 2" ] },
+      { "math": [ "u_wm_cost_melee_tohit = n_wm_buff_melee_tohit + 2" ] },
+      { "math": [ "u_wm_cost_attack_speed = n_wm_buff_attack_speed + 2" ] },
+      { "math": [ "u_wm_cost_ranged_damage = n_wm_buff_ranged_damage + 2" ] },
+      { "math": [ "u_wm_cost_dispersion = n_wm_buff_dispersion + 2" ] },
       {
         "if": { "compare_string": [ "unsupported", { "npc_val": "wm_wcat" } ] },
         "then": [
@@ -179,26 +184,54 @@
         "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
         "then": [
           { "math": [ "u_wm_can_melee = 1" ] },
-          { "math": [ "u_wm_can_ranged = 0" ] },
-          { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
+          { "math": [ "u_wm_can_ranged = 0" ] }
         ]
       },
       {
         "if": { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
         "then": [
           { "math": [ "u_wm_can_melee = 0" ] },
-          { "math": [ "u_wm_can_ranged = 1" ] },
-          { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
+          { "math": [ "u_wm_can_ranged = 1" ] }
         ]
       },
       {
         "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
         "then": [
           { "math": [ "u_wm_can_melee = 1" ] },
-          { "math": [ "u_wm_can_ranged = 1" ] },
-          { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
+          { "math": [ "u_wm_can_ranged = 1" ] }
         ]
-      }
+      },
+      {
+        "math": [ "u_wm_can_enh_melee_damage = u_wm_can_melee * (n_wm_buff_melee_damage < 4)" ]
+      },
+      {
+        "math": [ "u_wm_can_enh_melee_tohit = u_wm_can_melee * (n_wm_buff_melee_tohit < 4)" ]
+      },
+      {
+        "math": [ "u_wm_can_enh_attack_speed = u_wm_can_melee * (n_wm_buff_attack_speed < 4)" ]
+      },
+      {
+        "math": [ "u_wm_can_enh_ranged_damage = u_wm_can_ranged * (n_wm_buff_ranged_damage < 4)" ]
+      },
+      {
+        "math": [ "u_wm_can_enh_dispersion = u_wm_can_ranged * (n_wm_buff_dispersion < 4)" ]
+      },
+      {
+        "math": [ "u_wm_max_melee_damage = u_wm_can_melee * (n_wm_buff_melee_damage >= 4)" ]
+      },
+      {
+        "math": [ "u_wm_max_melee_tohit = u_wm_can_melee * (n_wm_buff_melee_tohit >= 4)" ]
+      },
+      {
+        "math": [ "u_wm_max_attack_speed = u_wm_can_melee * (n_wm_buff_attack_speed >= 4)" ]
+      },
+      {
+        "math": [ "u_wm_max_ranged_damage = u_wm_can_ranged * (n_wm_buff_ranged_damage >= 4)" ]
+      },
+      {
+        "math": [ "u_wm_max_dispersion = u_wm_can_ranged * (n_wm_buff_dispersion >= 4)" ]
+      },
+      { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
     ]
   },
   {
@@ -326,7 +359,14 @@
   {
     "type": "effect_on_condition",
     "id": "EOC_WM_RETURN_TO_DIALOGUE",
-    "effect": { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
+    "effect": [
+      { "run_eocs": "wm_update_effects" },
+      {
+        "u_run_inv_eocs": "all",
+        "search_data": [ { "wielded_only": true } ],
+        "true_eocs": [ "wm_detect_category", "wm_open_dialogue_detect" ]
+      }
+    ]
   },
   {
     "type": "effect_on_condition",
@@ -336,6 +376,33 @@
       { "set_string_var": "u_test_var_b", "target_var": { "context_val": "test_target_name" } },
       { "copy_var": { "u_val": "test_var_a" }, "target_var": { "var_val": "test_target_name" } },
       { "u_message": "var_val target test: u_test_var_b = <u_val:test_var_b> (expect 99)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "wm_test_math_comparison",
+    "effect": [
+      { "math": [ "u_wm_test_a = 2" ] },
+      { "math": [ "u_wm_test_less = (u_wm_test_a < 4)" ] },
+      { "math": [ "u_wm_test_gte = (u_wm_test_a >= 4)" ] },
+      { "u_message": "TEST less (2＜4 expect 1): <u_val:wm_test_less>", "type": "info" },
+      { "u_message": "TEST gte (2>=4 expect 0): <u_val:wm_test_gte>", "type": "info" },
+      { "math": [ "u_wm_test_a = 4" ] },
+      { "math": [ "u_wm_test_less = (u_wm_test_a < 4)" ] },
+      { "math": [ "u_wm_test_gte = (u_wm_test_a >= 4)" ] },
+      { "u_message": "TEST less (4＜4 expect 0): <u_val:wm_test_less>", "type": "info" },
+      { "u_message": "TEST gte (4>=4 expect 1): <u_val:wm_test_gte>", "type": "info" },
+      { "math": [ "u_wm_test_flag = 1" ] },
+      { "math": [ "u_wm_test_result = u_wm_test_flag * (u_wm_test_a < 4)" ] },
+      { "u_message": "TEST gate flag=1 a=4: <u_val:wm_test_result> (expect 0)", "type": "info" },
+      { "math": [ "u_wm_test_flag = 0" ] },
+      { "math": [ "u_wm_test_result = u_wm_test_flag * (u_wm_test_a < 4)" ] },
+      { "u_message": "TEST gate flag=0 a=4: <u_val:wm_test_result> (expect 0)", "type": "info" },
+      { "math": [ "u_wm_test_flag = 1" ] },
+      { "math": [ "u_wm_test_a = 2" ] },
+      { "math": [ "u_wm_test_result = u_wm_test_flag * (u_wm_test_a < 4)" ] },
+      { "u_message": "TEST gate flag=1 a=2: <u_val:wm_test_result> (expect 1)", "type": "info" },
+      { "u_message": "WM math comparison test complete. All expect: 1,0,0,1,0,0,1", "type": "good" }
     ]
   }
 ]
