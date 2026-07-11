@@ -94,8 +94,7 @@
       {
         "u_lose_effect": [
           "wm_buff_supported",
-          "wm_buff_melee",
-          "wm_buff_ranged"
+          "wm_buff_common"
         ]
       },
       {
@@ -110,42 +109,26 @@
     "id": "wm_apply_buffs",
     "effect": [
       { "math": [ "u_wm_xp = n_wm_xp" ] },
-      { "math": [ "u_wm_melee_damage = 0" ] },
-      { "math": [ "u_wm_melee_tohit = 0" ] },
-      { "math": [ "u_wm_attack_speed = 0" ] },
-      { "math": [ "u_wm_ranged_damage = 0" ] },
-      { "math": [ "u_wm_dispersion = 0" ] },
+      { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
+      { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
+      { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
+      { "math": [ "u_wm_ranged_damage = n_wm_buff_ranged_damage" ] },
+      { "math": [ "u_wm_dispersion = n_wm_buff_dispersion" ] },
       {
         "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
-          { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
-          { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
-          { "math": [ "u_wm_ranged_damage = n_wm_buff_ranged_damage" ] },
-          { "math": [ "u_wm_dispersion = n_wm_buff_dispersion" ] },
           { "u_add_effect": "wm_buff_supported", "duration": "1 hour" }
         ]
       },
       {
-        "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+        "if": { 
+          "or": [
+            { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+            { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] }
+          ]
+        },
         "then": [
-          { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
-          { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
-          { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
-          { "math": [ "u_wm_ranged_damage = 0" ] },
-          { "math": [ "u_wm_dispersion = 0" ] },
-          { "u_add_effect": "wm_buff_melee", "duration": "1 hour" }
-        ]
-      },
-      {
-        "if": { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
-        "then": [
-          { "math": [ "u_wm_melee_damage = 0" ] },
-          { "math": [ "u_wm_melee_tohit = 0" ] },
-          { "math": [ "u_wm_attack_speed = 0" ] },
-          { "math": [ "u_wm_ranged_damage = n_wm_buff_ranged_damage" ] },
-          { "math": [ "u_wm_dispersion = n_wm_buff_dispersion" ] },
-          { "u_add_effect": "wm_buff_ranged", "duration": "1 hour" }
+          { "u_add_effect": "wm_buff_common", "duration": "1 hour" }
         ]
       }
     ]
@@ -242,107 +225,71 @@
     "id": "wm_enhance_generic",
     "effect": [
       {
-        "if": {
-          "or": [
-            { "and": [
-              { "math": [ "u_wm_enhance_type <= 3" ] },
-              { "or": [
-                { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
-                { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
-              ]}
-            ]},
-            { "and": [
-              { "math": [ "u_wm_enhance_type >= 4" ] },
-              { "or": [
-                { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
-                { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] }
-              ]}
-            ]}
-          ]
-        },
+        "if": { "and": [
+          { "math": [ "u_wm_enhance_type >= 1" ] },
+          { "math": [ "u_wm_enhance_type <= 5" ] }
+        ]},
         "then": [
+          { 
+            "if": { "math": [ "u_wm_enhance_type == 1" ] },
+            "then": [
+              { "set_string_var": "n_wm_buff_melee_damage", "target_var": { "context_val": "wm_upgrade_source" } },
+              { "set_string_var": "近接ダメージ強化", "target_var": { "context_val": "upgrade_type"} }
+            ]
+          },
+          { 
+            "if": { "math": [ "u_wm_enhance_type == 2" ] },
+            "then": [
+              { "set_string_var": "n_wm_buff_melee_tohit", "target_var": { "context_val": "wm_upgrade_source" } },
+              { "set_string_var": "近接命中強化", "target_var": { "context_val": "upgrade_type"} }
+            ]
+          },
+          {
+            "if": { "math": [ "u_wm_enhance_type == 3" ] },
+            "then": [
+              { "set_string_var": "n_wm_buff_attack_speed", "target_var": { "context_val": "wm_upgrade_source" } },
+              { "set_string_var": "攻撃速度強化", "target_var": { "context_val": "upgrade_type"} }
+            ]
+          },
+          { 
+            "if": { "math": [ "u_wm_enhance_type == 4" ] },
+            "then": [
+              { "set_string_var": "n_wm_buff_ranged_damage", "target_var": { "context_val": "wm_upgrade_source" } },
+              { "set_string_var": "遠隔ダメージ強化", "target_var": { "context_val": "upgrade_type"} }
+            ]
+          },
+          { 
+            "if": { "math": [ "u_wm_enhance_type == 5" ] },
+            "then": [
+              { "set_string_var": "n_wm_buff_dispersion", "target_var": { "context_val": "wm_upgrade_source" } },
+              { "set_string_var": "遠隔精度強化", "target_var": { "context_val": "upgrade_type"} }
+            ]
+          },
+          { "copy_var": { "var_val": "wm_upgrade_source" }, "target_var": { "npc_val": "wm_upgrade_tier" } },
+          { "math": [ "_need_upgrade_exp = n_wm_upgrade_tier + 2" ] },
+          { "math": [ "u_wm_upgrade_result = 3" ] },
+          {
+            "if": { "math": [ "n_wm_upgrade_tier >= 4" ] },
+            "then": [ { "math": [ "u_wm_upgrade_result = 2" ] } ]
+          },
           {
             "if": { "and": [
-              { "math": [ "u_wm_enhance_type >= 1" ] },
-              { "math": [ "u_wm_enhance_type <= 5" ] }
+              { "math": [ "n_wm_upgrade_tier < 4" ] },
+              { "math": [ "n_wm_xp >= _need_upgrade_exp" ] }
             ]},
             "then": [
-              { "if": { "math": [ "u_wm_enhance_type == 1" ] }, "then": [ { "set_string_var": "n_wm_buff_melee_damage", "target_var": { "context_val": "wm_upgrade_source" } } ] },
-              { "if": { "math": [ "u_wm_enhance_type == 2" ] }, "then": [ { "set_string_var": "n_wm_buff_melee_tohit", "target_var": { "context_val": "wm_upgrade_source" } } ] },
-              { "if": { "math": [ "u_wm_enhance_type == 3" ] }, "then": [ { "set_string_var": "n_wm_buff_attack_speed", "target_var": { "context_val": "wm_upgrade_source" } } ] },
-              { "if": { "math": [ "u_wm_enhance_type == 4" ] }, "then": [ { "set_string_var": "n_wm_buff_ranged_damage", "target_var": { "context_val": "wm_upgrade_source" } } ] },
-              { "if": { "math": [ "u_wm_enhance_type == 5" ] }, "then": [ { "set_string_var": "n_wm_buff_dispersion", "target_var": { "context_val": "wm_upgrade_source" } } ] },
-              { "copy_var": { "var_val": "wm_upgrade_source" }, "target_var": { "npc_val": "wm_upgrade_tier" } },
-              { "math": [ "u_wm_upgrade_result = 3" ] },
-              {
-                "if": { "math": [ "n_wm_upgrade_tier >= 4" ] },
-                "then": [ { "math": [ "u_wm_upgrade_result = 2" ] } ]
-              },
-              {
-                "if": { "and": [
-                  { "math": [ "n_wm_upgrade_tier < 4" ] },
-                  { "math": [ "n_wm_xp >= (n_wm_upgrade_tier + 2)" ] }
-                ]},
-                "then": [
-                  { "math": [ "n_wm_xp = n_wm_xp - (n_wm_upgrade_tier + 2)" ] },
-                  { "math": [ "n_wm_upgrade_tier = n_wm_upgrade_tier + 1" ] },
-                  { "math": [ "u_wm_upgrade_result = 1" ] }
-                ]
-              },
-              { "copy_var": { "npc_val": "wm_upgrade_tier" }, "target_var": { "var_val": "wm_upgrade_source" } },
-              {
-                "switch": { "math": [ "u_wm_enhance_type" ] },
-                "cases": [
-                  {
-                    "case": 1,
-                    "effect": [
-                      { "if": { "math": [ "u_wm_upgrade_result == 1" ] }, "then": [ { "u_message": "近接ダメージ強化 Tier <npc_val:wm_buff_melee_damage> を取得しました！", "type": "good" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 2" ] }, "then": [ { "u_message": "近接ダメージは既に最大レベルです。", "type": "bad" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 3" ] }, "then": [ { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" } ] }
-                    ]
-                  },
-                  {
-                    "case": 2,
-                    "effect": [
-                      { "if": { "math": [ "u_wm_upgrade_result == 1" ] }, "then": [ { "u_message": "近接命中強化 Tier <npc_val:wm_buff_melee_tohit> を取得しました！", "type": "good" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 2" ] }, "then": [ { "u_message": "近接命中は既に最大レベルです。", "type": "bad" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 3" ] }, "then": [ { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" } ] }
-                    ]
-                  },
-                  {
-                    "case": 3,
-                    "effect": [
-                      { "if": { "math": [ "u_wm_upgrade_result == 1" ] }, "then": [ { "u_message": "攻撃速度強化 Tier <npc_val:wm_buff_attack_speed> を取得しました！", "type": "good" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 2" ] }, "then": [ { "u_message": "攻撃速度は既に最大レベルです。", "type": "bad" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 3" ] }, "then": [ { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" } ] }
-                    ]
-                  },
-                  {
-                    "case": 4,
-                    "effect": [
-                      { "if": { "math": [ "u_wm_upgrade_result == 1" ] }, "then": [ { "u_message": "遠隔ダメージ強化 Tier <npc_val:wm_buff_ranged_damage> を取得しました！", "type": "good" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 2" ] }, "then": [ { "u_message": "遠隔ダメージは既に最大レベルです。", "type": "bad" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 3" ] }, "then": [ { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" } ] }
-                    ]
-                  },
-                  {
-                    "case": 5,
-                    "effect": [
-                      { "if": { "math": [ "u_wm_upgrade_result == 1" ] }, "then": [ { "u_message": "遠隔精度強化 Tier <npc_val:wm_buff_dispersion> を取得しました！", "type": "good" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 2" ] }, "then": [ { "u_message": "遠隔精度は既に最大レベルです。", "type": "bad" } ] },
-                      { "if": { "math": [ "u_wm_upgrade_result == 3" ] }, "then": [ { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" } ] }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "else": [
-              { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
+              { "math": [ "n_wm_xp -= _need_upgrade_exp" ] },
+              { "math": [ "n_wm_upgrade_tier ++" ] },
+              { "math": [ "u_wm_upgrade_result = 1" ] }
             ]
-          }
+          },
+          { "copy_var": { "npc_val": "wm_upgrade_tier" }, "target_var": { "var_val": "wm_upgrade_source" } },
+          { "if": { "math": [ "u_wm_upgrade_result == 1" ] }, "then": [ { "u_message": "<context_val:upgrade_type> Tier <npc_val:wm_upgrade_tier> を取得しました！", "type": "good" } ] },
+          { "if": { "math": [ "u_wm_upgrade_result == 2" ] }, "then": [ { "u_message": "<context_val:upgrade_type>は既に最大レベルです。", "type": "bad" } ] },
+          { "if": { "math": [ "u_wm_upgrade_result == 3" ] }, "then": [ { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" } ] }
         ],
         "else": [
-          { "u_message": "この武器ではこの強化は利用できません。", "type": "bad" }
+          { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" }
         ]
       }
     ]

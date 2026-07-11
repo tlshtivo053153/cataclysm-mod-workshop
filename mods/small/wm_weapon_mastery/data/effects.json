@@ -21,9 +21,9 @@
   },
   {
     "type": "effect_type",
-    "id": "wm_buff_melee",
-    "name": [ "Weapon Mastery: Melee" ],
-    "desc": [ "This weapon's melee performance has been enhanced through mastery." ],
+    "id": "wm_buff_common",
+    "name": [ "Weapon Mastery" ],
+    "desc": [ "This weapon's combat performance has been enhanced through mastery." ],
     "rating": "good",
     "max_intensity": 1,
     "enchantments": [
@@ -32,22 +32,7 @@
         "values": [
           { "value": "MELEE_DAMAGE", "add": { "math": [ "u_wm_melee_damage" ] } },
           { "value": "MELEE_TO_HIT", "add": { "math": [ "u_wm_melee_tohit" ] } },
-          { "value": "ATTACK_SPEED", "add": { "math": [ "u_wm_attack_speed * -10" ] } }
-        ]
-      }
-    ]
-  },
-  {
-    "type": "effect_type",
-    "id": "wm_buff_ranged",
-    "name": [ "Weapon Mastery: Ranged" ],
-    "desc": [ "This weapon's ranged performance has been enhanced through mastery." ],
-    "rating": "good",
-    "max_intensity": 1,
-    "enchantments": [
-      {
-        "condition": "ALWAYS",
-        "values": [
+          { "value": "ATTACK_SPEED", "add": { "math": [ "u_wm_attack_speed * -10" ] } },
           { "value": "RANGED_DAMAGE", "add": { "math": [ "u_wm_ranged_damage" ] } },
           { "value": "WEAPON_DISPERSION", "multiply": { "math": [ "u_wm_dispersion * -0.05" ] } }
         ]
