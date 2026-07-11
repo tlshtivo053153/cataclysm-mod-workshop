@@ -159,78 +159,81 @@
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_detect_category", "wm_open_dialogue_detect" ]
+        "true_eocs": "EOC_WM_DIALOGUE_DETECT"
       }
     ]
   },
   {
     "type": "effect_on_condition",
-    "id": "wm_open_dialogue_detect",
+    "id": "EOC_WM_UPDATE_COST",
     "effect": [
       { "math": [ "u_wm_cost_melee_damage = n_wm_buff_melee_damage + 2" ] },
       { "math": [ "u_wm_cost_melee_tohit = n_wm_buff_melee_tohit + 2" ] },
       { "math": [ "u_wm_cost_attack_speed = n_wm_buff_attack_speed + 2" ] },
       { "math": [ "u_wm_cost_ranged_damage = n_wm_buff_ranged_damage + 2" ] },
-      { "math": [ "u_wm_cost_dispersion = n_wm_buff_dispersion + 2" ] },
+      { "math": [ "u_wm_cost_dispersion = n_wm_buff_dispersion + 2" ] }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_UPDATE_CAN_ENHANCE",
+    "effect": [
+      { "math": [ "_melee = 0" ] },
+      { "math": [ "_ranged = 0" ] },
       {
         "if": { "compare_string": [ "unsupported", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "math": [ "u_wm_can_melee = 0" ] },
-          { "math": [ "u_wm_can_ranged = 0" ] },
           { "u_message": "この武器は強化に対応していません。", "type": "bad" }
         ]
       },
       {
         "if": { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "math": [ "u_wm_can_melee = 1" ] },
-          { "math": [ "u_wm_can_ranged = 0" ] }
+          { "math": [ "_melee = 1" ] }
         ]
       },
       {
         "if": { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "math": [ "u_wm_can_melee = 0" ] },
-          { "math": [ "u_wm_can_ranged = 1" ] }
+          { "math": [ "_ranged = 1" ] }
         ]
       },
       {
         "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
         "then": [
-          { "math": [ "u_wm_can_melee = 1" ] },
-          { "math": [ "u_wm_can_ranged = 1" ] }
+          { "math": [ "_melee = 1" ] },
+          { "math": [ "_ranged = 1" ] }
         ]
       },
       {
-        "math": [ "u_wm_can_enh_melee_damage = u_wm_can_melee * (n_wm_buff_melee_damage < 4)" ]
+        "math": [ "u_wm_can_enh_melee_damage = _melee * (n_wm_buff_melee_damage < 4)" ]
       },
       {
-        "math": [ "u_wm_can_enh_melee_tohit = u_wm_can_melee * (n_wm_buff_melee_tohit < 4)" ]
+        "math": [ "u_wm_can_enh_melee_tohit = _melee * (n_wm_buff_melee_tohit < 4)" ]
       },
       {
-        "math": [ "u_wm_can_enh_attack_speed = u_wm_can_melee * (n_wm_buff_attack_speed < 4)" ]
+        "math": [ "u_wm_can_enh_attack_speed = _melee * (n_wm_buff_attack_speed < 4)" ]
       },
       {
-        "math": [ "u_wm_can_enh_ranged_damage = u_wm_can_ranged * (n_wm_buff_ranged_damage < 4)" ]
+        "math": [ "u_wm_can_enh_ranged_damage = _ranged * (n_wm_buff_ranged_damage < 4)" ]
       },
       {
-        "math": [ "u_wm_can_enh_dispersion = u_wm_can_ranged * (n_wm_buff_dispersion < 4)" ]
-      },
-      {
-        "math": [ "u_wm_max_melee_damage = u_wm_can_melee * (n_wm_buff_melee_damage >= 4)" ]
-      },
-      {
-        "math": [ "u_wm_max_melee_tohit = u_wm_can_melee * (n_wm_buff_melee_tohit >= 4)" ]
-      },
-      {
-        "math": [ "u_wm_max_attack_speed = u_wm_can_melee * (n_wm_buff_attack_speed >= 4)" ]
-      },
-      {
-        "math": [ "u_wm_max_ranged_damage = u_wm_can_ranged * (n_wm_buff_ranged_damage >= 4)" ]
-      },
-      {
-        "math": [ "u_wm_max_dispersion = u_wm_can_ranged * (n_wm_buff_dispersion >= 4)" ]
-      },
+        "math": [ "u_wm_can_enh_dispersion = _ranged * (n_wm_buff_dispersion < 4)" ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_REFRESH_ENHANCE_STATE",
+    "effect": [
+      { "run_eocs": [ "EOC_WM_UPDATE_COST", "EOC_WM_UPDATE_CAN_ENHANCE" ] }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_WM_DIALOGUE_DETECT",
+    "effect": [
+      { "run_eocs": "EOC_WM_REFRESH_ENHANCE_STATE" },
       { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
     ]
   },
@@ -354,18 +357,6 @@
         "true_eocs": [ "wm_detect_category", "wm_enhance_generic" ]
       },
       { "run_eocs": "wm_update_effects" }
-    ]
-  },
-  {
-    "type": "effect_on_condition",
-    "id": "EOC_WM_RETURN_TO_DIALOGUE",
-    "effect": [
-      { "run_eocs": "wm_update_effects" },
-      {
-        "u_run_inv_eocs": "all",
-        "search_data": [ { "wielded_only": true } ],
-        "true_eocs": [ "wm_detect_category", "wm_open_dialogue_detect" ]
-      }
     ]
   },
   {
