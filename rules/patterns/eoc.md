@@ -112,6 +112,38 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 
 これにより、カテゴリ判定（detect）と後続処理（add_xp）を別 EOC に分離しつつ、同一 `u_run_inv_eocs` 内で連続実行できる。実績: `external/cdda/data/mods/TEST_DATA/EOC.json`（3ID同時指定）、`Xedra_Evolved/mutations/dhampir_eocs.json`（2〜3ID指定）。
 
+### 同一フロー内での重複呼び出し回避
+
+`wielded_only: true` の `u_run_inv_eocs` を同一フロー内で複数回呼ぶ場合、先行する呼び出しで実行済みの EOC を後続で重複させないこと。特に `run_eocs` で呼ばれる EOC（例: `wm_update_effects`）が内部で `u_run_inv_eocs` を実行している場合、後続の `u_run_inv_eocs` で同じ処理を再度指定すると無駄な二重実行になる。
+
+```jsonc
+// 誤り: wm_update_effects が内部で既に wm_detect_category を実行しているのに、再度指定
+{
+  "effect": [
+    { "run_eocs": "wm_update_effects" },  // 内部で u_run_inv_eocs → wm_detect_category
+    {
+      "u_run_inv_eocs": "all",
+      "search_data": [ { "wielded_only": true } ],
+      "true_eocs": [ "wm_detect_category", "EOC_WM_DIALOGUE_DETECT" ]  // wm_detect_category 重複
+    }
+  ]
+}
+
+// 正しい: 先行呼び出しで実行済みの EOC は後続から除外
+{
+  "effect": [
+    { "run_eocs": "wm_update_effects" },
+    {
+      "u_run_inv_eocs": "all",
+      "search_data": [ { "wielded_only": true } ],
+      "true_eocs": "EOC_WM_DIALOGUE_DETECT"
+    }
+  ]
+}
+```
+
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `EOC_WM_OPEN_DIALOGUE` で `wm_detect_category` の二重呼び出しを解消。
+
 ## `character_kills_monster` イベントの注意点
 
 - `character_kills_monster` は**プレイヤー・NPC を問わず**全キャラクターで発火する
@@ -365,6 +397,78 @@ talk_topic の response `effect` は **配列形式**にも対応しており、
 - `data/json/npcs/missiondef.json:927` — バニラで `effect` 配列に `math` + `run_eocs` 混在
 - `data/json/npcs/isherwood_farm/NPC_Chris_Isherwood.json:768` — 同様の使用例
 - `mods/small/wm_weapon_mastery/data/talk_topics.json` — 5つの response を配列形式で統一
+
+### talk_topic response の `trial` によるリソースチェック
+
+talk_topic の response に `trial` フィールドを指定することで、EOC を介さずに talk_topic 内で条件チェックと分岐が可能になる。`trial` の condition が true なら `success`、false なら `failure` に分岐し、それぞれで別の `topic` と `effect` を指定できる。
+
+```jsonc
+{
+  "text": "近接ダメージ強化 [<u_val:wm_cost_melee_damage> XP]",
+  "condition": { "math": [ "u_wm_can_enh_melee_damage" ] },
+  "trial": { "type": "CONDITION", "condition": { "math": [ "u_wm_cost_melee_damage <= u_wm_xp" ] } },
+  "success": {
+    "topic": "TALK_WM_ENHANCE_SUCCESS",
+    "effect": [
+      { "math": [ "u_wm_enhance_type = 1" ] },
+      { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+    ]
+  },
+  "failure": {
+    "topic": "TALK_WM_ENHANCE_FAILURE"
+  }
+}
+```
+
+**構成要素**:
+- `condition` — 選択肢の表示可否（`can_enh_*` 変数で制御）
+- `trial` — `{ "type": "CONDITION", "condition": { ... } }` 形式。選択肢が選ばれた後にチェックされる
+- `success` — trial 成功時の `topic` と `effect`
+- `failure` — trial 失敗時の `topic`（effect は通常不要）
+
+**利点**:
+- リソースチェック（XP 不足等）を EOC 側ではなく talk_topic 側で宣言的に記述できる
+- 成功/失敗で別トピックに分岐するため、結果表示がシンプルになる
+- チェック用の専用 EOC が不要
+
+**注意**: `trial` の condition が false の場合、response の `effect` は実行されず `failure.topic` に直接遷移する。このため、`effect` での代入や副作用は `success.effect` に記述する必要がある。
+
+**実績**: `mods/small/wm_weapon_mastery/data/talk_topics.json` — 5つの強化選択肢すべてで `trial` を使用し、XP不足時のエラーページ分岐を実装。
+
+### talk_topic response `effect` 内での `u_run_inv_eocs` による状態更新
+
+talk_topic の response `effect` 配列内で `u_run_inv_eocs` を使用し、戻り先トピックに遷移する前に per-item の状態を再計算できる。`topic` による直接リダイレクトと組み合わせることで、専用の戻り用 EOC（`open_dialogue` を持つ EOC）が不要になる。
+
+```jsonc
+// 強化結果ページ → 強化選択ページに戻る際、cost / can_enh を最新化
+{
+  "type": "talk_topic",
+  "id": "TALK_WM_ENHANCE_SUCCESS",
+  "dynamic_line": "強化の結果が表示されました。",
+  "responses": [
+    {
+      "text": "戻る",
+      "topic": "TALK_WM_ENHANCE",
+      "effect": [
+        {
+          "u_run_inv_eocs": "all",
+          "search_data": [ { "wielded_only": true } ],
+          "true_eocs": "EOC_WM_REFRESH_ENHANCE_STATE"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**利点**:
+- 戻り先用の専用 EOC（旧 `EOC_WM_RETURN_TO_DIALOGUE`）が不要
+- `topic` による遷移と `effect` による状態更新を 1 つの response に集約できる
+- コードの流れが読みやすい（「戻る → 更新 → 次のトピック」の順序が明示的）
+
+**注意**: `effect` 配列内の `u_run_inv_eocs` は、`topic` によるトピック遷移の前に実行される。CDDA の response 処理は effect → topic の順序で行われるため、更新後の状態で戻り先トピックが表示される。
+
+**実績**: `mods/small/wm_weapon_mastery/data/talk_topics.json` — `TALK_WM_ENHANCE_SUCCESS` の「戻る」で `EOC_WM_REFRESH_ENHANCE_STATE` を実行。
 
 ### `dynamic_line` での `u_` 変数表示: `n_` → `u_` コピー + `<u_val:>` パターン
 
@@ -737,6 +841,54 @@ switch/case の前に型ガード（`if { "and": [ ">= 1", "<= 5" ] }`）を配�
 | リスク | 低（構造同一の保証がある場合） | — |
 
 **実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — 20 EOC → 12 EOC。5つのエントリポイント + 5つのネスト EOC を `EOC_WM_GENERIC_ENHANCE` + `wm_enhance_generic` の2 EOC に統合。
+
+### ラッパー EOC による呼び出し集約
+
+複数の EOC の組み合わせを異なる経路（`run_eocs` と `u_run_inv_eocs` の `true_eocs`）から呼び出す場合、ラッパー EOC を作成して呼び出しを 1 箇所に集約する。EOC の追加・順序変更時に全呼び出し箇所を修正する手間を省ける。
+
+```jsonc
+// ラッパー EOC: UPDATE_COST + UPDATE_CAN_ENHANCE の組み合わせを集約
+{
+  "type": "effect_on_condition",
+  "id": "EOC_WM_REFRESH_ENHANCE_STATE",
+  "effect": [
+    { "run_eocs": [ "EOC_WM_UPDATE_COST", "EOC_WM_UPDATE_CAN_ENHANCE" ] }
+  ]
+}
+
+// 呼び出し元 A: EOC_WM_DIALOGUE_DETECT 内の run_eocs
+{
+  "id": "EOC_WM_DIALOGUE_DETECT",
+  "effect": [
+    { "run_eocs": "EOC_WM_REFRESH_ENHANCE_STATE" },
+    { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
+  ]
+}
+
+// 呼び出し元 B: talk_topic response 内の u_run_inv_eocs
+{
+  "effect": [
+    {
+      "u_run_inv_eocs": "all",
+      "search_data": [ { "wielded_only": true } ],
+      "true_eocs": "EOC_WM_REFRESH_ENHANCE_STATE"
+    }
+  ]
+}
+```
+
+**適用条件**:
+- 同じ EOC の組み合わせが 2 箇所以上で使われている
+- 呼び出し経路が異なる（`run_eocs` / `true_eocs` / `u_run_inv_eocs` 内の `run_eocs`）
+
+**利点**:
+- 組み合わせに変更があってもラッパー EOC 1 箇所の修正で済む
+- 意味的なまとまりに名前が付き、コードの意図が明確になる
+- `run_eocs` と `u_run_inv_eocs` の `true_eocs` の両方から同じラッパーを参照できる
+
+**注意**: ラッパー EOC 内の `run_eocs` は talker コンテキストを継承する。`u_run_inv_eocs` の nested EOC として呼ばれる場合も、item を beta talker とするコンテキストがラッパー内の `run_eocs` に引き継がれるため、内部の EOC はアイテム変数（`n_`）にアクセスできる。
+
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `EOC_WM_REFRESH_ENHANCE_STATE` が `EOC_WM_UPDATE_COST` + `EOC_WM_UPDATE_CAN_ENHANCE` をラップ。
 
 ## switch/case による条件分岐
 
