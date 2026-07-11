@@ -785,6 +785,8 @@ CDDA の EOC はパラメータを受け取れないため、同じ構造で変�
 }
 ```
 
+> **注**: talk_topic の response `condition` でカテゴリ制約が既にフィルタリングされている場合、この outer gate は除去し EOC を純粋な実行ロジックにできる。詳細は後続「カテゴリ outer gate の除去」節を参照。
+
 ### 防御的 else の必須ルール
 
 if/else 連鎖で数値によるルーティングを行う場合、**連鎖の最末尾に未初期化値（`u_` 変数はデフォルト 0）を捕捉する防御的 else が必須**。
@@ -841,6 +843,48 @@ switch/case の前に型ガード（`if { "and": [ ">= 1", "<= 5" ] }`）を配�
 | リスク | 低（構造同一の保証がある場合） | — |
 
 **実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — 20 EOC → 12 EOC。5つのエントリポイント + 5つのネスト EOC を `EOC_WM_GENERIC_ENHANCE` + `wm_enhance_generic` の2 EOC に統合。
+
+### カテゴリ outer gate の除去: ダイアログ層フィルタリングとの役割分離
+
+talk_topic の response に `condition` でカテゴリ制約（例: `u_wm_can_enh_melee_damage`）が既に定義されている場合、EOC 側で同じ制約を outer gate として重複検証する必要はない。**制約は入口（ダイアログ）で一元的に管理し、EOC は純粋な実行ロジックに徹する。**
+
+```jsonc
+// BEFORE: EOC が武器カテゴリを再検証（二重チェック）
+{
+  "id": "wm_enhance_generic",
+  "effect": [{
+    "if": { /* 近接/遠隔/両方のカテゴリ制約 outer gate */ },
+    "then": [ /* 強化ロジック */ ],
+    "else": [ { "u_message": "この武器ではこの強化は利用できません。", "type": "bad" } ]
+  }]
+}
+
+// AFTER: EOC は型ガード（1〜5）のみ。カテゴリ制約は talk_topic の condition に委譲
+{
+  "id": "wm_enhance_generic",
+  "effect": [{
+    "if": { "and": [
+      { "math": [ "u_wm_enhance_type >= 1" ] },
+      { "math": [ "u_wm_enhance_type <= 5" ] }
+    ]},
+    "then": [ /* 強化ロジック — カテゴリチェックなし */ ],
+    "else": [ { "u_message": "内部エラー: 不明な強化タイプです。", "type": "bad" } ]
+  }]
+}
+```
+
+**前提条件**:
+- talk_topic の全 response に `condition` が定義され、EOC 到達前に不適格な選択肢がフィルタリングされていること
+- `condition` で使われる変数（例: `u_wm_can_enh_*`）が `open_dialogue` より前に計算済みであること（`open_dialogue` と変数定義の順序を参照）
+
+**利点**:
+- EOC が武器カテゴリ（melee/ranged/supported）の知識を持たなくて済む
+- カテゴリ追加時に EOC の修正が不要（talk_topic の condition のみ変更）
+- 二重検証による不整合（EOC側とダイアログ側で制約が食い違う）のリスクがなくなる
+
+**注意**: ダイアログを経由せず EOC が直接呼ばれる経路（例: `run_eocs` によるデバッグ呼び出し）がある場合、outer gate は必須。除去できるのは**全呼び出し経路がダイアログの condition フィルタリングを通過している**場合のみ。
+
+**実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `wm_enhance_generic` から武器カテゴリ outer gate を除去。カテゴリ制約は `EOC_WM_UPDATE_CAN_ENHANCE` → talk_topic response `condition` に集約。
 
 ### ラッパー EOC による呼び出し集約
 
@@ -1139,6 +1183,71 @@ CDDA の `var_val` は変数名の文字列を解決して実変数にアクセ�
 
 - `external/cdda/data/mods/TEST_DATA/EOC.json:776-793` — `copy_var` + `var_val` source の全スコープテスト
 - `mods/small/wm_weapon_mastery/data/eoc.json` — 5-to-1 コード統合（~90行削減）
+
+## context_val によるメッセージ文字列の動的生成
+
+`set_string_var` でコンテキスト変数に表示用文字列を格納し、`<context_val:>` タグでメッセージに埋め込むことで、switch/case によるメッセージ分岐を排除できる。
+
+### 問題: switch/case によるメッセージの重複
+
+結果コードパターン（前述「結果コードによる計算/表示の分離」）では、各 case 内に同じ構造のメッセージブロック（成功/最大/不足の 3-way if）が繰り返される。メッセージ文字列だけが異なる。
+
+```jsonc
+// switch/case による表示（5 case × 3 if = 15ブロックの重複）
+{ "switch": { "math": [ "u_wm_enhance_type" ] },
+  "cases": [
+    { "case": 1, "effect": [
+      { "if": { "math": [ "u_wm_upgrade_result == 1" ] },
+        "then": [ { "u_message": "近接ダメージ強化 Tier ... を取得しました！", "type": "good" } ] },
+      { "if": { "math": [ "u_wm_upgrade_result == 2" ] },
+        "then": [ { "u_message": "近接ダメージは既に最大レベルです。", "type": "bad" } ] },
+      { "if": { "math": [ "u_wm_upgrade_result == 3" ] },
+        "then": [ { "u_message": "XPが不足しています。", "type": "bad" } ] }
+    ]},
+    // case 2-5: 同構造。メッセージ文字列のみ異なる（近接命中/攻撃速度/遠隔ダメ/遠隔精度）
+  ]
+}
+```
+
+### 解決策: set_string_var + <context_val:> でメッセージを動的化
+
+switch/case で型別にメッセージ文字列を用意する代わりに、各型分岐で `set_string_var` によりコンテキスト変数にメッセージ用文字列を格納する。メッセージ表示は型によらず共通の 1 ブロックのみ。
+
+```jsonc
+// Step 1: 型判定 → context_val に表示名を格納（switch/case 不要）
+{ "if": { "math": [ "u_wm_enhance_type == 1" ] },
+  "then": [
+    { "set_string_var": "近接ダメージ強化", "target_var": { "context_val": "upgrade_type"} }
+  ]},
+{ "if": { "math": [ "u_wm_enhance_type == 2" ] },
+  "then": [
+    { "set_string_var": "近接命中強化", "target_var": { "context_val": "upgrade_type"} }
+  ]},
+// ... type 3, 4, 5 も同様
+
+// Step 2: 表示 — 全型で共通の 3-way if（1ブロックのみ）
+{ "if": { "math": [ "u_wm_upgrade_result == 1" ] },
+  "then": [ { "u_message": "<context_val:upgrade_type> Tier <npc_val:wm_upgrade_tier> を取得しました！", "type": "good" } ] },
+{ "if": { "math": [ "u_wm_upgrade_result == 2" ] },
+  "then": [ { "u_message": "<context_val:upgrade_type>は既に最大レベルです。", "type": "bad" } ] },
+{ "if": { "math": [ "u_wm_upgrade_result == 3" ] },
+  "then": [ { "u_message": "XPが不足しています。 (現在XP: <npc_val:wm_xp>)", "type": "bad" } ] }
+```
+
+### 効果
+
+| 指標 | Before (switch/case + 3-way if) | After (context_val + 3-way if) |
+|---|---|---|
+| メッセージブロック数 | 5 case × 3 if = 15 | 1 × 3 if = 3 |
+| ネスト段数 | 3段（switch → case → if） | 2段（if/else チェーン → if） |
+| 型追加時の変更箇所 | case effect 全体を複製（10行） | set_string_var 1行 + メッセージ文字列 |
+
+### context_val の寿命
+
+`context_val` は EOC 実行中のみ有効な一時変数。`run_eocs` で別 EOC に遷移すると失われるため、メッセージ表示は同じ EOC 内で行うこと。
+
+### 実績
+`mods/small/wm_weapon_mastery/data/eoc.json` — `wm_enhance_generic` で switch/case メッセージブロックを全廃。5型 × 3メッセージの重複を context_val 3メッセージに統合。
 
 ## 参照先
 

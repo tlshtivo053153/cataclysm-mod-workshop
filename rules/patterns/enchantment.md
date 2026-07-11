@@ -197,54 +197,106 @@ per-item EOC → n_wm_buff_* を読み取り → math: u_wm_* = n_wm_buff_* → 
 {
   "type": "effect_on_condition",
   "id": "wm_apply_buffs",
-  "effect": [{
-    "if": { "npc_has_flag": "WM_SUPPORTED" },
-    "then": [
-      { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
-      { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
-      { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
-      { "u_add_effect": "wm_buff_supported", "duration": "1 hour" }
+  "effect": [
+    { "math": [ "u_wm_xp = n_wm_xp" ] },
+    { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
+    { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
+    { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
+    { "math": [ "u_wm_ranged_damage = n_wm_buff_ranged_damage" ] },
+    { "math": [ "u_wm_dispersion = n_wm_buff_dispersion" ] },
+    { "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
+      "then": [ { "u_add_effect": "wm_buff_supported", "duration": "1 hour" } ] },
+    { "if": { "or": [
+      { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+      { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] }
+    ]},
+      "then": [ { "u_add_effect": "wm_buff_common", "duration": "1 hour" } ] }
+  ]
+}
+```
+
+> **注**: ブリッジ（n_ → u_ コピー）の後に effect を付与する。全変数を `n_` から常時設定することで分岐内ゼロクリアが不要になるパターンは、次節「変数残留防止パターン」を参照。
+
+## 変数残留防止パターン
+
+### 問題
+
+武器種別ごとに異なる効果を付与する場合、持ち替え時に前の武器種別の `u_` 変数が残留する。
+例えば近接武器 → 遠隔武器に持ち替えたとき、`u_wm_melee_damage` が残ったままだと
+遠隔武器使用時にも近接ダメージボーナスが適用されてしまう。
+
+### 推奨パターン: always-set from n_ + 統一effect（ゼロクリア不要）
+
+全変数の値がアイテム変数（`n_`）由来の場合、分岐でゼロクリアする代わりに**常に全変数を `n_` から設定し、単一の統合 effect を使う**。未使用ステータスの `n_` 変数は 0 なのでエンチャント効果も実質 0（no-op）になる。
+
+```json
+// wm_apply_buffs: 全 u_ 変数を常に n_ から設定（分岐内ゼロクリア不要）
+"effect": [
+  { "math": [ "u_wm_xp = n_wm_xp" ] },
+  { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
+  { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
+  { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
+  { "math": [ "u_wm_ranged_damage = n_wm_buff_ranged_damage" ] },
+  { "math": [ "u_wm_dispersion = n_wm_buff_dispersion" ] },
+  { "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
+    "then": [ { "u_add_effect": "wm_buff_supported", "duration": "1 hour" } ] },
+  {
+    "if": { "or": [
+      { "compare_string": [ "melee", { "npc_val": "wm_wcat" } ] },
+      { "compare_string": [ "ranged", { "npc_val": "wm_wcat" } ] }
+    ]},
+    "then": [ { "u_add_effect": "wm_buff_common", "duration": "1 hour" } ]
+  }
+]
+
+// effects.json: 全 enchantment を含む単一 effect_type（近接/遠隔両方に対応）
+{
+  "id": "wm_buff_common",
+  "enchantments": [{
+    "condition": "ALWAYS",
+    "values": [
+      { "value": "MELEE_DAMAGE", "add": { "math": [ "u_wm_melee_damage" ] } },
+      { "value": "MELEE_TO_HIT", "add": { "math": [ "u_wm_melee_tohit" ] } },
+      { "value": "ATTACK_SPEED", "add": { "math": [ "u_wm_attack_speed * -10" ] } },
+      { "value": "RANGED_DAMAGE", "add": { "math": [ "u_wm_ranged_damage" ] } },
+      { "value": "WEAPON_DISPERSION", "multiply": { "math": [ "u_wm_dispersion * -0.05" ] } }
     ]
   }]
 }
 ```
 
-## 変数残留防止のゼロクリアパターン
+**利点**:
+- 分岐ごとに未使用フィールドをゼロクリアする必要がない（`n_` 変数が 0 なら効果も 0）
+- 武器種別ごとに別々の `effect_type` が不要（melee/ranged を統合可能）
+- 抜け漏れによる残留バグのリスクがなくなる
 
-### 問題
+> **注**: 上記の実コードでは `wm_buff_supported` と `wm_buff_common` の2つの effect_type が残っている。`wm_buff_common` は melee/ranged を統合したが、`wm_buff_supported` は supported 武器用に別カテゴリとして分離されている（両者は同一の enchantments を持つが、意味的に異なるカテゴリとして管理）。統合できる部分と独立させるべき部分を適切に判断すること。
 
-武器種別ごとに異なる effect を付与する場合、持ち替え時に前の武器種別の `u_` 変数が残留する。
-例えば近接武器 → 遠隔武器に持ち替えたとき、`u_wm_melee_damage` が残ったままだと
-遠隔武器使用時にも近接ダメージボーナスが適用されてしまう。
+### 適用条件
 
-### 解決策: 各分岐で未使用変数を明示的に 0 クリア
+このパターンが使えるのは、未使用変数が残留しても効果が発現しない（値が 0 である）ことが保証される場合。典型的には**全変数がアイテム由来**（`n_` → `u_` コピー、未使用アイテムでは `n_` = 0）。計算結果やイベント由来の変数でも、**全分岐パスで必ず値が設定される**ことが保証されていれば使用可能。保証できない場合は旧来のゼロクリアパターンを使用する。
+
+### 旧パターン: 各分岐で未使用変数を明示的に 0 クリア（非推奨）
+
+`n_` 変数に依存しない計算や、異なる effect_type 間で管理が必要な場合のフォールバック。
 
 ```json
-// 近接武器ブロック
+// 近接武器ブロック — 各分岐で未使用変数を 0 クリア
 "then": [
   { "math": [ "u_wm_melee_damage = n_wm_buff_melee_damage" ] },
-  { "math": [ "u_wm_melee_tohit = n_wm_buff_melee_tohit" ] },
-  { "math": [ "u_wm_attack_speed = n_wm_buff_attack_speed" ] },
   { "math": [ "u_wm_ranged_damage = 0" ] },
-  { "math": [ "u_wm_dispersion = 0" ] },
   { "u_add_effect": "wm_buff_melee", "duration": "1 hour" }
-]
-
-// 遠隔武器ブロック
-"then": [
-  { "math": [ "u_wm_melee_damage = 0" ] },
-  { "math": [ "u_wm_melee_tohit = 0" ] },
-  { "math": [ "u_wm_attack_speed = 0" ] },
-  { "math": [ "u_wm_ranged_damage = n_wm_buff_ranged_damage" ] },
-  { "math": [ "u_wm_dispersion = n_wm_buff_dispersion" ] },
-  { "u_add_effect": "wm_buff_ranged", "duration": "1 hour" }
 ]
 ```
 
-### 原則
+**使い分け**:
+| 条件 | 推奨パターン |
+|---|---|
+| 全変数が `n_` からコピー、または全分岐で値が保証される | always-set from n_ + 統一effect |
+| 分岐ごとに変数値が異なり、保証できない | ゼロクリア（旧パターン） |
 
-- **全ブロックが全 u_ 変数を網羅する** — 各 if/then ブロック内で、その武器種別に関係ない変数も明示的に 0 を代入
-- **抜けがあると残留バグの原因**になる（発見が難しく、プレイヤーには不可解な挙動に見える）
+### 実績
+`mods/small/wm_weapon_mastery/data/` — `wm_buff_melee` + `wm_buff_ranged` を `wm_buff_common` に統合。eoc.json の `wm_apply_buffs` で全変数を `n_` から常時設定し、分岐内ゼロクリアを全廃。
 
 ## 使用できない旧 enchantment value
 
