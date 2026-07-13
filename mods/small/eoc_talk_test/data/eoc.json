@@ -9,6 +9,10 @@
       { "run_eocs": "EOC_ETT_TEST_STRING_VAR" },
       { "run_eocs": "EOC_ETT_TEST_IF_ELSE" },
       { "run_eocs": "EOC_ETT_TEST_COMPOUND_COND" },
+      { "run_eocs": "EOC_ETT_TEST_CTX_BASELINE" },
+      { "run_eocs": "EOC_ETT_TEST_CTX_EOC_CALLER" },
+      { "run_eocs": "EOC_ETT_TEST_CTX_VARIABLES_CALLER" },
+      { "run_eocs": "EOC_ETT_TEST_CTX_MUTATION_CALLER" },
       { "u_message": "=== All EOC tests complete. Use debug menu → Run EOC → EOC_ETT_OPEN_TALK_TEST for talk_topic tests. ===", "type": "good" }
     ]
   },
@@ -187,6 +191,84 @@
     "effect": [
       { "run_eocs": "EOC_ETT_TALK_SETUP_VARS" },
       { "open_dialogue": { "topic": "TALK_ETT_MAIN" } }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_CTX_BASELINE",
+    "effect": [
+      { "set_string_var": "works_in_same_eoc", "target_var": { "context_val": "ett_ctx_baseline" } },
+      { "copy_var": { "context_val": "ett_ctx_baseline" }, "target_var": { "u_val": "ett_ctx_baseline_bk" } },
+      { "u_message": "[CTX BASELINE] context_val: <context_val:ett_ctx_baseline>, u_val: <u_val:ett_ctx_baseline_bk> (expect: works_in_same_eoc)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_CTX_EOC_CALLER",
+    "effect": [
+      { "set_string_var": "survived_run_eocs", "target_var": { "context_val": "ett_ctx_caller" } },
+      { "u_message": "[CTX EOC CALLER] set context_val 'ett_ctx_caller' = 'survived_run_eocs', calling callee...", "type": "info" },
+      { "run_eocs": "EOC_ETT_TEST_CTX_EOC_CALLEE" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_CTX_EOC_CALLEE",
+    "effect": [
+      { "u_message": "[CTX EOC CALLEE] context_val 'ett_ctx_caller' = <context_val:ett_ctx_caller> (expect: survived_run_eocs)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_CTX_VARIABLES_CALLER",
+    "effect": [
+      {
+        "run_eocs": "EOC_ETT_TEST_CTX_VARIABLES_CALLEE",
+        "variables": { "ett_ctx_passed": "passed_via_variables" }
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_CTX_VARIABLES_CALLEE",
+    "effect": [
+      { "u_message": "[CTX VARIABLES CALLEE] context_val 'ett_ctx_passed' = <context_val:ett_ctx_passed> (expect: passed_via_variables — variables 経由)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_CTX_PRE_DIALOGUE",
+    "effect": [
+      { "set_string_var": "set_before_open_dialogue", "target_var": { "context_val": "ett_ctx_pre" } },
+      { "copy_var": { "context_val": "ett_ctx_pre" }, "target_var": { "u_val": "ett_ctx_pre_bk" } },
+      { "open_dialogue": { "topic": "TALK_ETT_CTX_FROM_EOC" } }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TALK_CTX_SETTER",
+    "effect": [
+      { "set_string_var": "survived_talk_topic_to_topic", "target_var": { "context_val": "ett_ctx_val" } },
+      { "copy_var": { "context_val": "ett_ctx_val" }, "target_var": { "u_val": "ett_ctx_val_bk" } }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_CTX_MUTATION_CALLER",
+    "effect": [
+      { "set_string_var": "original_value", "target_var": { "context_val": "ett_ctx_mut_val" } },
+      { "u_message": "[CTX MUT CALLER] before callee: <context_val:ett_ctx_mut_val> (expect: original_value)", "type": "info" },
+      { "run_eocs": "EOC_ETT_TEST_CTX_MUTATION_CALLEE" },
+      { "u_message": "[CTX MUT CALLER] after callee: <context_val:ett_ctx_mut_val> (expect: original_value — callee の変更は伝播しない)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_CTX_MUTATION_CALLEE",
+    "effect": [
+      { "u_message": "[CTX MUT CALLEE] received: <context_val:ett_ctx_mut_val> (expect: original_value)", "type": "info" },
+      { "set_string_var": "modified_by_callee", "target_var": { "context_val": "ett_ctx_mut_val" } },
+      { "u_message": "[CTX MUT CALLEE] after overwrite: <context_val:ett_ctx_mut_val> (expect: modified_by_callee)", "type": "info" }
     ]
   }
 ]

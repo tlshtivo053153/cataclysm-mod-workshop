@@ -9,6 +9,10 @@
         "topic": "TALK_ETT_CONDITION_TEST"
       },
       {
+        "text": "context_valスコープテスト",
+        "topic": "TALK_ETT_CTX_MENU"
+      },
+      {
         "text": "終了",
         "topic": "TALK_DONE"
       }
@@ -87,6 +91,158 @@
       {
         "text": "戻る",
         "topic": "TALK_ETT_CONDITION_TEST"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_MENU",
+    "dynamic_line": "context_val スコープテスト\n\ncontext_val の寿命とスコープは設定方法によって異なります。以下のテストで各パターンを検証します。",
+    "responses": [
+      {
+        "text": "effect → EOCでcontext_val設定 → 別topicで表示",
+        "topic": "TALK_ETT_CTX_EFFECT_TOPIC"
+      },
+      {
+        "text": "EOCでcontext_val設定 → open_dialogue（デバッグメニューから EOC_ETT_CTX_PRE_DIALOGUE を手動実行）",
+        "topic": "TALK_ETT_CTX_MENU"
+      },
+      {
+        "text": "effect内で直接set_string_var → 別topicで表示",
+        "topic": "TALK_ETT_CTX_EFFECT_DIRECT"
+      },
+      {
+        "text": "context_val チェーンテスト（複数topic跨ぎ）",
+        "topic": "TALK_ETT_CTX_CHAIN_1"
+      },
+      {
+        "text": "context_val 残存確認（直接表示）",
+        "topic": "TALK_ETT_CTX_CHAIN_DISPLAY"
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_MAIN"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_EFFECT_TOPIC",
+    "dynamic_line": "responseを選ぶと、EOCでcontext_valを設定して次のtopicに遷移します",
+    "responses": [
+      {
+        "text": "実行",
+        "effect": [ { "run_eocs": "EOC_ETT_TALK_CTX_SETTER" } ],
+        "topic": "TALK_ETT_CTX_DISPLAY"
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_MENU"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_DISPLAY",
+    "dynamic_line": "context_val: '<context_val:ett_ctx_val>'\nu_val fallback: '<u_val:ett_ctx_val_bk>'",
+    "responses": [
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_MENU"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_FROM_EOC",
+    "dynamic_line": "EOCで設定したcontext_val: '<context_val:ett_ctx_pre>'\nu_val fallback: '<u_val:ett_ctx_pre_bk>'",
+    "responses": [
+      {
+        "text": "戻る",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_EFFECT_DIRECT",
+    "dynamic_line": "responseを選ぶと、effect内で直接context_valを設定して次のtopicに遷移します（run_eocs非経由）",
+    "responses": [
+      {
+        "text": "実行",
+        "effect": [
+          { "set_string_var": "direct_in_effect", "target_var": { "context_val": "ett_ctx_direct" } },
+          { "set_string_var": "direct_in_effect_bk", "target_var": { "u_val": "ett_ctx_direct_bk" } }
+        ],
+        "topic": "TALK_ETT_CTX_DISPLAY_DIRECT"
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_MENU"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_DISPLAY_DIRECT",
+    "dynamic_line": "effect内で直接set_string_var\ncontext_val: '<context_val:ett_ctx_direct>'\nu_val: '<u_val:ett_ctx_direct_bk>'",
+    "responses": [
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_MENU"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_CHAIN_1",
+    "dynamic_line": "Step 1: responseを選ぶと ett_ctx_step1 を設定して次へ",
+    "responses": [
+      {
+        "text": "Step 1 実行 → Step 2 へ",
+        "effect": [
+          { "set_string_var": "step1_value", "target_var": { "context_val": "ett_ctx_step1" } },
+          { "set_string_var": "step1_value_bk", "target_var": { "u_val": "ett_ctx_step1_bk" } }
+        ],
+        "topic": "TALK_ETT_CTX_CHAIN_2"
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_MENU"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_CHAIN_2",
+    "dynamic_line": "Step 2: ett_ctx_step1 = '<context_val:ett_ctx_step1>'\nu_val fallback: '<u_val:ett_ctx_step1_bk>'\n\nresponseを選ぶと ett_ctx_step2 を追加設定",
+    "responses": [
+      {
+        "text": "Step 2 実行 → 表示へ",
+        "effect": [
+          { "set_string_var": "step2_value", "target_var": { "context_val": "ett_ctx_step2" } },
+          { "set_string_var": "step2_value_bk", "target_var": { "u_val": "ett_ctx_step2_bk" } }
+        ],
+        "topic": "TALK_ETT_CTX_CHAIN_DISPLAY"
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_CHAIN_1"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_CHAIN_DISPLAY",
+    "dynamic_line": "チェーン結果表示\n\nett_ctx_step1: '<context_val:ett_ctx_step1>'\nu_val step1: '<u_val:ett_ctx_step1_bk>'\n\nett_ctx_step2: '<context_val:ett_ctx_step2>'\nu_val step2: '<u_val:ett_ctx_step2_bk>'",
+    "responses": [
+      {
+        "text": "前のtopicへ（効果なし）",
+        "topic": "TALK_ETT_CTX_CHAIN_2"
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_MENU"
       }
     ]
   }
