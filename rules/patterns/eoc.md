@@ -231,6 +231,45 @@ talk_topic の response `condition`（`{ "math": [ "u_var == 1" ] }`）は `open
 
 **実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `EOC_WM_DIALOGUE_DETECT` で `EOC_WM_REFRESH_ENHANCE_STATE` を `run_eocs` で実行後に `open_dialogue` を配置。
 
+### 表示テキスト内の `<` `>` 文字の全角化
+
+CDDA のタグパーサ（`src/npctalk.cpp:2607` `parse_tags`）は `<タグ名:...>` 形式のタグを解釈する。このため、表示テキスト（`u_message`, talk_topic の `text` / `dynamic_line`）内に比較演算子として `<` `>` を含めると、タグの開始・終了と誤認されて `Bad tag` エラーやテキスト途切れが発生する。
+
+**影響範囲**:
+- `u_message` の表示文字列
+- talk_topic の `text`（response 選択肢テキスト）
+- talk_topic の `dynamic_line`
+- その他、画面に表示されるすべての文字列
+
+**影響を受けないもの**:
+- math 式文字列（`"u_test_a < 5"`）→ タグパーサを通らない
+- condition 内の式（`{ "math": [ "u_val >= 10" ] }`）→ タグパーサを通らない
+- 正当なタグ（`<u_val:xxx>`, `<context_val:xxx>`, `<npc_val:xxx>` 等）→ 半角のまま維持
+
+**解決策**: 表示テキスト内の比較演算子 `<` `>` を全角 `＜`（U+FF1C）`＞`（U+FF1E）に置換する。`<=` は `＜=`、`>=` は `＞=` と書く。
+
+```jsonc
+// 誤: 半角 < > が u_message 内にある
+{ "u_message": "[MATH COMPARE] lt (5<10): <u_val:test_lt> (expect 1)" }
+
+// 正: 比較演算子のみ全角化。タグ <u_val:...> は半角のまま
+{ "u_message": "[MATH COMPARE] lt (5＜10): <u_val:test_lt> (expect 1)" }
+```
+
+```jsonc
+// talk_topic response text でも同様
+// 誤
+{ "text": "math >= 40（条件を満たす場合のみ表示）" }
+
+// 正
+{ "text": "math ＞= 40（条件を満たす場合のみ表示）" }
+```
+
+**実績**:
+- `mods/small/wm_weapon_mastery/data/eoc.json` — `u_message` 内で `＜` を使用（`2＜4 expect 1`）
+- `mods/small/eoc_talk_test/data/eoc.json` — 全 `u_message` で比較演算子を全角化
+- `mods/small/eoc_talk_test/data/talk_topics.json` — response `text` 内の `>=` を `＞=` に全角化
+
 ### カテゴリフラグによるゲーティングパターン
 
 近接/遠隔などカテゴリによって表示を切り替える場合、カテゴリフラグ（`_melee` / `_ranged` 等の一時変数）を乗数に使うことで分岐内のゼロ初期化を省略できる。

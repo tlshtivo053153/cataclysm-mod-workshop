@@ -92,7 +92,7 @@
 - **解決策:** EOC 条件から `compare_int` を削除する
 - **詳細:** [`version_diff.md#eoc`](version_diff.md)
 
-### `Invalid or misplaced field name "open_dialogue"` (EOC)
+### `open_dialogue` の書式エラー（EOC）
 
 - **現象:** debug.log に `Unread data.  Invalid or misplaced field name "open_dialogue" in JSON data` と表示される
 - **原因:** EOC effect 内の `open_dialogue` に裸の文字列を指定している
@@ -100,6 +100,20 @@
   - 誤: `{ "open_dialogue": "TALK_MY_DIALOGUE" }`
   - 正: `{ "open_dialogue": { "topic": "TALK_MY_DIALOGUE" } }`
 - **参照:** `rules/patterns/eoc.md#open_dialogue-の構文`
+
+### 表示テキスト内の `＜` `＞` による `Bad tag` エラー・テキスト途切れ
+
+- **現象:** debug.log に `DEBUG : Bad tag. '<...>'` が表示される、または `u_message` / talk_topic の `text` / `dynamic_line` のテキストが途中で途切れる
+- **原因:** CDDA のタグパーサ（`src/npctalk.cpp:2607` `parse_tags`）が表示テキスト内の半角 `<` をタグ開始、半角 `>` をタグ終了と解釈する。比較演算子 `＜`, `＞`, `＜=`, `＞=` を含む文字列が誤ってタグとして処理される
+- **対象:** `u_message`, talk_topic の `text` / `dynamic_line` 等、画面に表示されるすべての文字列
+- **影響を受けないもの:** math 式文字列（`"u_test_a < 5"`）、condition 内の式。これらはタグパーサを通らない
+- **解決策:** 表示テキスト内の半角 `<` `>` を全角 `＜`（U+FF1C）`＞`（U+FF1E）に置換する
+  - 誤: `"[MATH COMPARE] lt (5<10): <u_val:test_lt> (expect 1)"`
+  - 正: `"[MATH COMPARE] lt (5＜10): <u_val:test_lt> (expect 1)"`
+  - 誤: `"math >= 40（条件を満たす場合のみ表示）"`
+  - 正: `"math ＞= 40（条件を満たす場合のみ表示）"`
+- **注意:** `<u_val:xxx>`, `<context_val:xxx>`, `<npc_val:xxx>` 等の正当なタグは半角 `<` `>` のまま維持すること。置換対象は比較演算子としての `<` `>` のみ
+- **参照:** `rules/patterns/eoc.md` の「表示テキスト内の `<` `>` 文字の全角化」
 
 ### `rot_spawn` 形式エラー
 - **解決策:** 配列形式からオブジェクト形式へ変更
