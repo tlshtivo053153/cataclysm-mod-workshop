@@ -1149,7 +1149,7 @@ CDDA の `var_val` は変数名の文字列を解決して実変数にアクセ�
 ### 操作用語
 
 - **`set_string_var`**: 文字列を context_val / npc_val に格納する。第1引数は値となる文字列、`target_var` で格納先を指定
-- **`context_val`**: EOC 実行中のみ有効なコンテキスト変数。`var_val` の名前解決に使われる
+- **`context_val`**: コンテキスト変数。EOC 内では `run_eocs` を跨いで生存（コピー渡し）。dialogue effect 内で直接設定すれば dialogue セッション中は topic 跨ぎで永続。`var_val` の名前解決に使われる
 - **`copy_var`**: source の変数値を target にコピーする。source / target_var は両方とも変数オブジェクト（`{ "npc_val": "..." }` 等）
 - **`var_val`**: 変数オブジェクト内で使用。context_val の文字列を実変数名に解決する
 
@@ -1281,9 +1281,88 @@ switch/case で型別にメッセージ文字列を用意する代わりに、�
 | ネスト段数 | 3段（switch → case → if） | 2段（if/else チェーン → if） |
 | 型追加時の変更箇所 | case effect 全体を複製（10行） | set_string_var 1行 + メッセージ文字列 |
 
-### context_val の寿命
+### context_val の寿命とスコープ
 
-`context_val` は EOC 実行中のみ有効な一時変数。`run_eocs` で別 EOC に遷移すると失われるため、メッセージ表示は同じ EOC 内で行うこと。
+#### EOC 内スコープ
+
+`context_val` は EOC 実行中に有効。`run_eocs` で別 EOC を呼ぶと、呼出元の `context_val` は**コピー**されて callee に渡る。callee 側での書き換えは caller 側に伝播しない。
+
+```jsonc
+// CALLER: context_val を設定
+{ "set_string_var": "original", "target_var": { "context_val": "my_var" } },
+{ "run_eocs": "EOC_CALLEE" },
+// ここでの my_var は "original" のまま（callee の変更は伝播しない）
+{ "u_message": "<context_val:my_var>" }  // → "original"
+```
+
+明示的に変数を渡すには `run_eocs` の `"variables"` パラメータを使う:
+
+```jsonc
+{
+  "run_eocs": "EOC_CALLEE",
+  "variables": { "passed_key": "passed_value" }
+}
+// callee 側で { "context_val": "passed_key" } で読み取り可能
+```
+
+`run_eocs` + `variables` の構文は**フラットな兄弟構造**であり、入れ子オブジェクトは不可:
+
+```jsonc
+// 正しい
+{ "run_eocs": "EOC_ID", "variables": { "key": "value" } }
+
+// 誤り（"variables" が認識されない）
+{ "run_eocs": { "id": "EOC_ID", "variables": { "key": "value" } } }
+```
+
+#### Dialogue 内スコープ
+
+`context_val` の dialogue 内での挙動は設定方法によって異なる:
+
+| 設定方法 | topic 遷移後の生存 | 備考 |
+|---------|-------------------|------|
+| talk_topic の `effect` 内で `set_string_var` を**直接**発行 | **生存する** | dialogue セッション中は複数 topic 跨ぎで永続 |
+| talk_topic の `effect` → `run_eocs` → EOC 内で設定 | **消失する** | EOC コンテキストと dialogue コンテキストは別 |
+| EOC 内で設定 → `open_dialogue` | **消失する** | `open_dialogue` は新規 dialogue コンテキストを作成 |
+| dialogue を閉じる | **全クリア** | セッション終了で破棄 |
+
+```jsonc
+// 生存するパターン: effect 内で直接 set_string_var
+{
+  "text": "実行",
+  "effect": [
+    { "set_string_var": "value", "target_var": { "context_val": "my_var" } }
+  ],
+  "topic": "TALK_DISPLAY"  // 遷移先でも <context_val:my_var> で表示可能
+}
+
+// 消失するパターン: run_eocs 経由
+{
+  "text": "実行",
+  "effect": [ { "run_eocs": "EOC_SETTER" } ],  // EOC_SETTER 内で context_val 設定
+  "topic": "TALK_DISPLAY"  // context_val は表示されない
+}
+```
+
+#### `<context_val:>` タグの対応状況
+
+| コンテキスト | 動作 | 実績 |
+|-------------|------|------|
+| EOC の `u_message` | **対応** | `wm_weapon_mastery` で使用実績あり |
+| talk_topic の `dynamic_line` | **対応** | effect 直接設定で生存する場合のみ表示可能 |
+
+#### `copy_var` の注意点
+
+存在しない `context_val` を `copy_var` の source に指定すると、代入先の変数が不正な状態になり、後続の `u_message` が切り捨てられる。`context_val` の値を `u_message` で表示したいだけの場合は、`copy_var` で `u_val` に中継せず `<context_val:>` タグを直接使うこと。
+
+```jsonc
+// 非推奨: 存在しない context_val を copy_var すると u_message が破綻
+{ "copy_var": { "context_val": "may_not_exist" }, "target_var": { "u_val": "bk" } },
+{ "u_message": "value: <u_val:bk>" }  // ← 後続文字列が切り捨てられる
+
+// 推奨: <context_val:> タグを直接使う
+{ "u_message": "value: <context_val:may_not_exist>" }  // 存在しなければ空表示
+```
 
 ### 実績
 `mods/small/wm_weapon_mastery/data/eoc.json` — `wm_enhance_generic` で switch/case メッセージブロックを全廃。5型 × 3メッセージの重複を context_val 3メッセージに統合。
