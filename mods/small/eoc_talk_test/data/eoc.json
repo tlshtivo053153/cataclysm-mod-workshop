@@ -1,0 +1,192 @@
+[
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_RUN_ALL_TESTS",
+    "effect": [
+      { "run_eocs": "EOC_ETT_TEST_MATH_BASIC" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_COMPARE" },
+      { "run_eocs": "EOC_ETT_TEST_GATE_PATTERN" },
+      { "run_eocs": "EOC_ETT_TEST_STRING_VAR" },
+      { "run_eocs": "EOC_ETT_TEST_IF_ELSE" },
+      { "run_eocs": "EOC_ETT_TEST_COMPOUND_COND" },
+      { "u_message": "=== All EOC tests complete. Use debug menu → Run EOC → EOC_ETT_OPEN_TALK_TEST for talk_topic tests. ===", "type": "good" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_BASIC",
+    "effect": [
+      { "math": [ "u_test_val = 10" ] },
+      { "math": [ "u_test_val += 5" ] },
+      { "math": [ "u_test_val *= 2" ] },
+      { "u_message": "[MATH BASIC] result: <u_val:test_val> (expect 30)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_COMPARE",
+    "effect": [
+      { "math": [ "u_test_a = 5" ] },
+      { "math": [ "u_test_lt = (u_test_a < 10)" ] },
+      { "u_message": "[MATH COMPARE] lt (5＜10): <u_val:test_lt> (expect 1)", "type": "info" },
+      { "math": [ "u_test_gt = (u_test_a > 10)" ] },
+      { "u_message": "[MATH COMPARE] gt (5＞10): <u_val:test_gt> (expect 0)", "type": "info" },
+      { "math": [ "u_test_eq = (u_test_a == 5)" ] },
+      { "u_message": "[MATH COMPARE] eq (5==5): <u_val:test_eq> (expect 1)", "type": "info" },
+      { "math": [ "u_test_neq = (u_test_a != 5)" ] },
+      { "u_message": "[MATH COMPARE] neq (5!=5): <u_val:test_neq> (expect 0)", "type": "info" },
+      { "math": [ "u_test_lte = (u_test_a <= 5)" ] },
+      { "u_message": "[MATH COMPARE] lte (5＜=5): <u_val:test_lte> (expect 1)", "type": "info" },
+      { "math": [ "u_test_gte = (u_test_a >= 10)" ] },
+      { "u_message": "[MATH COMPARE] gte (5＞=10): <u_val:test_gte> (expect 0)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_GATE_PATTERN",
+    "effect": [
+      { "math": [ "u_test_flag = 1" ] },
+      { "math": [ "u_test_cond = 3" ] },
+      { "math": [ "u_test_result = u_test_flag * (u_test_cond < 5)" ] },
+      { "u_message": "[GATE] flag=1 cond=3: <u_val:test_result> (expect 1)", "type": "info" },
+      { "math": [ "u_test_flag = 1" ] },
+      { "math": [ "u_test_cond = 7" ] },
+      { "math": [ "u_test_result = u_test_flag * (u_test_cond < 5)" ] },
+      { "u_message": "[GATE] flag=1 cond=7: <u_val:test_result> (expect 0)", "type": "info" },
+      { "math": [ "u_test_flag = 0" ] },
+      { "math": [ "u_test_cond = 3" ] },
+      { "math": [ "u_test_result = u_test_flag * (u_test_cond < 5)" ] },
+      { "u_message": "[GATE] flag=0 cond=3: <u_val:test_result> (expect 0)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_STRING_VAR",
+    "effect": [
+      { "u_add_var": "test_str", "value": "hello" },
+      {
+        "if": { "compare_string": [ "hello", { "u_val": "test_str" } ] },
+        "then": { "u_message": "[STRING] match 'hello' == test_str: OK (expect OK)", "type": "info" },
+        "else": { "u_message": "[STRING] match 'hello' == test_str: NG (expect OK)", "type": "info" }
+      },
+      {
+        "if": { "compare_string": [ "world", { "u_val": "test_str" } ] },
+        "then": { "u_message": "[STRING] mismatch 'world' == test_str: OK (should NOT appear)", "type": "bad" },
+        "else": { "u_message": "[STRING] mismatch 'world' == test_str: NG (expect NG - displayed correctly)", "type": "info" }
+      },
+      { "u_lose_var": "test_str" },
+      {
+        "if": { "compare_string": [ "", { "u_val": "test_str" } ] },
+        "then": { "u_message": "[STRING] after u_lose_var, test_str == '': OK (expect OK)", "type": "info" },
+        "else": { "u_message": "[STRING] after u_lose_var, test_str == '': NG (expect OK)", "type": "info" }
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_IF_ELSE",
+    "effect": [
+      { "math": [ "u_test_val = 8" ] },
+      { "u_add_var": "test_str", "value": "hello" },
+      {
+        "if": { "math": [ "u_test_val >= 10" ] },
+        "then": { "u_message": "[IF/ELSE] u_test_val＞=10: HIGH (NG - expect LOW)", "type": "bad" },
+        "else": { "u_message": "[IF/ELSE] u_test_val＞=10: LOW (OK)", "type": "info" }
+      },
+      {
+        "if": { "math": [ "u_test_val >= 5" ] },
+        "then": { "u_message": "[IF/ELSE] u_test_val＞=5: ＞=5 (OK)", "type": "info" },
+        "else": { "u_message": "[IF/ELSE] u_test_val＞=5: ＜5 (NG - expect ＞=5)", "type": "bad" }
+      },
+      {
+        "if": { "math": [ "u_test_val == 8" ] },
+        "then": { "u_message": "[IF/ELSE] u_test_val==8: ==8 (OK)", "type": "info" },
+        "else": { "u_message": "[IF/ELSE] u_test_val==8: !=8 (NG - expect ==8)", "type": "bad" }
+      },
+      {
+        "if": { "compare_string": [ "hello", { "u_val": "test_str" } ] },
+        "then": { "u_message": "[IF/ELSE] string compare 'hello'==test_str: match OK", "type": "info" },
+        "else": { "u_message": "[IF/ELSE] string compare 'hello'==test_str: no match NG", "type": "bad" }
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_COMPOUND_COND",
+    "effect": [
+      { "u_add_var": "test_str", "value": "hello" },
+      { "math": [ "u_test_a = 3" ] },
+      { "math": [ "u_test_b = 7" ] },
+      {
+        "if": {
+          "and": [
+            { "math": [ "u_test_a < 5" ] },
+            { "math": [ "u_test_b > 5" ] }
+          ]
+        },
+        "then": { "u_message": "[COMPOUND] AND (a＜5 && b＞5): OK (expect OK)", "type": "info" },
+        "else": { "u_message": "[COMPOUND] AND (a＜5 && b＞5): NG (expect OK)", "type": "bad" }
+      },
+      {
+        "if": {
+          "or": [
+            { "math": [ "u_test_a > 5" ] },
+            { "math": [ "u_test_b > 5" ] }
+          ]
+        },
+        "then": { "u_message": "[COMPOUND] OR (a＞5 || b＞5): OK (expect OK)", "type": "info" },
+        "else": { "u_message": "[COMPOUND] OR (a＞5 || b＞5): NG (expect OK)", "type": "bad" }
+      },
+      {
+        "if": { "not": { "math": [ "u_test_a > 5" ] } },
+        "then": { "u_message": "[COMPOUND] NOT (a＞5): OK (expect OK)", "type": "info" },
+        "else": { "u_message": "[COMPOUND] NOT (a＞5): NG (expect OK)", "type": "bad" }
+      },
+      {
+        "if": {
+          "and": [
+            { "math": [ "u_test_a < 5" ] },
+            { "compare_string": [ "hello", { "u_val": "test_str" } ] }
+          ]
+        },
+        "then": { "u_message": "[COMPOUND] AND (a＜5 && test_str=='hello'): OK (expect OK)", "type": "info" },
+        "else": { "u_message": "[COMPOUND] AND (a＜5 && test_str=='hello'): NG (expect OK)", "type": "bad" }
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TALK_SETUP_VARS",
+    "effect": [
+      { "math": [ "u_ett_math_val = 42" ] },
+      { "u_add_var": "ett_str_val", "value": "world" },
+      { "math": [ "u_ett_effect_count = 0" ] }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TALK_RESET",
+    "effect": [
+      { "math": [ "u_ett_math_val = 0" ] },
+      { "u_lose_var": "ett_str_val" },
+      { "math": [ "u_ett_effect_count = 0" ] }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TALK_RESPONSE_EFFECT",
+    "effect": [
+      { "math": [ "u_ett_effect_count += 1" ] },
+      { "u_message": "[TALK EFFECT] EOC_ETT_TALK_RESPONSE_EFFECT executed, effect_count: <u_val:ett_effect_count>", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_OPEN_TALK_TEST",
+    "condition": "u_is_avatar",
+    "effect": [
+      { "run_eocs": "EOC_ETT_TALK_SETUP_VARS" },
+      { "open_dialogue": { "topic": "TALK_ETT_MAIN" } }
+    ]
+  }
+]

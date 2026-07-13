@@ -1,0 +1,93 @@
+[
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_MAIN",
+    "dynamic_line": "EOC/Talk Topic Test Menu\n\nmath: <u_val:ett_math_val>, string: <u_val:ett_str_val>",
+    "responses": [
+      {
+        "text": "条件分岐テストへ",
+        "topic": "TALK_ETT_CONDITION_TEST"
+      },
+      {
+        "text": "終了",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CONDITION_TEST",
+    "dynamic_line": "以下の選択肢が条件に応じて表示されます。",
+    "responses": [
+      {
+        "text": "math ＞= 40（条件を満たす場合のみ表示）",
+        "condition": { "math": [ "u_ett_math_val >= 40" ] },
+        "topic": "TALK_ETT_MAIN",
+        "effect": { "u_message": "[TT COND] math＞=40 condition matched (OK)", "type": "good" }
+      },
+      {
+        "text": "string == world（条件を満たす場合のみ表示）",
+        "condition": { "compare_string": [ "world", { "u_val": "ett_str_val" } ] },
+        "topic": "TALK_ETT_MAIN",
+        "effect": { "u_message": "[TT COND] string=='world' condition matched (OK)", "type": "good" }
+      },
+      {
+        "text": "compound: math＞=10 && string==world（条件を満たす場合のみ表示）",
+        "condition": {
+          "and": [
+            { "math": [ "u_ett_math_val >= 10" ] },
+            { "compare_string": [ "world", { "u_val": "ett_str_val" } ] }
+          ]
+        },
+        "topic": "TALK_ETT_MAIN",
+        "effect": { "u_message": "[TT COND] compound condition matched (OK)", "type": "good" }
+      },
+      {
+        "text": "trial テスト",
+        "trial": { "type": "CONDITION", "condition": { "math": [ "u_ett_math_val >= 30" ] } },
+        "success": {
+          "topic": "TALK_ETT_TRIAL_RESULT",
+          "effect": { "u_add_var": "ett_trial_msg", "value": "成功！" }
+        },
+        "failure": {
+          "topic": "TALK_ETT_TRIAL_RESULT",
+          "effect": { "u_add_var": "ett_trial_msg", "value": "失敗..." }
+        }
+      },
+      {
+        "text": "effect テスト",
+        "topic": "TALK_ETT_EFFECT_RESULT",
+        "effect": [
+          { "math": [ "u_ett_effect_count += 1" ] },
+          { "run_eocs": "EOC_ETT_TALK_RESPONSE_EFFECT" }
+        ]
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_MAIN"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_TRIAL_RESULT",
+    "dynamic_line": "trial結果: <u_val:ett_trial_msg>",
+    "responses": [
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CONDITION_TEST"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_EFFECT_RESULT",
+    "dynamic_line": "effect 実行結果\n\neffect_count: <u_val:ett_effect_count>",
+    "responses": [
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CONDITION_TEST"
+      }
+    ]
+  }
+]

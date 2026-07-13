@@ -1,0 +1,18 @@
+[
+  {
+    "type": "ITEM",
+    "subtypes": [ "TOOL" ],
+    "id": "eoc_talk_test_item",
+    "name": { "str": "EOC/Talk Topic Test Device" },
+    "description": "A debug device that runs EOC and talk_topic tests.",
+    "weight": "10 g",
+    "volume": "50 ml",
+    "symbol": "*",
+    "color": "yellow",
+    "use_action": {
+      "type": "effect_on_conditions",
+      "description": "Run EOC tests",
+      "effect_on_conditions": [ "EOC_ETT_RUN_ALL_TESTS" ]
+    }
+  }
+]

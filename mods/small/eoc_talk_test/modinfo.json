@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "eoc_talk_test",
+    "name": "EOC/Talk Topic Test",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Tests for EOC variable operations, branching, and talk_topic condition/trial/effect integration.",
+    "category": "rebalance",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
