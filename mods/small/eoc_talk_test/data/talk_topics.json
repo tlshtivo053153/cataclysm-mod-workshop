@@ -120,6 +120,10 @@
         "topic": "TALK_ETT_CTX_CHAIN_DISPLAY"
       },
       {
+        "text": "open_dialogue vs topic 引き継ぎ比較",
+        "topic": "TALK_ETT_CTX_OD_COMPARE"
+      },
+      {
         "text": "戻る",
         "topic": "TALK_ETT_MAIN"
       }
@@ -243,6 +247,108 @@
       {
         "text": "戻る",
         "topic": "TALK_ETT_CTX_MENU"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_OD_COMPARE",
+    "dynamic_line": "open_dialogue vs topic での context_val 引き継ぎを比較します。",
+    "responses": [
+      {
+        "text": "topic で遷移（対照実験）",
+        "topic": "TALK_ETT_CTX_OD_VIA_TOPIC"
+      },
+      {
+        "text": "open_dialogue で遷移（本命テスト）",
+        "topic": "TALK_ETT_CTX_OD_VIA_OD"
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_MENU"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_OD_VIA_TOPIC",
+    "dynamic_line": "response を選ぶと、effect で context_val を設定し、topic で TALK_ETT_CTX_OD_DISPLAY_VIA_TOPIC に遷移します。",
+    "responses": [
+      {
+        "text": "実行",
+        "effect": [
+          { "set_string_var": "topic_transition_value", "target_var": { "context_val": "ett_ctx_od_test" } },
+          { "set_string_var": "topic_transition_value_bk", "target_var": { "u_val": "ett_ctx_od_test_bk" } },
+          { "u_message": "[CTX OD] topic経由: context_val=ett_ctx_od_test, u_val=ett_ctx_od_test_bk を設定", "type": "info" }
+        ],
+        "topic": "TALK_ETT_CTX_OD_DISPLAY_VIA_TOPIC"
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_OD_COMPARE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_OD_VIA_OD",
+    "dynamic_line": "response で context_val を設定し、open_dialogue で別会話を開きます。\n\n2番目の選択肢（topic省略）は topic 未指定のため遷移先がなく、effect は実行されず COMPARE に戻ります。",
+    "responses": [
+      {
+        "text": "実行",
+        "effect": [
+          { "set_string_var": "od_transition_value", "target_var": { "context_val": "ett_ctx_od_test" } },
+          { "set_string_var": "od_transition_value_bk", "target_var": { "u_val": "ett_ctx_od_test_bk" } },
+          { "u_message": "[CTX OD] open_dialogue経由: context_val=ett_ctx_od_test, u_val=ett_ctx_od_test_bk を設定", "type": "info" },
+          { "open_dialogue": { "topic": "TALK_ETT_CTX_OD_DISPLAY_VIA_OD" } }
+        ],
+        "topic": "TALK_ETT_CTX_OD_COMPARE"
+      },
+      {
+        "text": "open_dialogue で遷移（topic省略。effect未実行、COMPAREに戻る）",
+        "effect": [
+          { "set_string_var": "od_notopic_value", "target_var": { "context_val": "ett_ctx_od_test" } },
+          { "set_string_var": "od_notopic_value_bk", "target_var": { "u_val": "ett_ctx_od_test_bk" } },
+          { "u_message": "[CTX OD] ★このメッセージは表示されないはずです（topic省略時はeffect未実行のため）", "type": "info" },
+          { "open_dialogue": { "topic": "TALK_ETT_CTX_OD_DISPLAY_VIA_OD_NOTOPIC" } }
+        ]
+      },
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_OD_COMPARE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_OD_DISPLAY_VIA_TOPIC",
+    "dynamic_line": "【topic 遷移】\ncontext_val: '<context_val:ett_ctx_od_test>'\nu_val fallback: '<u_val:ett_ctx_od_test_bk>'",
+    "responses": [
+      {
+        "text": "戻る",
+        "topic": "TALK_ETT_CTX_OD_COMPARE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_OD_DISPLAY_VIA_OD",
+    "dynamic_line": "【open_dialogue 遷移】\ncontext_val: '<context_val:ett_ctx_od_test>'\nu_val fallback: '<u_val:ett_ctx_od_test_bk>'",
+    "responses": [
+      {
+        "text": "戻る（TALK_DONE で会話終了。元の compare メニューに戻ります）",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ETT_CTX_OD_DISPLAY_VIA_OD_NOTOPIC",
+    "dynamic_line": "【open_dialogue 遷移（topic省略）】\n\n★このトピックが表示されることは想定されていません。\ntopic省略時は遷移先がなく effect は実行されないため、open_dialogue も発火しません。\nこの画面が見えている場合、CDDA の仕様が変更された可能性があります。\n\ncontext_val: '<context_val:ett_ctx_od_test>'\nu_val fallback: '<u_val:ett_ctx_od_test_bk>'",
+    "responses": [
+      {
+        "text": "戻る（TALK_DONE で会話終了）",
+        "topic": "TALK_DONE"
       }
     ]
   }
