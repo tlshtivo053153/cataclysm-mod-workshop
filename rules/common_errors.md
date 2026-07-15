@@ -34,6 +34,14 @@
   - 正: `"condition": { "math": [ "u_wm_can_melee == 1" ] }`
 - **参照:** `rules/patterns/eoc.md` の「推奨パターン: talk_topic response の condition で動的フィルタリング」
 
+### talk_topic response で `topic` 省略時に effect が実行されない
+- **現象:** response の `topic` を省略すると、`effect` 配列内の `set_string_var`、`u_message`、`open_dialogue` 等がすべて**無視**され、親トピックに戻る。エラーメッセージは出ない（サイレント失敗）。
+- **原因:** `topic` 未指定時は次のトピックへの遷移が発生せず、会話エンジンが effect を処理しない。
+- **解決策:** response には必ず `"topic"` を明示する。`open_dialogue` で新規会話を開く場合も、元の会話を維持するために `"topic"` で戻り先を指定すること。
+  - 誤: `"topic"` 省略 → effect 未実行
+  - 正: `"topic": "TALK_CURRENT_MENU"` 等で明示的に戻り先を指定
+- **参照:** `rules/patterns/eoc.md` の「talk_topic response effect 内の open_dialogue と context_val の制約」
+
 ---
 
 

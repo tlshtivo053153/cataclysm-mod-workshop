@@ -231,6 +231,75 @@ talk_topic の response `condition`（`{ "math": [ "u_var == 1" ] }`）は `open
 
 **実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `EOC_WM_DIALOGUE_DETECT` で `EOC_WM_REFRESH_ENHANCE_STATE` を `run_eocs` で実行後に `open_dialogue` を配置。
 
+### talk_topic response effect 内の `open_dialogue` と context_val の制約
+
+talk_topic の response `effect` 配列内で `open_dialogue` を使う場合、EOC 内とは異なる以下の制約がある。
+
+#### context_val は引き継がれない
+
+EOC 内の `open_dialogue` や通常の `topic` 遷移では `context_val` が引き継がれるが、**talk_topic response effect 内の `open_dialogue` 経由では `context_val` は引き継がれない**（空文字列になる）。
+
+```jsonc
+// VIA_OD: effect 内で context_val を設定し open_dialogue
+{
+  "text": "実行",
+  "effect": [
+    { "set_string_var": "value", "target_var": { "context_val": "my_var" } },
+    { "open_dialogue": { "topic": "TALK_DISPLAY" } }
+  ],
+  "topic": "TALK_ORIGINAL"  // 元の会話を維持
+}
+
+// TALK_DISPLAY: context_val は空文字
+// "dynamic_line": "context_val: '<context_val:my_var>'"  → ""
+```
+
+**回避策**: `context_val` と同時に `u_val` fallback をセットし、遷移先で `<u_val:変数名>` で値を確認する。
+
+```jsonc
+"effect": [
+  { "set_string_var": "value", "target_var": { "context_val": "my_var" } },
+  { "set_string_var": "value_bk", "target_var": { "u_val": "my_var_bk" } },
+  { "open_dialogue": { "topic": "TALK_DISPLAY" } }
+]
+
+// TALK_DISPLAY: u_val fallback で値が確認できる
+// "dynamic_line": "context_val: '<context_val:my_var>'\nu_val fallback: '<u_val:my_var_bk>'"
+```
+
+#### effect の表示タイミング
+
+talk_topic response effect 配列内に `open_dialogue` がある場合、`u_message` 等の表示系 effect は **`open_dialogue` 先の会話が終了した後に**表示される。effect 配列の先頭で設定した `u_message` でも即時表示はされない。
+
+```jsonc
+// この u_message は DISPLAY_VIA_OD 会話が TALK_DONE で閉じた後に表示される
+"effect": [
+  { "set_string_var": "val", "target_var": { "context_val": "var" } },
+  { "u_message": "[TEST] context_val を設定しました", "type": "info" },
+  { "open_dialogue": { "topic": "TALK_DISPLAY" } }
+]
+```
+
+#### topic 省略時の注意
+
+talk_topic response で `topic` フィールドを省略した場合、**effect 配列は一切実行されず**、親トピックに戻るのみ。`open_dialogue` も `set_string_var` も `u_message` も発火しない。
+
+```jsonc
+// 誤り: topic 省略 → effect 未実行。open_dialogue も発火しない
+{
+  "text": "実行",
+  "effect": [
+    { "set_string_var": "value", "target_var": { "context_val": "my_var" } },
+    { "open_dialogue": { "topic": "TALK_SOME_DIALOGUE" } }
+  ]
+  // topic なし → 遷移先がないため effect はスキップされる
+}
+```
+
+response に `open_dialogue` を使う場合は**必ず `"topic"` を明示**し、元の会話スタックを維持すること。
+
+**実績**: `mods/small/eoc_talk_test/data/talk_topics.json` — `TALK_ETT_CTX_OD_VIA_OD` で 3 パターン（topic 遷移 / open_dialogue + topic 明示 / topic 省略）の context_val 引き継ぎテストを実装。
+
 ### 表示テキスト内の `<` `>` 文字の全角化
 
 CDDA のタグパーサ（`src/npctalk.cpp:2607` `parse_tags`）は `<タグ名:...>` 形式のタグを解釈する。このため、表示テキスト（`u_message`, talk_topic の `text` / `dynamic_line`）内に比較演算子として `<` `>` を含めると、タグの開始・終了と誤認されて `Bad tag` エラーやテキスト途切れが発生する。
