@@ -13,6 +13,15 @@
       { "run_eocs": "EOC_ETT_TEST_CTX_EOC_CALLER" },
       { "run_eocs": "EOC_ETT_TEST_CTX_VARIABLES_CALLER" },
       { "run_eocs": "EOC_ETT_TEST_CTX_MUTATION_CALLER" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_FUNC_ONEARG" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_FUNC_MULTIARG" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_FUNC_RANDOM" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_FUNC_CONSTANTS" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_FUNC_TERNARY" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_FUNC_COMPOSE" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_FUNC_TEMPERATURE" },
+      { "run_eocs": "EOC_ETT_TEST_MATH_FUNC_COMPOUND_ASSIGN" },
+      { "run_eocs": "EOC_ETT_TEST_J_MATH_FUNC" },
       { "u_message": "=== All EOC tests complete. Use debug menu → Run EOC → EOC_ETT_OPEN_TALK_TEST for talk_topic tests. ===", "type": "good" }
     ]
   },
@@ -269,6 +278,244 @@
       { "u_message": "[CTX MUT CALLEE] received: <context_val:ett_ctx_mut_val> (expect: original_value)", "type": "info" },
       { "set_string_var": "modified_by_callee", "target_var": { "context_val": "ett_ctx_mut_val" } },
       { "u_message": "[CTX MUT CALLEE] after overwrite: <context_val:ett_ctx_mut_val> (expect: modified_by_callee)", "type": "info" }
+    ]
+  },
+  {
+    "type": "jmath_function",
+    "id": "jmf_ett_const",
+    "num_args": 0,
+    "return": "42"
+  },
+  {
+    "type": "jmath_function",
+    "id": "jmf_ett_add_mul",
+    "num_args": 2,
+    "return": "_0 + _1 * 2"
+  },
+  {
+    "type": "jmath_function",
+    "id": "jmf_ett_inner",
+    "num_args": 1,
+    "return": "_0 * 3"
+  },
+  {
+    "type": "jmath_function",
+    "id": "jmf_ett_outer",
+    "num_args": 1,
+    "return": "jmf_ett_inner(_0) + 100"
+  },
+  {
+    "type": "jmath_function",
+    "id": "jmf_ett_rand_range",
+    "num_args": 1,
+    "return": "rand(_0)"
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_FUNC_ONEARG",
+    "effect": [
+      { "math": [ "u_ett_mf_abs = abs(-5)" ] },
+      { "u_message": "[MATH ONEARG] abs(-5): <u_val:ett_mf_abs> (expect 5)", "type": "info" },
+      { "math": [ "u_ett_mf_floor1 = floor(3.7)" ] },
+      { "u_message": "[MATH ONEARG] floor(3.7): <u_val:ett_mf_floor1> (expect 3)", "type": "info" },
+      { "math": [ "u_ett_mf_floor2 = floor(-1.5)" ] },
+      { "u_message": "[MATH ONEARG] floor(-1.5): <u_val:ett_mf_floor2> (expect -2, cf.trunc -1)", "type": "info" },
+      { "math": [ "u_ett_mf_ceil = ceil(3.3)" ] },
+      { "u_message": "[MATH ONEARG] ceil(3.3): <u_val:ett_mf_ceil> (expect 4)", "type": "info" },
+      { "math": [ "u_ett_mf_trunc1 = trunc(3.7)" ] },
+      { "u_message": "[MATH ONEARG] trunc(3.7): <u_val:ett_mf_trunc1> (expect 3)", "type": "info" },
+      { "math": [ "u_ett_mf_trunc2 = trunc(-1.5)" ] },
+      { "u_message": "[MATH ONEARG] trunc(-1.5): <u_val:ett_mf_trunc2> (expect -1, cf.floor -2)", "type": "info" },
+      { "math": [ "u_ett_mf_round1 = round(3.5)" ] },
+      { "u_message": "[MATH ONEARG] round(3.5): <u_val:ett_mf_round1> (check: 3=half-even, 4=half-up)", "type": "info" },
+      { "math": [ "u_ett_mf_round2 = round(2.5)" ] },
+      { "u_message": "[MATH ONEARG] round(2.5): <u_val:ett_mf_round2> (check: 2=half-even, 3=half-up)", "type": "info" },
+      { "math": [ "u_ett_mf_sqrt = sqrt(16)" ] },
+      { "u_message": "[MATH ONEARG] sqrt(16): <u_val:ett_mf_sqrt> (expect 4)", "type": "info" },
+      { "math": [ "u_ett_mf_log_e = log(e)" ] },
+      { "u_message": "[MATH ONEARG] log(e): <u_val:ett_mf_log_e> (expect 1)", "type": "info" },
+      { "math": [ "u_ett_mf_log_1 = log(1)" ] },
+      { "u_message": "[MATH ONEARG] log(1): <u_val:ett_mf_log_1> (expect 0)", "type": "info" },
+      { "math": [ "u_ett_mf_sin = sin(0)" ] },
+      { "u_message": "[MATH ONEARG] sin(0): <u_val:ett_mf_sin> (expect 0)", "type": "info" },
+      { "math": [ "u_ett_mf_cos = cos(0)" ] },
+      { "u_message": "[MATH ONEARG] cos(0): <u_val:ett_mf_cos> (expect 1)", "type": "info" },
+      { "math": [ "u_ett_mf_tan0 = tan(0)" ] },
+      { "u_message": "[MATH ONEARG] tan(0): <u_val:ett_mf_tan0> (expect 0)", "type": "info" },
+      { "math": [ "u_ett_mf_tan_pi4 = tan(pi/4)" ] },
+      { "u_message": "[MATH ONEARG] tan(pi/4): <u_val:ett_mf_tan_pi4> (expect ~1, visual check)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_FUNC_MULTIARG",
+    "effect": [
+      { "math": [ "u_ett_mf_clamp1 = clamp(15, 0, 10)" ] },
+      { "u_message": "[MATH MULTIARG] clamp(15, 0, 10): <u_val:ett_mf_clamp1> (expect 10)", "type": "info" },
+      { "math": [ "u_ett_mf_clamp2 = clamp(-5, 0, 10)" ] },
+      { "u_message": "[MATH MULTIARG] clamp(-5, 0, 10): <u_val:ett_mf_clamp2> (expect 0)", "type": "info" },
+      { "math": [ "u_ett_mf_clamp3 = clamp(5, 0, 10)" ] },
+      { "u_message": "[MATH MULTIARG] clamp(5, 0, 10): <u_val:ett_mf_clamp3> (expect 5)", "type": "info" },
+      { "math": [ "u_ett_mf_max = max(3, 7, 2, 9, 4)" ] },
+      { "u_message": "[MATH MULTIARG] max(3,7,2,9,4): <u_val:ett_mf_max> (expect 9)", "type": "info" },
+      { "math": [ "u_ett_mf_min = min(3, 7, 2, 9, 4)" ] },
+      { "u_message": "[MATH MULTIARG] min(3,7,2,9,4): <u_val:ett_mf_min> (expect 2)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_FUNC_RANDOM",
+    "effect": [
+      { "math": [ "u_ett_mf_rand = rand(100)" ] },
+      {
+        "if": {
+          "and": [
+            { "math": [ "u_ett_mf_rand >= 0" ] },
+            { "math": [ "u_ett_mf_rand <= 100" ] }
+          ]
+        },
+        "then": { "u_message": "[MATH RAND] rand(100) = <u_val:ett_mf_rand>: OK (0 ≤ val ≤ 100)", "type": "info" },
+        "else": { "u_message": "[MATH RAND] rand(100) = <u_val:ett_mf_rand>: NG (out of range)", "type": "bad" }
+      },
+      { "math": [ "u_ett_mf_rng = rng(1.5, 2.0)" ] },
+      {
+        "if": {
+          "and": [
+            { "math": [ "u_ett_mf_rng >= 1.5" ] },
+            { "math": [ "u_ett_mf_rng < 2" ] }
+          ]
+        },
+        "then": { "u_message": "[MATH RAND] rng(1.5, 2.0) = <u_val:ett_mf_rng>: OK (1.5 ≤ val ＜ 2)", "type": "info" },
+        "else": { "u_message": "[MATH RAND] rng(1.5, 2.0) = <u_val:ett_mf_rng>: NG (out of range)", "type": "bad" }
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_FUNC_CONSTANTS",
+    "effect": [
+      { "math": [ "u_ett_mf_pi = pi" ] },
+      {
+        "if": {
+          "and": [
+            { "math": [ "u_ett_mf_pi > 3.14" ] },
+            { "math": [ "u_ett_mf_pi < 3.1416" ] }
+          ]
+        },
+        "then": { "u_message": "[MATH CONST] pi = <u_val:ett_mf_pi>: OK (3.14 ＜ pi ＜ 3.1416)", "type": "info" },
+        "else": { "u_message": "[MATH CONST] pi = <u_val:ett_mf_pi>: NG (out of range)", "type": "bad" }
+      },
+      { "math": [ "u_ett_mf_e = e" ] },
+      {
+        "if": {
+          "and": [
+            { "math": [ "u_ett_mf_e > 2.718" ] },
+            { "math": [ "u_ett_mf_e < 2.719" ] }
+          ]
+        },
+        "then": { "u_message": "[MATH CONST] e = <u_val:ett_mf_e>: OK (2.718 ＜ e ＜ 2.719)", "type": "info" },
+        "else": { "u_message": "[MATH CONST] e = <u_val:ett_mf_e>: NG (out of range)", "type": "bad" }
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_FUNC_TERNARY",
+    "effect": [
+      { "math": [ "u_tern1 = 1 ? 10 : 20" ] },
+      { "u_message": "[MATH TERNARY] 1 ? 10 : 20 = <u_val:tern1> (expect 10)", "type": "info" },
+      { "math": [ "u_tern2 = 0 ? 10 : 20" ] },
+      { "u_message": "[MATH TERNARY] 0 ? 10 : 20 = <u_val:tern2> (expect 20)", "type": "info" },
+      { "math": [ "u_tern3 = (5 > 3) ? 100 : 200" ] },
+      { "u_message": "[MATH TERNARY] (5＞3) ? 100 : 200 = <u_val:tern3> (expect 100)", "type": "info" },
+      { "math": [ "u_tern4 = (2 > 3) ? 100 : 200" ] },
+      { "u_message": "[MATH TERNARY] (2＞3) ? 100 : 200 = <u_val:tern4> (expect 200)", "type": "info" },
+      { "math": [ "u_tern5 = (5 > 3) ? (10 > 5 ? 1 : 2) : 3" ] },
+      { "u_message": "[MATH TERNARY] nested (5＞3)?(10＞5?1:2):3 = <u_val:tern5> (expect 1)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_FUNC_COMPOSE",
+    "effect": [
+      { "math": [ "u_comp1 = max(abs(-10), floor(3.7))" ] },
+      { "u_message": "[MATH COMPOSE] max(abs(-10), floor(3.7)) = <u_val:comp1> (expect 10)", "type": "info" },
+      { "math": [ "u_comp2 = floor(rng(1.5, 3.0))" ] },
+      {
+        "if": {
+          "and": [
+            { "math": [ "u_comp2 >= 1" ] },
+            { "math": [ "u_comp2 <= 3" ] }
+          ]
+        },
+        "then": { "u_message": "[MATH COMPOSE] floor(rng(1.5, 3.0)) = <u_val:comp2>: OK (1 ≤ val ≤ 3)", "type": "info" },
+        "else": { "u_message": "[MATH COMPOSE] floor(rng(1.5, 3.0)) = <u_val:comp2>: NG (out of range)", "type": "bad" }
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_FUNC_TEMPERATURE",
+    "effect": [
+      { "math": [ "u_temp1 = celsius(from_celsius(100))" ] },
+      {
+        "if": { "math": [ "abs(u_temp1 - 100) < 0.01" ] },
+        "then": { "u_message": "[MATH TEMP] celsius(from_celsius(100)) = <u_val:temp1>: OK (expect 100)", "type": "info" },
+        "else": { "u_message": "[MATH TEMP] celsius(from_celsius(100)) = <u_val:temp1>: NG (expect 100)", "type": "bad" }
+      },
+      { "math": [ "u_temp2 = from_celsius(celsius(273.15))" ] },
+      {
+        "if": { "math": [ "abs(u_temp2 - 273.15) < 0.01" ] },
+        "then": { "u_message": "[MATH TEMP] from_celsius(celsius(273.15)) = <u_val:temp2>: OK (expect 273.15)", "type": "info" },
+        "else": { "u_message": "[MATH TEMP] from_celsius(celsius(273.15)) = <u_val:temp2>: NG (expect 273.15)", "type": "bad" }
+      },
+      { "math": [ "u_temp3 = fahrenheit(from_fahrenheit(212))" ] },
+      {
+        "if": { "math": [ "abs(u_temp3 - 212) < 0.01" ] },
+        "then": { "u_message": "[MATH TEMP] fahrenheit(from_fahrenheit(212)) = <u_val:temp3>: OK (expect 212)", "type": "info" },
+        "else": { "u_message": "[MATH TEMP] fahrenheit(from_fahrenheit(212)) = <u_val:temp3>: NG (expect 212)", "type": "bad" }
+      },
+      { "math": [ "u_temp4 = from_fahrenheit(fahrenheit(373.15))" ] },
+      {
+        "if": { "math": [ "abs(u_temp4 - 373.15) < 0.01" ] },
+        "then": { "u_message": "[MATH TEMP] from_fahrenheit(fahrenheit(373.15)) = <u_val:temp4>: OK (expect 373.15)", "type": "info" },
+        "else": { "u_message": "[MATH TEMP] from_fahrenheit(fahrenheit(373.15)) = <u_val:temp4>: NG (expect 373.15)", "type": "bad" }
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_MATH_FUNC_COMPOUND_ASSIGN",
+    "effect": [
+      { "math": [ "u_ett_ca1 = 10" ] },
+      { "math": [ "u_ett_ca1 += abs(-5)" ] },
+      { "u_message": "[MATH COMPOUND] 10 += abs(-5) = <u_val:ett_ca1> (expect 15)", "type": "info" },
+      { "math": [ "u_ett_ca2 = 10" ] },
+      { "math": [ "u_ett_ca2 *= ceil(2.3)" ] },
+      { "u_message": "[MATH COMPOUND] 10 *= ceil(2.3) = <u_val:ett_ca2> (expect 30)", "type": "info" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_ETT_TEST_J_MATH_FUNC",
+    "effect": [
+      { "math": [ "u_jmf1 = jmf_ett_add_mul(3, 5)" ] },
+      { "u_message": "[J MATH] jmf_ett_add_mul(3,5) = <u_val:jmf1> (expect 13)", "type": "info" },
+      { "math": [ "u_jmf2 = jmf_ett_const()" ] },
+      { "u_message": "[J MATH] jmf_ett_const() = <u_val:jmf2> (expect 42)", "type": "info" },
+      { "math": [ "u_jmf3 = jmf_ett_outer(4)" ] },
+      { "u_message": "[J MATH] jmf_ett_outer(4) = <u_val:jmf3> (expect 112)", "type": "info" },
+      { "math": [ "u_jmf4 = jmf_ett_rand_range(100)" ] },
+      {
+        "if": {
+          "and": [
+            { "math": [ "u_jmf4 >= 0" ] },
+            { "math": [ "u_jmf4 <= 100" ] }
+          ]
+        },
+        "then": { "u_message": "[J MATH] jmf_ett_rand_range(100) = <u_val:jmf4>: OK (0 ≤ val ≤ 100)", "type": "info" },
+        "else": { "u_message": "[J MATH] jmf_ett_rand_range(100) = <u_val:jmf4>: NG (out of range)", "type": "bad" }
+      }
     ]
   }
 ]
