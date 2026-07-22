@@ -68,10 +68,7 @@ def extract_signature(block: list[str]) -> str:
                 continue
             start_idx += len(COLOR_START)
             end_idx = line.find(COLOR_END, start_idx)
-            if end_idx != -1:
-                msg = line[start_idx:end_idx]
-            else:
-                msg = line[start_idx:]
+            msg = line[start_idx:end_idx] if end_idx != -1 else line[start_idx:]
             msg = msg.strip()
 
             if "flexbuffer_json.cpp" in first_line:
@@ -182,10 +179,7 @@ def main() -> None:
     blocks = parse_blocks(lines)
     groups = summarize(blocks)
 
-    if args.json:
-        out = format_json(groups, top=args.top)
-    else:
-        out = format_human(groups, top=args.top)
+    out = format_json(groups, top=args.top) if args.json else format_human(groups, top=args.top)
 
     if args.output is not None:
         args.output.write_text(out + "\n", encoding="utf-8")
