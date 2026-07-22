@@ -109,6 +109,15 @@
   - 正: `{ "open_dialogue": { "topic": "TALK_MY_DIALOGUE" } }`
 - **参照:** `rules/patterns/eoc.md#open_dialogue-の構文`
 
+### `clamp()` の `lo > hi` による未定義動作・クラッシュリスク
+
+- **現象:** CDDA の math 式で `clamp(x, lo, hi)` の `lo > hi` を指定すると、未定義動作によりクラッシュする可能性がある
+- **原因:** CDDA の `clamp` 実装は `hi > lo` を前提としており、範囲が逆転している場合の動作は保証されない
+- **解決策:** `clamp()` を使用する場合は常に `hi > lo` を保証する。エッジケーステストや意図的な逆転は行わない
+  - 正: `clamp(15, 0, 10)` → 10
+  - テスト不可: `clamp(5, 10, 0)` → 未定義動作・クラッシュリスク
+- **参照:** CDDA ドキュメント（`math` 関数リファレンス）で `clamp` の引数順序を確認する
+
 ### 表示テキスト内の `＜` `＞` による `Bad tag` エラー・テキスト途切れ
 
 - **現象:** debug.log に `DEBUG : Bad tag. '<...>'` が表示される、または `u_message` / talk_topic の `text` / `dynamic_line` のテキストが途中で途切れる
