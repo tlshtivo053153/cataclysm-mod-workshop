@@ -11,6 +11,15 @@ dependencies = [
     "PyYAML>=6.0",
 ]
 
+[dependency-groups]
+dev = [
+    "black",
+    "mypy",
+    "pytest",
+    "ruff",
+    "types-PyYAML",
+]
+
 [tool.black]
 line-length = 100
 target-version = ["py310", "py311", "py312"]
@@ -59,43 +68,40 @@ warn_redundant_casts = true
 module = "tests.*"
 ignore_errors = true
 
-[[tool.mypy.overrides]]
-module = "tests.helpers"
-ignore_errors = true
-
 # Flat transformation scripts share a loose runtime contract; keep them
 # non-strict so the mapgen package can enforce strict typing independently.
 [[tool.mypy.overrides]]
 module = "common"
-strict = false
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = "convert_item_types"
-strict = false
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = "convert_price"
-strict = false
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = "add_activity_level"
-strict = false
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = "remove_armor_bullet"
-strict = false
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = "remove_invalid_fields"
-strict = false
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = "summarize_debug_log"
-strict = false
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "revert_all_translations"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "revert_translation_errors"
 ignore_errors = true

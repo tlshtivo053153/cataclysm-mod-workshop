@@ -28,7 +28,6 @@ class RoomSpec:
     wall: str = ""
     floor: str = ""
     place: PlaceSpec | None = None
-    layout_resolved: bool = False
 
     def shift(self, dx: int, dy: int) -> None:
         self.x += dx

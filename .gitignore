@@ -3,4 +3,9 @@ logs/
 benchmarks/unseen/
 *.swp
 __pycache__/
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.bak
 .kilo/plans/

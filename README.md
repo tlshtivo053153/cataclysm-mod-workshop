@@ -27,12 +27,11 @@ cataclysm-mod-workshop/
 │   ├── version_diff.md        ← バージョン間の破壊的変更一覧
 │   ├── common_errors.md       ← よくあるエラーと解決策
 │   ├── verification.md        ← 検証ツール詳細手順
-│   └── patterns/              ← 型別実装パターン集
+│   └── patterns/              ← 型別実装パターン集（15ファイル）
 ├── scripts/                   ← 自動化スクリプト
 │   ├── validate.sh            ← JSON 構文チェック
 │   ├── check_mods.sh          ← CDDA エンジン読み込みチェック
-│   ├── link_mod_for_test.sh   ← mod シンボリックリンク配置
-│   ├── copy_mod_for_test.sh   ← mod コピー配置
+│   ├── place_mod_for_test.sh  ← mod 配置（統合版、--link/--copy）
 │   ├── setup_venv.sh          ← Python 仮想環境セットアップ
 │   ├── convert_item_types.py  ← アイテムタイプ統合
 │   ├── add_activity_level.py  ← activity_level 追加
@@ -43,9 +42,10 @@ cataclysm-mod-workshop/
 │   ├── revert_all_translations.py   ← 翻訳差分 revert（一括）
 │   ├── summarize_debug_log.py ← debug.log 集計
 │   ├── common.py              ← 変換スクリプト共通ライブラリ
+│   ├── mapgen/                ← mapgen DSL コンパイラ（17ファイル）
 │   └── tests/                 ← テスト群
 ├── mods/
-│   ├── small/                 ← 小規模 mod（16件）
+│   ├── small/                 ← 小規模 mod（21件）
 │   ├── medium/                ← 中規模 mod（予約）
 │   ├── large/                 ← 大規模 mod（予約）
 │   ├── seen/                  ← 学習済み mod（予約）
@@ -56,9 +56,12 @@ cataclysm-mod-workshop/
 │   ├── spec_template.md       ← mod 仕様書テンプレート
 │   └── design_template.md     ← mod 設計書テンプレート
 ├── benchmarks/                ← ベンチマーク（予約）
+├── .github/workflows/
+│   └── ci.yml                 ← CI パイプライン
 ├── logs/                      ← 作業ログ（.gitignore 対象）
 ├── pyproject.toml             ← Python プロジェクト設定
 ├── AGENTS.md                  ← AI エージェント向け指示書（英語）
+├── .gitignore
 └── issue.md                   ← 既知の問題・改善点
 ```
 
@@ -87,7 +90,7 @@ bash scripts/setup_venv.sh
 source .venv/bin/activate
 ```
 
-`setup_venv.sh` は `.venv/` を作成し、`black`、`ruff`、`pytest` をインストールする。
+`setup_venv.sh` は `.venv/` を作成し、`black`、`ruff`、`pytest`、`mypy`、`pyyaml` をインストールする。
 
 ## 開発ワークフロー（新規 mod 作成）
 
@@ -114,7 +117,7 @@ Step 1・2 は、新規定義 ID が 5 個以下で `copy-from` のみの小規�
 bash scripts/validate.sh mods/small/my_mod/
 
 # 機能完成時に mod を CDDA に配置（symlink 推奨）
-bash scripts/link_mod_for_test.sh mods/small/my_mod/
+bash scripts/place_mod_for_test.sh --link mods/small/my_mod/
 
 # Level2: CDDA エンジン読み込みチェック
 bash scripts/check_mods.sh my_mod
@@ -159,7 +162,7 @@ cat external/cdda/config/debug.log | grep ERROR
 ### 検証フロー
 
 ```
-編集 → validate.sh（Level1）→ link_mod_for_test.sh → check_mods.sh（Level2）
+編集 → validate.sh（Level1）→ place_mod_for_test.sh --link → check_mods.sh（Level2）
                                                               ↓
                                                         debug.log 確認
                                                               ↓
@@ -167,7 +170,7 @@ cat external/cdda/config/debug.log | grep ERROR
 ```
 
 Level2 実行には `external/cdda/cataclysm-tiles` バイナリが必須。
-mod は事前に `link_mod_for_test.sh` で `external/cdda/mods/` に配置する必要がある。
+mod は事前に `place_mod_for_test.sh` で `external/cdda/mods/` に配置する必要がある。
 詳細な手順は `rules/verification.md` を参照。
 
 ## 技術スタック
@@ -185,7 +188,6 @@ mod は事前に `link_mod_for_test.sh` で `external/cdda/mods/` に配置す�
 
 詳細は `issue.md` を参照。
 
-- **テスト未整備**: 変換スクリプトの単体テストが不足している
-- **CI/CD 未導入**: 自動化された品質チェックパイプラインが存在しない
-- **design.md カバレッジ不足**: 16 mod 中 7 mod に設計書が未作成
+- **spec.md 未整備**: 21 mod 中 spec.md が 1 件も作成されていない
+- **孤児ファイル・空ディレクトリ**: `scripts/activity_map_magiclysm.json`、`mods/{medium,large,seen,unseen}` が実質的に空
 - **ドキュメント言語の混在**: `AGENTS.md`（英語）とルール群（日本語）で言語が分かれている

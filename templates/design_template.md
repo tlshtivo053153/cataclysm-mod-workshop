@@ -34,11 +34,11 @@
 
 ### テスト手順
 1. validate.shでJSON構文チェック（Level1）
-2. link_mod_for_test.shでCDDAに配置
+2. place_mod_for_test.shでCDDAに配置
 3. check_mods.shでmod読み込み確認（Level2）
 4. CDDAを起動してLevel3確認
 
 ### 完了条件
 - [ ] Level1: JSON構文OK
 - [ ] Level2: 起動OK（エラーなし）
-- [ ] Level3: 意図通り動作（フェーズ3以降で必須）
+- [ ] Level3: 意図通り動作（任意）

@@ -224,7 +224,6 @@ def resolve_entry_layout(
         spec.h = computed_h
         spec.x = computed_x
         spec.y = computed_y
-        spec.layout_resolved = True
 
         if spec.w < 1 or spec.h < 1:
             raise InvalidRoomSizeError(
