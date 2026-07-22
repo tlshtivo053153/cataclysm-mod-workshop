@@ -9,6 +9,7 @@ from common import (
     process_directory,
     process_file,
     resolve_paths,
+    revert_translation_field,
     save_json,
 )
 
@@ -168,3 +169,23 @@ class TestProcessFile:
         p = make_json_file(tmp_path, {"x": 1}, "file.json")
         process_file(p, p, lambda d, p: d, backup=True)
         assert (tmp_path / ".bak" / "file.json").exists()
+
+
+class TestRevertTranslationField:
+    def test_str_sp_extracted(self):
+        assert revert_translation_field({"str_sp": "hello"}) == "hello"
+
+    def test_str_extracted(self):
+        assert revert_translation_field({"str": "world"}) == "world"
+
+    def test_str_sp_priority_over_str(self):
+        assert revert_translation_field({"str_sp": "first", "str": "second"}) == "first"
+
+    def test_non_dict_passthrough(self):
+        assert revert_translation_field("plain string") == "plain string"
+
+    def test_empty_dict_passthrough(self):
+        assert revert_translation_field({}) == {}
+
+    def test_dict_without_translation_keys_passthrough(self):
+        assert revert_translation_field({"other": "value"}) == {"other": "value"}

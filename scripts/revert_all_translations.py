@@ -1,22 +1,16 @@
 #!/usr/bin/env python3
 """Revert ALL name translation objects back to strings."""
 
-from common import run_standard_pipeline
+from common import revert_translation_field, run_standard_pipeline
 
 
 def revert_all_name_fields(obj):
     """Revert all name fields that are translation objects back to strings."""
     if isinstance(obj, dict):
-        if "name" in obj and isinstance(obj["name"], dict):
-            if "str_sp" in obj["name"]:
-                obj["name"] = obj["name"]["str_sp"]
-            elif "str" in obj["name"]:
-                obj["name"] = obj["name"]["str"]
-        if "description" in obj and isinstance(obj["description"], dict):
-            if "str_sp" in obj["description"]:
-                obj["description"] = obj["description"]["str_sp"]
-            elif "str" in obj["description"]:
-                obj["description"] = obj["description"]["str"]
+        if "name" in obj:
+            obj["name"] = revert_translation_field(obj["name"])
+        if "description" in obj:
+            obj["description"] = revert_translation_field(obj["description"])
         for v in obj.values():
             revert_all_name_fields(v)
     elif isinstance(obj, list):

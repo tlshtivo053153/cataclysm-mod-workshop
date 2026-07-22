@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Revert name fields from translation objects back to strings for types that don't support it."""
 
-from common import run_standard_pipeline
+from common import revert_translation_field, run_standard_pipeline
 
 # Types that do NOT support translation objects for 'name' field
 TYPES_WITH_STRING_NAME = {
@@ -15,11 +15,8 @@ def revert_name_fields(obj):
     """Revert name fields that are objects back to strings for unsupported types."""
     if isinstance(obj, dict):
         obj_type = obj.get("type", "")
-        if obj_type in TYPES_WITH_STRING_NAME and "name" in obj and isinstance(obj["name"], dict):
-            if "str_sp" in obj["name"]:
-                obj["name"] = obj["name"]["str_sp"]
-            elif "str" in obj["name"]:
-                obj["name"] = obj["name"]["str"]
+        if obj_type in TYPES_WITH_STRING_NAME and "name" in obj:
+            obj["name"] = revert_translation_field(obj["name"])
         for v in obj.values():
             revert_name_fields(v)
     elif isinstance(obj, list):

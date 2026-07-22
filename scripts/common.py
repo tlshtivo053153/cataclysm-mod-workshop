@@ -10,6 +10,15 @@ from pathlib import Path
 from typing import Any
 
 
+def revert_translation_field(value: Any) -> Any:
+    """If value is a translation dict, return the original string; otherwise return value unchanged."""
+    if isinstance(value, dict):
+        for key in ("str_sp", "str"):
+            if key in value:
+                return value[key]
+    return value
+
+
 def create_parser(description: str) -> argparse.ArgumentParser:
     """Create a standard ArgumentParser with --input, --output, and --backup."""
     parser = argparse.ArgumentParser(description=description)
@@ -114,10 +123,11 @@ def process_directory(
     """
     if not input_dir.exists():
         print(f"Directory not found: {input_dir}", file=sys.stderr)
-        sys.exit(1)
+        return 0
 
     files = sorted(input_dir.rglob(pattern))
     success = 0
+    failures = 0
     for src in files:
         try:
             data = load_json(src)
@@ -135,6 +145,10 @@ def process_directory(
             success += 1
         except Exception as e:
             print(f"Error processing {src}: {e}", file=sys.stderr)
+            failures += 1
+
+    if failures > 0:
+        print(f"Processed {success} files, {failures} failures", file=sys.stderr)
 
     return success
 
@@ -172,13 +186,24 @@ def run_standard_pipeline(description: str, processor: Callable[..., Any]) -> No
     Handles argument parsing, path resolution, and dispatches to
     process_directory() or process_file() based on whether the input
     is a directory or a single file.
+
+    Exits with code 1 if any file processing fails.
     """
     parser = create_parser(description)
     args = parser.parse_args()
     input_path, output_path = resolve_paths(args)
 
+    failed = False
     if input_path.is_dir():
+        expected = len(sorted(input_path.rglob("*.json")))
         count = process_directory(input_path, output_path, processor, backup=args.backup)
+        if count < expected:
+            failed = True
         print(f"Updated {count} files.")
     else:
-        process_file(input_path, output_path, processor, backup=args.backup)
+        ok = process_file(input_path, output_path, processor, backup=args.backup)
+        if not ok:
+            failed = True
+
+    if failed:
+        sys.exit(1)
