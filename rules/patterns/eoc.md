@@ -144,10 +144,25 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 
 **実績**: `mods/small/wm_weapon_mastery/data/eoc.json` — `EOC_WM_OPEN_DIALOGUE` で `wm_detect_category` の二重呼び出しを解消。
 
-## `character_kills_monster` イベントの注意点
+## `character_kills_monster` イベント
+
+### 利用可能なイベントコンテキスト変数
+
+`character_kills_monster` イベントでは以下のコンテキスト変数にアクセス可能（`external/cdda/doc/JSON/EFFECT_ON_CONDITION.md:1658`）:
+
+| 変数 | 型 | 説明 | math でのアクセス |
+|------|---|---|---|
+| `killer` | `character_id` | キルしたキャラクターID | 直接アクセス不可（文字列） |
+| `victim_type` | `mtype_id` | モンスター種別ID | 直接アクセス不可（文字列） |
+| `exp` | `int` | キル経験値（モンスター強度に比例） | `_exp` |
+
+`int` 型のコンテキスト変数は math 式内で `_` プレフィックスでアクセス可能。`exp` は `_exp` として math で直接使用できる。
+
+### 注意点
 
 - `character_kills_monster` は**プレイヤー・NPC を問わず**全キャラクターで発火する
 - avatar のみに限定するには `"condition": "u_is_avatar"` を使用する
+- **`_exp` は `u_run_inv_eocs` 内の nested EOC でも引き続きアクセス可能**（後述「`_` 変数と `u_run_inv_eocs`」参照）
 
 ## `math` の変数スコープ
 
@@ -164,6 +179,7 @@ CDDA 0.I RC で EOC を使う際の設計パターンと落とし穴。
 - **`u_` 変数は明示的な再代入がない限り前回の値が残留する。** 複数分岐を含む EOC で `u_` 変数を使う場合、全分岐で変数を明示的に設定しなければ、過去の EOC 実行で設定された値が次の実行で誤って参照される可能性がある。分岐が変数を使わない場合でも、防御的初期化として 0 代入を行うこと。ただし、EOC 内で閉じた一時変数（`_` プレフィックス）を使う場合は残留リスクがないため、分岐の前に防御的初期化を置くだけでよい。実績: `EOC_WM_UPDATE_CAN_ENHANCE` の先頭で `_melee = 0` / `_ranged = 0` を防御的初期化し、分岐内で 1 を代入
 - **`n_` 変数は enchantment の math 式から直接アクセス不可。** enchantment の math はキャラクターコンテキスト（`u_`）で評価されるため、アイテム変数を参照したい場合は EOC で `n_` → `u_` にコピーしてから effect を付与する（`rules/patterns/enchantment.md` の「変数スコープの制約」参照）
 - **`u_` 変数は `u_run_inv_eocs` 内から読み取り可能。** talk_topic や親EOCで設定した `u_` math 変数は、`u_run_inv_eocs` の nested EOC（アイテムスコープ）内でも `u_` プレフィックスでアクセス可能。CDDA 公式ドキュメント（`EFFECT_ON_CONDITION.md`）で `u_run_inv_eocs` はデュアルトーカーモデルを維持し、alpha talker（`u_`）はキャラクターのまま、beta talker（`n_`）にアイテムが割り当てられると明記されている。両スコープが同時にアクセス可能であり、math 変数の `u_` プレフィックスは常に alpha talker にスコープされる（`NPCs.md`）。実績: `wm_apply_buffs` が既に `u_run_inv_eocs` 内で `u_` math 変数への書き込みを行っている。
+- **`_` プレフィックスのイベントコンテキスト変数（`_exp` 等）も `u_run_inv_eocs` 内からアクセス可能。** beta talker が monster から inventory item に置き換わっても、`_` スコープの変数は消滅しない。`u_run_inv_eocs` の nested EOC 内で `_exp` を直接参照できる。`wm_weapon_mastery` の `wm_on_kill_monster` → `wm_add_xp` フローで実績確認済み。
 
 ## message 内の変数埋め込み
 
@@ -708,6 +724,30 @@ CDDA の `math` 式は C 言語風だが、以下の演算子は **未サポー�
 - `MindOverMatter/nether_attunement.json` L18: `u_vitamin(...) >= (2 + u_skill(...) * 2)`
 - `hallucination_eocs.json` L110: `(u_hp('ALL') * 1.4) < u_hp_max('bp_null')`
 - `mods/small/wm_weapon_mastery/data/eoc.json` — 動的ティアコスト計算（後述）
+
+### 利用可能な算術関数
+
+CDDA の math 式では以下の算術関数が使用可能:
+
+| 関数 | 構文 | 説明 | 実績 |
+|------|------|------|------|
+| `min` | `min(a, b)` | 2引数の小さい方を返す | MindOverMatter, Xedra Evolved, Magiclysm, wm_weapon_mastery: `min(20, max(1, _exp))` |
+| `max` | `max(a, b)` | 2引数の大きい方を返す | 同上 |
+| `clamp` | `clamp(x, lo, hi)` | x を [lo, hi] の範囲に制限。**`hi > lo` が必須**（逆転は未定義動作・クラッシュリスク。`rules/common_errors.md` 参照） | バニラ EOC で広く使用 |
+
+`min` / `max` の典型的なユースケース:
+
+```jsonc
+// 下限 1、上限 20 の XP スケーリング
+{ "math": [ "n_wm_xp = n_wm_xp + min(20, max(1, _exp))" ] }
+
+// 上限制限のみ (0 以上を保証する場合は max 不要)
+{ "math": [ "u_val = min(100, u_val)" ] }
+```
+
+`clamp` の代替として `min` + `max` の組み合わせも使えるが、3値制限には `clamp` の方が簡潔。`min` / `max` が適しているのは**式の一部として上限/下限のいずれか一方のみ**を適用したい場合。
+
+**参照**: `external/cdda/doc/JSON/NPCs.md:1307`
 
 ### 動的ティアアップグレードパターン
 
