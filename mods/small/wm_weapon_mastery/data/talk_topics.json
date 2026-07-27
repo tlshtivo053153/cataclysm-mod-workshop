@@ -113,5 +113,120 @@
         "topic": "TALK_WM_ENHANCE"
       }
     ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_WM_ENHANCE_SUPPORTED",
+    "dynamic_line": "強化したいバフを選んでください。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>(上限なし)\n近接命中: Tier <u_val:wm_melee_tohit>(上限なし)\n攻撃速度: Tier <u_val:wm_attack_speed>(上限なし)\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>(上限なし)\n遠隔精度: Tier <u_val:wm_dispersion>(上限なし)\n\n保有XP: <u_val:wm_xp>",
+    "responses": [
+      {
+        "text": "近接ダメージ強化 [<u_val:wm_cost_melee_damage> XP]",
+        "condition": { "math": [ "u_wm_can_enh_melee_damage" ] },
+        "trial": { "type": "CONDITION", "condition": { "math": [ "u_wm_cost_melee_damage <= u_wm_xp" ] } },
+        "success": {
+          "topic": "TALK_WM_ENHANCE_SUCCESS_SUPPORTED",
+          "effect": [
+            { "math": [ "u_wm_enhance_type = 1" ] },
+            { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+          ]
+        },
+        "failure": {
+          "topic": "TALK_WM_ENHANCE_FAILURE_SUPPORTED"
+        }
+      },
+      {
+        "text": "近接命中強化 [<u_val:wm_cost_melee_tohit> XP]",
+        "condition": { "math": [ "u_wm_can_enh_melee_tohit" ] },
+        "trial": { "type": "CONDITION", "condition": { "math": [ "u_wm_cost_melee_tohit <= u_wm_xp" ] } },
+        "success": {
+          "topic": "TALK_WM_ENHANCE_SUCCESS_SUPPORTED",
+          "effect": [
+            { "math": [ "u_wm_enhance_type = 2" ] },
+            { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+          ]
+        },
+        "failure": {
+          "topic": "TALK_WM_ENHANCE_FAILURE_SUPPORTED"
+        }
+      },
+      {
+        "text": "攻撃速度強化 [<u_val:wm_cost_attack_speed> XP]",
+        "condition": { "math": [ "u_wm_can_enh_attack_speed" ] },
+        "trial": { "type": "CONDITION", "condition": { "math": [ "u_wm_cost_attack_speed <= u_wm_xp" ] } },
+        "success": {
+          "topic": "TALK_WM_ENHANCE_SUCCESS_SUPPORTED",
+          "effect": [
+            { "math": [ "u_wm_enhance_type = 3" ] },
+            { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+          ]
+        },
+        "failure": {
+          "topic": "TALK_WM_ENHANCE_FAILURE_SUPPORTED"
+        }
+      },
+      {
+        "text": "遠隔ダメージ強化 [<u_val:wm_cost_ranged_damage> XP]",
+        "condition": { "math": [ "u_wm_can_enh_ranged_damage" ] },
+        "trial": { "type": "CONDITION", "condition": { "math": [ "u_wm_cost_ranged_damage <= u_wm_xp" ] } },
+        "success": {
+          "topic": "TALK_WM_ENHANCE_SUCCESS_SUPPORTED",
+          "effect": [
+            { "math": [ "u_wm_enhance_type = 4" ] },
+            { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+          ]
+        },
+        "failure": {
+          "topic": "TALK_WM_ENHANCE_FAILURE_SUPPORTED"
+        }
+      },
+      {
+        "text": "遠隔精度強化 [<u_val:wm_cost_dispersion> XP]",
+        "condition": { "math": [ "u_wm_can_enh_dispersion" ] },
+        "trial": { "type": "CONDITION", "condition": { "math": [ "u_wm_cost_dispersion <= u_wm_xp" ] } },
+        "success": {
+          "topic": "TALK_WM_ENHANCE_SUCCESS_SUPPORTED",
+          "effect": [
+            { "math": [ "u_wm_enhance_type = 5" ] },
+            { "run_eocs": [ "EOC_WM_GENERIC_ENHANCE" ] }
+          ]
+        },
+        "failure": {
+          "topic": "TALK_WM_ENHANCE_FAILURE_SUPPORTED"
+        }
+      },
+      {
+        "text": "何もしない",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_WM_ENHANCE_SUCCESS_SUPPORTED",
+    "dynamic_line": "強化の結果が表示されました。\n\n【現在の強化状態】\n近接ダメージ: Tier <u_val:wm_melee_damage>(上限なし)\n近接命中: Tier <u_val:wm_melee_tohit>(上限なし)\n攻撃速度: Tier <u_val:wm_attack_speed>(上限なし)\n遠隔ダメージ: Tier <u_val:wm_ranged_damage>(上限なし)\n遠隔精度: Tier <u_val:wm_dispersion>(上限なし)\n\n保有XP: <u_val:wm_xp>",
+    "responses": [
+      {
+        "text": "戻る",
+        "topic": "TALK_WM_ENHANCE_SUPPORTED",
+        "effect": [
+          {
+            "u_run_inv_eocs": "all",
+            "search_data": [ { "wielded_only": true } ],
+            "true_eocs": "EOC_WM_REFRESH_ENHANCE_STATE"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_WM_ENHANCE_FAILURE_SUPPORTED",
+    "dynamic_line": "XPが足りません。",
+    "responses": [
+      {
+        "text": "戻る",
+        "topic": "TALK_WM_ENHANCE_SUPPORTED"
+      }
+    ]
   }
 ]

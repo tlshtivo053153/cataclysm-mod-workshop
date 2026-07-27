@@ -188,19 +188,21 @@
         ]
       },
       {
-        "math": [ "u_wm_can_enh_melee_damage = _melee * (n_wm_buff_melee_damage < 4)" ]
-      },
-      {
-        "math": [ "u_wm_can_enh_melee_tohit = _melee * (n_wm_buff_melee_tohit < 4)" ]
-      },
-      {
-        "math": [ "u_wm_can_enh_attack_speed = _melee * (n_wm_buff_attack_speed < 4)" ]
-      },
-      {
-        "math": [ "u_wm_can_enh_ranged_damage = _ranged * (n_wm_buff_ranged_damage < 4)" ]
-      },
-      {
-        "math": [ "u_wm_can_enh_dispersion = _ranged * (n_wm_buff_dispersion < 4)" ]
+        "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
+        "then": [
+          { "math": [ "u_wm_can_enh_melee_damage = _melee" ] },
+          { "math": [ "u_wm_can_enh_melee_tohit = _melee" ] },
+          { "math": [ "u_wm_can_enh_attack_speed = _melee" ] },
+          { "math": [ "u_wm_can_enh_ranged_damage = _ranged" ] },
+          { "math": [ "u_wm_can_enh_dispersion = _ranged" ] }
+        ],
+        "else": [
+          { "math": [ "u_wm_can_enh_melee_damage = _melee * (n_wm_buff_melee_damage < 4)" ] },
+          { "math": [ "u_wm_can_enh_melee_tohit = _melee * (n_wm_buff_melee_tohit < 4)" ] },
+          { "math": [ "u_wm_can_enh_attack_speed = _melee * (n_wm_buff_attack_speed < 4)" ] },
+          { "math": [ "u_wm_can_enh_ranged_damage = _ranged * (n_wm_buff_ranged_damage < 4)" ] },
+          { "math": [ "u_wm_can_enh_dispersion = _ranged * (n_wm_buff_dispersion < 4)" ] }
+        ]
       }
     ]
   },
@@ -216,7 +218,15 @@
     "id": "EOC_WM_DIALOGUE_DETECT",
     "effect": [
       { "run_eocs": "EOC_WM_REFRESH_ENHANCE_STATE" },
-      { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
+      {
+        "if": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
+        "then": [
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE_SUPPORTED" } }
+        ],
+        "else": [
+          { "open_dialogue": { "topic": "TALK_WM_ENHANCE" } }
+        ]
+      }
     ]
   },
   {
@@ -268,12 +278,22 @@
           { "math": [ "_need_upgrade_exp = n_wm_upgrade_tier + 2" ] },
           { "math": [ "u_wm_upgrade_result = 3" ] },
           {
-            "if": { "math": [ "n_wm_upgrade_tier >= 4" ] },
+            "if": {
+              "and": [
+                { "not": { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] } },
+                { "math": [ "n_wm_upgrade_tier >= 4" ] }
+              ]
+            },
             "then": [ { "math": [ "u_wm_upgrade_result = 2" ] } ]
           },
           {
             "if": { "and": [
-              { "math": [ "n_wm_upgrade_tier < 4" ] },
+              {
+                "or": [
+                  { "compare_string": [ "supported", { "npc_val": "wm_wcat" } ] },
+                  { "math": [ "n_wm_upgrade_tier < 4" ] }
+                ]
+              },
               { "math": [ "n_wm_xp >= _need_upgrade_exp" ] }
             ]},
             "then": [
