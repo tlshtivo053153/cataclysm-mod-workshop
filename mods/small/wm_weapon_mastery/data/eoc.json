@@ -48,7 +48,6 @@
     "required_event": "character_kills_monster",
     "condition": "u_is_avatar",
     "effect": [
-      { "u_message": "[WM] kill event fired", "type": "info" },
       {
         "u_run_inv_eocs": "all",
         "search_data": [ { "wielded_only": true } ],
@@ -64,7 +63,7 @@
       {
         "if": { "not": { "compare_string": [ "unsupported", { "npc_val": "wm_wcat" } ] } },
         "then": [
-          { "math": [ "n_wm_xp = n_wm_xp + 1" ] }
+          { "math": [ "n_wm_xp = n_wm_xp + min(20, max(1, _exp))" ] }
         ]
       }
     ]
