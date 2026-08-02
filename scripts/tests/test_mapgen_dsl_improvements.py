@@ -5,8 +5,8 @@ import pytest
 from mapgen import (
     CompileError,
 )
-from mapgen.parser import parse_dsl
 from mapgen.compiler import Compiler
+from mapgen.parser import parse_dsl
 
 
 def _parse_yml(yml: str):

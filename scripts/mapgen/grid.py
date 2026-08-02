@@ -11,19 +11,25 @@ class Grid:
 
     DIRECTIONS: tuple[tuple[int, int], ...] = ((0, -1), (-1, 0), (1, 0), (0, 1))
 
-    def __init__(self, width: int = MAPGEN_SIZE, height: int = MAPGEN_SIZE, fill_char: str = EMPTY_CELL_CHAR) -> None:
+    def __init__(
+        self, width: int = MAPGEN_SIZE, height: int = MAPGEN_SIZE, fill_char: str = EMPTY_CELL_CHAR
+    ) -> None:
         self.width = width
         self.height = height
         self._cells = [[fill_char for _ in range(width)] for _ in range(height)]
 
     def place(self, x: int, y: int, char: str) -> None:
         if not self.is_in_bounds(x, y):
-            raise OutOfBoundsError(f"Coordinates ({x}, {y}) out of bounds (0-{self.width - 1}, 0-{self.height - 1})")
+            raise OutOfBoundsError(
+                f"Coordinates ({x}, {y}) out of bounds (0-{self.width - 1}, 0-{self.height - 1})"
+            )
         self._cells[y][x] = char
 
     def get(self, x: int, y: int) -> str:
         if not self.is_in_bounds(x, y):
-            raise OutOfBoundsError(f"Coordinates ({x}, {y}) out of bounds (0-{self.width - 1}, 0-{self.height - 1})")
+            raise OutOfBoundsError(
+                f"Coordinates ({x}, {y}) out of bounds (0-{self.width - 1}, 0-{self.height - 1})"
+            )
         return self._cells[y][x]
 
     def is_in_bounds(self, x: int, y: int) -> bool:
@@ -61,8 +67,11 @@ class Grid:
         reachable: set[tuple[int, int]] = set()
         queue: deque[tuple[int, int]] = deque()
         for ex, ey in entry_candidates:
-            if self.is_in_bounds(ex, ey) and self._cells[ey][ex] in passable_chars \
-                    and (ex, ey) not in reachable:
+            if (
+                self.is_in_bounds(ex, ey)
+                and self._cells[ey][ex] in passable_chars
+                and (ex, ey) not in reachable
+            ):
                 reachable.add((ex, ey))
                 queue.append((ex, ey))
 

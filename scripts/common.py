@@ -3,11 +3,40 @@
 
 import argparse
 import json
+import os
 import shutil
+import stat
 import sys
+import tempfile
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+MAX_RECURSION_DEPTH = 50
+
+
+@dataclass
+class ProcessResult:
+    """Result of batch/single-file processing.
+
+    Attributes:
+        processed: Files where data was successfully transformed and saved.
+        skipped: Files intentionally skipped (processor returned None).
+        failed: Files where an error occurred.
+    """
+
+    processed: int = 0
+    skipped: int = 0
+    failed: int = 0
+
+    @property
+    def total(self) -> int:
+        return self.processed + self.skipped + self.failed
+
+    @property
+    def has_errors(self) -> bool:
+        return self.failed > 0
 
 
 def revert_translation_field(value: Any) -> Any:
@@ -72,7 +101,6 @@ def backup_file(source: Path, backup_dir: Path | None = None) -> Path:
         backup_dir = source.parent / ".bak"
     backup_dir.mkdir(parents=True, exist_ok=True)
 
-    # Preserve relative structure when backing up directories
     backup_path = backup_dir / source.name
     counter = 1
     while backup_path.exists():
@@ -86,11 +114,11 @@ def backup_file(source: Path, backup_dir: Path | None = None) -> Path:
     return backup_path
 
 
-def load_json(path: Path) -> list | dict:
+def load_json(path: Path) -> list[Any] | dict[str, Any]:
     """Load JSON from path with descriptive error messages."""
     try:
         with open(path, encoding="utf-8") as f:
-            return json.load(f)
+            return json.load(f)  # type: ignore[no-any-return]
     except json.JSONDecodeError as e:
         print(f"JSON parse error in {path}: {e}", file=sys.stderr)
         raise
@@ -99,12 +127,21 @@ def load_json(path: Path) -> list | dict:
         raise
 
 
-def save_json(path: Path, data: list | dict, indent: int = 4) -> None:
-    """Save JSON to path with consistent formatting."""
+def save_json(path: Path, data: list[Any] | dict[str, Any], indent: int = 4) -> None:
+    """Save JSON to path with consistent formatting (atomic write via temp file)."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=indent)
-        f.write("\n")
+    fd, tmp_path_str = tempfile.mkstemp(dir=path.parent, suffix=".tmp", prefix=path.stem)
+    tmp_path = Path(tmp_path_str)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=indent)
+            f.write("\n")
+        os.chmod(tmp_path, stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o644)
+        tmp_path.replace(path)
+    except Exception:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
+        raise
 
 
 def process_directory(
@@ -113,26 +150,29 @@ def process_directory(
     processor: Callable[..., Any],
     backup: bool = True,
     pattern: str = "*.json",
-) -> int:
+) -> ProcessResult:
     """Walk input_dir, apply processor to each matching file, write to output_dir.
 
-    processor receives (data: list|dict, file_path: Path) and should return
-    the transformed data.  If processor returns None, the file is skipped.
+    processor receives (data: list|dict, file_path: Path) and should return:
+      - transformed data (list|dict) to save the file
+      - None to skip the file (intentional no-op)
 
-    Returns the number of successfully processed files.
+    Returns a ProcessResult with counts for processed, skipped, and failed files.
     """
+    result = ProcessResult()
+
     if not input_dir.exists():
         print(f"Directory not found: {input_dir}", file=sys.stderr)
-        return 0
+        return result
 
     files = sorted(input_dir.rglob(pattern))
-    success = 0
-    failures = 0
+
     for src in files:
         try:
             data = load_json(src)
             transformed = processor(data, src)
             if transformed is None:
+                result.skipped += 1
                 continue
 
             dst = src if output_dir == input_dir else output_dir / src.relative_to(input_dir)
@@ -142,15 +182,18 @@ def process_directory(
 
             save_json(dst, transformed)
             print(f"Updated: {dst}")
-            success += 1
+            result.processed += 1
         except Exception as e:
             print(f"Error processing {src}: {e}", file=sys.stderr)
-            failures += 1
+            result.failed += 1
 
-    if failures > 0:
-        print(f"Processed {success} files, {failures} failures", file=sys.stderr)
+    if result.failed > 0:
+        print(
+            f"Processed {result.processed}, skipped {result.skipped}, " f"failed {result.failed}",
+            file=sys.stderr,
+        )
 
-    return success
+    return result
 
 
 def process_file(
@@ -158,26 +201,31 @@ def process_file(
     output_path: Path,
     processor: Callable[..., Any],
     backup: bool = True,
-) -> bool:
+) -> ProcessResult:
     """Apply processor to a single file and write result.
 
-    Returns True on success.
+    Returns a ProcessResult.  On error the result has failed=1.
+    A processor returning None is treated as an intentional skip (skipped=1).
     """
+    result = ProcessResult()
     try:
         data = load_json(input_path)
         transformed = processor(data, input_path)
         if transformed is None:
-            return False
+            result.skipped = 1
+            return result
 
         if backup and output_path == input_path:
             backup_file(input_path)
 
         save_json(output_path, transformed)
         print(f"Updated: {output_path}")
-        return True
+        result.processed = 1
+        return result
     except Exception as e:
         print(f"Error processing {input_path}: {e}", file=sys.stderr)
-        return False
+        result.failed = 1
+        return result
 
 
 def run_standard_pipeline(description: str, processor: Callable[..., Any]) -> None:
@@ -187,23 +235,26 @@ def run_standard_pipeline(description: str, processor: Callable[..., Any]) -> No
     process_directory() or process_file() based on whether the input
     is a directory or a single file.
 
-    Exits with code 1 if any file processing fails.
+    Exit codes:
+        0 - all files processed successfully (including intentional skips)
+        1 - one or more files failed processing
     """
     parser = create_parser(description)
     args = parser.parse_args()
     input_path, output_path = resolve_paths(args)
 
-    failed = False
     if input_path.is_dir():
-        expected = len(sorted(input_path.rglob("*.json")))
-        count = process_directory(input_path, output_path, processor, backup=args.backup)
-        if count < expected:
-            failed = True
-        print(f"Updated {count} files.")
+        result = process_directory(input_path, output_path, processor, backup=args.backup)
+        print(
+            f"Updated {result.processed} files, skipped {result.skipped}, "
+            f"failed {result.failed}."
+        )
     else:
-        ok = process_file(input_path, output_path, processor, backup=args.backup)
-        if not ok:
-            failed = True
+        result = process_file(input_path, output_path, processor, backup=args.backup)
+        if result.skipped:
+            print(f"Skipped: {input_path}")
+        elif result.processed:
+            print(f"Updated: {input_path}")
 
-    if failed:
+    if result.has_errors:
         sys.exit(1)

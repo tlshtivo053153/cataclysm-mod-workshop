@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Convert old item types to new unified ITEM type with subtypes for CDDA 0.I."""
 
-from common import run_standard_pipeline
+import sys
+
+from common import MAX_RECURSION_DEPTH, run_standard_pipeline
 
 TYPE_MAP = {
     "TOOL": ["TOOL"],
@@ -27,7 +29,17 @@ TYPE_MAP = {
 }
 
 
-def convert_object(obj):
+MAX_DEPTH = MAX_RECURSION_DEPTH
+
+
+def convert_object(obj, _depth=0):
+    if _depth > MAX_DEPTH:
+        if _depth == MAX_DEPTH + 1:
+            print(
+                f"Warning: max recursion depth ({MAX_DEPTH}) exceeded in convert_item_types",
+                file=sys.stderr,
+            )
+        return obj
     if not isinstance(obj, dict):
         return obj
 
@@ -36,18 +48,17 @@ def convert_object(obj):
         obj["type"] = "ITEM"
         obj["subtypes"] = TYPE_MAP[old_type]
 
-    # Recurse into known list fields that may contain objects
     for key, value in obj.items():
         if isinstance(value, list):
             new_list = []
             for item in value:
                 if isinstance(item, dict):
-                    new_list.append(convert_object(item))
+                    new_list.append(convert_object(item, _depth + 1))
                 else:
                     new_list.append(item)
             obj[key] = new_list
         elif isinstance(value, dict):
-            obj[key] = convert_object(value)
+            obj[key] = convert_object(value, _depth + 1)
 
     return obj
 

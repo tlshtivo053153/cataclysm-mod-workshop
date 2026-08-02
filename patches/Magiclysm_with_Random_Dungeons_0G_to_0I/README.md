@@ -28,3 +28,4 @@ bash scripts/validate.sh /tmp/mod_0i
 
 - パッチは順次適用を前提としています。個別に適用すると行番号ずれで失敗する可能性があります。
 - ベースラインは `external/cdda/mods/Magiclysm_with_Random_Dungeons-0G/` です。
+- `activity_map.json` は `add_activity_level.py --config` 用の Magiclysm 専用設定ファイルです。（移植アーティファクト）

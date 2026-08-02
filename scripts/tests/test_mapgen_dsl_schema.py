@@ -81,6 +81,7 @@ entries:
             y: 3
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)
@@ -142,6 +143,7 @@ entries:
         floor: "."
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)
@@ -168,6 +170,7 @@ entries:
         char: "="
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)
@@ -196,6 +199,7 @@ entries:
             y: 1
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)
@@ -226,6 +230,7 @@ entries:
         y: 5
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)
@@ -259,6 +264,7 @@ entries:
         side: "east"
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)
@@ -281,6 +287,7 @@ entries:
         floor: "."
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)
@@ -309,6 +316,7 @@ entries:
         floor: "."
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)

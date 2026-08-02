@@ -58,7 +58,7 @@ class TestExtractSignature:
 
     def test_flexbuffer_json_error(self):
         block = [
-            "12:34:56.789 ERROR : src/flexbuffer_json.cpp:123 [detail] Json error: <color_white><color_cyan>missing field \"my_field\"</color></color>",
+            '12:34:56.789 ERROR : src/flexbuffer_json.cpp:123 [detail] Json error: <color_white><color_cyan>missing field "my_field"</color></color>',
         ]
         sig = extract_signature(block)
         assert sig == 'missing field "..."'
@@ -149,6 +149,7 @@ class TestFormatHuman:
 class TestFormatJson:
     def test_valid_json_output(self):
         import json
+
         blocks = [["12:34:56.789 ERROR : e"]]
         groups = summarize(blocks)
         result = format_json(groups)
@@ -159,6 +160,7 @@ class TestFormatJson:
 
     def test_top_limit_json(self):
         import json
+
         blocks = [
             ["12:01:01.001 ERROR : a"],
             ["12:02:02.002 ERROR : b"],

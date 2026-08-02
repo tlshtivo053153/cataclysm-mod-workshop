@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 from mapgen import CompileError
-from mapgen.parser import parse_dsl
 from mapgen.compiler import Compiler
+from mapgen.parser import parse_dsl
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -84,6 +84,7 @@ entries:
         char: "#"
 """
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(yml)
             temp_path = Path(f.name)
@@ -122,7 +123,9 @@ class TestCompilerCLI:
         src = FIXTURES / "single_room.yml"
         result = subprocess.run(
             [sys.executable, "-m", "mapgen_compiler", "--input", str(src), "--check-only"],
-            capture_output=True, text=True, cwd=str(Path(__file__).parent.parent),
+            capture_output=True,
+            text=True,
+            cwd=str(Path(__file__).parent.parent),
         )
         assert result.returncode == 0
 
@@ -131,7 +134,9 @@ class TestCompilerCLI:
         out = tmp_path / "output.json"
         result = subprocess.run(
             [sys.executable, "-m", "mapgen_compiler", "--input", str(src), "--output", str(out)],
-            capture_output=True, text=True, cwd=str(Path(__file__).parent.parent),
+            capture_output=True,
+            text=True,
+            cwd=str(Path(__file__).parent.parent),
         )
         assert result.returncode == 0
         assert out.exists()
@@ -144,13 +149,16 @@ class TestCompilerCLI:
         dsl_dir = mod_dir / "data" / "mapgen_dsl"
         dsl_dir.mkdir(parents=True)
         import yaml
+
         doc = yaml.safe_load((FIXTURES / "single_room.yml").read_text())
         yaml_path = dsl_dir / "test.yml"
         yaml_path.write_text(yaml.dump(doc))
 
         result = subprocess.run(
             [sys.executable, "-m", "mapgen_compiler", "--mod-dir", str(mod_dir)],
-            capture_output=True, text=True, cwd=str(Path(__file__).parent.parent),
+            capture_output=True,
+            text=True,
+            cwd=str(Path(__file__).parent.parent),
         )
         assert result.returncode == 0
         out_file = mod_dir / "data" / "mapgen" / "test.json"
@@ -166,13 +174,16 @@ class TestCompilerCLI:
         out_file.write_text("[]")
 
         import yaml
+
         doc = yaml.safe_load((FIXTURES / "single_room.yml").read_text())
         yaml_path = dsl_dir / "test.yml"
         yaml_path.write_text(yaml.dump(doc))
 
         result = subprocess.run(
             [sys.executable, "-m", "mapgen_compiler", "--mod-dir", str(mod_dir), "--no-backup"],
-            capture_output=True, text=True, cwd=str(Path(__file__).parent.parent),
+            capture_output=True,
+            text=True,
+            cwd=str(Path(__file__).parent.parent),
         )
         assert result.returncode == 0
         bak_files = list(Path(mod_dir).rglob("*.bak"))
@@ -183,13 +194,24 @@ class TestCompilerCLI:
         dsl_dir = mod_dir / "custom_dsl"
         dsl_dir.mkdir(parents=True)
         import yaml
+
         doc = yaml.safe_load((FIXTURES / "single_room.yml").read_text())
         yaml_path = dsl_dir / "test.yml"
         yaml_path.write_text(yaml.dump(doc))
 
         result = subprocess.run(
-            [sys.executable, "-m", "mapgen_compiler", "--mod-dir", str(mod_dir), "--dsl-dir", "custom_dsl"],
-            capture_output=True, text=True, cwd=str(Path(__file__).parent.parent),
+            [
+                sys.executable,
+                "-m",
+                "mapgen_compiler",
+                "--mod-dir",
+                str(mod_dir),
+                "--dsl-dir",
+                "custom_dsl",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=str(Path(__file__).parent.parent),
         )
         assert result.returncode == 0
         out_file = mod_dir / "data" / "mapgen" / "test.json"

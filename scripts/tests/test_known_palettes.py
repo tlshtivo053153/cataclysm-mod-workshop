@@ -53,14 +53,19 @@ class TestKnownPalettes:
 class TestCddaFormat:
     def test_cdda_array_format(self, tmp_path: Path):
         p = tmp_path / "pal.json"
-        p.write_text(json.dumps([
-            {
-                "type": "palette",
-                "id": "test_pal",
-                "terrain": {"{": "t_wall"},
-                "furniture": {"G": "f_chair"},
-            }
-        ]), encoding="utf-8")
+        p.write_text(
+            json.dumps(
+                [
+                    {
+                        "type": "palette",
+                        "id": "test_pal",
+                        "terrain": {"{": "t_wall"},
+                        "furniture": {"G": "f_chair"},
+                    }
+                ]
+            ),
+            encoding="utf-8",
+        )
         reg = PaletteRegistry(palette_paths=[p])
         pal = reg.get_palette("test_pal")
         assert pal is not None
@@ -69,22 +74,32 @@ class TestCddaFormat:
 
     def test_cdda_single_format(self, tmp_path: Path):
         p = tmp_path / "pal.json"
-        p.write_text(json.dumps({
-            "type": "palette",
-            "id": "solo",
-            "terrain": {"a": "t_floor"},
-        }), encoding="utf-8")
+        p.write_text(
+            json.dumps(
+                {
+                    "type": "palette",
+                    "id": "solo",
+                    "terrain": {"a": "t_floor"},
+                }
+            ),
+            encoding="utf-8",
+        )
         reg = PaletteRegistry(palette_paths=[p])
         assert reg.get_palette("solo") == {"terrain": {"a": "t_floor"}}
 
     def test_cdda_mixed_array(self, tmp_path: Path):
         p = tmp_path / "pal.json"
-        p.write_text(json.dumps([
-            {"type": "palette", "id": "keep", "terrain": {"a": "t_x"}},
-            {"type": "mapgen", "id": "ignore_me"},
-            {"type": "palette", "id": "", "terrain": {"b": "t_y"}},
-            {"type": "palette", "id": "keep2"},
-        ]), encoding="utf-8")
+        p.write_text(
+            json.dumps(
+                [
+                    {"type": "palette", "id": "keep", "terrain": {"a": "t_x"}},
+                    {"type": "mapgen", "id": "ignore_me"},
+                    {"type": "palette", "id": "", "terrain": {"b": "t_y"}},
+                    {"type": "palette", "id": "keep2"},
+                ]
+            ),
+            encoding="utf-8",
+        )
         reg = PaletteRegistry(palette_paths=[p])
         assert reg.get_palette("keep") is not None
         assert reg.get_palette("keep2") is not None
@@ -95,9 +110,14 @@ class TestCddaFormat:
 
     def test_cdda_missing_terrain(self, tmp_path: Path):
         p = tmp_path / "pal.json"
-        p.write_text(json.dumps([
-            {"type": "palette", "id": "no_ter", "furniture": {"a": "f_x"}},
-        ]), encoding="utf-8")
+        p.write_text(
+            json.dumps(
+                [
+                    {"type": "palette", "id": "no_ter", "furniture": {"a": "f_x"}},
+                ]
+            ),
+            encoding="utf-8",
+        )
         reg = PaletteRegistry(palette_paths=[p])
         pal = reg.get_palette("no_ter")
         assert pal is not None
@@ -106,9 +126,7 @@ class TestCddaFormat:
 
     def test_backward_compat(self, tmp_path: Path):
         p = tmp_path / "pal.json"
-        p.write_text(json.dumps({
-            "legacy": {"terrain": {"a": "t_legacy"}}
-        }), encoding="utf-8")
+        p.write_text(json.dumps({"legacy": {"terrain": {"a": "t_legacy"}}}), encoding="utf-8")
         reg = PaletteRegistry(palette_paths=[p])
         assert reg.get_palette("legacy") == {"terrain": {"a": "t_legacy"}}
 
@@ -148,9 +166,9 @@ class TestCddaFormat:
 
     def test_load_json_palettes_list(self, tmp_path: Path):
         p = tmp_path / "p.json"
-        p.write_text(json.dumps([
-            {"type": "palette", "id": "x", "terrain": {"a": "t_a"}}
-        ]), encoding="utf-8")
+        p.write_text(
+            json.dumps([{"type": "palette", "id": "x", "terrain": {"a": "t_a"}}]), encoding="utf-8"
+        )
         assert _load_json_palettes(p) == {"x": {"terrain": {"a": "t_a"}}}
 
     def test_load_json_palettes_dict_compiler(self, tmp_path: Path):
@@ -162,15 +180,19 @@ class TestCddaFormat:
         p = tmp_path / "p.json"
         p.write_text("{not json", encoding="utf-8")
         assert _load_json_palettes(p) == {}
-        assert any("Failed to load palettes" in record.message and "p.json" in record.message
-                   for record in caplog.records)
+        assert any(
+            "Failed to load palettes" in record.message and "p.json" in record.message
+            for record in caplog.records
+        )
 
     def test_extract_cdda_palette_fields_ignores_non_dict(self):
-        result = _extract_cdda_palette_fields({
-            "terrain": {"a": "t_x"},
-            "furniture": "not_a_dict",
-            "items": ["list", "not", "dict"],
-        })
+        result = _extract_cdda_palette_fields(
+            {
+                "terrain": {"a": "t_x"},
+                "furniture": "not_a_dict",
+                "items": ["list", "not", "dict"],
+            }
+        )
         assert result == {"terrain": {"a": "t_x"}}
 
     def test_explain_char_legacy_string(self):
@@ -184,17 +206,17 @@ class TestCddaFormat:
         assert reg.explain_char("empty", "a") is None
 
     def test_cdda_list_helper_filters_non_palette(self):
-        result = _cdda_list_to_palettes([
-            {"type": "mapgen", "id": "x"},
-            "not_a_dict",
-            {"type": "palette", "id": "p1", "terrain": {"a": "t_b"}},
-        ])
+        result = _cdda_list_to_palettes(
+            [
+                {"type": "mapgen", "id": "x"},
+                "not_a_dict",
+                {"type": "palette", "id": "p1", "terrain": {"a": "t_b"}},
+            ]
+        )
         assert result == {"p1": {"terrain": {"a": "t_b"}}}
 
     def test_cdda_list_helper_no_id(self):
-        assert _cdda_list_to_palettes([
-            {"type": "palette", "terrain": {}}
-        ]) == {}
+        assert _cdda_list_to_palettes([{"type": "palette", "terrain": {}}]) == {}
 
     def test_parametric_empty_dict_falls_through(self):
         reg = PaletteRegistry()

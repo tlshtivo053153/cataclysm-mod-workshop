@@ -28,6 +28,16 @@ bash scripts/validate.sh .
 bash scripts/validate.sh mods/small/my_mod/
 ```
 
+### CI用一括検証
+
+```bash
+# 全modを一括検証（mods/ 以下を再帰走査: modinfo.json列挙 + ID重複チェック + Level1 JSON構文）
+python scripts/validate_mods.py
+
+# 特定ディレクトリ配下のmodを検証
+python scripts/validate_mods.py --base-dir /path/to/mods
+```
+
 ### 頻度
 
 **編集のたびに実行してください。** 軽量なので頻繁に回すことを推奨します。
@@ -44,7 +54,7 @@ bash scripts/validate.sh mods/small/my_mod/
 |---|---|
 | 入力 | `modinfo.json` 内の `"id"` フィールドの値（mod_id） |
 | 前提条件 | `external/cdda/cataclysm-tiles` バイナリ + modが `external/cdda/mods/` に配置済み |
-| 実行時間 | 最大30秒（タイムアウト設定あり） |
+| 実行時間 | 最大90秒（タイムアウト設定あり、`--timeout` で変更可能） |
 | 検出範囲 | 依存解決・copy-from存在・必須フィールド・型不一致などCDDAエンジンレベルのエラー |
 
 ### 前提条件の確認
@@ -59,7 +69,7 @@ bash scripts/validate.sh mods/small/my_mod/
 bash scripts/validate.sh mods/small/my_mod/
 
 # Step 2: modをCDDAのmods/に配置（symlink推奨）
-bash scripts/link_mod_for_test.sh mods/small/my_mod/
+bash scripts/place_mod_for_test.sh --link mods/small/my_mod/
 
 # Step 3: mod_idを確認
 cat mods/small/my_mod/modinfo.json | grep '"id"'
@@ -67,10 +77,22 @@ cat mods/small/my_mod/modinfo.json | grep '"id"'
 
 # Step 4: CDDA組み込みチェック（Level2）
 bash scripts/check_mods.sh my_mod
+# 隔離実行（推奨）: shared state汚染を防ぐ
+bash scripts/check_mods.sh --isolated my_mod
+# debug.log のERRORも検出する:
+bash scripts/check_mods.sh --isolated --check-errors my_mod
 
 # Step 5: エラー確認（debug.log）
 cat external/cdda/config/debug.log
 ```
+
+### check_mods.sh オプション
+
+| オプション | 説明 |
+|---|---|
+| `--isolated` | 一時作業ディレクトリを使用し、共有状態（debug.log, flexcache）を汚染しない。並列実行が必要な場合に推奨 |
+| `--check-errors` | CDDAの終了コードに加え、debug.log内のERROR行の有無も検証（ERRORがあればexit 4） |
+| `--timeout N` | タイムアウト秒数を変更（デフォルト: 90秒） |
 
 ### mod_id の確認方法
 
@@ -81,7 +103,7 @@ cat external/cdda/config/debug.log
 grep '"id"' mods/small/my_mod/modinfo.json
 ```
 
-**注意**: `link_mod_for_test.sh` が作成するシンボリックリンク名はソースディレクトリのベース名です。ディレクトリ名と `modinfo.json` の `id` が一致しない場合があります。その場合は、`id` の値を `check_mods.sh` に渡してください。
+**注意**: `place_mod_for_test.sh` が作成するリンク名はソースディレクトリのベース名です。ディレクトリ名と `modinfo.json` の `id` が一致しない場合があります。その場合は、`id` の値を `check_mods.sh` に渡してください。
 
 例:
 - ソースディレクトリ: `mods/small/MyCoolMod/` → リンク名: `MyCoolMod`
@@ -102,7 +124,7 @@ grep '"id"' mods/small/my_mod/modinfo.json
 
 ### debug.log の読み方
 
-`check_mods.sh` は実行前に `external/cdda/config/debug.log` をクリアします。
+`check_mods.sh` は実行前に `external/cdda/config/debug.log` をクリアします（`--isolated` 使用時は一時ディレクトリに独立したdebug.logを作成）。
 つまり、実行後の `debug.log` の内容は**すべてそのセッションのエラー**です。
 
 ```bash
@@ -115,37 +137,32 @@ cat external/cdda/config/debug.log | grep ERROR
 
 ### 注意点
 
-- **タイムアウト**: 30秒で強制終了します。大規模modや多数の依存がある場合は時間がかかることがあります
+- **タイムアウト**: 90秒で強制終了します。大規模modや多数の依存がある場合は時間がかかることがあります。環境が遅い場合は `--timeout N` で延長してください
 - **パフォーマンス**: `validate.sh` と比べて重い処理です。マイルストーン毎（機能完成時、PR前など）に実行してください
-- **mod配置の更新**: ソースを修正したら、再度 `link_mod_for_test.sh` または `copy_mod_for_test.sh` を実行してCDDA側のmodを更新してください
-- **check_mods.sh の同時実行禁止**: `check_mods.sh` は `external/cdda/config/debug.log` と `flexcache` を同時にクリア・書き込みするため、並行実行するとログが破損する。複数modを検証する場合は必ず逐次実行すること。
-  - 良い例: `bash scripts/check_mods.sh mod_a && bash scripts/check_mods.sh mod_b`
-  - 悪い例: `bash scripts/check_mods.sh mod_a & bash scripts/check_mods.sh mod_b &`
+- **mod配置の更新**: ソースを修正したら、symlinkなら自動反映、コピーなら再度 `place_mod_for_test.sh` を実行してください
+- **同時実行**: 共有状態を使用する場合（`--isolated` なし）は並列実行不可。`--isolated` を使用すれば並列実行が可能です。
 
 ---
 
-## mod配置（link_mod_for_test.sh / copy_mod_for_test.sh）
+## mod配置（place_mod_for_test.sh）
 
 modは `mods/<size>/<mod_name>/` に開発し、CDDAの `--check-mods` で検証するために `external/cdda/mods/` に配置する必要があります。
-
-### symlink vs コピーの使い分け
-
-| 方法 | スクリプト | 推奨ケース |
-|---|---|---|
-| シンボリックリンク | `link_mod_for_test.sh` | **通常はこちら**。ソース修正が即座に反映され、開発中の反復が快適 |
-| コピー | `copy_mod_for_test.sh` | symlinkが使えない環境（Windows非Developerモード、特定のファイルシステム）、最終確認時 |
 
 ### 使い方
 
 ```bash
-# symlinkで配置（推奨）
-bash scripts/link_mod_for_test.sh mods/small/my_mod/
+# symlinkで配置（推奨、ソース修正が即時反映）
+bash scripts/place_mod_for_test.sh --link mods/small/my_mod/
 
 # コピーで配置
-bash scripts/copy_mod_for_test.sh mods/small/my_mod/
+bash scripts/place_mod_for_test.sh mods/small/my_mod/
 ```
 
-どちらのスクリプトも、既存のリンク/ディレクトリがあれば自動で削除してから配置し直します。
+既存のリンク/ディレクトリ/ファイルがあれば自動で削除してから配置し直します。
+
+### 非推奨の旧ラッパー
+
+`link_mod_for_test.sh` と `copy_mod_for_test.sh` は `place_mod_for_test.sh` に統合されました。旧ラッパーは下位互換性のために残されていますが、新規の利用は推奨しません。将来のメジャーバージョンで削除予定です。
 
 ---
 
@@ -157,11 +174,11 @@ bash scripts/copy_mod_for_test.sh mods/small/my_mod/
               └────────────────────────────────────────┘
                 （頻繁に実行、1秒未満）
 
-機能完成時 ──→ link_mod_for_test.sh ──→ check_mods.sh（Level2: 読み込み）
-                                              ↓
-                                        debug.log確認
-                                              ↓
-                                        エラーあれば修正
-                                              ↓
-                                        エラーなし ──→ CDDA起動（Level3: 動作確認）
+機能完成時 ──→ place_mod_for_test.sh ──→ check_mods.sh（Level2: 読み込み）
+                                               ↓
+                                         debug.log確認
+                                               ↓
+                                         エラーあれば修正
+                                               ↓
+                                         エラーなし ──→ CDDA起動（Level3: 動作確認）
 ```

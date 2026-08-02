@@ -56,17 +56,11 @@ class TestJsonEmitter:
             fill_ter="t_floor",
             palette=[],
             grid=grid,
-            pass_through={
-                "place_items": [
-                    {"item": "SUS_trash_roof", "chance": 50}
-                ]
-            },
+            pass_through={"place_items": [{"item": "SUS_trash_roof", "chance": 50}]},
             warnings=[],
         )
         result = emit_entry(ctx)
-        assert result["object"]["place_items"] == [
-            {"item": "SUS_trash_roof", "chance": 50}
-        ]
+        assert result["object"]["place_items"] == [{"item": "SUS_trash_roof", "chance": 50}]
 
     def test_pass_through_place_zones(self):
         grid = Grid()
@@ -75,11 +69,7 @@ class TestJsonEmitter:
             fill_ter="t_floor",
             palette=[],
             grid=grid,
-            pass_through={
-                "place_zones": [
-                    {"type": "ZONE_START_POINT"}
-                ]
-            },
+            pass_through={"place_zones": [{"type": "ZONE_START_POINT"}]},
             warnings=[],
         )
         result = emit_entry(ctx)

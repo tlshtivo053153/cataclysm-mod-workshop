@@ -7,17 +7,27 @@ ERRORS=0
 
 echo "=== JSON Validation: $MOD_DIR ==="
 
+FILES=()
+while IFS= read -r file; do
+  FILES+=("$file")
+done < <(find "$MOD_DIR" -name "*.json" 2>/dev/null || true)
+
+if [ "${#FILES[@]}" -eq 0 ]; then
+  echo "  ERROR: No JSON files found in $MOD_DIR"
+  exit 1
+fi
+
 # NOTE: パイプ経由の while read はサブシェルで実行されるため ERRORS が
 # 親シェルに伝播しない。プロセス置換 < <(...) を使って同一シェルで実行する。
-while read -r file; do
+for file in "${FILES[@]}"; do
   if python3 -m json.tool "$file" > /dev/null 2>&1; then
     echo "  OK: $file"
   else
     echo "  NG: $file"
-    python3 -m json.tool "$file" 2>&1 | head -5 || true
+    python3 -m json.tool "$file" 2>&1 | head -10 || true
     ERRORS=$((ERRORS + 1))
   fi
-done < <(find "$MOD_DIR" -name "*.json")
+done
 
 if [ "$ERRORS" -eq 0 ]; then
   echo "=== All files passed ==="

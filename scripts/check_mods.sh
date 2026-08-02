@@ -2,12 +2,47 @@
 # check_mods.sh — CDDAの組み込みモードチェック機能でMODを検証する
 #
 # Usage:
-#   bash scripts/check_mods.sh <mod_id>
+#   bash scripts/check_mods.sh <mod_id>                    (use shared config)
+#   bash scripts/check_mods.sh --isolated <mod_id>         (use temp workdir)
+#   bash scripts/check_mods.sh --check-errors <mod_id>     (also check debug.log for ERROR)
+#
+# Exit codes:
+#   0 - mod check passed (and debug.log has no ERROR when --check-errors is used)
+#   1 - usage error / missing prerequisites
+#   2 - mod check failed (CDDA returned non-zero)
+#   3 - timeout
+#   4 - debug.log contains ERROR (only with --check-errors)
 
 set -euo pipefail
 
+ISOLATED=false
+CHECK_ERRORS=false
+TIMEOUT_SEC=90
+CLEANUP_DIRS=()
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --isolated) ISOLATED=true; shift ;;
+        --check-errors) CHECK_ERRORS=true; shift ;;
+        --timeout)
+            if [ "$#" -lt 2 ]; then
+                echo "Error: --timeout requires a value (seconds)" >&2
+                echo "Usage: $0 [--isolated] [--check-errors] [--timeout N] <mod_id>" >&2
+                exit 1
+            fi
+            TIMEOUT_SEC="$2"; shift 2 ;;
+        *) break ;;
+    esac
+done
+
+case "${TIMEOUT_SEC}" in
+    0|*[!0-9]*|"")
+        echo "Error: --timeout must be a positive integer (got '${TIMEOUT_SEC}')" >&2
+        exit 1 ;;
+esac
+
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <mod_id>"
+    echo "Usage: $0 [--isolated] [--check-errors] [--timeout N] <mod_id>"
     exit 1
 fi
 
@@ -16,6 +51,8 @@ MOD_ID="$1"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CDDA_DIR="${PROJECT_ROOT}/external/cdda"
+
+# --- Prerequisites -----------------------------------------------------------
 
 if [ ! -d "${CDDA_DIR}" ]; then
     echo "Error: CDDA directory not found: ${CDDA_DIR}"
@@ -27,20 +64,126 @@ if [ ! -f "${CDDA_DIR}/cataclysm-tiles" ]; then
     exit 1
 fi
 
-# debug.log をクリア
-mkdir -p "${CDDA_DIR}/config"
-: > "${CDDA_DIR}/config/debug.log"
-
-# flexcache をクリア（stale data検出によるexit 1を防止）
-rm -rf "${CDDA_DIR}/config/flexcache"
-
-echo "Running mod check for: ${MOD_ID}"
-cd "${CDDA_DIR}"
-EXIT_CODE=0
-timeout 30 ./cataclysm-tiles --check-mods "${MOD_ID}" 2>&1 || EXIT_CODE=$?
-
-if [ "${EXIT_CODE}" -eq 124 ]; then
-    echo "Error: Mod check timed out after 30 seconds" >&2
+# --- CDDA version check ------------------------------------------------------
+# CDDA 0.I RC is the target.  Log version if the binary supports --version.
+if CDDA_VER="$(timeout 10 "${CDDA_DIR}/cataclysm-tiles" --version 2>&1)"; then
+    echo "CDDA version: ${CDDA_VER}"
+else
+    echo "Note: cataclysm-tiles does not support --version; version unknown"
 fi
 
-exit "${EXIT_CODE}" 
+# --- Mod presence check ------------------------------------------------------
+# CDDA --check-mods は指定IDのmodが見つからない場合もベースゲーム全体を
+# チェックし、無関係な既存エラーで失敗するため、事前に配置を検証する。
+if [ ! -d "${CDDA_DIR}/mods" ]; then
+    echo "Error: mods directory not found: ${CDDA_DIR}/mods (place the mod first with place_mod_for_test.sh)" >&2
+    exit 1
+fi
+
+if ! grep -rlq '"id"[[:space:]]*:[[:space:]]*"'"${MOD_ID}"'"' "${CDDA_DIR}"/mods/*/modinfo.json 2>/dev/null; then
+    echo "Error: mod ID '${MOD_ID}' not found in ${CDDA_DIR}/mods/" >&2
+    echo "Hint: run 'bash scripts/place_mod_for_test.sh [--link] <mod_dir>' first" >&2
+    echo "Hint: the mod_id is the 'id' value in modinfo.json, not the directory name" >&2
+    exit 1
+fi
+
+# --- Work directory setup ----------------------------------------------------
+
+if [ "${ISOLATED}" = true ]; then
+    WORKDIR="$(mktemp -d -t cdda-check-XXXXXX)"
+    echo "Isolated workdir: ${WORKDIR}"
+
+    # Copy config skeleton (empty config to avoid shared state pollution)
+    mkdir -p "${WORKDIR}/config"
+    mkdir -p "${WORKDIR}/save"
+    mkdir -p "${WORKDIR}/memorial"
+    mkdir -p "${WORKDIR}/graveyard"
+
+    # Symlink mods so the target mod is discoverable
+    if [ -d "${CDDA_DIR}/mods" ]; then
+        ln -s "$(realpath "${CDDA_DIR}/mods")" "${WORKDIR}/mods"
+    fi
+    if [ -d "${CDDA_DIR}/data" ]; then
+        ln -s "$(realpath "${CDDA_DIR}/data")" "${WORKDIR}/data"
+    fi
+    if [ -d "${CDDA_DIR}/gfx" ]; then
+        ln -s "$(realpath "${CDDA_DIR}/gfx")" "${WORKDIR}/gfx"
+    fi
+
+    # Override: use our own config dir
+    CONFIG_OVERRIDE=("--userdir" "${WORKDIR}")
+    DEBUG_LOG="${WORKDIR}/config/debug.log"
+    CLEANUP_DIRS=("${WORKDIR}")
+else
+    # Shared mode: clear shared state (original behavior)
+    mkdir -p "${CDDA_DIR}/config"
+    : > "${CDDA_DIR}/config/debug.log"
+    rm -rf "${CDDA_DIR}/config/flexcache"
+
+    CONFIG_OVERRIDE=()
+    DEBUG_LOG="${CDDA_DIR}/config/debug.log"
+fi
+
+# shellcheck disable=SC2329  # invoked indirectly via trap ... EXIT
+cleanup() {
+    if [ "${#CLEANUP_DIRS[@]}" -gt 0 ]; then
+        if [ -f "${DEBUG_LOG}" ] && [ -s "${DEBUG_LOG}" ]; then
+            DEST_LOG="${PROJECT_ROOT}/logs/check_${MOD_ID}_$(date +%Y%m%d_%H%M%S).log"
+            mkdir -p "$(dirname "${DEST_LOG}")"
+            cp "${DEBUG_LOG}" "${DEST_LOG}"
+            echo "Saved debug log: ${DEST_LOG}"
+        fi
+        rm -rf "${CLEANUP_DIRS[@]}"
+    fi
+}
+trap cleanup EXIT
+
+# --- Run mod check -----------------------------------------------------------
+
+echo "Running mod check for: ${MOD_ID}"
+EXIT_CODE=0
+(
+    cd "${CDDA_DIR}"
+    timeout "${TIMEOUT_SEC}" ./cataclysm-tiles \
+        "${CONFIG_OVERRIDE[@]}" \
+        --check-mods "${MOD_ID}" 2>&1
+) || EXIT_CODE=$?
+
+# --- Result handling ---------------------------------------------------------
+
+if [ "${EXIT_CODE}" -eq 124 ]; then
+    echo "Error: Mod check timed out after ${TIMEOUT_SEC} seconds" >&2
+    exit 3
+fi
+
+if [ "${EXIT_CODE}" -ne 0 ]; then
+    echo "Error: CDDA mod check failed (exit code ${EXIT_CODE})" >&2
+    if [ -f "${DEBUG_LOG}" ]; then
+        echo "--- debug.log (last 20 lines) ---" >&2
+        tail -20 "${DEBUG_LOG}" >&2
+        echo "--- end debug.log ---" >&2
+    fi
+    exit 2
+fi
+
+# --- debug.log ERROR check (optional) ----------------------------------------
+
+if [ "${CHECK_ERRORS}" = true ]; then
+    if [ ! -f "${DEBUG_LOG}" ]; then
+        echo "Warning: --check-errors requested but debug.log not found: ${DEBUG_LOG}" >&2
+        echo "Warning: skipping ERROR check" >&2
+    else
+        ERROR_COUNT=$(grep -cw "ERROR" "${DEBUG_LOG}" 2>/dev/null || echo 0)
+        if [ "${ERROR_COUNT}" -gt 0 ]; then
+            echo "Error: debug.log contains ${ERROR_COUNT} ERROR line(s)" >&2
+            echo "--- ERROR lines ---" >&2
+            grep -w "ERROR" "${DEBUG_LOG}" >&2
+            echo "--- end ERROR lines ---" >&2
+            exit 4
+        fi
+        echo "debug.log: no ERROR lines found"
+    fi
+fi
+
+echo "Mod check passed: ${MOD_ID}"
+exit 0

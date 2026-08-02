@@ -11,18 +11,15 @@ dependencies = [
     "PyYAML>=6.0",
 ]
 
-[dependency-groups]
-dev = [
-    "black",
-    "mypy",
-    "pytest",
-    "ruff",
-    "types-PyYAML",
-]
+[project.scripts]
+mapgen-compile = "mapgen.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["scripts"]
 
 [tool.black]
 line-length = 100
-target-version = ["py310", "py311", "py312"]
+target-version = ["py310", "py311", "py312", "py313"]
 include = "\\.pyi?$"
 extend-exclude = """
 /(
@@ -68,12 +65,8 @@ warn_redundant_casts = true
 module = "tests.*"
 ignore_errors = true
 
-# Flat transformation scripts share a loose runtime contract; keep them
-# non-strict so the mapgen package can enforce strict typing independently.
-[[tool.mypy.overrides]]
-module = "common"
-ignore_errors = true
-
+# Porting scripts: use dynamic callbacks and recursive Any-typed JSON traversal,
+# which cannot be typed precisely under strict mode.
 [[tool.mypy.overrides]]
 module = "convert_item_types"
 ignore_errors = true

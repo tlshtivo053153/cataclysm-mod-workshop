@@ -283,7 +283,7 @@ debug.log などで `Invalid or misplaced field name "XXX"` が大量に出る�
 ## mapgen・mapgen_palette 関連エラー
 
 ### mapgen `rows` のカンマ文字による silent error / タイムアウト
-- **現象:** `check_mods.sh` が30秒タイムアウト、または debug.log に `mapgen.cpp:5365 setup_common` エラーが大量発生するがエラーメッセージが空
+- **現象:** `check_mods.sh` がタイムアウト（デフォルト90秒）、または debug.log に `mapgen.cpp:5365 setup_common` エラーが大量発生するがエラーメッセージが空
 - **原因:** mapgen の `rows` 文字列内で `,`（カンマ）を未マップ文字として使用している。カンマは CDDA 内部で特別な扱いを受ける文字であり、パレットで明示的に terrain マッピングされていない場合 `fill_ter` が適用されずエラーになる（`.` は `fill_ter` が適用される）
 - **解決策:** `rows` 内の `,` を `.` に置換する。`.` は `fill_ter` でカバーされる安全な文字。または `,` をパレットの `terrain` で明示的にマッピングする（例: `",": "t_region_soil"` — `shelter_unfinished` パレットのパターン）
 - **注意:** `validate.sh` では検出できない。24文字の行長が合っていてもエラーになる

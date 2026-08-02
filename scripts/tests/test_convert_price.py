@@ -30,17 +30,21 @@ class TestFormatPrice:
 class TestRegexReplacement:
     def test_replaces_price_in_file(self, tmp_path):
         p = make_json_file(tmp_path, {"id": "item1", "price": 150, "name": "test"})
-        convert_price_process_file(p, p, backup=False)
+        result = convert_price_process_file(p, p, backup=False)
+        assert result.processed == 1
         content = p.read_text()
         assert '"price": "1 USD 50 cent"' in content
 
     def test_replaces_price_postapoc(self, tmp_path):
         p = make_json_file(tmp_path, {"id": "item1", "price_postapoc": 200})
-        convert_price_process_file(p, p, backup=False)
+        result = convert_price_process_file(p, p, backup=False)
+        assert result.processed == 1
         content = p.read_text()
         assert '"price_postapoc": "2 USD"' in content
 
-    def test_no_match_returns_false(self, tmp_path):
+    def test_no_match_skips(self, tmp_path):
         p = make_json_file(tmp_path, {"name": "test"})
         result = convert_price_process_file(p, p, backup=False)
-        assert result is False
+        assert result.processed == 0
+        assert result.skipped == 1
+        assert result.has_errors is False

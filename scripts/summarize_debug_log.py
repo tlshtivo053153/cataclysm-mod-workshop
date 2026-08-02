@@ -25,10 +25,9 @@ def parse_blocks(lines: list[str]) -> list[list[str]]:
         if current_block is not None:
             if TIMESTAMP_RE.match(stripped):
                 # Backtrace continuation must be appended, not treated as a new block
-                if (
-                    "(error message will follow backtrace)" in current_block[0]
-                    and stripped.startswith("(continued from above) ERROR")
-                ):
+                if "(error message will follow backtrace)" in current_block[
+                    0
+                ] and stripped.startswith("(continued from above) ERROR"):
                     current_block.append(stripped)
                     continue
                 blocks.append(current_block)

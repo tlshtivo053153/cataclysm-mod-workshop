@@ -5,9 +5,14 @@ import json
 import sys
 from pathlib import Path
 
-from common import create_parser, process_directory, process_file, resolve_paths
+from common import (
+    MAX_RECURSION_DEPTH,
+    create_parser,
+    process_directory,
+    process_file,
+    resolve_paths,
+)
 
-# Resolve invalid_fields.json relative to project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 INVALID_FIELDS_PATH = PROJECT_ROOT / "rules" / "invalid_fields.json"
 
@@ -19,17 +24,27 @@ def load_invalid_fields() -> set[str]:
     return set(fields)
 
 
-def remove_invalid_fields(obj, invalid_fields: set[str]):
+MAX_DEPTH = MAX_RECURSION_DEPTH
+
+
+def remove_invalid_fields(obj, invalid_fields: set[str], _depth: int = 0):
     """Recursively remove invalid fields from a JSON object."""
+    if _depth > MAX_DEPTH:
+        if _depth == MAX_DEPTH + 1:
+            print(
+                f"Warning: max recursion depth ({MAX_DEPTH}) exceeded in remove_invalid_fields",
+                file=sys.stderr,
+            )
+        return obj
     if isinstance(obj, dict):
         keys_to_remove = [k for k in obj if k in invalid_fields]
         for k in keys_to_remove:
             del obj[k]
         for v in obj.values():
-            remove_invalid_fields(v, invalid_fields)
+            remove_invalid_fields(v, invalid_fields, _depth + 1)
     elif isinstance(obj, list):
         for item in obj:
-            remove_invalid_fields(item, invalid_fields)
+            remove_invalid_fields(item, invalid_fields, _depth + 1)
     return obj
 
 
@@ -57,10 +72,20 @@ def main():
     input_path, output_path = resolve_paths(args)
 
     if input_path.is_dir():
-        count = process_directory(input_path, output_path, make_processor(invalid_fields), backup=args.backup)
-        print(f"Updated {count} files.")
+        result = process_directory(
+            input_path, output_path, make_processor(invalid_fields), backup=args.backup
+        )
     else:
-        process_file(input_path, output_path, make_processor(invalid_fields), backup=args.backup)
+        result = process_file(
+            input_path, output_path, make_processor(invalid_fields), backup=args.backup
+        )
+
+    print(
+        f"Updated {result.processed} files, skipped {result.skipped}, " f"failed {result.failed}."
+    )
+
+    if result.has_errors:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

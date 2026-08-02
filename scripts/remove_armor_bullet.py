@@ -1,16 +1,27 @@
 #!/usr/bin/env python3
 """Remove ARMOR_BULLET and ARMOR_BALLISTIC values from enchantment definitions."""
 
-from common import run_standard_pipeline
+import sys
+
+from common import MAX_RECURSION_DEPTH, run_standard_pipeline
 
 TARGET_VALUES = {"ARMOR_BULLET", "ARMOR_BALLISTIC"}
 
 
-def clean_object(obj):
+MAX_DEPTH = MAX_RECURSION_DEPTH
+
+
+def clean_object(obj, _depth=0):
+    if _depth > MAX_DEPTH:
+        if _depth == MAX_DEPTH + 1:
+            print(
+                f"Warning: max recursion depth ({MAX_DEPTH}) exceeded in remove_armor_bullet",
+                file=sys.stderr,
+            )
+        return obj
     if not isinstance(obj, dict):
         return obj
 
-    # Check if this is a values array item we want to remove
     if "value" in obj and obj["value"] in TARGET_VALUES:
         return None
 
@@ -19,14 +30,14 @@ def clean_object(obj):
             new_list = []
             for item in value:
                 if isinstance(item, dict):
-                    cleaned = clean_object(item)
+                    cleaned = clean_object(item, _depth + 1)
                     if cleaned is not None:
                         new_list.append(cleaned)
                 else:
                     new_list.append(item)
             obj[key] = new_list
         elif isinstance(value, dict):
-            cleaned = clean_object(value)
+            cleaned = clean_object(value, _depth + 1)
             if cleaned is None:
                 del obj[key]
             else:

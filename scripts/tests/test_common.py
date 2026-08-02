@@ -3,6 +3,7 @@ from argparse import Namespace
 from pathlib import Path
 
 from common import (
+    ProcessResult,
     backup_file,
     create_parser,
     load_json,
@@ -133,8 +134,11 @@ class TestProcessDirectory:
     def test_all_files_processed(self, tmp_path):
         for i in range(3):
             make_json_file(tmp_path, {"n": i}, f"file{i}.json")
-        count = process_directory(tmp_path, tmp_path, lambda data, path: data, backup=False)
-        assert count == 3
+        result = process_directory(tmp_path, tmp_path, lambda data, path: data, backup=False)
+        assert result.processed == 3
+        assert result.skipped == 0
+        assert result.failed == 0
+        assert result.has_errors is False
 
     def test_processor_returns_none_skips(self, tmp_path):
         make_json_file(tmp_path, {"v": 1}, "keep.json")
@@ -145,30 +149,94 @@ class TestProcessDirectory:
                 return None
             return data
 
-        count = process_directory(tmp_path, tmp_path, processor, backup=False)
-        assert count == 1
+        result = process_directory(tmp_path, tmp_path, processor, backup=False)
+        assert result.processed == 1
+        assert result.skipped == 1
+        assert result.failed == 0
 
     def test_backup_creates_bak(self, tmp_path):
         make_json_file(tmp_path, {"x": 1}, "file.json")
         process_directory(tmp_path, tmp_path, lambda d, p: d, backup=True)
         assert (tmp_path / ".bak" / "file.json").exists()
 
+    def test_failure_counted(self, tmp_path):
+        for i in range(3):
+            make_json_file(tmp_path, {"n": i}, f"file{i}.json")
+
+        def processor(data, path):
+            if data.get("n") == 1:
+                raise ValueError("simulated failure")
+            return data
+
+        result = process_directory(tmp_path, tmp_path, processor, backup=False)
+        assert result.processed == 2
+        assert result.failed == 1
+        assert result.has_errors is True
+
+    def test_total_property(self, tmp_path):
+        make_json_file(tmp_path, {"v": 1}, "keep.json")
+        make_json_file(tmp_path, {"v": 2}, "skip.json")
+
+        def processor(data, path):
+            if data.get("v") == 2:
+                return None
+            return data
+
+        result = process_directory(tmp_path, tmp_path, processor, backup=False)
+        assert result.total == 2
+
+    def test_missing_directory(self, tmp_path):
+        result = process_directory(tmp_path / "nonexistent", tmp_path, lambda d, p: d)
+        assert result.processed == 0
+        assert result.total == 0
+
 
 class TestProcessFile:
-    def test_success_returns_true(self, tmp_path):
+    def test_success(self, tmp_path):
         p = make_json_file(tmp_path, {"a": 1})
         result = process_file(p, p, lambda d, p: d, backup=False)
-        assert result is True
+        assert result.processed == 1
+        assert result.skipped == 0
+        assert result.failed == 0
+        assert result.has_errors is False
 
-    def test_processor_returns_none_returns_false(self, tmp_path):
+    def test_processor_returns_none_skips(self, tmp_path):
         p = make_json_file(tmp_path, {"a": 1})
         result = process_file(p, p, lambda d, p: None, backup=False)
-        assert result is False
+        assert result.processed == 0
+        assert result.skipped == 1
+        assert result.failed == 0
+        assert result.has_errors is False
+
+    def test_process_failure(self, tmp_path):
+        p = make_json_file(tmp_path, {"a": 1})
+
+        def processor(data, path):
+            raise ValueError("simulated failure")
+
+        result = process_file(p, p, processor, backup=False)
+        assert result.processed == 0
+        assert result.failed == 1
+        assert result.has_errors is True
 
     def test_backup_creates_bak(self, tmp_path):
         p = make_json_file(tmp_path, {"x": 1}, "file.json")
         process_file(p, p, lambda d, p: d, backup=True)
         assert (tmp_path / ".bak" / "file.json").exists()
+
+
+class TestProcessResult:
+    def test_defaults(self):
+        r = ProcessResult()
+        assert r.processed == 0
+        assert r.skipped == 0
+        assert r.failed == 0
+        assert r.total == 0
+        assert r.has_errors is False
+
+    def test_has_errors_when_failed(self):
+        r = ProcessResult(processed=5, failed=1)
+        assert r.has_errors is True
 
 
 class TestRevertTranslationField:

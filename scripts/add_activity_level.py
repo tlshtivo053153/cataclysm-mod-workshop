@@ -2,6 +2,7 @@
 """Add activity_level to all recipe objects in JSON files."""
 
 import json
+import sys
 from pathlib import Path
 
 from common import create_parser, process_directory, process_file, resolve_paths
@@ -63,10 +64,16 @@ def main():
     input_path, output_path = resolve_paths(args)
 
     if input_path.is_dir():
-        count = process_directory(input_path, output_path, processor, backup=args.backup)
-        print(f"Updated {count} files.")
+        result = process_directory(input_path, output_path, processor, backup=args.backup)
     else:
-        process_file(input_path, output_path, processor, backup=args.backup)
+        result = process_file(input_path, output_path, processor, backup=args.backup)
+
+    print(
+        f"Updated {result.processed} files, skipped {result.skipped}, " f"failed {result.failed}."
+    )
+
+    if result.has_errors:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -189,5 +189,5 @@ mod は事前に `place_mod_for_test.sh` で `external/cdda/mods/` に配置す�
 詳細は `issue.md` を参照。
 
 - **spec.md 未整備**: 21 mod 中 spec.md が 1 件も作成されていない
-- **孤児ファイル・空ディレクトリ**: `scripts/activity_map_magiclysm.json`、`mods/{medium,large,seen,unseen}` が実質的に空
+- **孤児ファイル・空ディレクトリ**: `mods/{medium,large,seen,unseen}` が実質的に空（`activity_map_magiclysm.json` は `patches/` に移動済み）
 - **ドキュメント言語の混在**: `AGENTS.md`（英語）とルール群（日本語）で言語が分かれている
