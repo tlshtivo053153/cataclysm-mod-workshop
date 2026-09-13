@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "bone_armor",
+    "name": "Bone Armor",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds craftable bone armor for the torso, head, and arms, giving butchered bones a use as crude but serviceable protection.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

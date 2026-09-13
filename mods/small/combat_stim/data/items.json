@@ -1,0 +1,20 @@
+[
+  {
+    "type": "ITEM",
+    "subtypes": [ "COMESTIBLE" ],
+    "id": "cst_combat_stim",
+    "copy-from": "adrenaline_injector",
+    "name": { "str_sp": "combat stimulant injector" },
+    "description": "An autoinjector loaded with a bootleg combat cocktail of concentrated epinephrine and caffeine.  A single dose sharpens reflexes and dulls pain for a few minutes, at the cost of a pounding heart.",
+    "weight": "14 g",
+    "volume": "12 ml",
+    "price": "45 USD",
+    "price_postapoc": "15 USD",
+    "stim": 40,
+    "use_action": {
+      "type": "consume_drug",
+      "activation_message": "You jam the combat stimulant into your thigh.",
+      "effects": [ { "id": "cst_effect_stim", "duration": "5 m" } ]
+    }
+  }
+]

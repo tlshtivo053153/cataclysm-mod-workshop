@@ -1,0 +1,59 @@
+[
+  {
+    "type": "ITEM",
+    "subtypes": [ "ARMOR" ],
+    "id": "bna_bone_cuirass",
+    "copy-from": "armor_chitin",
+    "name": { "str": "bone cuirass", "str_pl": "bone cuirasses" },
+    "description": "A cuirass of overlapping bone plates lashed together with leather cord.  Heavier than chitin armor, but easy to repair with fresh bones.",
+    "weight": "3200 g",
+    "volume": "16 L",
+    "price": "300 USD",
+    "price_postapoc": "25 USD",
+    "material": [ "bone", "leather" ],
+    "material_thickness": 5,
+    "warmth": 15,
+    "color": "light_gray",
+    "armor": [
+      {
+        "covers": [ "torso" ],
+        "coverage": 90,
+        "encumbrance": 12
+      }
+    ]
+  },
+  {
+    "type": "ITEM",
+    "subtypes": [ "ARMOR" ],
+    "id": "bna_bone_helmet",
+    "copy-from": "helmet_chitin",
+    "name": { "str": "bone helmet" },
+    "description": "A helmet of bone plates strapped over a leather hood.  Heavy and crude, but it covers the whole head.",
+    "weight": "1700 g",
+    "volume": "2800 ml",
+    "price": "350 USD",
+    "price_postapoc": "20 USD",
+    "material": [ "bone", "leather" ],
+    "material_thickness": 4,
+    "environmental_protection": 2,
+    "color": "light_gray",
+    "flags": [ "STURDY" ]
+  },
+  {
+    "type": "ITEM",
+    "subtypes": [ "ARMOR" ],
+    "id": "bna_bone_armguards",
+    "copy-from": "armguard_chitin",
+    "name": { "str": "pair of bone arm guards", "str_pl": "pairs of bone arm guards" },
+    "description": "A pair of arm guards made from split long bones bound with leather.  Crude, but they turn aside claws and teeth.",
+    "weight": "650 g",
+    "volume": "2800 ml",
+    "price": "180 USD",
+    "price_postapoc": "12 USD",
+    "material": [ "bone", "leather" ],
+    "material_thickness": 4,
+    "environmental_protection": 2,
+    "color": "light_gray",
+    "flags": [ "STURDY", "OUTER", "BLOCK_WHILE_WORN" ]
+  }
+]

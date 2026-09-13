@@ -118,7 +118,10 @@ else
     # Shared mode: clear shared state (original behavior)
     mkdir -p "${CDDA_DIR}/config"
     : > "${CDDA_DIR}/config/debug.log"
-    rm -rf "${CDDA_DIR}/config/flexcache"
+    # config/flexcache is the legacy cache path; 0.I also caches mod JSON
+    # flexbuffers under <userdir>/cache/mods, which must be cleared or
+    # edited mod files trigger "Stale game data detected".
+    rm -rf "${CDDA_DIR}/config/flexcache" "${CDDA_DIR}/cache/mods"
 
     CONFIG_OVERRIDE=()
     DEBUG_LOG="${CDDA_DIR}/config/debug.log"
@@ -173,7 +176,8 @@ if [ "${CHECK_ERRORS}" = true ]; then
         echo "Warning: --check-errors requested but debug.log not found: ${DEBUG_LOG}" >&2
         echo "Warning: skipping ERROR check" >&2
     else
-        ERROR_COUNT=$(grep -cw "ERROR" "${DEBUG_LOG}" 2>/dev/null || echo 0)
+        ERROR_COUNT=$(grep -cw "ERROR" "${DEBUG_LOG}" 2>/dev/null || true)
+        ERROR_COUNT=${ERROR_COUNT:-0}
         if [ "${ERROR_COUNT}" -gt 0 ]; then
             echo "Error: debug.log contains ${ERROR_COUNT} ERROR line(s)" >&2
             echo "--- ERROR lines ---" >&2

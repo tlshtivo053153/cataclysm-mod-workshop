@@ -1,0 +1,17 @@
+[
+  {
+    "type": "ITEM",
+    "subtypes": [ "BOOK" ],
+    "id": "hmg_grimoire",
+    "copy-from": "book_nonf_hard_tpl",
+    "name": { "str": "tattered grimoire" },
+    "description": "A hand-bound collection of folk charms and incantations written in cramped, faded handwriting.  Reading it teaches the two charms within.",
+    "weight": "900 g",
+    "volume": "1 L",
+    "price": "120 USD",
+    "price_postapoc": "40 USD",
+    "material": [ "paper", "leather" ],
+    "color": "dark_gray",
+    "use_action": { "type": "learn_spell", "spells": [ "hmg_thorn_dart", "hmg_second_wind" ] }
+  }
+]

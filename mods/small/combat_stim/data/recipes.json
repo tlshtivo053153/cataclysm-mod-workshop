@@ -1,0 +1,20 @@
+[
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "cst_combat_stim",
+    "category": "CC_CHEM",
+    "subcategory": "CSC_CHEM_DRUGS",
+    "skill_used": "chemistry",
+    "difficulty": 4,
+    "time": "20 m",
+    "autolearn": false,
+    "book_learn": [ [ "textbook_chemistry", 4 ] ],
+    "qualities": [ { "id": "CHEM", "level": 2 } ],
+    "components": [
+      [ [ "adrenaline_injector", 1 ] ],
+      [ [ "caffeine", 4 ] ],
+      [ [ "chem_ethanol", 50 ] ]
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+[
+  {
+    "id": "hmg_hedge_magic",
+    "type": "magic_type",
+    "energy_source": "STAMINA",
+    "cannot_cast_flags": "NO_SPELLCASTING",
+    "cannot_cast_message": "You can't focus enough to work your charm!"
+  }
+]

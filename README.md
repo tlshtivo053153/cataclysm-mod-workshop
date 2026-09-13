@@ -27,7 +27,7 @@ cataclysm-mod-workshop/
 │   ├── version_diff.md        ← バージョン間の破壊的変更一覧
 │   ├── common_errors.md       ← よくあるエラーと解決策
 │   ├── verification.md        ← 検証ツール詳細手順
-│   └── patterns/              ← 型別実装パターン集（15ファイル）
+│   └── patterns/              ← 型別実装パターン集（17ファイル）
 ├── scripts/                   ← 自動化スクリプト
 │   ├── validate.sh            ← JSON 構文チェック
 │   ├── check_mods.sh          ← CDDA エンジン読み込みチェック
@@ -45,7 +45,7 @@ cataclysm-mod-workshop/
 │   ├── mapgen/                ← mapgen DSL コンパイラ（17ファイル）
 │   └── tests/                 ← テスト群
 ├── mods/
-│   ├── small/                 ← 小規模 mod（21件）
+│   ├── small/                 ← 小規模 mod（24件）
 │   ├── medium/                ← 中規模 mod（予約）
 │   ├── large/                 ← 大規模 mod（予約）
 │   ├── seen/                  ← 学習済み mod（予約）

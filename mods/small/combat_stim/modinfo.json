@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "combat_stim",
+    "name": "Combat Stimulant",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a craftable combat stimulant injector that temporarily boosts melee damage, attack speed, and pain resistance.  Also demonstrates a standalone enchantment definition referenced by ID from an effect_type.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

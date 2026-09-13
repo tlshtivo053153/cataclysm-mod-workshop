@@ -1,0 +1,13 @@
+[
+  {
+    "type": "effect_type",
+    "id": "cst_effect_stim",
+    "name": [ "Combat Stimulant" ],
+    "desc": [ "Your heart hammers and your senses are razor sharp." ],
+    "apply_message": "Your heart hammers as the stimulant takes hold!",
+    "remove_message": "The combat stimulant wears off.",
+    "rating": "good",
+    "max_duration": "5 m",
+    "enchantments": [ "cst_ench_stim" ]
+  }
+]

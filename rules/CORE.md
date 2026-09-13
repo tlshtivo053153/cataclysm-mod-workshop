@@ -348,6 +348,23 @@ enchantment や effect_type を新規追加する場合は `rules/patterns/encha
 - 旧防具フラグ（`ARMOR_BALLISTIC`, `ARMOR_ACID` 等）は enchantment では使用不可
 - effect を付け替える際は、まず全 tier effect を `u_lose_effect` で除去してから新しい effect を `u_add_effect` で付与する
 - `duration` は次の recheck 間隔より長く設定する
+- 単体 `type: "enchantment"` を定義し、`effect_type` / `mutation` / `bionic` / `vehicle_part` から ID 参照できる。**ITEM は `enchantments` フィールドを持たない**ため、アイテムに付与する場合は effect_type 経由か artifact の `relic_data` を使う
+
+## 防具（ARMOR）の実装
+
+防具（`"type": "ITEM"`, `"subtypes": [ "ARMOR" ]`）を新規追加する場合は `rules/patterns/armor.md` を参照すること。特に以下の点に注意：
+- base には `helmet_scrap` / `armguard_scrap` / `armor_junk_plate` 等の廃材防具が既に多数存在する。**新規追加前に必ず重複を確認する**
+- `armor` 配列の素材指定は「アイテム直下の `material` + `material_thickness`」方式と「部位ごとの `material`（`covered_by_mat` / `thickness`）」方式がある。copy-from で素材を差し替える場合は親がどちらかを確認する
+- レシピのサブカテゴリは `CSC_ARMOR_TORSO` / `CSC_ARMOR_HEAD` / `CSC_ARMOR_ARMS` 等
+
+## 魔法（magic_type / SPELL）の実装
+
+呪文を新規追加する場合は `rules/patterns/spell.md` を参照すること。特に以下の点に注意：
+- `magic_type` は mod 専用の型。自作modでも定義でき、`energy_source: "STAMINA"` にすればマナ基盤なしで自己完結する
+- 呪文書で習得させる場合、`magic_type` に `max_book_level: 0` を設定しない（書物学習が禁止される）
+- `learn_spell` は `subtypes: [ "BOOK" ]` のアイテムの `use_action` で指定する
+- `damage_type` / 呪文フラグは base の実在IDを使う（`damage_types.json` / `flags.json`）
+- modinfo の `category` は `"magical"`
 
 ## recipe の必須フィールド（0.I RC）
 - `activity_level` が必須。省略するとゲーム起動時にエラー
@@ -355,11 +372,16 @@ enchantment や effect_type を新規追加する場合は `rules/patterns/encha
 - 大型爆発物（バレルボム級）は `"BRISK_EXERCISE"`。その他の爆発物・ノイズメーカーは `"LIGHT_EXERCISE"` が標準。必ず参照レシピを確認すること
 
 ## name フィールド形式（0.I RC）
-- `ITEM`/`SPELL` → `{"str_sp": "名称"}` が必須（単純文字列は不可）
-  - **ただし `TOOL` subtype のみ例外:** TOOL アイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
-  - **ただし `BIONIC_ITEM` subtype も例外:** CBMアイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
-  - **ただし `MAGAZINE` subtype も例外:** マガジンアイテムは `{"str": "名称"}` を使用（`str_sp` ではない）
-  - **COMESTIBLE/FOOD/DRINK は `str_sp`:** 食品・飲料系も `ITEM` 型だが、`str_sp` が必須
+- アイテム・呪文の `name` はオブジェクト形式で指定する。**0.I は複数形を厳密に検証する:**
+  - 自動生成できる語: `{"str": "bone helmet"}`。`str_pl` を付けると **`"str_pl" is not necessary` エラー**
+  - 自動生成できない語（例: cuirass）: `{"str": "bone cuirass", "str_pl": "bone cuirasses"}`。`str` のみだと **`Cannot autogenerate plural form` エラー**
+  - 単複同形の語: `{"str_sp": "名称"}`
+  - `pair of ...` のような数量表現は `str_pl` 必須（例: `{ "str": "pair of bone arm guards", "str_pl": "pairs of bone arm guards" }`）
+  - エラーが出たらログの指示に従い `str_pl` を追加/削除する（推測で両方書かない）
+- subtype ごとの慣習:
+  - `TOOL` / `BIONIC_ITEM` / `MAGAZINE` / `GUN` / `GUNMOD` / `ARMOR` → `{"str": "名称"}`
+  - `COMESTIBLE`/`FOOD`/`DRINK` → `{"str_sp": "名称"}` が基本
+- `SPELL` → `{"str": "名称"}`（`str_pl` は付けない）
 - `MONSTER` → `{"str": "名称"}`（バニラで支配的な形式）。動的名前生成の一部モンスターでは `{"str_sp": "..."}` も使用される
 - `overmap_terrain`/`mutation`/`profession`/`start_location`/`scenario` → 単純文字列が必須（`str_sp` は不可）
 

@@ -2,6 +2,67 @@
 
 CDDA 0.I RC で enchantment と effect_type を定義する際のパターンと値セマンティクス。
 
+## 単体 enchantment 定義（`type: "enchantment"`）
+
+`effect_type` にインラインで書く代わりに、`type: "enchantment"` を単体定義して **ID で参照**できる。
+参照元は以下の型で実例が確認されている（0.I）。
+
+| 参照元 | 書式 | 実例 |
+|---|---|---|
+| effect_type | `"enchantments": [ "ench_id" ]` | base `effects.json` の `mech_recon_vision` |
+| mutation | `"enchantments": [ "ench_id" ]` | base `mutations.json` の `THERMAL_VISION_LEAFNOSE` |
+| bionic | `"enchantments": [ "ench_id" ]` | Magiclysm `items/bionics.json` の `ench_bio_sneeze_beam` |
+| vehicle_part | `"enchantments": [ ... ]` | TEST_DATA `vehicle_parts.json` の `test_enchant` |
+
+> **ITEM（ARMOR / TOOL / GUN 等）は `enchantments` フィールドを持たない。** アイテムから
+> エンチャントを付与したい場合は、artifact の `relic_data` を使うか、薬剤・呪文などの
+> **effect_type 経由**で付与する（実装例: `mods/small/combat_stim/`）。
+
+### 基本構造
+
+```json
+{
+  "type": "enchantment",
+  "id": "cst_ench_stim",
+  "condition": "ALWAYS",
+  "name": { "str": "Combat Stimulant" },
+  "description": "Your reflexes are sharpened and your muscles respond instantly.",
+  "values": [
+    { "value": "MELEE_DAMAGE", "add": 2 },
+    { "value": "ATTACK_SPEED", "multiply": -0.1 },
+    { "value": "PAIN", "multiply": -0.5 }
+  ]
+}
+```
+
+### 単体 enchantment のフィールド
+
+| フィールド | 必須 | 説明 |
+|---|---|---|
+| `type` | 必須 | `"enchantment"` |
+| `id` | 必須 | 一意のID |
+| `condition` | 推奨 | `"ALWAYS"` または条件オブジェクト（EOC condition と同構文） |
+| `values` | 任意 | ステータス補正の配列（下表の value 名を参照） |
+| `incoming_damage_mod` | 任意 | 被ダメージ補正 `[ { "type": "cold", "multiply": -0.25 } ]` |
+| `special_vision` | 任意 | 特殊視界（Aftershock の暗視・赤外線など） |
+| `modified_bodyparts` | 任意 | 身体部位の付け替え |
+| `name` / `description` | 任意 | 表示用。`{ "str": ... }` 形式 |
+| `has` | 条件付き | `"WORN"` / `"WIELD"` / `"ACTIVE"`。着用・所持オブジェクトに紐づける場合に指定 |
+
+### `has` の要否
+
+- **bionic / mutation / vehicle_part に紐づける場合**: `has`（`WORN` / `ACTIVE` 等）が必要
+- **effect_type から参照する場合**: effect 自体の有無が条件になるため `has` は不要
+  （base `THERMAL_VISION_GOOD_PASSIVE`、`mods/small/combat_stim` の実例）
+
+### 単体定義 vs インライン定義の使い分け
+
+| 状況 | 推奨 |
+|---|---|
+| 同じ効果を複数の effect_type / mutation から共有したい | 単体定義 + ID 参照 |
+| 1つの effect_type にしか使わない | インライン記述（wm_weapon_mastery のパターン） |
+| アイテムに常時付与したい | artifact の `relic_data`、または effect_type 経由 |
+
 ## effect_type の基本構成
 
 ```json
@@ -311,3 +372,5 @@ per-item EOC → n_wm_buff_* を読み取り → math: u_wm_* = n_wm_buff_* → 
   - `external/cdda/data/mods/BombasticPerks/perkdata/empath.json` — effect_type + enchantments
   - `external/cdda/data/mods/MindOverMatter/effects/effects_psionic.json` — 複雑な条件付き enchantment
   - `external/cdda/data/mods/Aftershock/items/item_enchants.json` — スタンドアロン enchantment 定義
+  - `mods/small/combat_stim/` — 単体 enchantment を effect_type から ID 参照（本プロジェクトの実証例）
+  - `mods/small/wm_weapon_mastery/` — effect_type へのインライン enchantment + EOC 変数連携

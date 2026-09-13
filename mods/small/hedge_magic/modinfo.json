@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "hedge_magic",
+    "name": "Hedge Magic",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a self-contained stamina-based folk magic system: two classless spells learned from a craftable grimoire.",
+    "category": "magical",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
