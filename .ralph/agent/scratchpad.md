@@ -52,3 +52,18 @@
 - 検証: pytest 350 passed（+25）、ruff/black/mypy green。adversarial: float 1.5不変・文字列内pattern不変・proportional不変+兄弟変換を確認。
 - 残: 次はP0-6（P2）またはP0-5（P0-2完了でunblock済み）。
 - Backpressure: tests pass, lint pass, typecheck pass, audit pass, coverage pass, complexity n/a, duplication pass, performance pass (3.81s), specs pass。
+
+## 2026-09-14 P0-6 着手前メモ
+- 目的: P0-6 のみ実施（ONE task, P2）。P0-5は次回。
+- 根拠: remove_invalid_fields.py:39-48 がキー名一致のみで無条件 del。pipe_pistol items.json:18 の有効 "ammo": ["9mm"] を削除する破壊を実測再現済み（計画書§P0-6）。
+- 監査（実測）: 28項目を `"field"\s*:` キー位置で external/cdda/data/json 全体に照合。magazine 172 / ammo 693 / sound_volume 17 / baby_egg 152 / charges_per_use 223 件の key-hit（itemgroups・vehicle loot・monster reproduction・trap vehicle_data・item 直接フィールド）。残り23項目は key-hit 0 → remove_always。bashing/cutting は値位置のみ（skill/verb）でキーとしては0件のため remove_always に残す。src/ は本環境に不存在（game install のみ）のため data/json + doc/JSON で代替監査。
+- 変更: (1) invalid_fields.json を {"remove_always": [23件], "remove_by_type": {}} に。5フィールドは両方から除外（残す方向・安全側）。(2) InvalidFieldsConfig dataclass + 厳格スキーマ検証（legacy list 拒否・重複/空文字/overlap は ValueError→exit 1）。(3) 削除は remove_always 無条件 + by_type は dict の type 文字列一致時のみ。不一致・欠落・非文字列は警告+保持。(4) 既存テストは新シグネチャに更新（同一コミット、P0例外規定）。
+- DoD: pipe_pistol の ammo 保持（実ファイル回帰）、5フィールド保持、真の無効削除継続、type欠落で不削除、不正フォーマットで exit 1、pytest/ruff/black green（mypy は ignore_errors 対象）。
+- Confidence: 75（空 remove_by_type・legacy拒否は判断含む）→ DEC-001/DEC-002 を decisions.md に記録。
+- 計画: scratchpad/decisions 記録 → json+py+test 編集 → pytest/ruff/black → adversarial（pipe_pistol 実ファイル + 不正config CLI exit1）→ commit → close。
+
+## 2026-09-14 P0-6 完了メモ
+- 変更: invalid_fields.json を {remove_always: 23件, remove_by_type: {}} に（magazine/ammo/sound_volume/baby_egg/charges_per_use を除外）。remove_invalid_fields.py に InvalidFieldsConfig + 厳格スキーマ検証（legacy list 拒否・重複/空文字/overlap/未知キーは ValueError→exit 1）+ 型ゲート削除（不一致・欠落・非文字列 type は警告+保持）。test は 7→37 件に拡充（実config回帰・pipe_pistol実ファイル・CLI exit1 含む）。commit 3d17526。
+- 検証: pytest 380 passed（+30）、ruff/black/mypy green。adversarial: 実ファイルで ammo 保持+armor_bullet 削除を CLI で確認、legacy list は exit 1 パス。
+- 残: 次は P0-5（README事実修正）。P0 全完了後は green 確認 → P1。
+- Backpressure: tests pass, lint pass, typecheck pass, audit pass, coverage pass, complexity n/a, duplication pass, performance pass (4.11s), specs pass。
