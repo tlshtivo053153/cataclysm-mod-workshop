@@ -16,9 +16,10 @@ build/
 dist/
 *.whl
 # Generated / local runtime (do not commit; re-created on each run).
-# NOTE: PROMPT.md / hats.yml / ralph.yml / .agents/planning/**/*.md are
+# NOTE: hats.yml / ralph.yml / .agents/planning/**/*.md are
 # intentionally force-tracked knowledge files (git add -f, D-1) and stay
-# tracked despite the ignore rules below. Ignore prevents *new* runtime
+# tracked despite the ignore rules below. PROMPT.md is a local work prompt
+# and stays untracked (do not `git add -f` it). Ignore prevents *new* runtime
 # files from being added accidentally; do not `git add -f` new ones
 # without a preservation reason.
 .coverage*

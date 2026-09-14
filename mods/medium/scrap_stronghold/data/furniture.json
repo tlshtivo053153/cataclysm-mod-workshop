@@ -1,0 +1,271 @@
+[
+  {
+    "type": "furniture",
+    "id": "f_scsh_barricade",
+    "copy-from": "f_barricade_road",
+    "name": "scrap barricade",
+    "description": "A shaky blockade nailed together from scrap wood, wire, and sheet metal.  Blocks passage, but will not stand up to much punishment.",
+    "symbol": "#",
+    "bgcolor": "brown",
+    "coverage": 20,
+    "required_str": 4,
+    "deconstruct": {
+      "items": [ { "item": "2x4", "count": 2 }, { "item": "scrap", "count": [ 1, 2 ] } ]
+    },
+    "bash": {
+      "str_min": 3,
+      "str_max": 24,
+      "sound": "smash!",
+      "sound_fail": "whump.",
+      "items": [
+        { "item": "2x4", "count": [ 1, 2 ] },
+        { "item": "scrap", "count": [ 1, 2 ] },
+        { "item": "splinter", "count": 1 }
+      ],
+      "hit_field": [ "fd_dust", 2 ],
+      "destroyed_field": [ "fd_splinters", 1 ]
+    }
+  },
+  {
+    "type": "furniture",
+    "id": "f_scsh_crate",
+    "copy-from": "f_crate_o",
+    "name": "scrap crate",
+    "description": "An open storage box patched together from scrap boards and sheet metal.  Holds your gear, but breaks apart easily.",
+    "symbol": "O",
+    "bgcolor": "light_gray",
+    "coverage": 40,
+    "required_str": 8,
+    "deconstruct": {
+      "items": [
+        { "item": "2x4", "count": 2 },
+        { "item": "scrap", "count": 1 },
+        { "item": "nail", "charges": [ 3, 5 ] }
+      ]
+    },
+    "bash": {
+      "str_min": 8,
+      "str_max": 25,
+      "sound": "smash!",
+      "sound_fail": "wham!",
+      "items": [
+        { "item": "2x4", "count": [ 1, 3 ] },
+        { "item": "scrap", "count": [ 0, 1 ] },
+        { "item": "nail", "charges": [ 1, 5 ] }
+      ]
+    }
+  },
+  {
+    "type": "furniture",
+    "id": "f_scsh_planter",
+    "name": "scrap planter",
+    "description": "A planter box cobbled together from scrap wood and sheet metal, filled with soil and slatted for drainage.  Can be used for planting crops.",
+    "symbol": "^",
+    "color": "green",
+    "move_cost_mod": 1,
+    "required_str": 10,
+    "looks_like": "t_dirtmound",
+    "flags": [ "TRANSPARENT", "PLANTABLE", "FLAT", "MOUNTABLE" ],
+    "connect_groups": "PLANTER",
+    "connects_to": "PLANTER",
+    "deconstruct": {
+      "items": [
+        { "item": "2x4", "count": [ 5, 6 ] },
+        { "item": "nail", "charges": [ 6, 9 ] },
+        { "item": "pebble", "charges": [ 90, 100 ] },
+        { "item": "material_soil", "count": [ 70, 75 ] }
+      ]
+    },
+    "bash": {
+      "str_min": 4,
+      "str_max": 9,
+      "sound": "crunch.",
+      "sound_fail": "whish.",
+      "items": [
+        { "item": "2x4", "count": [ 1, 4 ] },
+        { "item": "nail", "charges": [ 2, 5 ] },
+        { "item": "pebble", "charges": [ 75, 100 ] },
+        { "item": "material_soil", "count": [ 60, 75 ] }
+      ]
+    },
+    "plant_data": { "transform": "f_scsh_planter_seed" },
+    "examine_action": "dirtmound"
+  },
+  {
+    "type": "furniture",
+    "id": "f_scsh_planter_seed",
+    "name": "scrap planter with seed",
+    "description": "A scrap planter filled with soil.  A planted seed rests inside, waiting to grow.",
+    "symbol": "^",
+    "color": "brown",
+    "looks_like": "f_plant_seed",
+    "move_cost_mod": 1,
+    "required_str": -1,
+    "flags": [ "PLANT", "SEALED", "TRANSPARENT", "CONTAINER", "NOITEM", "TINY", "DONT_REMOVE_ROTTEN" ],
+    "connect_groups": "PLANTER",
+    "connects_to": "PLANTER",
+    "examine_action": "aggie_plant",
+    "deconstruct": {
+      "items": [
+        { "item": "2x4", "count": [ 5, 6 ] },
+        { "item": "nail", "charges": [ 6, 9 ] },
+        { "item": "pebble", "charges": [ 90, 100 ] },
+        { "item": "material_soil", "count": [ 70, 75 ] }
+      ]
+    },
+    "bash": {
+      "str_min": 2,
+      "str_max": 6,
+      "sound": "rrrrip!",
+      "sound_fail": "brush.",
+      "sound_vol": 4,
+      "furn_set": "f_scsh_planter",
+      "items": [ { "item": "withered", "count": [ 1, 2 ] }, { "item": "leaves", "count": [ 1, 2 ] } ]
+    },
+    "plant_data": { "transform": "f_scsh_planter_seedling", "base": "f_scsh_planter" }
+  },
+  {
+    "type": "furniture",
+    "id": "f_scsh_planter_seedling",
+    "name": "scrap planter with seedling",
+    "description": "A scrap planter filled with soil.  A seed has just begun to sprout its first roots.",
+    "symbol": "^",
+    "color": "green",
+    "looks_like": "f_plant_seedling",
+    "move_cost_mod": 1,
+    "required_str": -1,
+    "flags": [ "PLANT", "SEALED", "TRANSPARENT", "CONTAINER", "NOITEM", "TINY", "DONT_REMOVE_ROTTEN", "GROWTH_SEEDLING" ],
+    "connect_groups": "PLANTER",
+    "connects_to": "PLANTER",
+    "examine_action": "aggie_plant",
+    "deconstruct": {
+      "items": [
+        { "item": "2x4", "count": [ 5, 6 ] },
+        { "item": "nail", "charges": [ 6, 9 ] },
+        { "item": "pebble", "charges": [ 90, 100 ] },
+        { "item": "material_soil", "count": [ 70, 75 ] }
+      ]
+    },
+    "bash": {
+      "str_min": 4,
+      "str_max": 8,
+      "sound": "rrrrip!",
+      "sound_fail": "brush.",
+      "sound_vol": 6,
+      "furn_set": "f_scsh_planter",
+      "items": [
+        { "item": "withered", "count": [ 1, 2 ] },
+        { "item": "leaves", "count": [ 2, 6 ] },
+        { "item": "twig", "count": [ 0, 1 ] }
+      ]
+    },
+    "plant_data": { "transform": "f_scsh_planter_mature", "base": "f_scsh_planter" }
+  },
+  {
+    "type": "furniture",
+    "id": "f_scsh_planter_mature",
+    "name": "scrap planter with mature plant",
+    "description": "A scrap planter filled with soil.  A matured plant should be ready for harvest before long.",
+    "symbol": "#",
+    "color": "green",
+    "looks_like": "f_plant_mature",
+    "move_cost_mod": 0,
+    "required_str": -1,
+    "flags": [ "PLANT", "SEALED", "TRANSPARENT", "CONTAINER", "NOITEM", "TINY", "DONT_REMOVE_ROTTEN", "GROWTH_MATURE", "SMALL_HIDE" ],
+    "connect_groups": "PLANTER",
+    "connects_to": "PLANTER",
+    "examine_action": "aggie_plant",
+    "deconstruct": {
+      "items": [
+        { "item": "2x4", "count": [ 5, 6 ] },
+        { "item": "nail", "charges": [ 6, 9 ] },
+        { "item": "pebble", "charges": [ 90, 100 ] },
+        { "item": "material_soil", "count": [ 70, 75 ] }
+      ]
+    },
+    "bash": {
+      "str_min": 6,
+      "str_max": 10,
+      "sound": "rrrrip!",
+      "sound_fail": "brush.",
+      "sound_vol": 8,
+      "furn_set": "f_scsh_planter",
+      "items": [
+        { "item": "withered", "count": [ 2, 8 ] },
+        { "item": "leaves", "count": [ 4, 16 ] },
+        { "item": "twig", "count": [ 1, 5 ] }
+      ]
+    },
+    "plant_data": { "transform": "f_scsh_planter_harvest", "base": "f_scsh_planter" }
+  },
+  {
+    "type": "furniture",
+    "id": "f_scsh_planter_harvest",
+    "name": "scrap planter with harvestable plant",
+    "description": "A scrap planter filled with soil.  A fully grown plant needs closer examination to harvest.",
+    "symbol": "#",
+    "color": "light_green",
+    "looks_like": "f_plant_harvest",
+    "move_cost_mod": 0,
+    "required_str": -1,
+    "flags": [ "PLANT", "SEALED", "TRANSPARENT", "CONTAINER", "NOITEM", "TINY", "DONT_REMOVE_ROTTEN", "GROWTH_HARVEST", "SMALL_HIDE" ],
+    "connect_groups": "PLANTER",
+    "connects_to": "PLANTER",
+    "examine_action": "harvest_plant_ex",
+    "deconstruct": {
+      "items": [
+        { "item": "2x4", "count": [ 5, 6 ] },
+        { "item": "nail", "charges": [ 6, 9 ] },
+        { "item": "pebble", "charges": [ 90, 100 ] },
+        { "item": "material_soil", "count": [ 70, 75 ] }
+      ]
+    },
+    "bash": {
+      "str_min": 6,
+      "str_max": 10,
+      "sound": "rrrrip!",
+      "sound_fail": "brush.",
+      "sound_vol": 8,
+      "furn_set": "f_scsh_planter",
+      "items": [
+        { "item": "withered", "count": [ 2, 8 ] },
+        { "item": "leaves", "count": [ 4, 16 ] },
+        { "item": "twig", "count": [ 1, 5 ] }
+      ]
+    },
+    "plant_data": { "transform": "f_scsh_planter_overgrown", "base": "f_scsh_planter" }
+  },
+  {
+    "type": "furniture",
+    "id": "f_scsh_planter_overgrown",
+    "name": "scrap planter with dead plants",
+    "description": "Beneath a heap of dying plants you can see a scrap planter.  Left without care, its plants have shriveled and died.",
+    "symbol": "#",
+    "color": "red",
+    "looks_like": "f_scsh_planter",
+    "move_cost_mod": 3,
+    "required_str": -1,
+    "examine_action": "clear_overgrown",
+    "flags": [ "PLANT", "SEALED", "TRANSPARENT", "CONTAINER", "NOITEM", "TINY", "DONT_REMOVE_ROTTEN", "GROWTH_OVERGROWN", "SMALL_HIDE" ],
+    "connect_groups": "PLANTER",
+    "connects_to": "PLANTER",
+    "deconstruct": {
+      "items": [
+        { "item": "2x4", "count": [ 5, 6 ] },
+        { "item": "nail", "charges": [ 6, 9 ] },
+        { "item": "pebble", "charges": [ 90, 100 ] },
+        { "item": "material_soil", "count": [ 70, 75 ] }
+      ]
+    },
+    "bash": {
+      "str_min": 2,
+      "str_max": 4,
+      "sound": "rrrrip!",
+      "sound_fail": "brush.",
+      "sound_vol": 1,
+      "furn_set": "f_scsh_planter",
+      "items": [ { "item": "withered", "count": [ 1, 2 ] } ]
+    },
+    "plant_data": { "transform": "f_scsh_planter_overgrown", "base": "f_scsh_planter" }
+  }
+]

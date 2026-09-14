@@ -6,6 +6,19 @@
 
 ## エラー一覧
 
+### `invalid terrain id "XXX"` / `Unknown post_terrain (terrain) XXX`（constructionの結果がfurnitureの場合）
+- **原因:** 家具IDが `f_` で始まっていない。エンジン（`src/construction.cpp`）は construction の
+  `post_terrain` / `pre_terrain` の値が `f_` で始まるかで furniture/terrain を判定する
+  （`post_is_furniture`）。`scsh_xxx` のようなmod prefix始まりの家具IDは地形IDとして誤解決され、
+  Level2（`check_mods.sh --check-errors`）で `invalid terrain id` が大量に出る。
+  JSON構文チェック（Level1）では検出できない。
+- **解決策:** furniture のIDは必ず `f_` 始まりにする（`f_` ＋ mod prefix。例: `f_scsh_barricade`）。
+  terrain を定義する場合も同様に `t_` 始まりにする。`plant_data.transform` / `base`、
+  bash内 `furn_set`、`looks_like` の参照先も全て張り替える。
+- **注意:** CORE.md の命名規則（mod prefix始まり）と衝突するため、furniture/terrain に限り
+  `f_` / `t_` を先頭に置くことを優先する。
+- **実証:** `mods/medium/scrap_stronghold`（2026-09-14。`scsh_*` → `f_scsh_*` 改名で解消）
+
 ### `unknown type: XXX`
 - **原因:** `type` フィールドの値のスペルミス
 - **解決策:** `external/cdda/data/json/` で正しい type 名を検索して確認する

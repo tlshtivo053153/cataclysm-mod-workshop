@@ -1,0 +1,41 @@
+[
+  {
+    "type": "construction",
+    "id": "scsh_constr_scrap_barricade",
+    "group": "scsh_build_scrap",
+    "category": "OTHER",
+    "required_skills": [ [ "fabrication", 1 ] ],
+    "time": "20 m",
+    "activity_level": "MODERATE_EXERCISE",
+    "qualities": [ [ { "id": "HAMMER", "level": 1 } ] ],
+    "components": [ [ [ "2x4", 3 ] ], [ [ "scrap", 4 ] ], [ [ "wire", 2 ] ], [ [ "nails", 6, "LIST" ] ] ],
+    "pre_special": "check_empty",
+    "post_terrain": "f_scsh_barricade"
+  },
+  {
+    "type": "construction",
+    "id": "scsh_constr_scrap_planter",
+    "group": "scsh_build_scrap",
+    "category": "FURN",
+    "required_skills": [ [ "fabrication", 2 ] ],
+    "time": "25 m",
+    "activity_level": "MODERATE_EXERCISE",
+    "qualities": [ [ { "id": "HAMMER", "level": 2 } ], [ { "id": "SAW_W", "level": 1 } ] ],
+    "components": [ [ [ "2x4", 6 ] ], [ [ "nails", 18, "LIST" ] ], [ [ "pebble", 100 ] ], [ [ "material_soil", 75 ] ] ],
+    "pre_special": "check_empty",
+    "post_terrain": "f_scsh_planter"
+  },
+  {
+    "type": "construction",
+    "id": "scsh_constr_scrap_crate",
+    "group": "scsh_build_scrap",
+    "category": "FURN",
+    "required_skills": [ [ "fabrication", 0 ] ],
+    "time": "30 m",
+    "activity_level": "LIGHT_EXERCISE",
+    "qualities": [ [ { "id": "HAMMER", "level": 1 } ], [ { "id": "SAW_W", "level": 1 } ] ],
+    "components": [ [ [ "2x4", 4 ] ], [ [ "scrap", 2 ] ], [ [ "nails", 12, "LIST" ] ] ],
+    "pre_special": "check_empty",
+    "post_terrain": "f_scsh_crate"
+  }
+]

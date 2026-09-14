@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "scrap_stronghold",
+    "name": "Scrap Stronghold",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds buildable scrap-wood barricade, soil planter, and storage crate constructions for early-game bases without welding.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
