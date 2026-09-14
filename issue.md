@@ -1,6 +1,6 @@
 # 残る問題点・改善点
 
-最終更新: 2026-08-02
+最終更新: 2026-09-14
 
 ## Critical Issues
 
@@ -94,3 +94,4 @@
 - **解決案:**
   - CDDA を起動し、各 `design.md` の「テスト手順」に従って Level3 を実施する
   - 確認ポイント: combat_stim（効果付与と enchantment 反映）/ bone_armor（装備・クラフト反映）/ hedge_magic（呪文書からの習得と詠唱・効果付与）
+  - 手順は `docs/level3_checklist.md` に機械可読チェックリストとして転記済み（2026-09-14、C-3）。Level3 9項目はすべて未実行（`grep -c "^- \[ \]" docs/level3_checklist.md` = 9）。実行時はチェックリストの `[ ]` → `[x]` と本節を連動更新する
