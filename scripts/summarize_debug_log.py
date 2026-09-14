@@ -154,7 +154,7 @@ def format_json(groups: dict[str, dict[str, Any]], top: int | None = None) -> st
     return json.dumps(output, indent=2, ensure_ascii=False)
 
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser(
         description="Summarize CDDA debug.log by grouping similar errors."
     )
@@ -171,10 +171,10 @@ def main() -> None:
     log_path: Path = args.log
     if not log_path.exists():
         print(f"File not found: {log_path}", file=sys.stderr)
-        sys.exit(1)
+        return 1
     if not log_path.is_file():
         print(f"Not a file: {log_path}", file=sys.stderr)
-        sys.exit(1)
+        return 1
 
     with log_path.open("r", encoding="utf-8") as f:
         lines = f.readlines()
@@ -188,7 +188,8 @@ def main() -> None:
         args.output.write_text(out + "\n", encoding="utf-8")
     else:
         print(out)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -265,9 +265,7 @@ class TestMain:
     def test_missing_config_exits_1(self, tmp_path, monkeypatch, capsys):
         monkeypatch.setattr(rif, "INVALID_FIELDS_PATH", tmp_path / "does_not_exist.json")
         monkeypatch.setattr(sys, "argv", ["remove_invalid_fields.py", "--input", str(tmp_path)])
-        with pytest.raises(SystemExit) as exc:
-            rif.main()
-        assert exc.value.code == 1
+        assert rif.main() == 1
         assert "not found" in capsys.readouterr().err
 
     def test_malformed_config_exits_1(self, tmp_path, monkeypatch, capsys):
@@ -275,7 +273,5 @@ class TestMain:
         bad.write_text('["ammo"]', encoding="utf-8")
         monkeypatch.setattr(rif, "INVALID_FIELDS_PATH", bad)
         monkeypatch.setattr(sys, "argv", ["remove_invalid_fields.py", "--input", str(tmp_path)])
-        with pytest.raises(SystemExit) as exc:
-            rif.main()
-        assert exc.value.code == 1
+        assert rif.main() == 1
         assert "Invalid fields list error" in capsys.readouterr().err

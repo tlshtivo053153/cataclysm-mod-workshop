@@ -180,16 +180,16 @@ def make_processor(config: InvalidFieldsConfig) -> Callable[[Any, Path], Any | N
     return processor
 
 
-def main() -> None:
+def main() -> int:
     # Config is loaded in the setup hook (after parse_args) so --help
     # works even when the rules file is missing. The dispatch processor
     # delegates to the setup-built processor stored in state.
     state: dict[str, Callable[[Any, Path], Any | None]] = {}
 
-    def _setup(_args: argparse.Namespace) -> None:
+    def _setup(_args: argparse.Namespace) -> int | None:
         if not INVALID_FIELDS_PATH.exists():
             print(f"Invalid fields list not found: {INVALID_FIELDS_PATH}", file=sys.stderr)
-            sys.exit(1)
+            return 1
 
         try:
             config = load_invalid_fields()
@@ -197,13 +197,14 @@ def main() -> None:
             # Note: json.JSONDecodeError subclasses ValueError, so malformed JSON
             # is covered here as well.
             print(f"Invalid fields list error: {e}", file=sys.stderr)
-            sys.exit(1)
+            return 1
         state["processor"] = make_processor(config)
+        return None
 
     def _processor(data: Any, path: Path) -> Any | None:
         return state["processor"](data, path)
 
-    run_standard_pipeline(
+    return run_standard_pipeline(
         "Remove invalid JSON fields from CDDA mod files",
         _processor,
         setup=_setup,
@@ -211,4 +212,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

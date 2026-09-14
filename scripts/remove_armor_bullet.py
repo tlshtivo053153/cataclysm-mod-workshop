@@ -68,9 +68,9 @@ def processor(data: Any, _path: Path) -> Any | None:
     return result
 
 
-def main() -> None:
-    run_standard_pipeline("Remove ARMOR_BULLET/BALLISTIC enchantment values", processor)
+def main() -> int:
+    return run_standard_pipeline("Remove ARMOR_BULLET/BALLISTIC enchantment values", processor)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

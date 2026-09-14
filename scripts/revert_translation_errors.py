@@ -55,11 +55,11 @@ def processor(data: Any, _path: Path) -> Any | None:
     return None
 
 
-def main() -> None:
-    run_standard_pipeline(
+def main() -> int:
+    return run_standard_pipeline(
         "Revert translation objects for name fields on unsupported types", processor
     )
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

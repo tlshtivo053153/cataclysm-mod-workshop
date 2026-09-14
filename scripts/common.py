@@ -348,8 +348,8 @@ def run_standard_pipeline(
     processor: Callable[..., Any],
     copy_unchanged: bool = False,
     configure: Callable[[argparse.ArgumentParser], None] | None = None,
-    setup: Callable[[argparse.Namespace], None] | None = None,
-) -> None:
+    setup: Callable[[argparse.Namespace], int | None] | None = None,
+) -> int:
     """Run a standard input/output pipeline for a transformation script.
 
     Handles argument parsing, path resolution, and dispatches to
@@ -368,10 +368,22 @@ def run_standard_pipeline(
             full-copy needs (convert_price=True, others False).
         configure: Optional create_parser hook for script-specific options.
         setup: Optional hook run after parse_args (e.g. load --config).
+            May return an int exit code to abort before processing
+            (e.g. missing config -> 1); None means continue.
 
-    Exit codes:
+    Returns:
+        Exit code following the unified CLI policy (E-1): 0 success,
+        1 processing error. Usage errors (missing required args) exit 2
+        via argparse before this returns. Callers use
+        ``def main() -> int: return run_standard_pipeline(...)`` with
+        ``sys.exit(main())``.
+
+    Exit codes (all Python CLIs):
         0 - all files processed successfully (including intentional skips)
-        1 - one or more files failed processing
+        1 - one or more files failed processing (incl. missing input,
+            nested input/output, missing config)
+        2 - usage error (argparse; mapgen also uses 2 for missing
+            input/DSL dir and no-input cases)
 
     Divergence note (mapgen/cli.py stays separate): the mapgen DSL compiler
     does not use this pipeline because its inputs are YAML (not JSON),
@@ -385,7 +397,9 @@ def run_standard_pipeline(
     parser = create_parser(description, configure=configure)
     args = parser.parse_args()
     if setup is not None:
-        setup(args)
+        setup_code = setup(args)
+        if isinstance(setup_code, int) and setup_code != 0:
+            return setup_code
     input_path, output_path = resolve_paths(args)
 
     if input_path.is_dir():
@@ -406,4 +420,5 @@ def run_standard_pipeline(
             print(f"Updated: {input_path}")
 
     if result.has_errors:
-        sys.exit(1)
+        return 1
+    return 0

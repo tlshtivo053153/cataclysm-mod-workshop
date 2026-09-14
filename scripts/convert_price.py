@@ -127,8 +127,8 @@ def processor(data: Any, src: Path) -> Any | None:
     return None
 
 
-def main() -> None:
-    run_standard_pipeline(
+def main() -> int:
+    return run_standard_pipeline(
         "Convert numeric price fields to currency strings",
         processor,
         copy_unchanged=True,
@@ -136,4 +136,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

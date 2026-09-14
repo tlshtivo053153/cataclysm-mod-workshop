@@ -48,17 +48,17 @@ def _write_output(
 def _compile_doc(
     compiler: Compiler,
     yaml_path: Path,
-) -> tuple[DSLDocument, list[EntryContext], list[dict[str, Any]]]:
-    """Parse + compile a single YAML, returning (doc, entries, emitted) or exiting."""
+) -> tuple[DSLDocument, list[EntryContext], list[dict[str, Any]]] | None:
+    """Parse + compile a single YAML, returning (doc, entries, emitted) or None on error."""
     try:
         doc = parse_dsl(yaml_path)
         entries = compiler.compile(doc)
     except yaml.YAMLError as e:
         print(f"YAML syntax error in {yaml_path}: {e}", file=sys.stderr)
-        sys.exit(1)
+        return None
     except CompileError as e:
         print(f"Compile error in {yaml_path}: {e}", file=sys.stderr)
-        sys.exit(1)
+        return None
     return doc, entries, compiler.emit(entries)
 
 
@@ -69,13 +69,16 @@ def _run_single_file(
     check_only: bool,
     palette_paths: list[Path],
     explain: bool = False,
-) -> None:
+) -> int:
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)
-        sys.exit(2)
+        return 2
 
     compiler = Compiler(palette_paths=palette_paths if palette_paths else None)
-    doc, entries, data = _compile_doc(compiler, input_path)
+    compiled = _compile_doc(compiler, input_path)
+    if compiled is None:
+        return 1
+    doc, entries, data = compiled
 
     _print_warnings(entries)
     if explain:
@@ -85,6 +88,7 @@ def _run_single_file(
         if output_path is None:
             output_path = input_path.with_suffix(".json")
         _write_output(output_path, data, backup)
+    return 0
 
 
 def _run_mod_dir(
@@ -94,11 +98,11 @@ def _run_mod_dir(
     check_only: bool,
     palette_paths: list[Path],
     explain: bool = False,
-) -> None:
+) -> int:
     dsl_path = mod_dir / dsl_dir
     if not dsl_path.exists():
         print(f"DSL directory not found: {dsl_path}", file=sys.stderr)
-        sys.exit(2)
+        return 2
 
     compiler = Compiler(palette_paths=palette_paths if palette_paths else None)
     yaml_files = sorted(dsl_path.glob("*.yml"))
@@ -133,10 +137,17 @@ def _run_mod_dir(
     else:
         print(f"Compiled {compiled_count} files, {error_count} errors")
     if error_count > 0:
-        sys.exit(1)
+        return 1
+    return 0
 
 
-def main() -> None:
+def main() -> int:
+    """Mapgen DSL compiler entry point.
+
+    Returns unified exit codes (E-1): 0 success, 1 processing error
+    (YAML/compile failures), 2 usage error (no --input/--mod-dir,
+    missing input file or DSL dir). Use ``sys.exit(main())``.
+    """
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
     parser = argparse.ArgumentParser(description="Mapgen DSL compiler for CDDA")
@@ -180,13 +191,17 @@ def main() -> None:
         auto_palette = args.mod_dir / "data" / "palettes"
         if auto_palette.is_dir() and auto_palette not in palette_paths:
             palette_paths.append(auto_palette)
-        _run_mod_dir(
+        return _run_mod_dir(
             args.mod_dir, args.dsl_dir, args.backup, args.check_only, palette_paths, args.explain
         )
     elif args.input:
-        _run_single_file(
+        return _run_single_file(
             args.input, args.output, args.backup, args.check_only, palette_paths, args.explain
         )
     else:
         parser.print_help()
-        sys.exit(2)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

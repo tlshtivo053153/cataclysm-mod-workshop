@@ -4,6 +4,7 @@
 import argparse
 import copy
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -63,13 +64,14 @@ def _configure(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def _setup(args: argparse.Namespace) -> None:
+def _setup(args: argparse.Namespace) -> int | None:
     if args.config:
         load_activity_config(args.config)
+    return None
 
 
-def main() -> None:
-    run_standard_pipeline(
+def main() -> int:
+    return run_standard_pipeline(
         "Add activity_level to recipe objects",
         processor,
         configure=_configure,
@@ -78,4 +80,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

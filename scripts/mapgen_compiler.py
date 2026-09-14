@@ -7,7 +7,9 @@ pytest ``pythonpath`` for test runs (plain ``python -m`` from repo
 root without install still fails — use ``pip install -e .`` there).
 """
 
+import sys
+
 from mapgen.cli import main
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -47,9 +47,11 @@ def processor(data: Any, _path: Path) -> Any | None:
     return None
 
 
-def main() -> None:
-    run_standard_pipeline("Revert all name/description translation objects to strings", processor)
+def main() -> int:
+    return run_standard_pipeline(
+        "Revert all name/description translation objects to strings", processor
+    )
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
