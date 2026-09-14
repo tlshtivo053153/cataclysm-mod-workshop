@@ -55,7 +55,7 @@ cataclysm-mod-workshop/
 ├── templates/
 │   ├── spec_template.md       ← mod 仕様書テンプレート
 │   └── design_template.md     ← mod 設計書テンプレート
-├── benchmarks/                ← ベンチマーク（予約）
+├── benchmarks/                ← 性能測定専用（評価タスクは mods/seen,unseen。詳細は benchmarks/README.md）
 ├── .github/workflows/
 │   └── ci.yml                 ← CI パイプライン
 ├── logs/                      ← 作業ログ（.gitignore 対象）

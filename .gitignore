@@ -11,9 +11,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.bak
-# D-1: benchmarks/unseen .gitkeep revival (same ! pattern as logs)
-benchmarks/unseen/*
-!benchmarks/unseen/.gitkeep
 .kilo/plans/
 # Local agent/runtime (untracked, do not commit)
 .ralph/

@@ -62,9 +62,7 @@ cdda-mod-dev/
 │   ├── large/              ← 大規模mod
 │   ├── seen/               ← 学習済みmod
 │   └── unseen/             ← 未知タスク
-├── benchmarks/
-│   ├── seen/               ← 学習・評価兼用
-│   └── unseen/             ← 評価専用（難易度分類）
+├── benchmarks/             ← 性能測定専用（評価タスクは mods/seen,unseen。詳細は benchmarks/README.md）
 ├── logs/                   ← 作業ログ（フラット構造）
 ├── patches/                ← 旧mod移植のパッチセット
 │   └── <mod_name>_<from>_<to>/
