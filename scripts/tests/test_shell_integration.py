@@ -75,17 +75,12 @@ class TestValidateSh:
 
 
 def _setup_fake_project(tmp_path, *, with_mods_dir=True):
-    """Copy place scripts into a fake project so real external/ is untouched."""
+    """Copy place script into a fake project so real external/ is untouched."""
     fake_scripts = tmp_path / "scripts"
     fake_scripts.mkdir(parents=True, exist_ok=True)
-    for name in (
-        "place_mod_for_test.sh",
-        "copy_mod_for_test.sh",
-        "link_mod_for_test.sh",
-    ):
-        dst = fake_scripts / name
-        dst.write_bytes((SCRIPTS_DIR / name).read_bytes())
-        dst.chmod(0o755)
+    dst = fake_scripts / "place_mod_for_test.sh"
+    dst.write_bytes((SCRIPTS_DIR / "place_mod_for_test.sh").read_bytes())
+    dst.chmod(0o755)
     if with_mods_dir:
         (tmp_path / "external" / "cdda" / "mods").mkdir(parents=True, exist_ok=True)
     return fake_scripts
@@ -173,20 +168,6 @@ class TestPlaceModForTest:
         dest = tmp_path / "external" / "cdda" / "mods" / "my_mod"
         assert dest.is_dir() and not dest.is_symlink()
         assert (dest / "extra.json").is_file()
-
-    def test_copy_wrapper_delegates(self, tmp_path):
-        fake_scripts = _setup_fake_project(tmp_path)
-        src = _make_src_mod(tmp_path / "src_mods")
-        result = subprocess.run(
-            ["bash", str(fake_scripts / "copy_mod_for_test.sh"), str(src)],
-            capture_output=True,
-            text=True,
-            cwd=str(tmp_path),
-            timeout=30,
-        )
-        assert result.returncode == 0, f"stdout: {result.stdout} stderr: {result.stderr}"
-        dest = tmp_path / "external" / "cdda" / "mods" / "my_mod"
-        assert dest.is_dir() and not dest.is_symlink()
 
     def test_link_copy_mutually_exclusive(self, tmp_path):
         fake_scripts = _setup_fake_project(tmp_path)

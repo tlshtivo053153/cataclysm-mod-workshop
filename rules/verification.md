@@ -172,7 +172,7 @@ bash scripts/place_mod_for_test.sh --dry-run mods/small/my_mod/
 
 ### 非推奨の旧ラッパー
 
-`link_mod_for_test.sh` と `copy_mod_for_test.sh` は `place_mod_for_test.sh` に統合されました。旧ラッパーは下位互換性のために残されていますが、新規の利用は推奨しません。将来のメジャーバージョンで削除予定です。
+`link_mod_for_test.sh` と `copy_mod_for_test.sh` は `place_mod_for_test.sh` に統合されました。旧ラッパーは下位互換性のために残されていますが、新規の利用は推奨しません。2026-12-31以降に削除予定です。
 
 ---
 
