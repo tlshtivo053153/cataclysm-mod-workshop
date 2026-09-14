@@ -22,7 +22,7 @@ concurrency:
 # E-7: guarantee `| tee` steps fail when the validator fails (pipefail).
 defaults:
   run:
-    shell: bash --noprofile --norc -eo pipefail {0}
+    shell: bash --noprofile --norc -euo pipefail {0}
 
 jobs:
   python:
@@ -40,24 +40,22 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: ruff check scripts/
       - run: black --check scripts/
-      - run: python -m pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
+      - run: python -m pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing --cov-fail-under=90
       - run: mypy scripts/
+      # B-2 packaging guard: dist layout repair (cf720d33) regresses silently
+      # without an install check (py-modules 12 entries + mapgen* package).
+      - run: pip install -e .
+      - run: python -c "import add_activity_level, common, convert_item_types, convert_price, mapgen_compiler, remove_armor_bullet, remove_invalid_fields, revert_all_translations, revert_translation_errors, summarize_debug_log, validate_mods, verify_patches; print('wheel-import-ok')"
+      - run: mapgen-compile --help
 
   shell:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # E-7: cache apt archives so the shell job does not apt-update from
-      # scratch on every run (spec alternative to a shellcheck version pin).
-      - name: Cache apt packages
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt/archives
-          key: ${{ runner.os }}-apt-shellcheck-v1
-          restore-keys: |
-            ${{ runner.os }}-apt-
-      - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      # shellcheck via apt (no cache: /var/cache/apt/archives needs root and
+      # `apt-get update` refetches lists every run, so caching is ineffective).
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends shellcheck
       - run: shellcheck --version
       - run: shellcheck scripts/*.sh
 
@@ -65,7 +63,7 @@ jobs:
   # is intentionally NOT run in CI. external/cdda/ is gitignored so the
   # cataclysm-tiles binary and mods/ tree are absent on CI runners.
   # Manual procedure (see rules/verification.md "Level2自動"):
-  #   bash scripts/place_mod_for_test.sh --link mods/small/<mod>/
+  #   bash scripts/place_mod_for_test.sh mods/small/<mod>/
   #   bash scripts/check_mods.sh --isolated <mod_id>
   # E-7: validate-mods + verify-patches merged into one job to remove
   # checkout/setup-python duplication (was checkout x4 / setup-python x3).
@@ -74,6 +72,11 @@ jobs:
   validate:
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    # upload-artifact needs actions:write; other jobs keep the top-level
+    # contents:read default (least privilege).
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

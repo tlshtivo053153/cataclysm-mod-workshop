@@ -89,12 +89,14 @@ warn_redundant_casts = true
 # B-1e policy decision (2026-09-14): keep ignore_errors for tests.*.
 # Rationale: test code is deliberately out of strict scope — dynamic
 # fixtures/tempfiles and untyped helpers (tmp_path, make_json_file).
-# Measured `--config-file=/dev/null --strict scripts/tests/` = 556 errors
-# in 19 files (mypy 2.1.0), mostly no-untyped-def/no-untyped-call class;
+# Measured `--config-file=/dev/null --strict scripts/tests/` = ~810 errors
+# in 25 files (checked 27; mypy 2.1.0, 2026-09-14; exact count drifts with
+# test edits — do not gate on it, see below), mostly no-untyped-def/no-untyped-call class;
 # strict-typing tests adds no production safety (all 12 shipped modules
-# are strict since B-1a..B-1d; `mypy scripts/` green). Revisit only if
-# test typing debt blocks CI or hides real regressions. Record location
-# per plan §4 B-1e: this comment + §7 progress log.
+# are strict since B-1a..B-1d; `mypy scripts/` green). CI regression guard:
+# python job runs `mypy scripts/` (production strict); test typing debt is
+# tracked here, not gated. Revisit only if test typing debt blocks CI or
+# hides real regressions. Record location per plan §4 B-1e: this comment + §7 progress log.
 [[tool.mypy.overrides]]
 module = "tests.*"
 ignore_errors = true
