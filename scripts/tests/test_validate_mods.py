@@ -102,6 +102,14 @@ class TestModinfoDependencies:
         (mod_dir / "modinfo.json").write_text("{bad")
         assert check_modinfo_dependencies(mod_dir) == []
 
+    def test_non_dict_entry_skipped(self, tmp_path):
+        import json as _json
+
+        d = tmp_path / "nd"
+        d.mkdir()
+        (d / "modinfo.json").write_text(_json.dumps(["just-a-string"]))
+        assert check_modinfo_dependencies(d) == []
+
 
 class TestCopyFromReferences:
     def test_local_target_passes(self, tmp_path):
@@ -171,3 +179,137 @@ class TestRunValidateErrorCapture:
         assert run_validate(tmp_path) is True
         assert seen.get("timeout") == 120
         assert validate_mods.run_validate.__defaults__ == (120,)
+
+    def test_success_echoes_output(self, tmp_path, monkeypatch, capsys):
+        class R:
+            stdout = "out-line\n"
+            stderr = "err-line\n"
+            returncode = 0
+
+        monkeypatch.setattr(subprocess, "run", lambda *a, **k: R())
+        assert run_validate(tmp_path) is True
+        out = capsys.readouterr()
+        assert "out-line" in out.out
+        assert "err-line" in out.err
+
+
+class TestFindModDirs:
+    def test_finds_nested_modinfo(self, tmp_path):
+        mod = tmp_path / "a" / "b"
+        mod.mkdir(parents=True)
+        (mod / "modinfo.json").write_text("{}")
+        assert validate_mods.find_mod_dirs(tmp_path) == [mod]
+
+    def test_bak_excluded(self, tmp_path):
+        mod = tmp_path / "m"
+        bak = mod / ".bak"
+        bak.mkdir(parents=True)
+        (mod / "modinfo.json").write_text("{}")
+        (bak / "modinfo.json").write_text("{}")
+        assert validate_mods.find_mod_dirs(tmp_path) == [mod]
+
+
+class TestCollectModIds:
+    def _mod(self, tmp_path, name, text):
+        d = tmp_path / name
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "modinfo.json").write_text(text)
+        return d
+
+    def test_unparseable_counts_error(self, tmp_path, capsys):
+        d = self._mod(tmp_path, "bad", "{bad")
+        _, errors = validate_mods.collect_mod_ids([d])
+        assert errors == [d]
+
+    def test_non_dict_top_level_counts_error(self, tmp_path):
+        d = self._mod(tmp_path, "num", "42")
+        _, errors = validate_mods.collect_mod_ids([d])
+        assert errors == [d]
+
+    def test_non_dict_entry_counts_error(self, tmp_path):
+        d = self._mod(tmp_path, "lst", '["x"]')
+        _, errors = validate_mods.collect_mod_ids([d])
+        assert errors == [d]
+
+    def test_missing_fields_counts_error(self, tmp_path):
+        import json as _json
+
+        d = tmp_path / "miss"
+        d.mkdir()
+        (d / "modinfo.json").write_text(_json.dumps([{"type": "MOD_INFO", "id": "x"}]))
+        _, errors = validate_mods.collect_mod_ids([d])
+        assert errors == [d]
+
+    def test_wrong_type_counts_error(self, tmp_path):
+        import json as _json
+
+        d = tmp_path / "wt"
+        d.mkdir()
+        (d / "modinfo.json").write_text(_json.dumps([{"type": "OTHER", "id": "x", "name": "N"}]))
+        _, errors = validate_mods.collect_mod_ids([d])
+        assert errors == [d]
+
+    def test_invalid_id_counts_error(self, tmp_path):
+        import json as _json
+
+        d = tmp_path / "iid"
+        d.mkdir()
+        (d / "modinfo.json").write_text(_json.dumps([{"type": "MOD_INFO", "id": "", "name": "N"}]))
+        _, errors = validate_mods.collect_mod_ids([d])
+        assert errors == [d]
+
+    def test_dict_modinfo_ok(self, tmp_path):
+        import json as _json
+
+        d = tmp_path / "dictmod"
+        d.mkdir()
+        (d / "modinfo.json").write_text(_json.dumps({"type": "MOD_INFO", "id": "d1", "name": "D"}))
+        id_map, errors = validate_mods.collect_mod_ids([d])
+        assert errors == []
+        assert id_map == {"d1": [d]}
+
+
+class TestMainBranches:
+    def test_missing_base_returns_1(self, tmp_path, monkeypatch, capsys):
+        import sys as _sys
+
+        monkeypatch.setattr(
+            _sys, "argv", ["validate_mods.py", "--base-dir", str(tmp_path / "nope")]
+        )
+        assert validate_mods.main() == 1
+
+    def test_no_mods_returns_1(self, tmp_path, monkeypatch, capsys):
+        import sys as _sys
+
+        empty = tmp_path / "empty"
+        empty.mkdir()
+        monkeypatch.setattr(_sys, "argv", ["validate_mods.py", "--base-dir", str(empty)])
+        assert validate_mods.main() == 1
+
+    def test_duplicate_id_returns_1(self, tmp_path, monkeypatch, capsys):
+        import json as _json
+        import sys as _sys
+
+        for name in ("a", "b"):
+            d = tmp_path / name
+            d.mkdir()
+            (d / "modinfo.json").write_text(
+                _json.dumps([{"type": "MOD_INFO", "id": "dup", "name": "N"}])
+            )
+        monkeypatch.setattr(_sys, "argv", ["validate_mods.py", "--base-dir", str(tmp_path)])
+        monkeypatch.setattr(validate_mods, "run_validate", lambda *a, **k: True)
+        assert validate_mods.main() == 1
+        assert "Duplicate mod ID" in capsys.readouterr().err
+
+    def test_main_success_returns_0(self, tmp_path, monkeypatch):
+        import json as _json
+        import sys as _sys
+
+        d = tmp_path / "good"
+        d.mkdir()
+        (d / "modinfo.json").write_text(
+            _json.dumps([{"type": "MOD_INFO", "id": "good", "name": "G", "dependencies": ["dda"]}])
+        )
+        monkeypatch.setattr(_sys, "argv", ["validate_mods.py", "--base-dir", str(tmp_path)])
+        monkeypatch.setattr(validate_mods, "run_validate", lambda *a, **k: True)
+        assert validate_mods.main() == 0
