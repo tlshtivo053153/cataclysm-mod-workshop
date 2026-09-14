@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Add activity_level to all recipe objects in JSON files."""
 
+import copy
 import json
 import sys
 from pathlib import Path
@@ -44,7 +45,11 @@ def add_activity_level(data: list) -> list:
 def processor(data, _path):
     if not isinstance(data, list):
         return None
-    return add_activity_level(data)
+    original = copy.deepcopy(data)
+    result = add_activity_level(data)
+    if result == original:
+        return None
+    return result
 
 
 def main():

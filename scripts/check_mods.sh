@@ -36,10 +36,27 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "${TIMEOUT_SEC}" in
-    0|*[!0-9]*|"")
+    ""|*[!0-9]*)
         echo "Error: --timeout must be a positive integer (got '${TIMEOUT_SEC}')" >&2
         exit 1 ;;
 esac
+# Canonicalize: strip leading zeros (sed is coreutils, always present with timeout).
+# This accepts 01/007 as 1/7, rejects 0/00 as 0, and avoids octal confusion.
+TIMEOUT_CANON="$(printf '%s' "${TIMEOUT_SEC}" | sed 's/^0*//')"
+if [ -z "${TIMEOUT_CANON}" ]; then
+    TIMEOUT_CANON="0"
+fi
+# Digit-length guard before arithmetic (prevents long-overflow bypass like
+# 9999999999999999999999 slipping past -gt 3600 in [ ]).
+if [ "${#TIMEOUT_CANON}" -gt 4 ]; then
+    echo "Error: --timeout must be between 1 and 3600 (got '${TIMEOUT_SEC}')" >&2
+    exit 1
+fi
+if [ "${TIMEOUT_CANON}" -lt 1 ] || [ "${TIMEOUT_CANON}" -gt 3600 ]; then
+    echo "Error: --timeout must be between 1 and 3600 (got '${TIMEOUT_SEC}')" >&2
+    exit 1
+fi
+TIMEOUT_SEC="${TIMEOUT_CANON}"
 
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 [--isolated] [--check-errors] [--timeout N] <mod_id>"
@@ -47,6 +64,20 @@ if [ "$#" -ne 1 ]; then
 fi
 
 MOD_ID="$1"
+
+# Sanitize MOD_ID before any filesystem use (logs, grep, CDDA args).
+# Dots are allowed for third-party IDs (e.g. PSY_magi_spells_0.G); '..',
+# slashes, backslashes, leading -/. (option/hidden-file injection) are rejected.
+case "${MOD_ID}" in
+    ""|-*|.*|*/*|*\\*|*..*)
+        echo "Error: invalid mod_id: '${MOD_ID}'" >&2
+        exit 1 ;;
+esac
+case "${MOD_ID}" in
+    *[!A-Za-z0-9_.-]*)
+        echo "Error: invalid mod_id (allowed: [A-Za-z0-9_.-]): '${MOD_ID}'" >&2
+        exit 1 ;;
+esac
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -61,6 +92,11 @@ fi
 
 if [ ! -f "${CDDA_DIR}/cataclysm-tiles" ]; then
     echo "Error: cataclysm-tiles binary not found: ${CDDA_DIR}/cataclysm-tiles"
+    exit 1
+fi
+
+if ! command -v timeout >/dev/null 2>&1; then
+    echo "Error: 'timeout' command not found (coreutils required)" >&2
     exit 1
 fi
 
@@ -80,7 +116,44 @@ if [ ! -d "${CDDA_DIR}/mods" ]; then
     exit 1
 fi
 
-if ! grep -rlq '"id"[[:space:]]*:[[:space:]]*"'"${MOD_ID}"'"' "${CDDA_DIR}"/mods/*/modinfo.json 2>/dev/null; then
+# Exact ID match via python (avoids substring false positives from
+# dependencies/descriptions that a plain grep -F "\"ID\"" would hit).
+# Falls back to grep -F only when python3 is unavailable.
+MOD_FOUND=false
+if command -v python3 >/dev/null 2>&1; then
+    if MOD_ID="${MOD_ID}" MODS_DIR="${CDDA_DIR}/mods" python3 -c '
+import json, os, sys
+wanted = os.environ["MOD_ID"]
+base = os.environ["MODS_DIR"]
+found = False
+try:
+    names = os.listdir(base)
+except OSError:
+    sys.exit(1)
+for name in names:
+    p = os.path.join(base, name, "modinfo.json")
+    if not os.path.isfile(p):
+        continue
+    try:
+        with open(p, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        continue
+    entries = data if isinstance(data, list) else [data]
+    for e in entries:
+        if isinstance(e, dict) and e.get("id") == wanted:
+            found = True
+            break
+    if found:
+        break
+sys.exit(0 if found else 1)
+'; then
+        MOD_FOUND=true
+    fi
+elif grep -rqF -- "\"${MOD_ID}\"" "${CDDA_DIR}"/mods/*/modinfo.json 2>/dev/null; then
+    MOD_FOUND=true
+fi
+if [ "${MOD_FOUND}" != true ]; then
     echo "Error: mod ID '${MOD_ID}' not found in ${CDDA_DIR}/mods/" >&2
     echo "Hint: run 'bash scripts/place_mod_for_test.sh <mod_dir>' first" >&2
     echo "Hint: the mod_id is the 'id' value in modinfo.json, not the directory name" >&2

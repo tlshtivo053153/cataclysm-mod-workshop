@@ -208,6 +208,30 @@ class TestConfigSchema:
         assert "sound_volume" not in REAL_CONFIG.remove_always
         assert "baby_egg" not in REAL_CONFIG.remove_always
         assert "charges_per_use" not in REAL_CONFIG.remove_always
+        # relic_data is valid (MAGIC.md artifacts) and must not be removed.
+        assert "relic_data" not in REAL_CONFIG.remove_always
+
+    def test_relic_data_kept_with_real_config(self):
+        obj = {
+            "type": "ITEM",
+            "id": "ring",
+            "relic_data": {"passive_effects": []},
+        }
+        original = copy.deepcopy(obj)
+        remove_invalid_fields(obj, REAL_CONFIG)
+        assert obj == original
+
+    def test_noop_returns_none(self):
+        proc = make_processor(make_config(always={"bad_field"}))
+        assert proc({"id": "a"}, None) is None
+        assert proc([{"id": "a"}], None) is None
+        assert proc("just a scalar", None) is None
+
+    def test_positive_returns_data(self):
+        proc = make_processor(make_config(always={"bad_field"}))
+        data = [{"id": "a", "bad_field": "x"}]
+        result = proc(data, None)
+        assert result == [{"id": "a"}]
 
 
 class TestMakeProcessor:

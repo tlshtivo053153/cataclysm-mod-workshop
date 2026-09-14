@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Revert name fields from translation objects back to strings for types that don't support it."""
 
+import copy
 import sys
 
 from common import MAX_RECURSION_DEPTH, revert_translation_field, run_standard_pipeline
@@ -39,12 +40,17 @@ def revert_name_fields(obj, _depth=0):
 
 
 def processor(data, _path):
-    if isinstance(data, list):
-        for item in data:
-            revert_name_fields(item)
-    elif isinstance(data, dict):
-        revert_name_fields(data)
-    return data
+    if isinstance(data, (list, dict)):
+        original = copy.deepcopy(data)
+        if isinstance(data, list):
+            for item in data:
+                revert_name_fields(item)
+        else:
+            revert_name_fields(data)
+        if data == original:
+            return None
+        return data
+    return None
 
 
 def main():

@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from common import _is_backup_path
+
 REQUIRED_MODINFO_FIELDS = {"type", "id", "name"}
 
 
@@ -15,18 +17,16 @@ def find_mod_dirs(base_dir: Path) -> list[Path]:
 
     `.bak` directories under base_dir are excluded so post-conversion
     backups are not detected as separate mods (Duplicate mod ID guard).
-    Only the path relative to base_dir is inspected, mirroring
-    common._is_backup_path semantics.
+    Only the path relative to base_dir is inspected (see
+    common._is_backup_path).
     """
 
-    def _is_backup(p: Path) -> bool:
-        try:
-            return ".bak" in p.relative_to(base_dir).parts
-        except ValueError:
-            return False
-
     mod_dirs = sorted(
-        {modinfo.parent for modinfo in base_dir.rglob("modinfo.json") if not _is_backup(modinfo)},
+        {
+            modinfo.parent
+            for modinfo in base_dir.rglob("modinfo.json")
+            if not _is_backup_path(base_dir, modinfo)
+        },
         key=str,
     )
     return mod_dirs
@@ -60,6 +60,11 @@ def collect_mod_ids(mod_dirs: list[Path]) -> tuple[dict[str, list[Path]], list[P
             error_dirs.append(mod_dir)
             continue
 
+        if not isinstance(entry, dict):
+            print(f"ERROR: Unexpected modinfo.json format in {mod_dir}", file=sys.stderr)
+            error_dirs.append(mod_dir)
+            continue
+
         missing = REQUIRED_MODINFO_FIELDS - set(entry.keys())
         if missing:
             print(f"ERROR: {mod_dir}/modinfo.json missing fields: {missing}", file=sys.stderr)
@@ -75,6 +80,13 @@ def collect_mod_ids(mod_dirs: list[Path]) -> tuple[dict[str, list[Path]], list[P
             continue
 
         mod_id = entry["id"]
+        if not isinstance(mod_id, str) or not mod_id:
+            print(
+                f"ERROR: {mod_dir}/modinfo.json has invalid id: {mod_id!r}",
+                file=sys.stderr,
+            )
+            error_dirs.append(mod_dir)
+            continue
         id_map.setdefault(mod_id, []).append(mod_dir)
 
     return id_map, error_dirs

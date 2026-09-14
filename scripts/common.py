@@ -55,10 +55,15 @@ class ProcessResult:
 
 
 def revert_translation_field(value: Any) -> Any:
-    """If value is a translation dict, return the original string; otherwise return value unchanged."""
+    """If value is a translation dict, return the original string; otherwise return value unchanged.
+
+    Only string extractions are returned (empty string included); e.g.
+    {"str": None} is kept as-is instead of propagating None into
+    name/description.
+    """
     if isinstance(value, dict):
         for key in ("str_sp", "str"):
-            if key in value:
+            if key in value and isinstance(value[key], str):
                 return value[key]
     return value
 
@@ -147,16 +152,35 @@ def load_json(path: Path) -> list[Any] | dict[str, Any]:
 
 
 def save_json(path: Path, data: list[Any] | dict[str, Any], indent: int = 4) -> None:
-    """Save JSON to path with consistent formatting (atomic write via temp file)."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp_path_str = tempfile.mkstemp(dir=path.parent, suffix=".tmp", prefix=path.stem)
+    """Save JSON to path with consistent formatting (atomic write via temp file).
+
+    Symlink-preserving: if *path* is a symlink, the target file is replaced
+    instead of the link itself, so ``place_mod_for_test.sh`` symlink setups
+    survive converter runs.  The write is still atomic (temp file in the
+    target directory + os.replace).
+    """
+    # Resolve symlink target first so tmp+replace happens in the real dir.
+    target = path
+    try:
+        if path.is_symlink():
+            target = path.resolve(strict=False)
+    except Exception:
+        target = path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_path_str = tempfile.mkstemp(dir=target.parent, suffix=".tmp", prefix=target.stem)
     tmp_path = Path(tmp_path_str)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=indent)
             f.write("\n")
-        os.chmod(tmp_path, stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o644)
-        tmp_path.replace(path)
+        if target.exists():
+            os.chmod(tmp_path, stat.S_IMODE(target.stat().st_mode))
+        else:
+            # Respect umask for new files (old open(path, "w") behavior).
+            current_umask = os.umask(0)
+            os.umask(current_umask)
+            os.chmod(tmp_path, 0o666 & ~current_umask)
+        tmp_path.replace(target)
     except Exception:
         if tmp_path.exists():
             tmp_path.unlink(missing_ok=True)
@@ -188,6 +212,10 @@ def process_directory(
     This preserves the `-o <other-dir>` full-copy contract for scripts that
     need it (e.g. convert_price).  Other scripts keep False (in-place
     behavior unchanged).
+
+    NOTE: with copy_unchanged=False (default), `-o <other-dir>` produces a
+    partial tree: unchanged (skipped) files are NOT copied.  Use in-place
+    mode or convert_price for full-copy needs.
 
     Missing input_dir counts as failed=1 (not silent success).  Mutually
     nested input/output dirs (one contains the other) are rejected with

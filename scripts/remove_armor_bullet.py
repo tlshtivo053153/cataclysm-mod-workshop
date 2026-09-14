@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Remove ARMOR_BULLET and ARMOR_BALLISTIC values from enchantment definitions."""
 
+import copy
 import sys
 
 from common import MAX_RECURSION_DEPTH, run_standard_pipeline
@@ -22,7 +23,7 @@ def clean_object(obj, _depth=0):
     if not isinstance(obj, dict):
         return obj
 
-    if "value" in obj and obj["value"] in TARGET_VALUES:
+    if "value" in obj and isinstance(obj["value"], str) and obj["value"] in TARGET_VALUES:
         return None
 
     for key, value in list(obj.items()):
@@ -47,12 +48,23 @@ def clean_object(obj, _depth=0):
 
 def processor(data, _path):
     if isinstance(data, list):
-        data = [clean_object(item) for item in data]
-        data = [item for item in data if item is not None]
-        return data
+        original = copy.deepcopy(data)
+        result = [clean_object(item) for item in data]
+        result = [item for item in result if item is not None]
+        if result == original:
+            return None
+        return result
     elif isinstance(data, dict):
-        return clean_object(data)
-    return data
+        original = copy.deepcopy(data)
+        result = clean_object(data)
+        if result is None:
+            # Top-level dict itself matched TARGET_VALUES; nothing sensible
+            # to save, so treat as skipped rather than writing null.
+            return None
+        if result == original:
+            return None
+        return result
+    return None
 
 
 def main():

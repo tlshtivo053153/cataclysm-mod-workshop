@@ -12,10 +12,20 @@ alone destroys valid data, so removal is split into two rules loaded from
   enclosing object's ``type`` matches.  Objects with a missing, non-string, or
   unlisted ``type`` keep the field with a stderr warning (conservative).
 
+NOTE: ``remove_by_type`` is intentionally empty for now.  The 5 context-dependent
+fields are valid in current CDDA so they must NOT be in ``remove_always``:
+``ammo`` (GUN/item_group/vehicle_part/mapgen/monster-reproduction, NOT TOOL/AMMO),
+``magazine`` (item_group/mapgen), ``sound_volume`` (sound/vehicle_data),
+``baby_egg`` (MONSTER/baby_type nesting), ``charges_per_use`` (TOOL).
+Do not repopulate ``remove_by_type`` without src/ reader evidence for
+a specific TYPE.  ``relic_data`` is also valid (MAGIC.md: artifacts via
+``relic_data``) and must NOT be listed for removal.
+
 This script is repo-execution only: it reads ``PROJECT_ROOT/rules/...``, so it
 is intentionally not console-script packaged.
 """
 
+import copy
 import json
 import sys
 from dataclasses import dataclass, field
@@ -157,11 +167,18 @@ def _remove_by_type_fields(obj: dict[str, Any], config: InvalidFieldsConfig) -> 
 
 def make_processor(config: InvalidFieldsConfig):
     def processor(data, _path):
+        original = copy.deepcopy(data)
         if isinstance(data, list):
             for item in data:
                 remove_invalid_fields(item, config)
         elif isinstance(data, dict):
             remove_invalid_fields(data, config)
+        else:
+            return None
+        # No-op files return None so process_directory skips save+backup
+        # (prevents .bak generation growth on repeated runs).
+        if data == original:
+            return None
         return data
 
     return processor

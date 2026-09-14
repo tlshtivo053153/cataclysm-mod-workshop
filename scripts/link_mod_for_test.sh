@@ -3,4 +3,5 @@
 #
 # Deprecated: use `bash scripts/place_mod_for_test.sh --link <mod_dir>` instead.
 
-exec "$(dirname "${BASH_SOURCE[0]}")/place_mod_for_test.sh" --link "$@"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$SCRIPT_DIR/place_mod_for_test.sh" --link "$@"

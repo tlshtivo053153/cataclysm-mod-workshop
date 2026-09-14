@@ -105,16 +105,9 @@ case "${SRC_REAL}/" in
         ;;
 esac
 
-# Idempotency: already linked to the same source is success.
-if [ -L "$DEST_DIR" ]; then
-    EXIST_REAL="$(realpath -m -- "$DEST_DIR")"
-    if [ "$EXIST_REAL" = "$SRC_REAL" ]; then
-        echo "Already placed: $DEST_DIR -> $SRC_REAL"
-        exit 0
-    fi
-fi
-
 # --dry-run wins over --force: never modify, even mkdir.
+# NOTE: dry-run is evaluated before the idempotency early-exit so
+# `... --dry-run` always prints the plan instead of "Already placed".
 if [ "$DRY_RUN" = true ]; then
     if [ "$LINK_MODE" = true ]; then
         MODE="symlink"
@@ -135,6 +128,15 @@ if [ "$DRY_RUN" = true ]; then
         echo "[dry-run] would copy: $SRC_REAL -> $DEST_DIR"
     fi
     exit 0
+fi
+
+# Idempotency: already linked to the same source is success.
+if [ -L "$DEST_DIR" ]; then
+    EXIST_REAL="$(realpath -m -- "$DEST_DIR")"
+    if [ "$EXIST_REAL" = "$SRC_REAL" ]; then
+        echo "Already placed: $DEST_DIR -> $SRC_REAL"
+        exit 0
+    fi
 fi
 
 remove_dest() {
@@ -182,18 +184,26 @@ if [ "$LINK_MODE" = true ]; then
     echo "Linked: $DEST_DIR -> $SRC_REAL"
 else
     # Atomic copy: stage into temp dir, verify, then replace.
-    TMP_DEST="${DEST_DIR}.tmp.$$"
+    # mktemp avoids predictable $$ paths; old DEST is kept until the new
+    # tree is verified, and restored if the final mv fails.
+    TMP_DEST="$(mktemp -d -- "${DEST_DIR}.tmp.XXXXXX")"
+    OLD_DEST=""
     cleanup_tmp() {
         if [ -n "${TMP_DEST:-}" ] && [ -e "$TMP_DEST" ]; then
             rm -rf -- "$TMP_DEST"
         fi
+        if [ -n "${OLD_DEST:-}" ] && [ -e "$OLD_DEST" ] && [ ! -e "$DEST_DIR" ]; then
+            mv -- "$OLD_DEST" "$DEST_DIR" 2>/dev/null || true
+        elif [ -n "${OLD_DEST:-}" ] && [ -e "$OLD_DEST" ]; then
+            # mv succeeded but script failed later; keep old tree out of the way
+            rm -rf -- "$OLD_DEST" 2>/dev/null || true
+        fi
     }
     trap cleanup_tmp EXIT
-    rm -rf -- "$TMP_DEST"
-    mkdir -p -- "$TMP_DEST"
     cp -a -- "$SRC_REAL/." "$TMP_DEST/"
-    SRC_COUNT="$(find "$SRC_REAL" -type f | wc -l)"
-    TMP_COUNT="$(find "$TMP_DEST" -type f | wc -l)"
+    # Robust file count (newline-safe): count NUL-separated entries.
+    SRC_COUNT="$(find "$SRC_REAL" -type f -print0 | tr -dc '\0' | wc -c)"
+    TMP_COUNT="$(find "$TMP_DEST" -type f -print0 | tr -dc '\0' | wc -c)"
     if [ "$SRC_COUNT" != "$TMP_COUNT" ]; then
         echo "Error: copy verification failed (source files: $SRC_COUNT, copied: $TMP_COUNT)" >&2
         exit 1
@@ -204,9 +214,28 @@ else
     fi
     if [ -e "$DEST_DIR" ] || [ -L "$DEST_DIR" ]; then
         confirm_overwrite
-        remove_dest
+        # Unique non-existing path for rollback (mktemp -u: name only, no file).
+        OLD_DEST="$(mktemp -u -- "${DEST_DIR}.old.XXXXXX")"
+        rm -rf -- "$OLD_DEST"
+        # Move old aside first so a failed final mv can be rolled back.
+        if ! mv -- "$DEST_DIR" "$OLD_DEST"; then
+            echo "Error: failed to move existing destination aside" >&2
+            exit 1
+        fi
+        if ! mv -- "$TMP_DEST" "$DEST_DIR"; then
+            echo "Error: failed to move staged copy into place; restoring original" >&2
+            mv -- "$OLD_DEST" "$DEST_DIR" 2>/dev/null || true
+            exit 1
+        fi
+        rm -rf -- "$OLD_DEST"
+        OLD_DEST=""
+    else
+        if ! mv -- "$TMP_DEST" "$DEST_DIR"; then
+            echo "Error: failed to move staged copy into place" >&2
+            exit 1
+        fi
     fi
-    mv -- "$TMP_DEST" "$DEST_DIR"
+    TMP_DEST=""
     trap - EXIT
     echo "Copied: $SRC_DIR -> $DEST_DIR"
 fi

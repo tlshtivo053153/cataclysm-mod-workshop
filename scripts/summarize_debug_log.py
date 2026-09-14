@@ -23,13 +23,14 @@ def parse_blocks(lines: list[str]) -> list[list[str]]:
         stripped = raw.rstrip("\n\r")
 
         if current_block is not None:
+            # Backtrace continuation has no timestamp; merge it before the
+            # timestamp split so the error message stays in the same block.
+            if stripped.startswith("(continued from above) ERROR") and (
+                "(error message will follow backtrace)" in current_block[0]
+            ):
+                current_block.append(stripped)
+                continue
             if TIMESTAMP_RE.match(stripped):
-                # Backtrace continuation must be appended, not treated as a new block
-                if "(error message will follow backtrace)" in current_block[
-                    0
-                ] and stripped.startswith("(continued from above) ERROR"):
-                    current_block.append(stripped)
-                    continue
                 blocks.append(current_block)
                 current_block = None
                 # fall through to check if this line starts a new block
@@ -48,6 +49,8 @@ def parse_blocks(lines: list[str]) -> list[list[str]]:
 
 def extract_signature(block: list[str]) -> str:
     """Derive a normalized signature for an error block."""
+    if not block:
+        return "Unknown error"
     # 1. Backtrace error with continuation
     for line in block:
         if line.startswith("(continued from above) ERROR"):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Revert ALL name translation objects back to strings."""
 
+import copy
 import sys
 
 from common import MAX_RECURSION_DEPTH, revert_translation_field, run_standard_pipeline
@@ -31,12 +32,17 @@ def revert_all_name_fields(obj, _depth=0):
 
 
 def processor(data, _path):
-    if isinstance(data, list):
-        for item in data:
-            revert_all_name_fields(item)
-    elif isinstance(data, dict):
-        revert_all_name_fields(data)
-    return data
+    if isinstance(data, (list, dict)):
+        original = copy.deepcopy(data)
+        if isinstance(data, list):
+            for item in data:
+                revert_all_name_fields(item)
+        else:
+            revert_all_name_fields(data)
+        if data == original:
+            return None
+        return data
+    return None
 
 
 def main():

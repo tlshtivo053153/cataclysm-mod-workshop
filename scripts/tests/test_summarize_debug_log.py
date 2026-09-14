@@ -105,6 +105,21 @@ class TestExtractSignature:
         sig = extract_signature(block)
         assert sig == "Unknown error"
 
+    def test_empty_block_returns_unknown(self):
+        assert extract_signature([]) == "Unknown error"
+
+    def test_continuation_merged_without_timestamp(self):
+        from summarize_debug_log import parse_blocks
+
+        lines = [
+            "12:00:00.001 ERROR : src/main.cpp:42 [error message will follow backtrace]\n",
+            "some backtrace detail\n",
+            "(continued from above) ERROR : src/other.cpp:99 ] real message\n",
+        ]
+        blocks = parse_blocks(lines)
+        assert len(blocks) == 1
+        assert any("(continued from above)" in ln for ln in blocks[0])
+
 
 class TestSummarize:
     def test_groups_by_signature(self):

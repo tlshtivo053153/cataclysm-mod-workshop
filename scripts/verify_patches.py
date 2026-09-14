@@ -15,6 +15,17 @@ from pathlib import Path
 PATCH_NUM_RE = re.compile(r"^\d+[._]")
 
 
+def _patch_sort_key(p: Path) -> tuple[int, str]:
+    """Numeric sort by leading patch number (avoids '10_' < '1_' lexicographic bug)."""
+    m = PATCH_NUM_RE.match(p.name)
+    if not m:
+        return (10**9, p.name)
+    try:
+        return (int(m.group().rstrip("._")), p.name)
+    except ValueError:
+        return (10**9, p.name)
+
+
 def check_patch_set(patch_dir: Path) -> list[str]:
     errors: list[str] = []
     readme = patch_dir / "README.md"
@@ -31,7 +42,7 @@ def check_patch_set(patch_dir: Path) -> list[str]:
     if "ベースライン" not in readme_text and "Baseline" not in readme_text:
         errors.append(f"{readme}: No baseline documented")
 
-    patch_files = sorted(p for p in patch_dir.glob("*.patch"))
+    patch_files = sorted((p for p in patch_dir.glob("*.patch") if p.is_file()), key=_patch_sort_key)
     if not patch_files:
         errors.append(f"{patch_dir}: No .patch files found")
         return errors
@@ -69,7 +80,7 @@ def check_patch_set(patch_dir: Path) -> list[str]:
 
 
 def main() -> int:
-    patches_root = Path("patches")
+    patches_root = Path(__file__).resolve().parent.parent / "patches"
     if not patches_root.exists():
         print("patches/ directory not found", file=sys.stderr)
         return 1
@@ -84,7 +95,7 @@ def main() -> int:
                 for e in errors:
                     print(f"  ERROR: {e}", file=sys.stderr)
             else:
-                patch_count = len(list(patch_set.glob("*.patch")))
+                patch_count = len([p for p in patch_set.glob("*.patch") if p.is_file()])
                 print(f"{patch_set.name}: OK ({patch_count} patches)")
 
     if all_errors:

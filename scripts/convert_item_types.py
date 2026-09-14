@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Convert old item types to new unified ITEM type with subtypes for CDDA 0.I."""
 
+import copy
 import sys
 
 from common import MAX_RECURSION_DEPTH, run_standard_pipeline
@@ -43,8 +44,9 @@ def convert_object(obj, _depth=0):
     if not isinstance(obj, dict):
         return obj
 
-    if "type" in obj and obj["type"] in TYPE_MAP:
-        old_type = obj["type"]
+    obj_type = obj.get("type")
+    if isinstance(obj_type, str) and obj_type in TYPE_MAP:
+        old_type = obj_type
         obj["type"] = "ITEM"
         obj["subtypes"] = TYPE_MAP[old_type]
 
@@ -65,10 +67,18 @@ def convert_object(obj, _depth=0):
 
 def processor(data, _path):
     if isinstance(data, list):
-        return [convert_object(item) for item in data]
+        original = copy.deepcopy(data)
+        result = [convert_object(item) for item in data]
+        if result == original:
+            return None
+        return result
     elif isinstance(data, dict):
-        return convert_object(data)
-    return data
+        original = copy.deepcopy(data)
+        result = convert_object(data)
+        if result == original:
+            return None
+        return result
+    return None
 
 
 def main():

@@ -28,6 +28,17 @@ class TestFormatPrice:
     def test_zero(self):
         assert format_price(0) == "0 cent"
 
+    def test_null_price_warns_and_skips(self, capsys):
+        data = {"price": None}
+        assert processor(data, Path("f.json")) is None
+        assert "null price" in capsys.readouterr().err
+        assert data == {"price": None}
+
+    def test_null_price_postapoc_warns_and_skips(self, capsys):
+        data = {"price_postapoc": None}
+        assert processor(data, Path("f.json")) is None
+        assert "null price" in capsys.readouterr().err
+
     def test_cents_only(self):
         assert format_price(25) == "25 cent"
 

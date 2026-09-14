@@ -353,3 +353,85 @@ class TestValidateModsBakExclusion:
         id_map, error_dirs = collect_mod_ids(mod_dirs)
         assert error_dirs == []
         assert id_map["mymod"] == [mod_dir]
+
+
+class TestSaveJsonSymlink:
+    def test_symlink_preserved(self, tmp_path):
+        real = tmp_path / "real.json"
+        save_json(real, {"a": 1})
+        link = tmp_path / "link.json"
+        link.symlink_to(real)
+        save_json(link, {"a": 2})
+        assert link.is_symlink()
+        assert json.loads(real.read_text()) == {"a": 2}
+        assert json.loads(link.read_text()) == {"a": 2}
+
+    def test_non_string_translation_guard(self):
+        assert revert_translation_field({"str": None}) == {"str": None}
+        assert revert_translation_field({"str_sp": None}) == {"str_sp": None}
+        assert revert_translation_field({"str": "x"}) == "x"
+        # str_sp takes priority; None falls through to str.
+        assert revert_translation_field({"str_sp": None, "str": "x"}) == "x"
+        assert revert_translation_field({"str_sp": "y", "str": "x"}) == "y"
+        # Non-string extractions are kept as-is.
+        assert revert_translation_field({"str_sp": 123}) == {"str_sp": 123}
+        # Empty string is a valid extraction.
+        assert revert_translation_field({"str": ""}) == ""
+
+
+class TestValidateModsInvalidEntry:
+    def test_non_dict_entry_does_not_crash(self, tmp_path):
+        from validate_mods import collect_mod_ids
+
+        mod_dir = tmp_path / "badmod"
+        mod_dir.mkdir()
+        (mod_dir / "modinfo.json").write_text('["just a string"]')
+        id_map, error_dirs = collect_mod_ids([mod_dir])
+        assert error_dirs == [mod_dir]
+        assert id_map == {}
+
+    def test_list_id_does_not_crash(self, tmp_path):
+        from validate_mods import collect_mod_ids
+
+        mod_dir = tmp_path / "badmod2"
+        mod_dir.mkdir()
+        (mod_dir / "modinfo.json").write_text(
+            json.dumps([{"type": "MOD_INFO", "id": ["x"], "name": "Bad"}])
+        )
+        id_map, error_dirs = collect_mod_ids([mod_dir])
+        assert error_dirs == [mod_dir]
+        assert id_map == {}
+
+
+class TestVerifyPatchesNumericSort:
+    def test_numeric_order_not_lexicographic(self, tmp_path):
+        from verify_patches import check_patch_set
+
+        d = tmp_path / "pset"
+        d.mkdir()
+        names = [f"{i}_p.patch" for i in range(1, 11)]
+        (d / "README.md").write_text(
+            "## 適用順序\nBaseline\n" + "\n".join(names) + "\n",
+            encoding="utf-8",
+        )
+        for name in names:
+            (d / name).write_text("x", encoding="utf-8")
+        # Lexicographic sort would order 10_p.patch second and report
+        # "Expected patch number 1, got 10"; numeric sort must pass.
+        assert check_patch_set(d) == []
+
+    def test_non_numeric_and_dir_ignored(self, tmp_path):
+        from pathlib import Path
+
+        from verify_patches import _patch_sort_key, check_patch_set
+
+        # Non-numeric names sort last via fallback key.
+        assert _patch_sort_key(Path("abc.patch"))[0] == 10**9
+        assert _patch_sort_key(Path("01_a.patch")) < _patch_sort_key(Path("10_j.patch"))
+        # A directory named *.patch must not affect the count/check.
+        d = tmp_path / "pset2"
+        d.mkdir()
+        (d / "README.md").write_text("## 適用順序\nBaseline\n01_a.patch\n", encoding="utf-8")
+        (d / "01_a.patch").write_text("x", encoding="utf-8")
+        (d / "99_dir.patch").mkdir()
+        assert check_patch_set(d) == []

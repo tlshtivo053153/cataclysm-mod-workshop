@@ -59,3 +59,29 @@ class TestCleanObject:
         data = [{"value": "ARMOR_BULLET"}, {"value": "ARMOR_CUT"}]
         result = processor(data, None)
         assert result == [{"value": "ARMOR_CUT"}]
+
+    def test_non_string_value_does_not_crash(self):
+        # {"value": [...]} must not raise TypeError: unhashable.
+        obj = {"id": "x", "value": ["ARMOR_BULLET"], "other": {"value": {"a": 1}}}
+        result = clean_object(obj)
+        assert result["value"] == ["ARMOR_BULLET"]
+        assert result["other"] == {"value": {"a": 1}}
+
+    def test_processor_noop_returns_none(self):
+        from remove_armor_bullet import processor
+
+        assert processor([{"id": "a", "value": "ARMOR_CUT"}], None) is None
+        assert processor({"id": "a"}, None) is None
+
+    def test_processor_top_level_target_skipped_not_nulled(self):
+        from remove_armor_bullet import processor
+
+        # Whole-file dict matching TARGET would previously risk writing null.
+        assert processor({"value": "ARMOR_BULLET"}, None) is None
+
+    def test_processor_positive_returns_data(self):
+        from remove_armor_bullet import processor
+
+        data = [{"value": "ARMOR_BULLET"}, {"id": "keep"}]
+        result = processor(data, None)
+        assert result == [{"id": "keep"}]

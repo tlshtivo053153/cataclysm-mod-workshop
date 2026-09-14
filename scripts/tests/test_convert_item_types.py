@@ -40,3 +40,20 @@ class TestConvertObject:
         assert convert_object("string") == "string"
         assert convert_object(42) == 42
         assert convert_object([1, 2, 3]) == [1, 2, 3]
+
+    def test_non_string_type_does_not_crash(self):
+        assert convert_object({"type": ["GUN"]}) == {"type": ["GUN"]}
+        assert convert_object({"type": {"a": 1}}) == {"type": {"a": 1}}
+        assert convert_object({"type": None}) == {"type": None}
+
+    def test_processor_noop_returns_none(self):
+        from convert_item_types import processor
+
+        assert processor([{"type": "MOD_INFO", "id": "x"}], None) is None
+        assert processor({"type": "ITEM", "subtypes": ["TOOL"]}, None) is None
+
+    def test_processor_positive_returns_converted(self):
+        from convert_item_types import processor
+
+        result = processor([{"type": "GUN", "id": "g"}], None)
+        assert result == [{"type": "ITEM", "subtypes": ["GUN"], "id": "g"}]

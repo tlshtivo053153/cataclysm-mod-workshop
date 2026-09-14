@@ -14,6 +14,10 @@ PRICE_KEYS = frozenset({"price", "price_postapoc"})
 # Numeric prices under these context keys are game-mechanics data (e.g.
 # proportional/relative requirements, shopkeeper rules), not item values.
 # They must stay numeric; convert_price leaves them unchanged with a warning.
+# NOTE: "extend"/"delete" are intentionally included (conservative): mutation
+# patches use these keys, and a price inside them is not a plain item value.
+# If a future item patch legitimately needs conversion inside extend, handle
+# it manually rather than loosening this guard.
 NO_CONVERT_CONTEXTS = frozenset(
     {
         "proportional",
@@ -90,6 +94,12 @@ def _walk(node: Any, in_no_convert: bool, depth: int, src: Path) -> bool:
                 if isinstance(value, float):
                     print(
                         f"Warning: leaving non-int price unchanged " f"in {src}: {key}={value!r}",
+                        file=sys.stderr,
+                    )
+                    continue
+                if value is None:
+                    print(
+                        f"Warning: leaving null price unchanged in {src}: {key}=null",
                         file=sys.stderr,
                     )
                     continue

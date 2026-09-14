@@ -3,4 +3,5 @@
 #
 # Deprecated: use `bash scripts/place_mod_for_test.sh --copy <mod_dir>` instead.
 
-exec "$(dirname "${BASH_SOURCE[0]}")/place_mod_for_test.sh" --copy "$@"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$SCRIPT_DIR/place_mod_for_test.sh" --copy "$@"
