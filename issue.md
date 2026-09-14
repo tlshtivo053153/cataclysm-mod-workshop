@@ -19,7 +19,7 @@
   - `.github/workflows/ci.yml` が存在し、ruff + black + pytest + mypy + shellcheck を実行
   - Python 系: Python 3.10/3.11/3.12/3.13 マトリクス、ruff check, black --check, pytest, mypy
   - Shell 系: shellcheck
-  - 追加ジョブ: `validate-mods` (全mod Level1検証 + ID重複チェック)、`verify-patches` (パッチ構造検証)
+  - 追加ジョブ: `validate` (`validate_mods.py` 全mod Level1検証 + ID重複チェックと `verify_patches.py` パッチ構造検証を統合、E-7で集約)
   - `requirements-dev.txt` により dev 依存バージョンを固定
 - **解決案:**
   - 特になし。

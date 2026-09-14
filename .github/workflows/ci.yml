@@ -5,15 +5,24 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # E-7 (human decision): manual + weekly schedule.
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1" # every Monday 03:00 UTC
 
 # A-2 minimal hardening: least-privilege default + avoid stale runs.
-# NOTE: workflow_dispatch/schedule intentionally deferred to E-7 (human decision).
+# NOTE: workflow_dispatch/schedule added in E-7 (was deferred in A-2).
 permissions:
   contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+# E-7: guarantee `| tee` steps fail when the validator fails (pipefail).
+defaults:
+  run:
+    shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
   python:
@@ -39,7 +48,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # E-7: cache apt archives so the shell job does not apt-update from
+      # scratch on every run (spec alternative to a shellcheck version pin).
+      - name: Cache apt packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-shellcheck-v1
+          restore-keys: |
+            ${{ runner.os }}-apt-
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - run: shellcheck --version
       - run: shellcheck scripts/*.sh
 
   # NOTE (C-2, human decision b): Level2 (scripts/check_mods.sh engine check)
@@ -48,7 +67,11 @@ jobs:
   # Manual procedure (see rules/verification.md "Level2自動"):
   #   bash scripts/place_mod_for_test.sh --link mods/small/<mod>/
   #   bash scripts/check_mods.sh --isolated <mod_id>
-  validate-mods:
+  # E-7: validate-mods + verify-patches merged into one job to remove
+  # checkout/setup-python duplication (was checkout x4 / setup-python x3).
+  # Both scripts run with the pinned dev deps (pip cache enabled); outputs
+  # are tee'd to logs and uploaded as artifacts for inspection.
+  validate:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
@@ -56,14 +79,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python scripts/validate_mods.py
-
-  verify-patches:
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: python scripts/validate_mods.py 2>&1 | tee validate-mods.log
+      - run: python scripts/verify_patches.py 2>&1 | tee verify-patches.log
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          python-version: "3.12"
-      - run: python scripts/verify_patches.py
+          name: validation-logs
+          path: |
+            validate-mods.log
+            verify-patches.log

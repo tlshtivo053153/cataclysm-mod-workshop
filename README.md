@@ -90,7 +90,7 @@ bash scripts/setup_venv.sh
 source .venv/bin/activate
 ```
 
-`setup_venv.sh` は `.venv/` を作成し、`black`、`ruff`、`pytest`、`mypy`、`pyyaml` をインストールする。
+`setup_venv.sh` は `.venv/` を作成し、`requirements-dev.txt` のpinどおりにdev依存をインストールする（CIと同一ファイル）。`shellcheck` はpip管理外のため別途インストールする（`setup_venv.sh` が手順を表示）。
 
 ## 開発ワークフロー（新規 mod 作成）
 
