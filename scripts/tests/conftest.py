@@ -1,6 +1,3 @@
-import sys
-from pathlib import Path
-
-scripts_dir = Path(__file__).resolve().parent.parent
-if str(scripts_dir) not in sys.path:
-    sys.path.insert(0, str(scripts_dir))
+# B-2: no sys.path hack here. Test imports resolve via
+# [tool.pytest.ini_options] pythonpath = ["scripts"] in pyproject.toml,
+# which puts scripts/ (common.py + mapgen/) on sys.path for pytest runs.

@@ -14,8 +14,31 @@ dependencies = [
 [project.scripts]
 mapgen-compile = "mapgen.cli:main"
 
+[tool.setuptools]
+# B-2: scripts/ is the package root. Top-level modules (common.py etc.)
+# are distributed as py-modules; the mapgen subpackage via packages.find.
+# Do NOT add scripts/__init__.py (it would not put top-level modules
+# into the wheel). src-layout migration was considered and rejected
+# for B-2 as higher churn for the same result.
+package-dir = {"" = "scripts"}
+py-modules = [
+    "add_activity_level",
+    "common",
+    "convert_item_types",
+    "convert_price",
+    "mapgen_compiler",
+    "remove_armor_bullet",
+    "remove_invalid_fields",
+    "revert_all_translations",
+    "revert_translation_errors",
+    "summarize_debug_log",
+    "validate_mods",
+    "verify_patches",
+]
+
 [tool.setuptools.packages.find]
 where = ["scripts"]
+include = ["mapgen*"]
 
 [tool.black]
 line-length = 100
@@ -53,6 +76,9 @@ testpaths = ["scripts/tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-ra -q"
+# B-2: declarative import path for tests (replaces conftest.py sys.path hack).
+# scripts/ holds top-level modules (common, converters) + the mapgen package.
+pythonpath = ["scripts"]
 
 [tool.mypy]
 mypy_path = "scripts"

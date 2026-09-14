@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""Common utilities for CDDA mod transformation scripts."""
+"""Common utilities for CDDA mod transformation scripts.
+
+Import policy (B-2): absolute imports from the scripts/ root.
+Top-level modules use ``from common import ...``; the mapgen subpackage
+uses ``from mapgen.<module> import ...`` (never relative ``from .`` or
+``from scripts.``). The dist maps scripts/ via
+``[tool.setuptools] package-dir = {"" = "scripts"}`` (py-modules +
+``mapgen*`` package); source runs resolve the same root via pytest
+``pythonpath = ["scripts"]`` or ``cwd=scripts``. No per-file
+``sys.path.insert`` hacks.
+"""
 
 import argparse
 import json
