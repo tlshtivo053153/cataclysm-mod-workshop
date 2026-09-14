@@ -31,7 +31,7 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: ruff check scripts/
       - run: black --check scripts/
-      - run: python -m pytest scripts/tests/ -v
+      - run: python -m pytest scripts/tests/ -v --cov=scripts --cov-report=term-missing
       - run: mypy scripts/
 
   shell:
