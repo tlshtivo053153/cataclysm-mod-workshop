@@ -24,15 +24,14 @@
 - **解決案:**
   - 特になし。
 
-### 3. design.md カバレッジ不足（spec.md 未整備に置換）
-- **ステータス:** 未解決
+### 3. design.md カバレッジ不足（解決済み）
+- **ステータス:** 解決済み（2026-09-14）
 - **重要度:** 中
 - **詳細:**
-  - 2026-09-13 時点: 24 mod 中 spec.md が 3 件（新規3mod）、design.md が 22 件（`eoc_talk_test` と `wm_weapon_mastery` が未作成）
-  - `cdda_mod_dev_plan.md` のワークフローに反する運用が常態化している
+  - 2026-09-14 時点: 24 mod 中 design.md が 24 件（`eoc_talk_test` と `wm_weapon_mastery` を D-3 で作成し穴埋め完了）
+  - spec.md は新規3modのみの3件のまま（spec 要否の最終整理は E-8 で実施）
 - **解決案:**
-  - spec.md の要否をワークフローに明記（免除条件または強制のいずれか）
-  - 未作成の design.md 2件を作成
+  - 済み。spec.md の要否をワークフローに明記する残件は E-8 に移管
 
 ## Minor Issues
 
