@@ -190,10 +190,17 @@ class TestPlaceModForTest:
 
     def test_dest_inside_src_rejected(self, tmp_path):
         fake_scripts = _setup_fake_project(tmp_path)
-        # SRC=external/cdda contains DEST=external/cdda/mods/cdda
+        # SRC=external/cdda contains DEST=external/cdda/mods/cdda.
+        # modinfo.json is required so the test reaches the
+        # destination-inside-source check instead of failing early
+        # at the modinfo.json presence check.
         src = tmp_path / "external" / "cdda"
+        (src / "modinfo.json").write_text(
+            json.dumps([{"type": "MOD_INFO", "id": "cdda", "name": "cdda"}])
+        )
         result = _run_fake(fake_scripts, tmp_path, str(src))
         assert result.returncode == 1
+        assert "inside source" in result.stderr
 
     def test_src_inside_dest_rejected(self, tmp_path):
         fake_scripts = _setup_fake_project(tmp_path)

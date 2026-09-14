@@ -144,6 +144,20 @@ class TestFormatHuman:
         result = format_human({})
         assert result == "No errors found."
 
+    def test_top_zero_distinguishes_hidden(self):
+        blocks = [["12:34:56.789 ERROR : err"]]
+        groups = summarize(blocks)
+        result = format_human(groups, top=0)
+        assert result != "No errors found."
+        assert "hidden" in result.lower()
+
+    def test_json_top_zero_is_empty_list(self):
+        import json as _json
+
+        blocks = [["12:34:56.789 ERROR : err"]]
+        groups = summarize(blocks)
+        assert _json.loads(format_json(groups, top=0)) == []
+
     def test_output_includes_signature_and_count(self):
         blocks = [["12:34:56.789 ERROR : err"]]
         groups = summarize(blocks)
@@ -191,11 +205,12 @@ class TestFormatJson:
 
 
 class TestMainErrorCapture:
-    def test_top_negative_exits_1(self, tmp_path, monkeypatch, capsys):
+    def test_top_negative_exits_2(self, tmp_path, monkeypatch, capsys):
+        # E-1: usage error (--top < 0) exits 2, not 1.
         log = tmp_path / "debug.log"
         log.write_text("12:34:56.789 ERROR : boom\n", encoding="utf-8")
         monkeypatch.setattr(sys, "argv", ["summarize_debug_log.py", str(log), "--top", "-1"])
-        assert sdl.main() == 1
+        assert sdl.main() == 2
         assert "--top" in capsys.readouterr().err
 
     def test_undecodable_log_exits_1(self, tmp_path, monkeypatch, capsys):

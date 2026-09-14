@@ -5,12 +5,22 @@ set -euo pipefail
 MOD_DIR="${1:-.}"
 ERRORS=0
 
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "  ERROR: python3 not found (required for JSON validation)" >&2
+  exit 1
+fi
+
+if [ ! -e "$MOD_DIR" ]; then
+  echo "  ERROR: path not found: $MOD_DIR" >&2
+  exit 1
+fi
+
 echo "=== JSON Validation: $MOD_DIR ==="
 
 FILES=()
 while IFS= read -r file; do
   FILES+=("$file")
-done < <(find -H "$MOD_DIR" -type d -name .bak -prune -o -name "*.json" -print 2>/dev/null || true)
+done < <(find -H "$MOD_DIR" -type d -name .bak -prune -o -name "*.json" -print 2>/dev/null)
 # NOTE (E-6): .bak exclusion is unified with common._is_backup_path
 # (scripts/common.py): only paths with a `.bak` component relative to the
 # base dir are skipped; ancestors of the base named `.bak` never exclude

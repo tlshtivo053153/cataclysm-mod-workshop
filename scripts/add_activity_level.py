@@ -15,8 +15,41 @@ _activity_map: dict[str, str] = {}
 
 
 def load_activity_config(config_path: Path) -> None:
-    with open(config_path, encoding="utf-8") as f:
-        data = json.load(f)
+    """Load subcategory -> activity_level mapping with validation.
+
+    Raises OSError/ValueError with a clean message on missing/unparseable
+    files or invalid schema (must be a JSON object of str -> str).
+    """
+    try:
+        with open(config_path, encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print(f"File not found: {config_path}", file=sys.stderr)
+        raise
+    except UnicodeDecodeError as e:
+        print(f"ERROR: Cannot decode {config_path} as UTF-8: {e}", file=sys.stderr)
+        raise
+    except OSError as e:
+        print(f"ERROR: Cannot read config {config_path}: {e}", file=sys.stderr)
+        raise
+    except json.JSONDecodeError as e:
+        print(f"JSON parse error in {config_path}: {e}", file=sys.stderr)
+        raise
+    if not isinstance(data, dict):
+        print(
+            f"ERROR: Invalid activity config {config_path}: "
+            f"expected JSON object, got {type(data).__name__}",
+            file=sys.stderr,
+        )
+        raise ValueError(f"Invalid activity config: {config_path}")
+    invalid = {k: v for k, v in data.items() if not isinstance(k, str) or not isinstance(v, str)}
+    if invalid:
+        print(
+            f"ERROR: Invalid activity config {config_path}: "
+            f"all keys/values must be strings (bad: {sorted(invalid)[:5]})",
+            file=sys.stderr,
+        )
+        raise ValueError(f"Invalid activity config: {config_path}")
     _activity_map.clear()
     _activity_map.update(data)
 
@@ -65,7 +98,10 @@ def _configure(parser: argparse.ArgumentParser) -> None:
 
 def _setup(args: argparse.Namespace) -> int | None:
     if args.config:
-        load_activity_config(args.config)
+        try:
+            load_activity_config(args.config)
+        except (OSError, ValueError):
+            return 1
     return None
 
 

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import revert_all_translations as rat
+from common import MAX_RECURSION_DEPTH
 from revert_all_translations import processor, revert_all_name_fields
 
 
@@ -36,7 +37,7 @@ class TestRevertAllNameFields:
 
     def test_depth_guard_returns_obj(self, capsys):
         obj = {"name": {"str": "x"}}
-        assert revert_all_name_fields(obj, _depth=51) is obj
+        assert revert_all_name_fields(obj, _depth=MAX_RECURSION_DEPTH + 1) is obj
         assert "max recursion depth" in capsys.readouterr().err
 
 
@@ -60,5 +61,5 @@ class TestProcessor:
         assert processor("scalar", Path("f.json")) is None
         assert processor(42, Path("f.json")) is None
 
-    def test_main_callable(self):
-        assert callable(rat.main)
+    def test_main_contract_returns_int(self):
+        assert rat.main.__annotations__.get("return") is int

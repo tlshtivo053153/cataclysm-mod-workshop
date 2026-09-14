@@ -30,11 +30,18 @@ def check_patch_set(patch_dir: Path) -> list[str]:
     errors: list[str] = []
     readme = patch_dir / "README.md"
 
-    if not readme.exists():
+    if not readme.is_file():
         errors.append(f"Missing README.md in {patch_dir}")
         return errors
 
-    readme_text = readme.read_text(encoding="utf-8")
+    try:
+        readme_text = readme.read_text(encoding="utf-8")
+    except OSError as e:
+        errors.append(f"{readme}: Cannot read README.md: {e}")
+        return errors
+    except UnicodeDecodeError as e:
+        errors.append(f"{readme}: Cannot decode README.md as UTF-8: {e}")
+        return errors
 
     if "## 適用順序" not in readme_text and "## Application Order" not in readme_text:
         errors.append(f"{readme}: No application order section found")
@@ -79,21 +86,27 @@ def check_patch_set(patch_dir: Path) -> list[str]:
     return errors
 
 
-def main() -> int:
-    patches_root = Path(__file__).resolve().parent.parent / "patches"
-    if not patches_root.exists():
+def main(patches_root: Path | None = None) -> int:
+    if patches_root is None:
+        patches_root = Path(__file__).resolve().parent.parent / "patches"
+    if not patches_root.is_dir():
         print("patches/ directory not found", file=sys.stderr)
         return 1
 
     all_errors: list[str] = []
-    for patch_set in sorted(patches_root.iterdir()):
+    try:
+        patch_sets = sorted(patches_root.iterdir())
+    except OSError as exc:
+        print(f"ERROR: Cannot list patches directory {patches_root}: {exc}", file=sys.stderr)
+        return 1
+    for patch_set in patch_sets:
         if patch_set.is_dir() and not patch_set.name.startswith("."):
             errors = check_patch_set(patch_set)
             if errors:
                 all_errors.extend(errors)
                 print(f"\n{patch_set.name}:")
-                for e in errors:
-                    print(f"  ERROR: {e}", file=sys.stderr)
+                for msg in errors:
+                    print(f"  ERROR: {msg}", file=sys.stderr)
             else:
                 patch_count = len([p for p in patch_set.glob("*.patch") if p.is_file()])
                 print(f"{patch_set.name}: OK ({patch_count} patches)")

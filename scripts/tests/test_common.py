@@ -5,6 +5,7 @@ from pathlib import Path
 from common import (
     ProcessResult,
     _is_backup_path,
+    _setup_exit_code,
     backup_file,
     create_parser,
     load_json,
@@ -108,6 +109,22 @@ class TestLoadJson:
         except FileNotFoundError:
             pass
 
+    def test_undecodable_file(self, tmp_path, capsys):
+        p = tmp_path / "bad-encoding.json"
+        p.write_bytes(b"\xff\xfe\xfd not utf-8\n")
+        try:
+            load_json(p)
+            raise AssertionError("Expected UnicodeDecodeError")
+        except UnicodeDecodeError:
+            assert "Cannot decode" in capsys.readouterr().err
+
+    def test_is_directory(self, tmp_path, capsys):
+        try:
+            load_json(tmp_path)
+            raise AssertionError("Expected OSError")
+        except OSError:
+            assert "Cannot read" in capsys.readouterr().err
+
 
 class TestSaveJson:
     def test_roundtrip(self, tmp_path):
@@ -193,6 +210,26 @@ class TestProcessDirectory:
         assert result.total == 1
         assert result.has_errors is True
 
+    def test_partial_tree_warning_to_stderr(self, tmp_path, capsys):
+        make_json_file(tmp_path / "src", {"v": 1}, "a.json")
+        out = tmp_path / "out"
+        result = process_directory(
+            tmp_path / "src", out, lambda d, p: None, backup=False, copy_unchanged=False
+        )
+        assert result.skipped == 1
+        assert "partial tree" in capsys.readouterr().err.lower()
+        assert not (out / "a.json").exists()
+
+    def test_no_partial_tree_warning_when_full_copy(self, tmp_path, capsys):
+        src_file = make_json_file(tmp_path / "src", {"v": 1}, "a.json")
+        out = tmp_path / "out"
+        process_directory(
+            tmp_path / "src", out, lambda d, p: None, backup=False, copy_unchanged=True
+        )
+        assert "partial tree" not in capsys.readouterr().err.lower()
+        assert (out / "a.json").is_file()
+        assert json.loads((out / "a.json").read_text()) == json.loads(src_file.read_text())
+
 
 class TestProcessFile:
     def test_success(self, tmp_path):
@@ -226,6 +263,39 @@ class TestProcessFile:
         p = make_json_file(tmp_path, {"x": 1}, "file.json")
         process_file(p, p, lambda d, p: d, backup=True)
         assert (tmp_path / ".bak" / "file.json").exists()
+
+    def test_backup_via_symlink_alias(self, tmp_path):
+        # Same file via different spellings must still back up (resolve
+        # comparison, not lexical): output symlink -> input real file.
+        p = make_json_file(tmp_path, {"x": 1}, "file.json")
+        link = tmp_path / "alias.json"
+        link.symlink_to(p)
+        result = process_file(p, link, lambda d, path: d, backup=True)
+        assert result.processed == 1
+        assert (tmp_path / ".bak" / "file.json").exists()
+        assert link.is_symlink()
+        assert json.loads(link.read_text()) == {"x": 1}
+        assert json.loads(p.read_text()) == {"x": 1}
+
+
+class TestSetupExitCode:
+    def test_none_and_zero_continue(self):
+        assert _setup_exit_code(None) is None
+        assert _setup_exit_code(0) is None
+
+    def test_nonzero_int_aborts(self):
+        assert _setup_exit_code(1) == 1
+        assert _setup_exit_code(2) == 2
+
+    def test_bool_aborts_fail_closed(self, capsys):
+        assert _setup_exit_code(True) == 1
+        assert _setup_exit_code(False) == 1
+        assert "invalid setup exit code" in capsys.readouterr().err
+
+    def test_off_type_aborts(self, capsys):
+        assert _setup_exit_code("0") == 1
+        assert _setup_exit_code(1.5) == 1
+        assert "invalid setup exit code" in capsys.readouterr().err
 
 
 class TestProcessResult:

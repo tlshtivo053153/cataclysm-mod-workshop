@@ -1,7 +1,9 @@
 """Tests for verify_patches.py (E-4 gap fill)."""
 
+import shutil
 from pathlib import Path
 
+import pytest
 import verify_patches as vp
 from verify_patches import _patch_sort_key, check_patch_set
 
@@ -95,12 +97,55 @@ class TestCheckPatchSet:
         )
         assert any("missing" in e.lower() for e in check_patch_set(d))
 
-    def test_main_callable(self):
-        assert callable(vp.main)
+    def test_main_contract_returns_int(self):
+        assert vp.main.__annotations__.get("return") is int
+
+    def test_main_valid_tmp_returns_0(self, tmp_path, capsys):
+        d = _make_set(
+            tmp_path / "patches" / "myset",
+            patches=["01_a.patch", "02_b.patch"],
+            readme=GOOD_README.replace("- 01_first.patch", "- 01_a.patch\n- 02_b.patch"),
+        )
+        assert vp.main(d.parent) == 0
+        assert "OK" in capsys.readouterr().out
+
+    def test_main_invalid_tmp_returns_1(self, tmp_path, capsys):
+        d = _make_set(tmp_path / "patches" / "bad", patches=["01_a.patch"])
+        assert vp.main(d.parent) == 1
+        assert "error" in capsys.readouterr().err.lower()
+
+    def test_main_missing_root_returns_1(self, tmp_path):
+        assert vp.main(tmp_path / "nope") == 1
+
+    def test_main_none_uses_default_root(self, tmp_path, monkeypatch, capsys):
+        # Hermetic: point vp.__file__ at a tmp layout so the None default
+        # branch resolves to tmp_root/patches instead of the live repo tree.
+        root = tmp_path / "proj"
+        (root / "scripts").mkdir(parents=True)
+        (root / "scripts" / "verify_patches.py").write_text("# stub", encoding="utf-8")
+        _make_set(
+            root / "patches",
+            name="myset",
+            patches=["01_a.patch"],
+            readme=GOOD_README.replace("- 01_first.patch", "- 01_a.patch"),
+        )
+        monkeypatch.setattr(vp, "__file__", str(root / "scripts" / "verify_patches.py"))
+        assert vp.main(None) == 0
+        assert "valid" in capsys.readouterr().out.lower()
 
 
 class TestMainIntegration:
-    def test_main_real_repo_returns_0(self, capsys):
-        # Integration against real patches/ (currently one valid set).
-        # Logic itself is covered by TestCheckPatchSet fixtures above.
-        assert vp.main() == 0
+    def test_main_real_repo_returns_0(self, tmp_path, capsys):
+        # Hermetic: copy one real patch set into tmp instead of depending
+        # on the live patches/ tree (unrelated patch changes must not flip this).
+        real_sets = sorted(
+            p
+            for p in (Path(vp.__file__).resolve().parent.parent / "patches").iterdir()
+            if p.is_dir()
+        )
+        if not real_sets:
+            pytest.skip("no real patch sets in repo")
+        root = tmp_path / "patches"
+        root.mkdir()
+        shutil.copytree(real_sets[0], root / real_sets[0].name)
+        assert vp.main(root) == 0

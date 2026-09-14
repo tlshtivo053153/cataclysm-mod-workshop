@@ -22,7 +22,15 @@ import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
+
+# Processor signature shared by all JSON pipeline scripts:
+# (data, source_path) -> transformed data or None (skip).
+Processor = Callable[[Any, Path], list[Any] | dict[str, Any] | None]
+# Setup hook signature: (parsed args) -> exit code to abort, or None to continue.
+SetupHook = Callable[[argparse.Namespace], int | None]
+# Parser configuration hook.
+ConfigureHook = Callable[[argparse.ArgumentParser], None]
 
 MAX_RECURSION_DEPTH = 50
 
@@ -115,7 +123,7 @@ def revert_translation_field(value: Any) -> Any:
 
 def create_parser(
     description: str,
-    configure: Callable[[argparse.ArgumentParser], None] | None = None,
+    configure: ConfigureHook | None = None,
 ) -> argparse.ArgumentParser:
     """Create a standard ArgumentParser with --input, --output, and --backup.
 
@@ -200,12 +208,18 @@ def load_json(path: Path) -> list[Any] | dict[str, Any]:
     """Load JSON from path with descriptive error messages."""
     try:
         with open(path, encoding="utf-8") as f:
-            return json.load(f)  # type: ignore[no-any-return]
+            return cast(list[Any] | dict[str, Any], json.load(f))
     except json.JSONDecodeError as e:
         print(f"JSON parse error in {path}: {e}", file=sys.stderr)
         raise
     except FileNotFoundError:
         print(f"File not found: {path}", file=sys.stderr)
+        raise
+    except UnicodeDecodeError as e:
+        print(f"ERROR: Cannot decode {path} as UTF-8: {e}", file=sys.stderr)
+        raise
+    except OSError as e:
+        print(f"ERROR: Cannot read {path}: {e}", file=sys.stderr)
         raise
 
 
@@ -248,7 +262,7 @@ def save_json(path: Path, data: list[Any] | dict[str, Any], indent: int = 4) -> 
 def process_directory(
     input_dir: Path,
     output_dir: Path,
-    processor: Callable[..., Any],
+    processor: Processor,
     backup: bool = True,
     pattern: str = "*.json",
     copy_unchanged: bool = False,
@@ -313,7 +327,7 @@ def process_directory(
             data = load_json(src)
             transformed = processor(data, src)
             if transformed is None:
-                if copy_unchanged and output_dir != input_dir:
+                if copy_unchanged and output_res != input_res:
                     try:
                         dst = output_dir / src.relative_to(input_dir)
                         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -325,9 +339,9 @@ def process_directory(
                 result.skipped += 1
                 continue
 
-            dst = src if output_dir == input_dir else output_dir / src.relative_to(input_dir)
+            dst = src if output_res == input_res else output_dir / src.relative_to(input_dir)
 
-            if backup and dst == src:
+            if backup and output_res == input_res:
                 backup_file(src)
 
             save_json(dst, transformed)
@@ -343,13 +357,21 @@ def process_directory(
             file=sys.stderr,
         )
 
+    if output_res != input_res and not copy_unchanged and result.skipped > 0:
+        print(
+            f"Warning: {result.skipped} unchanged file(s) not copied to {output_dir} "
+            "(copy_unchanged=False produces a partial tree; use in-place mode "
+            "or a full-copy script for complete output)",
+            file=sys.stderr,
+        )
+
     return result
 
 
 def process_file(
     input_path: Path,
     output_path: Path,
-    processor: Callable[..., Any],
+    processor: Processor,
     backup: bool = True,
 ) -> ProcessResult:
     """Apply processor to a single file and write result.
@@ -365,7 +387,11 @@ def process_file(
             result.skipped = 1
             return result
 
-        if backup and output_path == input_path:
+        try:
+            same_file = output_path.resolve() == input_path.resolve()
+        except (OSError, RuntimeError):
+            same_file = output_path == input_path
+        if backup and same_file:
             backup_file(input_path)
 
         save_json(output_path, transformed)
@@ -378,12 +404,28 @@ def process_file(
         return result
 
 
+def _setup_exit_code(setup_code: Any) -> int | None:
+    """Decide whether a setup hook return value aborts the pipeline.
+
+    Fail-closed: only None (continue) and int 0 (continue) proceed.
+    Any other value — non-zero int, bool (incl. False), or off-type
+    (str/float) — aborts with the code, or 1 for off-type values.
+    `setup` is typed int|None; bool/str are runtime contract violations.
+    """
+    if setup_code is None:
+        return None
+    if type(setup_code) is int:
+        return None if setup_code == 0 else setup_code
+    print(f"ERROR: invalid setup exit code: {setup_code!r}", file=sys.stderr)
+    return 1
+
+
 def run_standard_pipeline(
     description: str,
-    processor: Callable[..., Any],
+    processor: Processor,
     copy_unchanged: bool = False,
-    configure: Callable[[argparse.ArgumentParser], None] | None = None,
-    setup: Callable[[argparse.Namespace], int | None] | None = None,
+    configure: ConfigureHook | None = None,
+    setup: SetupHook | None = None,
 ) -> int:
     """Run a standard input/output pipeline for a transformation script.
 
@@ -432,9 +474,9 @@ def run_standard_pipeline(
     parser = create_parser(description, configure=configure)
     args = parser.parse_args()
     if setup is not None:
-        setup_code = setup(args)
-        if isinstance(setup_code, int) and setup_code != 0:
-            return setup_code
+        abort = _setup_exit_code(setup(args))
+        if abort is not None:
+            return abort
     input_path, output_path = resolve_paths(args)
 
     if input_path.is_dir():

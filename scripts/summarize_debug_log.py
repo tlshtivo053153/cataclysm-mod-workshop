@@ -119,6 +119,8 @@ def format_human(groups: dict[str, dict[str, Any]], top: int | None = None) -> s
 
     items = sorted(groups.items(), key=lambda x: x[1]["count"], reverse=True)
     if top is not None:
+        if top <= 0:
+            return f"No errors shown (top={top}; {len(groups)} group(s) hidden)."
         items = items[:top]
 
     lines: list[str] = []
@@ -171,7 +173,8 @@ def main() -> int:
     log_path: Path = args.log
     if args.top is not None and args.top < 0:
         print(f"ERROR: --top must be >= 0, got {args.top}", file=sys.stderr)
-        return 1
+        print(f"Usage: {sys.argv[0]} [--top N] [--json] [-o FILE] <log>", file=sys.stderr)
+        return 2
     if not log_path.exists():
         print(f"File not found: {log_path}", file=sys.stderr)
         return 1

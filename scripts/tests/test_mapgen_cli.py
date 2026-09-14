@@ -48,7 +48,8 @@ class TestPrintExplanations:
         doc = parse_dsl(src)
         entries = compiler.compile(doc)
         _print_explanations(compiler, entries, doc.entries)
-        assert capsys.readouterr().out != ""
+        out = capsys.readouterr().out
+        assert "Characters used:" in out
 
 
 class TestWriteOutput:
@@ -67,6 +68,7 @@ class TestWriteOutput:
 class TestRunSingleFile:
     def test_missing_returns_2(self, tmp_path, capsys):
         assert _run_single_file(tmp_path / "nope.yml", None, False, True, [], False) == 2
+        assert "File not found:" in capsys.readouterr().err
 
     def test_check_only_writes_nothing(self, tmp_path):
         src = _copy_fixture(tmp_path)

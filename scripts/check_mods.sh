@@ -42,7 +42,7 @@ CI note: Level2 is intentionally NOT run in CI (external/cdda/ is
 gitignored, cataclysm-tiles binary absent on runners).
 
 Manual procedure (see rules/verification.md "Level2自動"):
-  bash scripts/place_mod_for_test.sh --link mods/small/<mod_dir>/
+  bash scripts/place_mod_for_test.sh mods/small/<mod_dir>/
   bash scripts/check_mods.sh --isolated <mod_id>
 
 Exit codes:
@@ -63,6 +63,10 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             TIMEOUT_SEC="$2"; shift 2 ;;
+        --) shift; break ;;
+        -*) echo "Error: Unknown option: $1" >&2
+            echo "Usage: $0 [--isolated] [--check-errors] [--timeout N] <mod_id>" >&2
+            exit 1 ;;
         *) break ;;
     esac
 done
@@ -72,7 +76,7 @@ case "${TIMEOUT_SEC}" in
         echo "Error: --timeout must be a positive integer (got '${TIMEOUT_SEC}')" >&2
         exit 1 ;;
 esac
-# Canonicalize: strip leading zeros (sed is coreutils, always present with timeout).
+# Canonicalize: strip leading zeros (sed is POSIX, always present with timeout).
 # This accepts 01/007 as 1/7, rejects 0/00 as 0, and avoids octal confusion.
 TIMEOUT_CANON="$(printf '%s' "${TIMEOUT_SEC}" | sed 's/^0*//')"
 if [ -z "${TIMEOUT_CANON}" ]; then
@@ -111,8 +115,8 @@ case "${MOD_ID}" in
         exit 1 ;;
 esac
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit 1
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)" || exit 1
 CDDA_DIR="${PROJECT_ROOT}/external/cdda"
 
 # --- Prerequisites -----------------------------------------------------------
@@ -150,8 +154,10 @@ fi
 
 # Exact ID match via python (avoids substring false positives from
 # dependencies/descriptions that a plain grep -F "\"ID\"" would hit).
-# Falls back to grep -F only when python3 is unavailable.
+# Falls back to grep only when python3 is unavailable (anchored to the
+# `"id": "<wanted>"` JSON field to reduce false positives vs bare substring).
 MOD_FOUND=false
+MOD_ESCAPED="$(printf '%s' "${MOD_ID}" | sed 's/\./\\./g')"
 if command -v python3 >/dev/null 2>&1; then
     if MOD_ID="${MOD_ID}" MODS_DIR="${CDDA_DIR}/mods" python3 -c '
 import json, os, sys
@@ -182,7 +188,9 @@ sys.exit(0 if found else 1)
 '; then
         MOD_FOUND=true
     fi
-elif grep -rqF -- "\"${MOD_ID}\"" "${CDDA_DIR}"/mods/*/modinfo.json 2>/dev/null; then
+# Fallback grep is anchored to the "id" field; MOD_ID is pre-sanitized to
+# [A-Za-z0-9_.-] so only '.' needs ERE escaping (no delimiter collision).
+elif grep -rqE -- "\"id\"[[:space:]]*:[[:space:]]*\"${MOD_ESCAPED}\"" "${CDDA_DIR}"/mods/*/modinfo.json 2>/dev/null; then
     MOD_FOUND=true
 fi
 if [ "${MOD_FOUND}" != true ]; then

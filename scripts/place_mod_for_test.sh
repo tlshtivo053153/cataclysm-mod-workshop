@@ -3,26 +3,53 @@
 #
 # Usage:
 #   bash scripts/place_mod_for_test.sh mods/small/my_mod/                    (symlink, default)
-#   bash scripts/place_mod_for_test.sh --link mods/small/my_mod/             (symlink, explicit)
+#   bash scripts/place_mod_for_test.sh --link mods/small/my_mod/             (symlink, explicit; same as default)
 #   bash scripts/place_mod_for_test.sh --copy mods/small/my_mod/             (copy)
 #   bash scripts/place_mod_for_test.sh --dry-run mods/small/my_mod/          (show plan only)
 #   bash scripts/place_mod_for_test.sh --force --copy mods/...               (skip confirmation)
+#   bash scripts/place_mod_for_test.sh --help                                (show help)
 #
 # The mod name in external/cdda/mods/ will match the basename of the source directory.
 #
-# NOTE: realpath -m is GNU-specific and not available on macOS (Linux/CI only).
+# Exit codes: 0 success (incl. idempotent Already placed / Aborted), 1 usage/processing
+# error, 2 confirmation required in non-interactive mode (use --force or --dry-run first).
+#
+# NOTE: GNU coreutils required (Linux/CI only, not macOS default): realpath -m,
+# cp -a, mktemp -d --. Fail fast instead of cryptic errors.
 # NOTE: Edit and convert mods on the repo side (mods/<mod>), not via external/cdda/mods.
 #   Running converters via the symlink rewrites repo mods/ directly.
 #   Ensure `git status --porcelain -- mods/<mod>` is clean before converting.
+# NOTE: --force permanently deletes DEST without backup. Preview with --dry-run first,
+#   especially when DEST holds uncommitted work.
 
 set -euo pipefail
 
-# F-1 portability guard: realpath -m is GNU-specific (Linux/CI only, not macOS
-# default). Fail fast with a clear message instead of cryptic realpath errors.
+# F-1 portability guard: GNU coreutils required (Linux/CI only, not macOS
+# default). Fail fast with a clear message instead of cryptic errors.
 if ! realpath -m -- / >/dev/null 2>&1; then
-    echo "Error: this script requires GNU coreutils 'realpath -m' (Linux/CI only; not available on macOS default)." >&2
+    echo "Error: this script requires GNU coreutils (realpath -m, cp -a, mktemp) (Linux/CI only; not available on macOS default)." >&2
     exit 1
 fi
+
+show_help() {
+    cat <<'EOF'
+Usage: place_mod_for_test.sh [--link|--copy] [--dry-run] [--force] <path-to-mod-directory>
+       place_mod_for_test.sh --help | -h
+
+Symlink (default) or copy a mod into external/cdda/mods/ for testing.
+
+Options:
+  --link       symlink mode (explicit; same as default)
+  --copy       copy mode (atomic staged copy with verification)
+  --dry-run    show plan only, change nothing (wins over --force)
+  --force      skip overwrite confirmation (DEST is permanently deleted)
+  --help, -h   show this help and exit 0
+
+Exit codes:
+  0 - success (incl. Already placed / Aborted) | 1 - usage/processing error
+  2 - confirmation required in non-interactive mode (use --force)
+EOF
+}
 
 LINK_FLAG=false
 COPY_FLAG=false
@@ -31,12 +58,13 @@ FORCE=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        -h|--help) show_help; exit 0 ;;
         --link) LINK_FLAG=true; shift ;;
         --copy) COPY_FLAG=true; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
         --force) FORCE=true; shift ;;
         --) shift; break ;;
-        --*) echo "Error: Unknown option: $1" >&2; echo "Usage: $0 [--link|--copy] [--dry-run] [--force] <path-to-mod-directory>" >&2; exit 1 ;;
+        --*|-*) echo "Error: Unknown option: $1" >&2; echo "Usage: $0 [--link|--copy] [--dry-run] [--force] <path-to-mod-directory>" >&2; exit 1 ;;
         *) break ;;
     esac
 done
@@ -57,8 +85,8 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || exit 1
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)" || exit 1
 
 SRC_DIR="$1"
 MOD_NAME="$(basename -- "$SRC_DIR")"
@@ -75,6 +103,11 @@ esac
 SRC_REAL="$(realpath -m -- "$SRC_DIR")"
 if [ ! -d "$SRC_REAL" ]; then
     echo "Error: Source directory does not exist: $SRC_DIR" >&2
+    exit 1
+fi
+if [ ! -f "$SRC_REAL/modinfo.json" ]; then
+    echo "Error: Source is not a mod (modinfo.json missing): $SRC_REAL" >&2
+    echo "Hint: pass the mod directory itself (the one containing modinfo.json)" >&2
     exit 1
 fi
 
@@ -194,48 +227,50 @@ else
     # mktemp avoids predictable $$ paths; old DEST is kept until the new
     # tree is verified, and restored if the final mv fails.
     TMP_DEST="$(mktemp -d -- "${DEST_DIR}.tmp.XXXXXX")"
-    OLD_DEST=""
+    ROLLBACK_DIR=""
     cleanup_tmp() {
         if [ -n "${TMP_DEST:-}" ] && [ -e "$TMP_DEST" ]; then
             rm -rf -- "$TMP_DEST"
         fi
-        if [ -n "${OLD_DEST:-}" ] && [ -e "$OLD_DEST" ] && [ ! -e "$DEST_DIR" ]; then
-            mv -- "$OLD_DEST" "$DEST_DIR" 2>/dev/null || true
-        elif [ -n "${OLD_DEST:-}" ] && [ -e "$OLD_DEST" ]; then
-            # mv succeeded but script failed later; keep old tree out of the way
-            rm -rf -- "$OLD_DEST" 2>/dev/null || true
+        # Rollback dir holds the previous DEST as <dir>/orig; no empty-name
+        # reuse so there is no mktemp -u style TOCTOU window.
+        if [ -n "${ROLLBACK_DIR:-}" ] && [ -e "$ROLLBACK_DIR" ]; then
+            if [ -e "$ROLLBACK_DIR/orig" ] && [ ! -e "$DEST_DIR" ]; then
+                mv -- "$ROLLBACK_DIR/orig" "$DEST_DIR" 2>/dev/null || true
+            fi
+            rm -rf -- "$ROLLBACK_DIR" 2>/dev/null || true
         fi
     }
     trap cleanup_tmp EXIT
     cp -a -- "$SRC_REAL/." "$TMP_DEST/"
-    # Robust file count (newline-safe): count NUL-separated entries.
-    SRC_COUNT="$(find "$SRC_REAL" -type f -print0 | tr -dc '\0' | wc -c)"
-    TMP_COUNT="$(find "$TMP_DEST" -type f -print0 | tr -dc '\0' | wc -c)"
-    if [ "$SRC_COUNT" != "$TMP_COUNT" ]; then
+    # Robust file count (newline-safe): count NUL-separated entries, strip wc padding.
+    SRC_COUNT="$(find "$SRC_REAL" -type f -print0 | tr -dc '\0' | wc -c | tr -d ' ')"
+    TMP_COUNT="$(find "$TMP_DEST" -type f -print0 | tr -dc '\0' | wc -c | tr -d ' ')"
+    if [ "${SRC_COUNT:-0}" -ne "${TMP_COUNT:-0}" ]; then
         echo "Error: copy verification failed (source files: $SRC_COUNT, copied: $TMP_COUNT)" >&2
         exit 1
     fi
-    if [ -e "$SRC_REAL/modinfo.json" ] && [ ! -e "$TMP_DEST/modinfo.json" ]; then
+    if [ ! -f "$TMP_DEST/modinfo.json" ]; then
         echo "Error: copy verification failed (modinfo.json missing after copy)" >&2
         exit 1
     fi
     if [ -e "$DEST_DIR" ] || [ -L "$DEST_DIR" ]; then
         confirm_overwrite
-        # Unique non-existing path for rollback (mktemp -u: name only, no file).
-        OLD_DEST="$(mktemp -u -- "${DEST_DIR}.old.XXXXXX")"
-        rm -rf -- "$OLD_DEST"
+        # Retire the old tree into a fresh rollback dir (same parent, so mv
+        # stays on one filesystem and no empty-name reservation is needed).
+        ROLLBACK_DIR="$(mktemp -d -- "${DEST_DIR}.rollback.XXXXXX")"
         # Move old aside first so a failed final mv can be rolled back.
-        if ! mv -- "$DEST_DIR" "$OLD_DEST"; then
+        if ! mv -- "$DEST_DIR" "$ROLLBACK_DIR/orig"; then
             echo "Error: failed to move existing destination aside" >&2
             exit 1
         fi
         if ! mv -- "$TMP_DEST" "$DEST_DIR"; then
             echo "Error: failed to move staged copy into place; restoring original" >&2
-            mv -- "$OLD_DEST" "$DEST_DIR" 2>/dev/null || true
+            mv -- "$ROLLBACK_DIR/orig" "$DEST_DIR" 2>/dev/null || true
             exit 1
         fi
-        rm -rf -- "$OLD_DEST"
-        OLD_DEST=""
+        rm -rf -- "$ROLLBACK_DIR"
+        ROLLBACK_DIR=""
     else
         if ! mv -- "$TMP_DEST" "$DEST_DIR"; then
             echo "Error: failed to move staged copy into place" >&2
