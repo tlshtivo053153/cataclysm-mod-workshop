@@ -192,6 +192,29 @@ class TestRunValidateErrorCapture:
         assert "out-line" in out.out
         assert "err-line" in out.err
 
+    def test_quiet_suppresses_stdout_on_success(self, tmp_path, monkeypatch, capsys):
+        class R:
+            stdout = "out-line\n"
+            stderr = ""
+            returncode = 0
+
+        monkeypatch.setattr(subprocess, "run", lambda *a, **k: R())
+        assert run_validate(tmp_path, quiet=True) is True
+        out = capsys.readouterr()
+        assert "out-line" not in out.out
+
+    def test_quiet_shows_output_on_failure(self, tmp_path, monkeypatch, capsys):
+        class R:
+            stdout = "out-line\n"
+            stderr = "err-line\n"
+            returncode = 1
+
+        monkeypatch.setattr(subprocess, "run", lambda *a, **k: R())
+        assert run_validate(tmp_path, quiet=True) is False
+        out = capsys.readouterr()
+        assert "out-line" in out.out
+        assert "err-line" in out.err
+
 
 class TestFindModDirs:
     def test_finds_nested_modinfo(self, tmp_path):
@@ -313,3 +336,28 @@ class TestMainBranches:
         monkeypatch.setattr(_sys, "argv", ["validate_mods.py", "--base-dir", str(tmp_path)])
         monkeypatch.setattr(validate_mods, "run_validate", lambda *a, **k: True)
         assert validate_mods.main() == 0
+
+    def test_main_quiet_suppresses_headers(self, tmp_path, monkeypatch, capsys):
+        import json as _json
+        import sys as _sys
+
+        d = tmp_path / "good"
+        d.mkdir()
+        (d / "modinfo.json").write_text(
+            _json.dumps([{"type": "MOD_INFO", "id": "good", "name": "G", "dependencies": ["dda"]}])
+        )
+        seen = {}
+
+        def fake_run(mod_dir, *a, **k):
+            seen.update(k)
+            return True
+
+        monkeypatch.setattr(
+            _sys, "argv", ["validate_mods.py", "--base-dir", str(tmp_path), "--quiet"]
+        )
+        monkeypatch.setattr(validate_mods, "run_validate", fake_run)
+        assert validate_mods.main() == 0
+        assert seen.get("quiet") is True
+        out = capsys.readouterr()
+        assert "Found" not in out.out
+        assert "Validating" not in out.out

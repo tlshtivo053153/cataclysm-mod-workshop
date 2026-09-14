@@ -81,7 +81,8 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements-dev.txt
-      - run: python scripts/validate_mods.py 2>&1 | tee validate-mods.log
+      # F-1: --quiet keeps CI logs small (per-file OK suppressed, errors shown).
+      - run: python scripts/validate_mods.py --quiet 2>&1 | tee validate-mods.log
       - run: python scripts/verify_patches.py 2>&1 | tee verify-patches.log
       - name: Upload validation logs
         if: always()

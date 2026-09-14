@@ -93,8 +93,12 @@ def collect_mod_ids(mod_dirs: list[Path]) -> tuple[dict[str, list[Path]], list[P
     return id_map, error_dirs
 
 
-def run_validate(mod_dir: Path, timeout: int = 120) -> bool:
-    """Run validate.sh on a mod directory. Returns True on success."""
+def run_validate(mod_dir: Path, timeout: int = 120, *, quiet: bool = False) -> bool:
+    """Run validate.sh on a mod directory. Returns True on success.
+
+    When quiet=True, per-file OK output is suppressed on success to keep
+    CI logs small (F-1); output is still shown on failure.
+    """
     script = Path(__file__).resolve().parent / "validate.sh"
     try:
         result = subprocess.run(
@@ -112,11 +116,22 @@ def run_validate(mod_dir: Path, timeout: int = 120) -> bool:
     except OSError as e:
         print(f"ERROR: Cannot run validation for {mod_dir}: {e}", file=sys.stderr)
         return False
-    if result.stdout:
-        print(result.stdout, end="")
-    if result.stderr:
-        print(result.stderr, end="", file=sys.stderr)
-    return result.returncode == 0
+    if result.returncode != 0:
+        if result.stdout:
+            print(result.stdout, end="")
+        if result.stderr:
+            print(result.stderr, end="", file=sys.stderr)
+        return False
+    if not quiet:
+        if result.stdout:
+            print(result.stdout, end="")
+        if result.stderr:
+            print(result.stderr, end="", file=sys.stderr)
+    else:
+        # Quiet success: suppress per-file OK lines; surface unexpected stderr.
+        if result.stderr:
+            print(result.stderr, end="", file=sys.stderr)
+    return True
 
 
 def _iter_json_objects(mod_dir: Path) -> list[tuple[Path, dict[str, Any]]]:
@@ -213,6 +228,11 @@ def main() -> int:
         default=None,
         help="Base directory to scan for mods recursively (default: mods relative to project root)",
     )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress per-file OK output (F-1: keeps CI logs small; errors still shown)",
+    )
     args = parser.parse_args()
 
     if args.base_dir is not None:
@@ -230,7 +250,8 @@ def main() -> int:
         print("ERROR: No mod directories found (missing modinfo.json)", file=sys.stderr)
         return 1
 
-    print(f"Found {len(mod_dirs)} mod(s) in {base}")
+    if not args.quiet:
+        print(f"Found {len(mod_dirs)} mod(s) in {base}")
 
     id_map, error_dirs = collect_mod_ids(mod_dirs)
 
@@ -245,8 +266,9 @@ def main() -> int:
             errors += 1
 
     for mod_dir in mod_dirs:
-        print(f"\n--- Validating {mod_dir} ---")
-        if not run_validate(mod_dir):
+        if not args.quiet:
+            print(f"\n--- Validating {mod_dir} ---")
+        if not run_validate(mod_dir, quiet=args.quiet):
             errors += 1
         # C-1: Level1 content rules from rules/CORE.md (beyond JSON syntax).
         for msg in check_recipe_activity_level(mod_dir):

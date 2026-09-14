@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # link_mod_for_test.sh — Create a symlink in external/cdda/mods/ for testing
 #
 # DEPRECATED: use `bash scripts/place_mod_for_test.sh --link <mod_dir>` instead.

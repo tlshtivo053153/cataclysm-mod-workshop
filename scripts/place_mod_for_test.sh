@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # place_mod_for_test.sh — Symlink (default) or copy a mod into external/cdda/mods/ for testing
 #
 # Usage:
@@ -16,6 +16,13 @@
 #   Ensure `git status --porcelain -- mods/<mod>` is clean before converting.
 
 set -euo pipefail
+
+# F-1 portability guard: realpath -m is GNU-specific (Linux/CI only, not macOS
+# default). Fail fast with a clear message instead of cryptic realpath errors.
+if ! realpath -m -- / >/dev/null 2>&1; then
+    echo "Error: this script requires GNU coreutils 'realpath -m' (Linux/CI only; not available on macOS default)." >&2
+    exit 1
+fi
 
 LINK_FLAG=false
 COPY_FLAG=false

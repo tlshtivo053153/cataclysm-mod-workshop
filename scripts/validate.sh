@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # validate.sh — mod内の全JSONファイルの構文チェック
 set -euo pipefail
 

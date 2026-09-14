@@ -36,6 +36,9 @@ python scripts/validate_mods.py
 
 # 特定ディレクトリ配下のmodを検証
 python scripts/validate_mods.py --base-dir /path/to/mods
+
+# CIログ削減用 (F-1: per-file OKとヘッダ抑制、エラーと最終サマリは表示)
+python scripts/validate_mods.py --quiet
 ```
 
 ### 頻度
