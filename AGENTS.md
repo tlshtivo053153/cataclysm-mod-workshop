@@ -15,12 +15,26 @@ This repository contains tools, scripts, and documentation for developing and po
 - `external/cdda/` — CDDA game files (gitignored)
 - `.github/workflows/ci.yml` — CI pipeline (ruff, black, pytest, mypy, shellcheck)
 
-## Development Workflow
+## Development Workflow (9 steps — canonical: `rules/CORE.md`)
 
-1. Write a design document using `templates/design_template.md`
-2. Implement with AI assistance
-3. Run `bash scripts/validate.sh <mod_dir>` for JSON syntax checking
-4. Test in-game (launch CDDA with the mod enabled)
+New mod development follows the 9-step workflow. `rules/CORE.md` is canonical;
+`README.md` and `cdda_mod_dev_plan.md` mirror it. Templates are used as follows:
+`templates/spec_template.md` for Step 1, `templates/design_template.md` for Step 3.
+
+1. Write a spec using `templates/spec_template.md` (skippable for small mods, see below)
+2. Self-review the spec with AI (scope, conflicts with vanilla systems, fun/usefulness)
+3. Write a design doc using `templates/design_template.md` (planned IDs, copy-from targets, dependencies)
+4. Verify consistency against `external/cdda/data/json/` (copy-from IDs, flags, materials, activity_level)
+5. Self-review the design doc with AI (naming, copy-from, dependencies, rework cost)
+6. Implement (`modinfo.json`, `data/*.json`; run Level1 check on every edit)
+7. Fix load errors (Level2: place mod then run `scripts/check_mods.sh`)
+8. Verify in-game behavior (Level3: spawn/craft/effects vs success criteria)
+9. Balance against same-category vanilla content (cost vs performance vs uniqueness)
+
+Small-mod exemption (Steps 1–2 skippable only if ALL hold): 5 or fewer new
+game IDs (excluding modinfo.json), `copy-from` only with no new `type`
+definitions, extension of an existing system only (no new game systems,
+mapgen, or NPC logic), clearly derived from an existing same-category item.
 
 ## Old Mod Porting
 
