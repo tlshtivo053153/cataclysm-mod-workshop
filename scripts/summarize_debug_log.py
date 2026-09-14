@@ -6,6 +6,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 # Regex patterns
 ERROR_START_RE = re.compile(r"^\d{2}:\d{2}:\d{2}\.\d+ ERROR")
@@ -100,9 +101,9 @@ def extract_signature(block: list[str]) -> str:
     return "Unknown error"
 
 
-def summarize(blocks: list[list[str]]) -> dict[str, dict]:
+def summarize(blocks: list[list[str]]) -> dict[str, dict[str, Any]]:
     """Aggregate blocks by signature."""
-    groups: dict[str, dict] = {}
+    groups: dict[str, dict[str, Any]] = {}
     for block in blocks:
         sig = extract_signature(block)
         if sig not in groups:
@@ -111,7 +112,7 @@ def summarize(blocks: list[list[str]]) -> dict[str, dict]:
     return groups
 
 
-def format_human(groups: dict[str, dict], top: int | None = None) -> str:
+def format_human(groups: dict[str, dict[str, Any]], top: int | None = None) -> str:
     """Render human-readable summary."""
     if not groups:
         return "No errors found."
@@ -135,7 +136,7 @@ def format_human(groups: dict[str, dict], top: int | None = None) -> str:
     return "\n".join(lines)
 
 
-def format_json(groups: dict[str, dict], top: int | None = None) -> str:
+def format_json(groups: dict[str, dict[str, Any]], top: int | None = None) -> str:
     """Render JSON summary."""
     items = sorted(groups.items(), key=lambda x: x[1]["count"], reverse=True)
     if top is not None:

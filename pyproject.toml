@@ -110,10 +110,6 @@ module = "remove_invalid_fields"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = "summarize_debug_log"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
 module = "revert_all_translations"
 ignore_errors = true
 
