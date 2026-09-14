@@ -50,8 +50,8 @@ mods/small/bone_armor/
 | bna_bone_helmet | helmet_chitin | bone + leather | 1700 g | 4 | WATERPROOF を削除（骨は非防水） |
 | bna_bone_armguards | armguard_chitin | bone + leather | 650 g | 4 | WATER_FRIENDLY を削除 |
 
-- `armor` 配列はコピー元から継承（chitin 系は item-level `material` + `material_thickness` 方式のため、material 差し替えのみで骨の防護値になる）
-- `name` は `{ "str": ... }`（ARMOR の base 慣習に合わせる）
+- `armor` 配列は基本コピー元から継承（chitin 系は item-level `material` + `material_thickness` 方式のため、material 差し替えのみで骨の防護値になる）。ただし `bna_bone_cuirass` のみ意図的に `covers: [torso]` で上書きし、親 `armor_chitin` の脚（leg_l/leg_r）防護を落としている（cuirass=胴鎧のため）
+- `name` は `{ "str": ... }`（ARMOR の base 慣習に合わせる）。ただし `cuirass`（不規則複数）・`pair of ...` は `str_pl` 必須（実データ通り）
 
 ### レシピ設計
 

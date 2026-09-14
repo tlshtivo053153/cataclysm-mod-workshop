@@ -24,4 +24,4 @@
 - Level2 を通過し、`magical` カテゴリのmodとして認識される
 
 ### スコープ判断
-- 新規 type（`magic_type`）を含み、新規IDも7件（magic_type 1 + SPELL 2 + ITEM 1 + recipe 1 + 内部参照）のため、仕様書・設計書を作成する
+- 新規 type（`magic_type`）を含み、新規定義5件（新規ID 4: magic_type 1 + SPELL 2 + ITEM 1、recipe 1 ※recipeはIDを持たず既存ITEMを参照）のため、仕様書・設計書を作成する
