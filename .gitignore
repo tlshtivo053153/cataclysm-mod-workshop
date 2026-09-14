@@ -9,3 +9,9 @@ __pycache__/
 .ruff_cache/
 *.bak
 .kilo/plans/
+# Local agent/runtime (untracked, do not commit)
+.ralph/
+PROMPT.md
+hats.yml
+opencode.json
+ralph.yml
