@@ -85,8 +85,10 @@
 - **詳細:** [`version_diff.md#armor-ballistic`](version_diff.md)
 
 ### `Name is not an object` / `str_sp not supported`
-- **解決策:**
-  - `ITEM`, `SPELL` 等 → `{"str_sp": "名称"}` が必須
+- **解決策 (0.I RC, `rules/CORE.md#name-フィールド形式` に準拠):**
+  - `ARMOR` / `TOOL` / `GUN` / `GUNMOD` / `MAGAZINE` / `BIONIC_ITEM` / `SPELL` → `{"str": "名称"}` が基本（自動生成可能な単数形。可算名詞のinjector等もこちら）
+  - `COMESTIBLE` / `FOOD` / `DRINK` → `{"str_sp": "名称"}` が基本（単複同形・不可算寄り）。ただし可算の医薬品等で `{"str": "..."}` も可（親 `adrenaline_injector` は `str` 形式）
+  - 自動生成できない語（cuirass等）→ `{"str": "...", "str_pl": "..."}`、`pair of ...` は `str_pl` 必須
   - `MONSTER` → `{"str": "名称"}`（バニラで支配的な形式）。一部モンスターでは `{"str_sp": "..."}` も使用可
   - `overmap_terrain`, `mutation`, `profession` 等 → 単純文字列が必須
 - **詳細:** [`version_diff.md#name-format`](version_diff.md)
@@ -201,7 +203,7 @@
 
 ### `Invalid or misplaced field name "ammo"` (TOOL アイテム)
 - **原因:** `"subtypes": ["TOOL"]` のアイテムに `"ammo"` フィールドを定義
-- **解決策:** `ammo` フィールドは `AMMO` subtype アイテムでのみ有効。TOOL から削除する
+- **解決策:** トップレベルの `ammo` は `TOOL`・`AMMO` subtype では無効。`AMMO`品が持つのは `ammo_type` であり、`ammo: [...]` を持つのは `GUN` を含む subtype のみ。有効な文脈は `GUN`（例: `ammo: ["arrow"]`）、`item_group` の数値指定、`vehicle_part`、mapgen の `spawn_data`、モンスター繁殖定義等。文脈を確認して削除可否を判断する（`scripts/remove_invalid_fields.py` は再帰削除による正規GUN破壊を避けるため `remove_always` に含めず温存する）
 - **正しい AMMO 定義:**
   ```json
   { "type": "ITEM", "subtypes": ["AMMO"], "id": "...", "ammo_type": "battery", "count": 100 }

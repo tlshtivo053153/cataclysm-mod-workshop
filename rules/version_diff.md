@@ -103,10 +103,13 @@
 - `modinfo.json` の `dependencies` に関係するフラグを提供する mod が含まれているか確認
 
 ### name フィールド形式の厳格化（破壊的変更）
-- `ITEM`, `SPELL` 等: 単純文字列 → `{"str_sp": "..."}` が必須
+- `ARMOR` / `TOOL` / `GUN` / `GUNMOD` / `MAGAZINE` / `BIONIC_ITEM` / `SPELL`: `{"str": "名称"}` が基本（自動生成可能な単数形。`str_pl` を付けると不要エラー）
+- `COMESTIBLE` / `FOOD` / `DRINK`: `{"str_sp": "名称"}` が基本（単複同形・不可算寄り）。ただし可算の医薬品等で `{"str": "..."}` も可
+- 自動生成できない語（cuirass等）・`pair of ...`: `{"str": "...", "str_pl": "..."}` が必須
 - `MONSTER`: 単純文字列 → `{"str": "..."}` が必須（一部モンスターでは `{"str_sp": "..."}` も使用可）
 - `overmap_terrain`, `mutation`, `profession` 等: `{"str_sp": "..."}` → 単純文字列が必須
 - 形式が合わないと `Name is not an object` または `str_sp not supported` エラー
+- 詳細は `rules/CORE.md#name-フィールド形式` に準拠すること
 
 ### テキストスタイルチェッカーの導入（破壊的変更）
 - 英語テキストの `.` `!` `?` の後に半角スペースが2つ必須になった

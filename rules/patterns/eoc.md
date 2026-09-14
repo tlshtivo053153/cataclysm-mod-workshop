@@ -731,8 +731,8 @@ CDDA の math 式では以下の算術関数が使用可能:
 
 | 関数 | 構文 | 説明 | 実績 |
 |------|------|------|------|
-| `min` | `min(a, b)` | 2引数の小さい方を返す | MindOverMatter, Xedra Evolved, Magiclysm, wm_weapon_mastery: `min(20, max(1, _exp))` |
-| `max` | `max(a, b)` | 2引数の大きい方を返す | 同上 |
+| `min` | `min(a, b, ...)` | 可変長引数の最小値を返す | MindOverMatter, Xedra Evolved, Magiclysm, wm_weapon_mastery: `min(20, max(1, _exp))` |
+| `max` | `max(a, b, ...)` | 可変長引数の最大値を返す | 同上 |
 | `clamp` | `clamp(x, lo, hi)` | x を [lo, hi] の範囲に制限。**`hi > lo` が必須**（逆転は未定義動作・クラッシュリスク。`rules/common_errors.md` 参照） | バニラ EOC で広く使用 |
 
 `min` / `max` の典型的なユースケース:

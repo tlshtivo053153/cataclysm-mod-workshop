@@ -174,7 +174,7 @@ CDDA 0.I RC で enchantment と effect_type を定義する際のパターンと
 - **負値で攻撃が速くなる**（move cost を減らすため）
 - `"add": -10` = 攻撃の move cost を 10 減らす（約 10% 高速化）
 - `"multiply": -0.1` = 攻撃の move cost を 10% 減らす
-- `"multiply": 1.5` = 攻撃が 50% 遅くなる
+- `"multiply": 0.5` = 攻撃が 50% 遅くなる（×1.5。`multiply` は加算パーセント: 0.5=+50%、1.5=+150%=×2.5）
 
 ### `WEAPON_DISPERSION` は `multiply` のみ
 - CDDA 0.I RC の実例では `multiply` のみ使用されている（`add` の使用例は未確認）

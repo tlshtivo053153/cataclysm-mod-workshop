@@ -66,7 +66,7 @@ CDDA 0.I RC で `ARMOR` subtype の防具を追加する際のパターン。
 | `specifically_covers` | サブ部位（`head_crown`, `leg_upper_r` 等）。`data/json/body_parts.json` 参照 |
 | `cover_melee` / `cover_ranged` / `cover_vitals` | 部位別の被覆率（省略時は `coverage`） |
 | `rigid_layer_only` | 硬質レイヤーのみ有効（`mouth`, `eyes` 等で使用） |
-| `material` | 部位ごとの素材（`{ "type": "leather", "covered_by_mat": 100, "thickness": 4.5 }`）。省略時はアイテム直下の `material` + `material_thickness` が使われる |
+| `material` | 部位ごとの素材（`[{ "type": "leather", "covered_by_mat": 100, "thickness": 4.5 }]` 配列。省略時はアイテム直下の `material` + `material_thickness` が使われる） |
 
 ### 素材指定の2方式
 
