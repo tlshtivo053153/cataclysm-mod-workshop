@@ -16,6 +16,21 @@ from typing import Any
 MAX_RECURSION_DEPTH = 50
 
 
+def _is_backup_path(base: Path, p: Path) -> bool:
+    """Return True if p is under a `.bak` directory relative to base.
+
+    Only the path relative to base is inspected.  Ancestors of base that
+    happen to be named `.bak` do not cause exclusion, so a legitimate mod
+    directory named `.bak` is never skipped wholesale — only its `.bak`
+    children are excluded.
+    """
+    try:
+        rel_parts = p.relative_to(base).parts
+    except ValueError:
+        return False
+    return ".bak" in rel_parts
+
+
 @dataclass
 class ProcessResult:
     """Result of batch/single-file processing.
@@ -95,6 +110,10 @@ def backup_file(source: Path, backup_dir: Path | None = None) -> Path:
     """Copy source file to a .bak directory.
 
     If backup_dir is None, uses <source.parent>/.bak.
+    Generations: the bare name is the oldest generation, then `.1`, `.2`, ...
+    in increasing newness (first existing name wins, then suffixed copies).
+    Callers only create backups when overwriting in place
+    (`output_dir == input_dir`); a different output tree never backs up.
     Returns the path to the backup file.
     """
     if backup_dir is None:
@@ -158,6 +177,10 @@ def process_directory(
       - None to skip the file (intentional no-op)
 
     Returns a ProcessResult with counts for processed, skipped, and failed files.
+
+    `.bak` directories under input_dir are excluded from the walk (see
+    _is_backup_path).  Backups are only created when overwriting in place
+    (output_dir == input_dir).
     """
     result = ProcessResult()
 
@@ -165,7 +188,7 @@ def process_directory(
         print(f"Directory not found: {input_dir}", file=sys.stderr)
         return result
 
-    files = sorted(input_dir.rglob(pattern))
+    files = sorted(p for p in input_dir.rglob(pattern) if not _is_backup_path(input_dir, p))
 
     for src in files:
         try:

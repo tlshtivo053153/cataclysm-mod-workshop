@@ -53,6 +53,16 @@ class TestValidateSh:
         assert "OK:" in result.stdout
         assert "NG:" in result.stdout
 
+    def test_bak_dir_excluded(self, tmp_path):
+        (tmp_path / "good.json").write_text('{"a": 1}')
+        bak = tmp_path / ".bak"
+        bak.mkdir()
+        (bak / "bad.json").write_text("{bad json")
+        (bak / "modinfo.json").write_text("{bad json")
+        result = _run_sh("validate.sh", str(tmp_path))
+        assert result.returncode == 0, f"stdout: {result.stdout} stderr: {result.stderr}"
+        assert ".bak" not in result.stdout
+
 
 class TestValidateMods:
     def test_finds_mods_and_validates(self, tmp_path):
@@ -143,3 +153,19 @@ class TestValidateMods:
         result = _run_validate_mods("--base-dir", str(tmp_path / "nonexistent"))
         assert result.returncode == 1
         assert "not found" in result.stderr
+
+    def test_bak_modinfo_ignored(self, tmp_path):
+        mod_dir = tmp_path / "mymod"
+        mod_dir.mkdir(parents=True)
+        (mod_dir / "modinfo.json").write_text(
+            json.dumps([{"type": "MOD_INFO", "id": "mymod", "name": "My Mod"}])
+        )
+        bak = mod_dir / ".bak"
+        bak.mkdir()
+        (bak / "modinfo.json").write_text(
+            json.dumps([{"type": "MOD_INFO", "id": "mymod", "name": "My Mod"}])
+        )
+        result = _run_validate_mods("--base-dir", str(tmp_path))
+        assert result.returncode == 0, f"stderr: {result.stderr}"
+        assert "All 1 mod(s) passed" in result.stdout
+        assert "Duplicate mod ID" not in result.stderr

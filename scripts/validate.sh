@@ -10,7 +10,7 @@ echo "=== JSON Validation: $MOD_DIR ==="
 FILES=()
 while IFS= read -r file; do
   FILES+=("$file")
-done < <(find "$MOD_DIR" -name "*.json" 2>/dev/null || true)
+done < <(find "$MOD_DIR" -type d -name .bak -prune -o -name "*.json" -print 2>/dev/null || true)
 
 if [ "${#FILES[@]}" -eq 0 ]; then
   echo "  ERROR: No JSON files found in $MOD_DIR"

@@ -11,9 +11,22 @@ REQUIRED_MODINFO_FIELDS = {"type", "id", "name"}
 
 
 def find_mod_dirs(base_dir: Path) -> list[Path]:
-    """Find mod directories containing a modinfo.json file (recursive)."""
+    """Find mod directories containing a modinfo.json file (recursive).
+
+    `.bak` directories under base_dir are excluded so post-conversion
+    backups are not detected as separate mods (Duplicate mod ID guard).
+    Only the path relative to base_dir is inspected, mirroring
+    common._is_backup_path semantics.
+    """
+
+    def _is_backup(p: Path) -> bool:
+        try:
+            return ".bak" in p.relative_to(base_dir).parts
+        except ValueError:
+            return False
+
     mod_dirs = sorted(
-        {modinfo.parent for modinfo in base_dir.rglob("modinfo.json")},
+        {modinfo.parent for modinfo in base_dir.rglob("modinfo.json") if not _is_backup(modinfo)},
         key=str,
     )
     return mod_dirs
