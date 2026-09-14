@@ -82,7 +82,7 @@ fi
 
 if ! grep -rlq '"id"[[:space:]]*:[[:space:]]*"'"${MOD_ID}"'"' "${CDDA_DIR}"/mods/*/modinfo.json 2>/dev/null; then
     echo "Error: mod ID '${MOD_ID}' not found in ${CDDA_DIR}/mods/" >&2
-    echo "Hint: run 'bash scripts/place_mod_for_test.sh [--link] <mod_dir>' first" >&2
+    echo "Hint: run 'bash scripts/place_mod_for_test.sh <mod_dir>' first" >&2
     echo "Hint: the mod_id is the 'id' value in modinfo.json, not the directory name" >&2
     exit 1
 fi

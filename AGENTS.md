@@ -39,7 +39,7 @@ Then save the resulting diff as a patch set in `patches/`.
 
 - `bash scripts/validate.sh <mod_dir>` — JSON syntax check (Level1)
 - `bash scripts/check_mods.sh <mod_name>` — CDDA engine load check (Level2)
-- `bash scripts/place_mod_for_test.sh [--link] [--force] <mod_dir>` — Copy or symlink a mod into CDDA for testing (--force skips overwrite confirmation)
+- `bash scripts/place_mod_for_test.sh [--link|--copy] [--dry-run] [--force] <mod_dir>` — Symlink (default) or copy a mod into CDDA for testing (--force skips overwrite confirmation)
 - `.venv/bin/pytest scripts/tests/` — Run Python test suite
 - `.venv/bin/ruff check scripts/` — Lint Python code
 - `.venv/bin/mypy scripts/` — Type check Python code

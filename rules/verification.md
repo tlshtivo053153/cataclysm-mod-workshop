@@ -151,14 +151,24 @@ modは `mods/<size>/<mod_name>/` に開発し、CDDAの `--check-mods` で検証
 ### 使い方
 
 ```bash
-# symlinkで配置（推奨、ソース修正が即時反映）
-bash scripts/place_mod_for_test.sh --link mods/small/my_mod/
+# symlinkで配置（デフォルト、ソース修正が即時反映）
+bash scripts/place_mod_for_test.sh mods/small/my_mod/
 
 # コピーで配置
-bash scripts/place_mod_for_test.sh mods/small/my_mod/
+bash scripts/place_mod_for_test.sh --copy mods/small/my_mod/
+
+# 変更予定のみ表示（何も変更しない）
+bash scripts/place_mod_for_test.sh --dry-run mods/small/my_mod/
 ```
 
 既存のリンク/ディレクトリ/ファイルがあれば自動で削除してから配置し直します。
+既に同じソースへのリンクなら `Already placed` で何もせず成功します。
+
+### 運用ルール
+
+- mod のソース編集は repo の `mods/` 側で行ってください。`external/cdda/mods` の symlink 越しに変換スクリプトを実行すると repo の `mods/` を直接書き換えます。
+- 変換は repo の `mods/<mod>` を入力に実行してください（`external/cdda/mods` 経由で実行しない）。
+- 変換前に `git status --porcelain -- mods/<mod>` が空であることを確認してください。
 
 ### 非推奨の旧ラッパー
 
