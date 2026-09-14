@@ -12,6 +12,7 @@ uses ``from mapgen.<module> import ...`` (never relative ``from .`` or
 """
 
 import argparse
+import copy
 import json
 import os
 import shutil
@@ -24,6 +25,40 @@ from pathlib import Path
 from typing import Any
 
 MAX_RECURSION_DEPTH = 50
+
+
+def depth_exceeded(depth: int, script: str) -> bool:
+    """Return True if recursion depth exceeds MAX_RECURSION_DEPTH (E-3).
+
+    Warns once on stderr when depth == MAX_RECURSION_DEPTH + 1, then stays
+    silent for deeper levels. Callers return the current node unchanged
+    when this returns True.
+    """
+    if depth > MAX_RECURSION_DEPTH:
+        if depth == MAX_RECURSION_DEPTH + 1:
+            print(
+                f"Warning: max recursion depth ({MAX_RECURSION_DEPTH}) exceeded in {script}",
+                file=sys.stderr,
+            )
+        return True
+    return False
+
+
+def snapshot(data: Any) -> Any:
+    """Deep-copy JSON data for no-op comparison (E-3)."""
+    return copy.deepcopy(data)
+
+
+def is_unchanged(original: Any, current: Any) -> bool:
+    """Return True when a transform left data unchanged (E-3)."""
+    return bool(original == current)
+
+
+def noop_if_unchanged(original: Any, result: Any) -> Any | None:
+    """Return None (skip) when result equals original, else result (E-3)."""
+    if is_unchanged(original, result):
+        return None
+    return result
 
 
 def _is_backup_path(base: Path, p: Path) -> bool:

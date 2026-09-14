@@ -2,13 +2,12 @@
 """Add activity_level to all recipe objects in JSON files."""
 
 import argparse
-import copy
 import json
 import sys
 from pathlib import Path
 from typing import Any
 
-from common import run_standard_pipeline
+from common import is_unchanged, run_standard_pipeline, snapshot
 
 DEFAULT_ACTIVITY = "LIGHT_EXERCISE"
 
@@ -47,9 +46,9 @@ def add_activity_level(data: list[Any]) -> list[Any]:
 def processor(data: Any, _path: Path) -> Any | None:
     if not isinstance(data, list):
         return None
-    original = copy.deepcopy(data)
+    original = snapshot(data)
     result = add_activity_level(data)
-    if result == original:
+    if is_unchanged(original, result):
         return None
     return result
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Convert old item types to new unified ITEM type with subtypes for CDDA 0.I."""
 
-import copy
 import sys
 from pathlib import Path
 from typing import Any
 
-from common import MAX_RECURSION_DEPTH, run_standard_pipeline
+from common import depth_exceeded, noop_if_unchanged, run_standard_pipeline, snapshot
 
 TYPE_MAP = {
     "TOOL": ["TOOL"],
@@ -32,16 +31,8 @@ TYPE_MAP = {
 }
 
 
-MAX_DEPTH = MAX_RECURSION_DEPTH
-
-
 def convert_object(obj: Any, _depth: int = 0) -> Any:
-    if _depth > MAX_DEPTH:
-        if _depth == MAX_DEPTH + 1:
-            print(
-                f"Warning: max recursion depth ({MAX_DEPTH}) exceeded in convert_item_types",
-                file=sys.stderr,
-            )
+    if depth_exceeded(_depth, "convert_item_types"):
         return obj
     if not isinstance(obj, dict):
         return obj
@@ -70,14 +61,12 @@ def convert_object(obj: Any, _depth: int = 0) -> Any:
 def processor(data: Any, _path: Path) -> Any | None:
     if not isinstance(data, (list, dict)):
         return None
-    original: Any = copy.deepcopy(data)
+    original: Any = snapshot(data)
     if isinstance(data, list):
         result: Any = [convert_object(item) for item in data]
     else:
         result = convert_object(data)
-    if result == original:
-        return None
-    return result
+    return noop_if_unchanged(original, result)
 
 
 def main() -> int:

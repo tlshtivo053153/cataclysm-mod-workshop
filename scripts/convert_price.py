@@ -5,9 +5,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from common import MAX_RECURSION_DEPTH, run_standard_pipeline
-
-MAX_DEPTH = MAX_RECURSION_DEPTH
+from common import depth_exceeded, run_standard_pipeline
 
 PRICE_KEYS = frozenset({"price", "price_postapoc"})
 
@@ -58,12 +56,7 @@ def format_price(value: int) -> str:
 
 def _walk(node: Any, in_no_convert: bool, depth: int, src: Path) -> bool:
     """Recursively convert price fields in place. Returns True if changed."""
-    if depth > MAX_DEPTH:
-        if depth == MAX_DEPTH + 1:
-            print(
-                f"Warning: max recursion depth ({MAX_DEPTH}) exceeded in convert_price",
-                file=sys.stderr,
-            )
+    if depth_exceeded(depth, "convert_price"):
         return False
     changed = False
     if isinstance(node, dict):

@@ -26,7 +26,6 @@ is intentionally not console-script packaged.
 """
 
 import argparse
-import copy
 import json
 import sys
 from collections.abc import Callable
@@ -34,7 +33,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from common import MAX_RECURSION_DEPTH, run_standard_pipeline
+from common import depth_exceeded, is_unchanged, run_standard_pipeline, snapshot
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 INVALID_FIELDS_PATH = PROJECT_ROOT / "rules" / "invalid_fields.json"
@@ -110,9 +109,6 @@ def _validated_name_list(value: Any, context: str) -> set[str]:
     return set(value)
 
 
-MAX_DEPTH = MAX_RECURSION_DEPTH
-
-
 def remove_invalid_fields(obj: Any, config: InvalidFieldsConfig, _depth: int = 0) -> Any:
     """Recursively remove invalid fields from a JSON object.
 
@@ -120,12 +116,7 @@ def remove_invalid_fields(obj: Any, config: InvalidFieldsConfig, _depth: int = 0
     names are deleted only from dicts whose ``type`` string is listed for that
     field; otherwise the field is kept and a warning is emitted.
     """
-    if _depth > MAX_DEPTH:
-        if _depth == MAX_DEPTH + 1:
-            print(
-                f"Warning: max recursion depth ({MAX_DEPTH}) exceeded in remove_invalid_fields",
-                file=sys.stderr,
-            )
+    if depth_exceeded(_depth, "remove_invalid_fields"):
         return obj
     if isinstance(obj, dict):
         keys_to_remove = [k for k in obj if k in config.remove_always]
@@ -163,7 +154,7 @@ def _remove_by_type_fields(obj: dict[str, Any], config: InvalidFieldsConfig) -> 
 
 def make_processor(config: InvalidFieldsConfig) -> Callable[[Any, Path], Any | None]:
     def processor(data: Any, _path: Path) -> Any | None:
-        original = copy.deepcopy(data)
+        original = snapshot(data)
         if isinstance(data, list):
             for item in data:
                 remove_invalid_fields(item, config)
@@ -173,7 +164,7 @@ def make_processor(config: InvalidFieldsConfig) -> Callable[[Any, Path], Any | N
             return None
         # No-op files return None so process_directory skips save+backup
         # (prevents .bak generation growth on repeated runs).
-        if data == original:
+        if is_unchanged(original, data):
             return None
         return data
 

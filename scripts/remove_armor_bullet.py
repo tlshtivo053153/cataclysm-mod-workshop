@@ -1,26 +1,17 @@
 #!/usr/bin/env python3
 """Remove ARMOR_BULLET and ARMOR_BALLISTIC values from enchantment definitions."""
 
-import copy
 import sys
 from pathlib import Path
 from typing import Any
 
-from common import MAX_RECURSION_DEPTH, run_standard_pipeline
+from common import depth_exceeded, is_unchanged, run_standard_pipeline, snapshot
 
 TARGET_VALUES = {"ARMOR_BULLET", "ARMOR_BALLISTIC"}
 
 
-MAX_DEPTH = MAX_RECURSION_DEPTH
-
-
 def clean_object(obj: Any, _depth: int = 0) -> Any:
-    if _depth > MAX_DEPTH:
-        if _depth == MAX_DEPTH + 1:
-            print(
-                f"Warning: max recursion depth ({MAX_DEPTH}) exceeded in remove_armor_bullet",
-                file=sys.stderr,
-            )
+    if depth_exceeded(_depth, "remove_armor_bullet"):
         return obj
     if not isinstance(obj, dict):
         return obj
@@ -51,11 +42,11 @@ def clean_object(obj: Any, _depth: int = 0) -> Any:
 def processor(data: Any, _path: Path) -> Any | None:
     if not isinstance(data, (list, dict)):
         return None
-    original: Any = copy.deepcopy(data)
+    original: Any = snapshot(data)
     if isinstance(data, list):
         cleaned: Any = [clean_object(item) for item in data]
         cleaned = [item for item in cleaned if item is not None]
-        if cleaned == original:
+        if is_unchanged(original, cleaned):
             return None
         return cleaned
     result: Any = clean_object(data)
@@ -63,7 +54,7 @@ def processor(data: Any, _path: Path) -> Any | None:
         # Top-level dict itself matched TARGET_VALUES; nothing sensible
         # to save, so treat as skipped rather than writing null.
         return None
-    if result == original:
+    if is_unchanged(original, result):
         return None
     return result
 
