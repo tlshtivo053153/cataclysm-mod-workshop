@@ -37,13 +37,13 @@ class TestValidateSh:
         (tmp_path / "bad.json").write_text("{bad json")
         result = _run_sh("validate.sh", str(tmp_path))
         assert result.returncode == 1
-        assert "NG:" in result.stdout
+        assert "NG:" in result.stderr
 
     def test_zero_json_files_fails(self, tmp_path):
         (tmp_path / "not_json.txt").write_text("hello")
         result = _run_sh("validate.sh", str(tmp_path))
         assert result.returncode == 1
-        assert "No JSON files found" in result.stdout
+        assert "No JSON files found" in result.stderr
 
     def test_mixed_valid_invalid_reports_errors(self, tmp_path):
         (tmp_path / "good.json").write_text('{"a": 1}')
@@ -51,7 +51,7 @@ class TestValidateSh:
         result = _run_sh("validate.sh", str(tmp_path))
         assert result.returncode == 1
         assert "OK:" in result.stdout
-        assert "NG:" in result.stdout
+        assert "NG:" in result.stderr
 
     def test_bak_dir_excluded(self, tmp_path):
         (tmp_path / "good.json").write_text('{"a": 1}')
@@ -327,7 +327,7 @@ class TestValidateMods:
 
         result = _run_validate_mods("--base-dir", str(tmp_path))
         assert result.returncode == 1
-        assert "NG:" in result.stdout
+        assert "NG:" in result.stderr
 
     def test_nested_mods_found_recursively(self, tmp_path):
         for sub in ("small", "medium"):

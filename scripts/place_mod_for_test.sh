@@ -46,7 +46,7 @@ if [ "$COPY_FLAG" = true ]; then
 fi
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 [--link|--copy] [--dry-run] [--force] <path-to-mod-directory>"
+    echo "Usage: $0 [--link|--copy] [--dry-run] [--force] <path-to-mod-directory>" >&2
     exit 1
 fi
 
@@ -163,7 +163,7 @@ confirm_overwrite() {
             response=""
             read -r -p "Continue? [y/N] " response || true
         else
-            echo "Non-interactive mode: use --force to skip confirmation"
+            echo "Non-interactive mode: use --force to skip confirmation" >&2
             exit 2
         fi
         case "$response" in

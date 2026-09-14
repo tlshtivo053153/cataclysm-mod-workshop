@@ -91,7 +91,7 @@ fi
 TIMEOUT_SEC="${TIMEOUT_CANON}"
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 [--isolated] [--check-errors] [--timeout N] <mod_id>"
+    echo "Usage: $0 [--isolated] [--check-errors] [--timeout N] <mod_id>" >&2
     exit 1
 fi
 
@@ -118,12 +118,12 @@ CDDA_DIR="${PROJECT_ROOT}/external/cdda"
 # --- Prerequisites -----------------------------------------------------------
 
 if [ ! -d "${CDDA_DIR}" ]; then
-    echo "Error: CDDA directory not found: ${CDDA_DIR}"
+    echo "Error: CDDA directory not found: ${CDDA_DIR}" >&2
     exit 1
 fi
 
 if [ ! -f "${CDDA_DIR}/cataclysm-tiles" ]; then
-    echo "Error: cataclysm-tiles binary not found: ${CDDA_DIR}/cataclysm-tiles"
+    echo "Error: cataclysm-tiles binary not found: ${CDDA_DIR}/cataclysm-tiles" >&2
     exit 1
 fi
 

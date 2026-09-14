@@ -192,3 +192,18 @@ bash scripts/place_mod_for_test.sh --dry-run mods/small/my_mod/
                                                ↓
                                          エラーなし ──→ CDDA起動（Level3: 動作確認）
 ```
+
+---
+
+## Exitコード・エラー出力規約 (E-6正本)
+
+エラー・usage出力は stderr (`>&2`) に統一する。正常系の進捗 (`OK:`、`All files passed`、`Already placed` 等) および対話プロンプト (`WARNING: ...`/`Aborted.`) は stdoutのままとする。
+
+| ツール | 0 | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|---|
+| `validate.sh` | 全JSON正常 | 構文エラー/JSONなし | — | — | — |
+| `place_mod_for_test.sh` | 配置成功 (冪等・`Aborted.`含む) | usage/処理エラー (検証失敗・コピー失敗等) | 非対話で要`--force`のみ | — | — |
+| `check_mods.sh` | 通過 | usage/前提条件不備 | CDDA check失敗 | タイムアウト | `--check-errors`時のdebug.log ERROR |
+| Python CLI群 (E-1) | 成功 | 処理エラー | usage (argparse・mapgen欠損等) | — | — |
+
+`.bak` 除外は `scripts/common.py:_is_backup_path` に一本化する (base相対で `.bak` 成分を含むパスのみ除外し、baseの先祖が `.bak` でも除外しない)。`validate.sh` の `find -name .bak -prune` はそのshell等価実装、`validate_mods.py:find_mod_dirs/_iter_json_objects` は同関数を直接呼ぶ。
