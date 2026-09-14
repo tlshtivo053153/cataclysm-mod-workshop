@@ -1,6 +1,9 @@
 external/cdda/
-logs/
-benchmarks/unseen/
+# D-1: track knowledge md only; check_*.log ignored everywhere (order-sensitive, ! negations before re-ignore)
+logs/*
+!logs/*.md
+!logs/.gitkeep
+check_*.log
 *.swp
 __pycache__/
 .venv/
@@ -8,6 +11,9 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.bak
+# D-1: benchmarks/unseen .gitkeep revival (same ! pattern as logs)
+benchmarks/unseen/*
+!benchmarks/unseen/.gitkeep
 .kilo/plans/
 # Local agent/runtime (untracked, do not commit)
 .ralph/
