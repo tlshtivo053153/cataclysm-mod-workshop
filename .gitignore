@@ -11,8 +11,25 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.bak
+*.egg-info/
+build/
+dist/
+*.whl
+# Generated / local runtime (do not commit; re-created on each run).
+# NOTE: PROMPT.md / hats.yml / ralph.yml / .agents/planning/**/*.md are
+# intentionally force-tracked knowledge files (git add -f, D-1) and stay
+# tracked despite the ignore rules below. Ignore prevents *new* runtime
+# files from being added accidentally; do not `git add -f` new ones
+# without a preservation reason.
+.coverage*
+htmlcov/
+*.log
+validation-*.log
+validate-mods.log
+verify-patches.log
+.agents/
 .kilo/plans/
-# Local agent/runtime (untracked, do not commit)
+# Local agent/runtime (untracked, do not commit; see NOTE above for exceptions)
 .ralph/
 PROMPT.md
 hats.yml
