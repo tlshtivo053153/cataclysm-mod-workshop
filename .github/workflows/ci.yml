@@ -6,8 +6,18 @@ on:
   pull_request:
     branches: [main]
 
+# A-2 minimal hardening: least-privilege default + avoid stale runs.
+# NOTE: workflow_dispatch/schedule intentionally deferred to E-7 (human decision).
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python:
+    timeout-minutes: 10
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
@@ -25,6 +35,7 @@ jobs:
       - run: mypy scripts/
 
   shell:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +43,7 @@ jobs:
       - run: shellcheck scripts/*.sh
 
   validate-mods:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +53,7 @@ jobs:
       - run: python scripts/validate_mods.py
 
   verify-patches:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
