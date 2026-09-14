@@ -3,7 +3,9 @@
 Cataclysm: Dark Days Ahead（CDDA）の mod 開発・移植を効率化するためのツールキットおよびナレッジベース。
 AI エージェントを用いたハイブリッド開発ワークフローを採用し、機械的変換はスクリプトで、創造的デザインは AI で処理する。
 
-> **内部パッケージ名:** `pyproject.toml` 上は `cdda-mod-framework` として管理されている。
+> **名称対応表 (F-3正本):** GitHubリポジトリ `cataclysm-mod-workshop`（本書のタイトル・ツリー表記）／
+> pipパッケージ `cdda-mod-framework`（`pyproject.toml` 上の管理名）／作業コピーのディレクトリ名 `cdda_mod_framework`。
+> `cdda-mod-dev/` の旧表記は本書・`cdda_mod_dev_plan.md` とも使用しない。
 
 ## 主要機能
 
@@ -42,7 +44,7 @@ cataclysm-mod-workshop/
 │   ├── revert_all_translations.py   ← 翻訳差分 revert（一括）
 │   ├── summarize_debug_log.py ← debug.log 集計
 │   ├── common.py              ← 変換スクリプト共通ライブラリ
-│   ├── mapgen/                ← mapgen DSL コンパイラ（17ファイル）
+│   ├── mapgen/                ← mapgen DSL コンパイラ（18ファイル: `ls scripts/mapgen/*.py | wc -l` 実測）
 │   └── tests/                 ← テスト群
 ├── mods/
 │   ├── small/                 ← 小規模 mod（24件）
@@ -190,4 +192,4 @@ mod は事前に `place_mod_for_test.sh` で `external/cdda/mods/` に配置す�
 
 - **spec.md 未整備**: 24 mod 中 spec.md が 3 件（`combat_stim` / `bone_armor` / `hedge_magic` の新規システム3modのみ。小規模modは `rules/CORE.md` の省略条件により省略可）
 - **孤児ファイル・空ディレクトリ**: `mods/{medium,large,seen,unseen}` が実質的に空（`activity_map_magiclysm.json` は `patches/` に移動済み）
-- **ドキュメント言語の混在**: `AGENTS.md`（英語）とルール群（日本語）で言語が分かれている
+- **ドキュメント言語**: 日英併記を方針とする（F-3決定）。`AGENTS.md` は英語のエージェント入口とし、他文書（本書・`cdda_mod_dev_plan.md`・`rules/`）は日本語正本。コードのコメント・CLIメッセージ・識別子は英語

@@ -1,5 +1,10 @@
 # CDDA Mod Development Framework
 
+Naming (F-3): GitHub repo `cataclysm-mod-workshop`, pip package
+`cdda-mod-framework` (`pyproject.toml`), working-copy dir
+`cdda_mod_framework`. `README.md` uses the repo name; the package note there
+is canonical for the pip name.
+
 ## Project Overview
 
 This repository contains tools, scripts, and documentation for developing and porting mods for Cataclysm: Dark Days Ahead (CDDA).
@@ -60,20 +65,36 @@ Then save the resulting diff as a patch set in `patches/`.
 
 ## Mapgen DSL Subsystem
 
-The `scripts/mapgen/` package provides a DSL compiler for CDDA mapgen JSON:
+The `scripts/mapgen/` package provides a DSL compiler for CDDA mapgen JSON
+(18 files: `ls scripts/mapgen/*.py | wc -l`):
+- `mapgen/cli.py` — CLI entry point (`mapgen-compile`)
 - `mapgen/compiler.py` — Main compiler entry point
 - `mapgen/parser.py` — DSL parser
 - `mapgen/schema.py` — JSON schema validation
+- `mapgen/validation.py` — Map validation
 - `mapgen/grid.py` — Grid layout processing
 - `mapgen/room.py` — Room definitions
 - `mapgen/stairs.py` — Stair placement
-    
+- `mapgen/walls.py` — Wall rendering
+- `mapgen/doors.py` — Door placement
+- `mapgen/placement.py` — Furniture/monster/item placement
+- `mapgen/centering.py` — Grid centering
+- `mapgen/builder.py` — Map assembly
+- `mapgen/json_emitter.py` — JSON output
+- `mapgen/constants.py` — Shared constants
+- `mapgen/known_palettes.py` — Known palette registry (+ `palettes.json` data)
+- `mapgen/utils.py` — Shared helpers
+- `mapgen/__init__.py` — Package marker
+
 ## Rules
 
 See `rules/CORE.md` for core development rules. Additional rule files are referenced from `cdda_mod_dev_plan.md`.
 
 ## Language
 
-Project documentation is primarily in Japanese.
+Language policy (F-3, Japanese-English coexistence): `AGENTS.md` stays in
+English as the agent entry point; all other project docs (`README.md`,
+`cdda_mod_dev_plan.md`, `rules/`) are canonically Japanese. Code comments,
+CLI messages, and identifiers are English.
 
-(Last verified: 2026-07-22)
+(Last verified: 2026-09-14)

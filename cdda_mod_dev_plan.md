@@ -36,7 +36,7 @@ AIエージェントを用いてCataclysm: DDAのmodを開発し、旧mod移植�
 ## 4. ディレクトリ構成
 
 ```
-cdda-mod-dev/
+cataclysm-mod-workshop/
 ├── external/
 │   └── cdda/               ← CDDAソース（gitignore対象）
 ├── rules/                  ← ノウハウ蓄積
@@ -186,3 +186,4 @@ Level1/2/3の定義の正本は `rules/verification.md` とし、本表は概要
 | 2026-04-15 | validate.sh のサブシェルバグ修正、フェーズ2評価回数変更等 |
 | 2026-05-19 | **大幅改訂:** 統計的手法・rule_manager.py・prompt_builder.py・balance_checker.pyを削除。スクリプト優先のハイブリッドアプローチに整理。計画書を1500行→約300行に圧縮。 |
 | 2026-05-22 | **開発フロー9ステップ化:** 仕様書→レビュー→計画書→レビューの2段階設計を導入。`templates/spec_template.md` 新規作成。`rules/CORE.md` と `cdda_mod_dev_plan.md` を9ステップ形式に更新。バランス調整・小規模mod定義・AIレビュープロンプト例を追加。 |
+| 2026-09-14 | **技術的負債の是正 (PROMPT.md 計画 A〜F):** Python型付け・パイプライン統一 (B)、Level1〜3検証基盤 (C)、`.gitignore` 保全・9ステップ統一・design穴埋め (D)、exit/エラー/テスト/CI整理 (E)、shebang・ベンチマーク・表記ゆれ是正 (F)。名称対応表は `README.md` が正本、言語は日英併記 (`AGENTS.md` 英語・他日本語)、検証レベル定義の正本は `rules/verification.md`。 |
