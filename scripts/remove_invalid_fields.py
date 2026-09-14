@@ -28,6 +28,7 @@ is intentionally not console-script packaged.
 import copy
 import json
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -165,8 +166,8 @@ def _remove_by_type_fields(obj: dict[str, Any], config: InvalidFieldsConfig) -> 
             )
 
 
-def make_processor(config: InvalidFieldsConfig):
-    def processor(data, _path):
+def make_processor(config: InvalidFieldsConfig) -> Callable[[Any, Path], Any | None]:
+    def processor(data: Any, _path: Path) -> Any | None:
         original = copy.deepcopy(data)
         if isinstance(data, list):
             for item in data:
@@ -184,7 +185,7 @@ def make_processor(config: InvalidFieldsConfig):
     return processor
 
 
-def main():
+def main() -> None:
     parser = create_parser("Remove invalid JSON fields from CDDA mod files")
     args = parser.parse_args()
 

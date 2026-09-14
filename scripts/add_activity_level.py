@@ -5,6 +5,7 @@ import copy
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 from common import create_parser, process_directory, process_file, resolve_paths
 
@@ -20,7 +21,7 @@ def load_activity_config(config_path: Path) -> None:
     _activity_map.update(data)
 
 
-def add_activity_level(data: list) -> list:
+def add_activity_level(data: list[Any]) -> list[Any]:
     for obj in data:
         if not isinstance(obj, dict):
             continue
@@ -32,7 +33,7 @@ def add_activity_level(data: list) -> list:
         subcategory = obj.get("subcategory", "")
         activity = _activity_map.get(subcategory, DEFAULT_ACTIVITY)
 
-        new_obj = {}
+        new_obj: dict[str, Any] = {}
         for key, value in obj.items():
             new_obj[key] = value
             if key == "type":
@@ -42,7 +43,7 @@ def add_activity_level(data: list) -> list:
     return data
 
 
-def processor(data, _path):
+def processor(data: Any, _path: Path) -> Any | None:
     if not isinstance(data, list):
         return None
     original = copy.deepcopy(data)
@@ -52,7 +53,7 @@ def processor(data, _path):
     return result
 
 
-def main():
+def main() -> None:
     parser = create_parser("Add activity_level to recipe objects")
     parser.add_argument(
         "--config",

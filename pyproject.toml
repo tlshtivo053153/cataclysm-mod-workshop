@@ -98,15 +98,7 @@ module = "convert_item_types"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = "add_activity_level"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
 module = "remove_armor_bullet"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "remove_invalid_fields"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
