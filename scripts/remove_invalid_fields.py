@@ -25,6 +25,7 @@ This script is repo-execution only: it reads ``PROJECT_ROOT/rules/...``, so it
 is intentionally not console-script packaged.
 """
 
+import argparse
 import copy
 import json
 import sys
@@ -33,13 +34,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from common import (
-    MAX_RECURSION_DEPTH,
-    create_parser,
-    process_directory,
-    process_file,
-    resolve_paths,
-)
+from common import MAX_RECURSION_DEPTH, run_standard_pipeline
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 INVALID_FIELDS_PATH = PROJECT_ROOT / "rules" / "invalid_fields.json"
@@ -186,35 +181,33 @@ def make_processor(config: InvalidFieldsConfig) -> Callable[[Any, Path], Any | N
 
 
 def main() -> None:
-    parser = create_parser("Remove invalid JSON fields from CDDA mod files")
-    args = parser.parse_args()
+    # Config is loaded in the setup hook (after parse_args) so --help
+    # works even when the rules file is missing. The dispatch processor
+    # delegates to the setup-built processor stored in state.
+    state: dict[str, Callable[[Any, Path], Any | None]] = {}
 
-    if not INVALID_FIELDS_PATH.exists():
-        print(f"Invalid fields list not found: {INVALID_FIELDS_PATH}", file=sys.stderr)
-        sys.exit(1)
+    def _setup(_args: argparse.Namespace) -> None:
+        if not INVALID_FIELDS_PATH.exists():
+            print(f"Invalid fields list not found: {INVALID_FIELDS_PATH}", file=sys.stderr)
+            sys.exit(1)
 
-    try:
-        config = load_invalid_fields()
-    except (OSError, ValueError) as e:
-        # Note: json.JSONDecodeError subclasses ValueError, so malformed JSON
-        # is covered here as well.
-        print(f"Invalid fields list error: {e}", file=sys.stderr)
-        sys.exit(1)
-    input_path, output_path = resolve_paths(args)
+        try:
+            config = load_invalid_fields()
+        except (OSError, ValueError) as e:
+            # Note: json.JSONDecodeError subclasses ValueError, so malformed JSON
+            # is covered here as well.
+            print(f"Invalid fields list error: {e}", file=sys.stderr)
+            sys.exit(1)
+        state["processor"] = make_processor(config)
 
-    if input_path.is_dir():
-        result = process_directory(
-            input_path, output_path, make_processor(config), backup=args.backup
-        )
-    else:
-        result = process_file(input_path, output_path, make_processor(config), backup=args.backup)
+    def _processor(data: Any, path: Path) -> Any | None:
+        return state["processor"](data, path)
 
-    print(
-        f"Updated {result.processed} files, skipped {result.skipped}, " f"failed {result.failed}."
+    run_standard_pipeline(
+        "Remove invalid JSON fields from CDDA mod files",
+        _processor,
+        setup=_setup,
     )
-
-    if result.has_errors:
-        sys.exit(1)
 
 
 if __name__ == "__main__":

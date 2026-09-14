@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Add activity_level to all recipe objects in JSON files."""
 
+import argparse
 import copy
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
-from common import create_parser, process_directory, process_file, resolve_paths
+from common import run_standard_pipeline
 
 DEFAULT_ACTIVITY = "LIGHT_EXERCISE"
 
@@ -53,8 +53,7 @@ def processor(data: Any, _path: Path) -> Any | None:
     return result
 
 
-def main() -> None:
-    parser = create_parser("Add activity_level to recipe objects")
+def _configure(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--config",
         "-c",
@@ -62,24 +61,20 @@ def main() -> None:
         default=None,
         help="JSON file mapping subcategory to activity_level",
     )
-    args = parser.parse_args()
 
+
+def _setup(args: argparse.Namespace) -> None:
     if args.config:
         load_activity_config(args.config)
 
-    input_path, output_path = resolve_paths(args)
 
-    if input_path.is_dir():
-        result = process_directory(input_path, output_path, processor, backup=args.backup)
-    else:
-        result = process_file(input_path, output_path, processor, backup=args.backup)
-
-    print(
-        f"Updated {result.processed} files, skipped {result.skipped}, " f"failed {result.failed}."
+def main() -> None:
+    run_standard_pipeline(
+        "Add activity_level to recipe objects",
+        processor,
+        configure=_configure,
+        setup=_setup,
     )
-
-    if result.has_errors:
-        sys.exit(1)
 
 
 if __name__ == "__main__":

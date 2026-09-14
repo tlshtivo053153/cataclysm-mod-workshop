@@ -78,8 +78,19 @@ def revert_translation_field(value: Any) -> Any:
     return value
 
 
-def create_parser(description: str) -> argparse.ArgumentParser:
-    """Create a standard ArgumentParser with --input, --output, and --backup."""
+def create_parser(
+    description: str,
+    configure: Callable[[argparse.ArgumentParser], None] | None = None,
+) -> argparse.ArgumentParser:
+    """Create a standard ArgumentParser with --input, --output, and --backup.
+
+    Args:
+        description: Help text shown for the script.
+        configure: Optional hook to register script-specific options
+            (e.g. add_activity_level --config). Called with the parser
+            before it is returned so ``--help`` lists standard options
+            first and extra options last.
+    """
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--input",
@@ -108,6 +119,8 @@ def create_parser(description: str) -> argparse.ArgumentParser:
         action="store_false",
         help="Disable backup creation",
     )
+    if configure is not None:
+        configure(parser)
     return parser
 
 
@@ -331,7 +344,11 @@ def process_file(
 
 
 def run_standard_pipeline(
-    description: str, processor: Callable[..., Any], copy_unchanged: bool = False
+    description: str,
+    processor: Callable[..., Any],
+    copy_unchanged: bool = False,
+    configure: Callable[[argparse.ArgumentParser], None] | None = None,
+    setup: Callable[[argparse.Namespace], None] | None = None,
 ) -> None:
     """Run a standard input/output pipeline for a transformation script.
 
@@ -340,14 +357,35 @@ def run_standard_pipeline(
     is a directory or a single file.
 
     Single-file input with an existing directory as output is saved as
-    <output_dir>/<input_name> (legacy convert_price contract).
+    <output_dir>/<input_name> (legacy convert_price contract). All
+    run_standard_pipeline users share this rescue; do not reimplement
+    per-script dispatch.
+
+    Args:
+        description: Help text for --help.
+        processor: (data, path) -> transformed data or None (skip).
+        copy_unchanged: Forward to process_directory() for `-o <other-dir>`
+            full-copy needs (convert_price=True, others False).
+        configure: Optional create_parser hook for script-specific options.
+        setup: Optional hook run after parse_args (e.g. load --config).
 
     Exit codes:
         0 - all files processed successfully (including intentional skips)
         1 - one or more files failed processing
+
+    Divergence note (mapgen/cli.py stays separate): the mapgen DSL compiler
+    does not use this pipeline because its inputs are YAML (not JSON),
+    it supports --mod-dir batch mode with a fixed data/mapgen output tree,
+    --check-only (validate without writing), --palette-dir/--explain, and
+    exit 2 for usage errors (missing input/DSL dir) vs exit 1 for
+    processing errors. It shares only backup_file()/save_json() with this
+    module. Keep this divergence intentional; do not force mapgen onto
+    the JSON directory/file pipeline.
     """
-    parser = create_parser(description)
+    parser = create_parser(description, configure=configure)
     args = parser.parse_args()
+    if setup is not None:
+        setup(args)
     input_path, output_path = resolve_paths(args)
 
     if input_path.is_dir():
