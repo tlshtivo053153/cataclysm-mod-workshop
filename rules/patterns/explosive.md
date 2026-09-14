@@ -205,7 +205,7 @@ CDDAに新規のカウントダウン式爆発物・ノイズメーカー（TOOL
 ## 検証手順
 
 1. `bash scripts/validate.sh <mod_dir>` — JSON構文チェック（Level1）
-2. `bash scripts/link_mod_for_test.sh <mod_dir>` — CDDAに配置
+2. `bash scripts/place_mod_for_test.sh <mod_dir>` — CDDAに配置
 3. `bash scripts/check_mods.sh <mod_id>` — ゲーム読み込みチェック（Level2）
 4. CDDA起動 → デバッグメニューで以下確認（Level3）:
    - アイテムスポーン・クラフト可否

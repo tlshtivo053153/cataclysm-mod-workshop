@@ -332,7 +332,7 @@ grep -r '"id": "mon_zombie_scrap"' external/cdda/data/json/
 ## テスト手順
 
 1. **Level1**: `bash scripts/validate.sh <mod_dir>` — JSON構文チェック
-2. **Level2**: `bash scripts/link_mod_for_test.sh <mod_dir>` + `bash scripts/check_mods.sh <mod_id>` — CDDAロードチェック
+2. **Level2**: `bash scripts/place_mod_for_test.sh <mod_dir>` + `bash scripts/check_mods.sh <mod_id>` — CDDAロードチェック
 3. **Level3**: ゲーム内デバッグメニューで以下を確認
    - Spawn Monster → 全モンスターがスポーン可能か
    - 戦闘で装甲・ダメージが期待通りか

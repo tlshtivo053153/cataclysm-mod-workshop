@@ -48,7 +48,7 @@ cataclysm-mod-workshop/
 ├── scripts/                ← 自動化スクリプト
 │   ├── validate.sh         ← JSON構文チェック
 │   ├── check_mods.sh       ← mod確認補助
-│   ├── place_mod_for_test.sh   ← mod配置（テスト用、--linkでsymlink）
+│   ├── place_mod_for_test.sh   ← mod配置（テスト用、デフォルトsymlink）
 │   ├── convert_item_types.py   ← 旧mod移植: アイテムタイプ変換
 │   ├── add_activity_level.py   ← 旧mod移植: activity_level追加
 │   ├── remove_invalid_fields.py ← 旧mod移植: 無効フィールド削除
@@ -81,7 +81,7 @@ cataclysm-mod-workshop/
   - ベースライン: `external/cdda/mods/` 内の旧バージョン（`.gitignore` 対象）
   - パッチ格納先: `patches/<mod_name>_<from>_<to>/`
   - パッチは順次適用を前提とし、`README.md` で適用順序と手順を明記する
-- **テスト時:** `scripts/place_mod_for_test.sh [--link]` を使用し、パッチ適用後のディレクトリを `external/cdda/mods/` へ一時的に反映する
+- **テスト時:** `scripts/place_mod_for_test.sh`（デフォルトsymlink）を使用し、パッチ適用後のディレクトリを `external/cdda/mods/` へ一時的に反映する
 
 ## 5. 作業フロー
 
@@ -104,7 +104,7 @@ Step 6: AIエージェントで実装
   └── modinfo.json, data/*.json
   └── 編集のたびに validate.sh（Level1）
 Step 7: 読み込みエラー解消（Level2）
-  └── place_mod_for_test.sh --link → check_mods.sh
+  └── place_mod_for_test.sh → check_mods.sh（デフォルトsymlink）
 Step 8: 動作確認（Level3）
   └── CDDA起動、デバッグメニューでスポーン・クラフト確認
 Step 9: バランス調整

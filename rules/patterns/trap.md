@@ -173,7 +173,7 @@ JSON の `drops` フィールドや `vehicle_data` では上書きできない�
 ## 検証手順
 
 1. `bash scripts/validate.sh <mod_dir>` — JSON構文チェック
-2. `bash scripts/link_mod_for_test.sh <mod_dir>` — CDDAに配置
+2. `bash scripts/place_mod_for_test.sh <mod_dir>` — CDDAに配置
 3. `bash scripts/check_mods.sh <mod_id>` — ゲーム読み込みチェック
 4. CDDA起動 → デバッグメニューでアイテムスポーン → 設置 → 発動確認
 

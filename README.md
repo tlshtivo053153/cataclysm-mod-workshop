@@ -5,7 +5,7 @@ AI エージェントを用いたハイブリッド開発ワークフローを�
 
 > **名称対応表 (F-3正本):** GitHubリポジトリ `cataclysm-mod-workshop`（本書のタイトル・ツリー表記）／
 > pipパッケージ `cdda-mod-framework`（`pyproject.toml` 上の管理名）／作業コピーのディレクトリ名 `cdda_mod_framework`。
-> `cdda-mod-dev/` の旧表記は本書・`cdda_mod_dev_plan.md` とも使用しない。
+> `cdda-mod-dev/` の旧表記は本書・`cdda_mod_dev_plan.md` とも使用しない（ただし計画書ファイル名 `cdda_mod_dev_plan.md` 自体は歴史的理由で維持）。
 
 ## 主要機能
 
@@ -33,7 +33,7 @@ cataclysm-mod-workshop/
 ├── scripts/                   ← 自動化スクリプト
 │   ├── validate.sh            ← JSON 構文チェック
 │   ├── check_mods.sh          ← CDDA エンジン読み込みチェック
-│   ├── place_mod_for_test.sh  ← mod 配置（統合版、--link/--copy）
+│   ├── place_mod_for_test.sh  ← mod 配置（統合版、デフォルトsymlink）
 │   ├── setup_venv.sh          ← Python 仮想環境セットアップ
 │   ├── convert_item_types.py  ← アイテムタイプ統合
 │   ├── add_activity_level.py  ← activity_level 追加
@@ -43,6 +43,9 @@ cataclysm-mod-workshop/
 │   ├── revert_translation_errors.py ← 翻訳差分 revert（個別）
 │   ├── revert_all_translations.py   ← 翻訳差分 revert（一括）
 │   ├── summarize_debug_log.py ← debug.log 集計
+│   ├── validate_mods.py       ← 全mod一括検証（CI用）
+│   ├── verify_patches.py      ← パッチセット検証
+│   ├── mapgen_compiler.py     ← mapgen DSL旧エントリ（`mapgen.cli`への委譲）
 │   ├── common.py              ← 変換スクリプト共通ライブラリ
 │   ├── mapgen/                ← mapgen DSL コンパイラ（18ファイル: `ls scripts/mapgen/*.py | wc -l` 実測）
 │   └── tests/                 ← テスト群
@@ -110,7 +113,7 @@ source .venv/bin/activate
 | 8 | 動作確認（Level3） | CDDA 手動起動 |
 | 9 | バランス調整 | 既存コンテンツとの比較 |
 
-Step 1・2 は、新規定義 ID が 5 個以下で `copy-from` のみの小規模 mod では省略可能。
+Step 1・2 は、以下すべてを満たす小規模 mod のみ省略可能（正本: `rules/CORE.md`）。新規定義 ID が 5 個以下（modinfo.json 除く）、既存タイプの `copy-from` のみ（新規 `type` 定義なし）、既存システムの拡張のみ（新規ゲームシステム・マップジェネレータ・NPC行動ロジック等を追加しない）、既存の同カテゴリアイテムから明確に派生したもの。
 
 ### Step 6〜9 のコマンド例
 
@@ -118,8 +121,8 @@ Step 1・2 は、新規定義 ID が 5 個以下で `copy-from` のみの小規�
 # 実装中は編集のたびに Level1 チェック
 bash scripts/validate.sh mods/small/my_mod/
 
-# 機能完成時に mod を CDDA に配置（symlink 推奨）
-bash scripts/place_mod_for_test.sh --link mods/small/my_mod/
+# 機能完成時に mod を CDDA に配置（symlink がデフォルト。--link 明示も可）
+bash scripts/place_mod_for_test.sh mods/small/my_mod/
 
 # Level2: CDDA エンジン読み込みチェック
 bash scripts/check_mods.sh my_mod
@@ -148,7 +151,7 @@ cat external/cdda/config/debug.log | grep ERROR
 6. 変更差分を patches/<mod_name>_<from>_<to>/ にパッチ形式で保存
 ```
 
-各変換スクリプトの適用順序と対応関係は `patches/` 配下の `README.md` に記載する。
+各変換スクリプトの適用順序と対応関係は各パッチセット直下の `README.md`（`patches/<mod_name>_<from>_<to>/README.md`）に記載する。
 実例として `patches/Magiclysm_with_Random_Dungeons_0G_to_0I/` を参照。
 
 ## 検証
@@ -164,7 +167,7 @@ cat external/cdda/config/debug.log | grep ERROR
 ### 検証フロー
 
 ```
-編集 → validate.sh（Level1）→ place_mod_for_test.sh --link → check_mods.sh（Level2）
+編集 → validate.sh（Level1）→ place_mod_for_test.sh → check_mods.sh（Level2）
                                                               ↓
                                                         debug.log 確認
                                                               ↓

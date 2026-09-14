@@ -32,7 +32,7 @@
 - **解決策:** `condition` 内では `{ "math": [ "u_var == value" ] }` 形式を使用する。
   - 誤: `"condition": { "u_has_var": "wm_can_melee" }`
   - 正: `"condition": { "math": [ "u_wm_can_melee == 1" ] }`
-- **参照:** `rules/patterns/eoc.md` の「推奨パターン: talk_topic response の condition で動的フィルタリング」
+- **参照:** `rules/patterns/eoc.md` の「推奨パターン: talk_topic response の `condition` で動的フィルタリング + 単一トピック + trial 判定」
 
 ### talk_topic response で `topic` 省略時に effect が実行されない
 - **現象:** response の `topic` を省略すると、`effect` 配列内の `set_string_var`、`u_message`、`open_dialogue` 等がすべて**無視**され、親トピックに戻る。エラーメッセージは出ない（サイレント失敗）。
@@ -40,7 +40,7 @@
 - **解決策:** response には必ず `"topic"` を明示する。`open_dialogue` で新規会話を開く場合も、元の会話を維持するために `"topic"` で戻り先を指定すること。
   - 誤: `"topic"` 省略 → effect 未実行
   - 正: `"topic": "TALK_CURRENT_MENU"` 等で明示的に戻り先を指定
-- **参照:** `rules/patterns/eoc.md` の「talk_topic response effect 内の open_dialogue と context_val の制約」
+- **参照:** `rules/patterns/eoc.md` の「talk_topic response effect 内の `open_dialogue` と context_val の制約」
 
 ---
 
@@ -53,54 +53,54 @@
 - **解決策:** recipe オブジェクトに `"activity_level"` を追加する
 - **有効な値:** `"NO_EXERCISE"`, `"LIGHT_EXERCISE"`, `"BRISK_EXERCISE"`, `"MODERATE_EXERCISE"`, `"ACTIVE_EXERCISE"`
 - **一括変換スクリプト:** `scripts/add_activity_level.py`
-- **詳細:** [`version_diff.md#recipe-activity_level`](version_diff.md)
+- **詳細:** [`version_diff.md#recipe-activity_level`](version_diff.md#recipe-activity_level)
 
 ### `Invalid or misplaced field name "traits" in JSON data` (field_type)
 - **解決策:** `"immunity_data": { "traits": ["XXX"] }` → `"immunity_data": { "flags": ["XXX"] }`
-- **詳細:** [`version_diff.md#field_type`](version_diff.md)
+- **詳細:** [`version_diff.md#field_type`](version_diff.md#field_type)
 
 ### `Invalid or misplaced field name "convection_temperature_mod"` (field_type)
 - **解決策:** `intensity_levels` 内の `effects` 配列から外し、同じレベルオブジェクトの兄弟要素として配置する
-- **詳細:** [`version_diff.md#field_type`](version_diff.md)
+- **詳細:** [`version_diff.md#field_type`](version_diff.md#field_type)
 
 ### `Invalid or misplaced field name "dangerous" / "translucency" / "effects"` (field_type)
 - **解決策:** これらのフィールドを `intensity_levels` 配列内の各レベルオブジェクトに移動する
-- **詳細:** [`version_diff.md#field_type`](version_diff.md)
+- **詳細:** [`version_diff.md#field_type`](version_diff.md#field_type)
 
 ### `bound_reader failed to read value` / `price`
 - **解決策:** 数値を通貨文字列に変換する
 - **例:** `"price": 150` → `"price": "1 USD 50 cent"`
 - **一括変換スクリプト:** `scripts/convert_price.py`
-- **詳細:** [`version_diff.md#price`](version_diff.md)
+- **詳細:** [`version_diff.md#price`](version_diff.md#price)
 
 ### `unrecognized JSON object` / `type: "AMMO"`
 - **解決策:** `"type": "AMMO"` → `"type": "ITEM", "subtypes": ["AMMO"]`
 - **対象タイプ:** `AMMO`, `GUN`, `ARMOR`, `TOOL`, `TOOLMOD`, `TOOL_ARMOR`, `BOOK`, `COMESTIBLE`, `ENGINE`, `WHEEL`, `GUNMOD`, `MAGAZINE`, `GENERIC`, `BIONIC_ITEM` 等
 - **一括変換スクリプト:** `scripts/convert_item_types.py`
-- **詳細:** [`version_diff.md#ammo-type`](version_diff.md)
+- **詳細:** [`version_diff.md#ammo-type`](version_diff.md#ammo-type)
 
 ### `Invalid enum string 'ARMOR_BALLISTIC'`
 - **解決策:** `ARMOR_BALLISTIC`, `ARMOR_ACID`, `ARMOR_BASH`, `ARMOR_BIO`, `ARMOR_STAB`, `ARMOR_HEAT`, `ARMOR_ELEC`, `ARMOR_CUT`, `ARMOR_COLD` 等を enchantment 定義から削除する
 - **一括削除スクリプト:** `scripts/remove_armor_bullet.py`
-- **詳細:** [`version_diff.md#armor-ballistic`](version_diff.md)
+- **詳細:** [`version_diff.md#armor-ballistic`](version_diff.md#armor-ballistic)
 
 ### `Name is not an object` / `str_sp not supported`
-- **解決策 (0.I RC, `rules/CORE.md#name-フィールド形式` に準拠):**
+- **解決策 (0.I RC, `rules/CORE.md`「name フィールド形式（0.I RC）」節に準拠):**
   - `ARMOR` / `TOOL` / `GUN` / `GUNMOD` / `MAGAZINE` / `BIONIC_ITEM` / `SPELL` → `{"str": "名称"}` が基本（自動生成可能な単数形。可算名詞のinjector等もこちら）
   - `COMESTIBLE` / `FOOD` / `DRINK` → `{"str_sp": "名称"}` が基本（単複同形・不可算寄り）。ただし可算の医薬品等で `{"str": "..."}` も可（親 `adrenaline_injector` は `str` 形式）
   - 自動生成できない語（cuirass等）→ `{"str": "...", "str_pl": "..."}`、`pair of ...` は `str_pl` 必須
   - `MONSTER` → `{"str": "名称"}`（バニラで支配的な形式）。一部モンスターでは `{"str_sp": "..."}` も使用可
   - `overmap_terrain`, `mutation`, `profession` 等 → 単純文字列が必須
-- **詳細:** [`version_diff.md#name-format`](version_diff.md)
+- **詳細:** [`version_diff.md#name-format`](version_diff.md#name-format)
 
 ### `missing mandatory member "see_cost"`
 - **解決策:** `overmap_terrain` オブジェクトに `"see_cost"` を追加する
 - **有効値:** `"none"`, `"low"`, `"medium"`, `"high"`
-- **詳細:** [`version_diff.md#see_cost`](version_diff.md)
+- **詳細:** [`version_diff.md#see_cost`](version_diff.md#see_cost)
 
 ### `Invalid or misplaced field name "compare_int"`
 - **解決策:** EOC 条件から `compare_int` を削除する
-- **詳細:** [`version_diff.md#eoc`](version_diff.md)
+- **詳細:** [`version_diff.md#eoc`](version_diff.md#eoc)
 
 ### `open_dialogue` の書式エラー（EOC）
 
@@ -109,7 +109,7 @@
 - **解決策:** `"open_dialogue"` の値は **`topic` キーを持つオブジェクト**で指定する
   - 誤: `{ "open_dialogue": "TALK_MY_DIALOGUE" }`
   - 正: `{ "open_dialogue": { "topic": "TALK_MY_DIALOGUE" } }`
-- **参照:** `rules/patterns/eoc.md#open_dialogue-の構文`
+- **参照:** `rules/patterns/eoc.md` の「`open_dialogue` の構文」節
 
 ### `clamp()` の `lo > hi` による未定義動作・クラッシュリスク
 
@@ -138,17 +138,17 @@
 - **解決策:** 配列形式からオブジェクト形式へ変更
   - 旧: `[{"monster": "zombie", "probability": 10}]`
   - 新: `{"zombie": 10}`
-- **詳細:** [`version_diff.md#rot_spawn`](version_diff.md)
+- **詳細:** [`version_diff.md#rot_spawn`](version_diff.md#rot_spawn)
 
 ### `json_flag` 未定義エラー
 - **解決策:** カスタムフラグを `type: "json_flag"` で定義した JSON ファイルを mod に追加する
-- **詳細:** [`version_diff.md#json_flag`](version_diff.md)
+- **詳細:** [`version_diff.md#json_flag`](version_diff.md#json_flag)
 
 ### volume/weight の値が不正
 - **解決策:** 数値から文字列形式に変換する
   - 旧: `"volume": 3`, `"weight": 500`
   - 新: `"volume": "750 ml"`, `"weight": "500 g"`
-- **詳細:** [`version_diff.md#単位の文字列化`](version_diff.md)
+- **詳細:** [`version_diff.md#unit-string`](version_diff.md#unit-string)
 
 ### `charges expected but not defined or <= 0`
 - **原因:** `phase: liquid` の液体アイテム等、`charges` を必要とするアイテムで `charges` が定義されていないか、値が0以下になっている
@@ -193,6 +193,7 @@
   - 例: `"Hulk. High"` → `"Hulk.  High"`
   - 例: `"CLANK! CLANK!"` → `"CLANK!  CLANK!"`
 - **注意:** 日本語テキストには適用されない。英文のみが検査される
+- **詳細:** [`version_diff.md#text-style`](version_diff.md#text-style)
 
 ### `vehicle part X is not CARGO and cannot define size`
 - **原因:** `vehicle_part` に `size` フィールドがあるが `CARGO` フラグが付いていない

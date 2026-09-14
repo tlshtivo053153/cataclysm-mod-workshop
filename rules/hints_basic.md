@@ -58,7 +58,7 @@ CORE.md を読んだ後にこのファイルを読んでください。
   - `cataclysm-tiles` を直接実行した場合に発生することがある。その場合は `external/cdda/config/flexcache` を削除して再実行
 
 ### check_mods.sh 実行後の debug.log
-`scripts/check_mods.sh` は実行前に `config/debug.log` をクリアします。
+`scripts/check_mods.sh` は実行前に `external/cdda/config/debug.log` をクリアします。
 そのため、実行後の `external/cdda/config/debug.log` の内容は**すべてそのセッションのエラー**です。
 以下で最新セッションのERROR行だけ確認できます:
 
@@ -77,7 +77,7 @@ cat external/cdda/config/debug.log | grep ERROR
 - [ ] `"tools"` に `surface_heat` を使う場合、`["surface_heat", N, "LIST"]` 形式になっているか（`"C"` は無効）
 - [ ] 同カテゴリ・同傾向の既存レシピを `external/cdda/data/json/recipes/` から1〜2個見つけ、`tools`・`qualities`・`components`・`difficulty`・`time` の設定を比較したか
 - [ ] `scripts/validate.sh` を実行して構文エラーがないか
-- [ ] `scripts/place_mod_for_test.sh --link` で mod を `external/cdda/mods/` に配置済みか
+- [ ] `scripts/place_mod_for_test.sh` で mod を `external/cdda/mods/` に配置済みか（デフォルトsymlink）
 - [ ] `subcategory` が `"CSC_*_NESTED"` の場合、`type: "nested_category"` を定義し、`nested_category_data` にレシピIDを列挙しているか（詳細: `rules/patterns/recipe_nested.md`）
 - [ ] `scripts/check_mods.sh <mod_id>` で CDDA 組み込みチェックを実行済みか（`mod_id` は `modinfo.json` の `"id"` 値）
 

@@ -61,10 +61,10 @@
 - 編集のたびに `bash scripts/validate.sh <mod_dir>` を実行（Level1）
 - 実装中に計画書から逸脱する場合は、都度計画書を更新する
 - **チェックリスト:**
-  - [ ] 表示テキスト（`u_message`, talk_topic の `text` / `dynamic_line`）内の比較演算子 `<` `>` を全角 `＜` `＞` に変換したか（`rules/common_errors.md` の「表示テキスト内の `＜` `＞` による Bad tag エラー」参照）。`<u_val:...>` 等の正当なタグは半角のまま維持すること
+  - [ ] 表示テキスト（`u_message`, talk_topic の `text` / `dynamic_line`）内の比較演算子 `<` `>` を全角 `＜` `＞` に変換したか（`rules/common_errors.md` の「表示テキスト内の `＜` `＞` による `Bad tag` エラー・テキスト途切れ」参照）。`<u_val:...>` 等の正当なタグは半角のまま維持すること
 
 ### Step 7: 読み込みエラー解消（Level2）
-- `bash scripts/place_mod_for_test.sh --link <mod_dir>` でCDDAに配置
+- `bash scripts/place_mod_for_test.sh <mod_dir>` でCDDAに配置（デフォルトsymlink。--link 明示も可）
 - `scripts/check_mods.sh <mod_id>` でmod読み込みチェック
 - エラーが出ない状態にする
 - 詳細は `rules/verification.md` 参照

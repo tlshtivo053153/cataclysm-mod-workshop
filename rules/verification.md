@@ -71,8 +71,8 @@ python scripts/validate_mods.py --quiet
 # Step 1: JSON構文チェック（Level1）
 bash scripts/validate.sh mods/small/my_mod/
 
-# Step 2: modをCDDAのmods/に配置（symlink推奨）
-bash scripts/place_mod_for_test.sh --link mods/small/my_mod/
+# Step 2: modをCDDAのmods/に配置（デフォルトsymlink。--link 明示も可）
+bash scripts/place_mod_for_test.sh mods/small/my_mod/
 
 # Step 3: mod_idを確認
 cat mods/small/my_mod/modinfo.json | grep '"id"'
@@ -154,7 +154,7 @@ modは `mods/<size>/<mod_name>/` に開発し、CDDAの `--check-mods` で検証
 ### 使い方
 
 ```bash
-# symlinkで配置（デフォルト、ソース修正が即時反映）
+# symlinkで配置（デフォルト。--link 明示も可。ソース修正が即時反映）
 bash scripts/place_mod_for_test.sh mods/small/my_mod/
 
 # コピーで配置
@@ -164,7 +164,7 @@ bash scripts/place_mod_for_test.sh --copy mods/small/my_mod/
 bash scripts/place_mod_for_test.sh --dry-run mods/small/my_mod/
 ```
 
-既存のリンク/ディレクトリ/ファイルがあれば自動で削除してから配置し直します。
+既存のリンク/ディレクトリ/ファイルがあれば確認の上で削除してから配置し直します（対話時はプロンプト、非対話時は exit 2 で `--force` を要求）。
 既に同じソースへのリンクなら `Already placed` で何もせず成功します。
 
 ### 運用ルール
@@ -172,10 +172,11 @@ bash scripts/place_mod_for_test.sh --dry-run mods/small/my_mod/
 - mod のソース編集は repo の `mods/` 側で行ってください。`external/cdda/mods` の symlink 越しに変換スクリプトを実行すると repo の `mods/` を直接書き換えます。
 - 変換は repo の `mods/<mod>` を入力に実行してください（`external/cdda/mods` 経由で実行しない）。
 - 変換前に `git status --porcelain -- mods/<mod>` が空であることを確認してください。
+- 上書き配置は不可逆です（`--force` は確認なしに DEST を削除）。既存配置がある場合は先に `--dry-run` で計画を確認してください。
 
 ### 非推奨の旧ラッパー
 
-`link_mod_for_test.sh` と `copy_mod_for_test.sh` は `place_mod_for_test.sh` に統合されました。旧ラッパーは下位互換性のために残されていますが、新規の利用は推奨しません。2026-12-31以降に削除予定です。
+`link_mod_for_test.sh` と `copy_mod_for_test.sh` は `place_mod_for_test.sh` に統合されました。旧ラッパーは下位互換性のために残されていますが、新規の利用は推奨しません。2026-12-31に削除予定です（ラッパー側の表記も同一）。
 
 ---
 
@@ -210,3 +211,11 @@ bash scripts/place_mod_for_test.sh --dry-run mods/small/my_mod/
 | Python CLI群 (E-1) | 成功 | 処理エラー | usage (argparse・mapgen欠損等) | — | — |
 
 `.bak` 除外は `scripts/common.py:_is_backup_path` に一本化する (base相対で `.bak` 成分を含むパスのみ除外し、baseの先祖が `.bak` でも除外しない)。`validate.sh` の `find -name .bak -prune` はそのshell等価実装、`validate_mods.py:find_mod_dirs/_iter_json_objects` は同関数を直接呼ぶ。
+
+## 移行メモ (2026-09-14 破壊的変更)
+
+- デフォルトsymlink化 (`place_mod_for_test.sh`): デフォルトがコピー→symlinkに反転。symlink越しの変換は repo 直書きになるため運用ルール (上記) を確認すること。
+- mod配置の厳格化: ソースに `modinfo.json` がない場合は配置を拒否 (exit 1)。modディレクトリ自体 (modinfo.json を含む層) を指定すること。
+- exit/stderr契約 (E-1/E-6): Python CLIは `main() -> int + sys.exit` に統一 (import利用は戻り値判定に移行)。`validate.sh` のNG系・`place` の非対話要`--force` (exit 2) は stdoutパーサを壊すため `2>&1` 合流や `exit==1` 判定を見直すこと。`summarize_debug_log.py --top` 負数は usage として exit 2、`--top 0` は human出力のみ `No errors shown (top=0; N group(s) hidden)` を返し (jsonは `[]`)、空結果は human `No errors found.` (jsonは `[]`)。
+- 旧ラッパー廃止予告 (E-5): `link_mod_for_test.sh` / `copy_mod_for_test.sh` は `place_mod_for_test.sh` (デフォルトsymlink、`--copy` でコピー) に置換。2026-12-31に削除予定（上記「非推奨の旧ラッパー」節と同一）。
+- Linux/CI専用化 (F-1): `place_mod_for_test.sh` はGNU coreutils必須。macOSでは `grealpath` 等の代替かLinux環境を用意すること。

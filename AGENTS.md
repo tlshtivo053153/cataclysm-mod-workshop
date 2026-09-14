@@ -3,7 +3,8 @@
 Naming (F-3): GitHub repo `cataclysm-mod-workshop`, pip package
 `cdda-mod-framework` (`pyproject.toml`), working-copy dir
 `cdda_mod_framework`. `README.md` uses the repo name; the package note there
-is canonical for the pip name.
+is canonical for the pip name. (The plan file `cdda_mod_dev_plan.md` keeps its
+historic name for the same reason noted in `README.md`.)
 
 ## Project Overview
 
@@ -39,7 +40,7 @@ New mod development follows the 9-step workflow. `rules/CORE.md` is canonical;
 Small-mod exemption (Steps 1–2 skippable only if ALL hold): 5 or fewer new
 game IDs (excluding modinfo.json), `copy-from` only with no new `type`
 definitions, extension of an existing system only (no new game systems,
-mapgen, or NPC logic), clearly derived from an existing same-category item.
+mapgen, NPC logic, etc.), clearly derived from an existing same-category item.
 
 ## Old Mod Porting
 
@@ -58,7 +59,7 @@ Then save the resulting diff as a patch set in `patches/`.
 
 - `bash scripts/validate.sh <mod_dir>` — JSON syntax check (Level1)
 - `bash scripts/check_mods.sh <mod_name>` — CDDA engine load check (Level2)
-- `bash scripts/place_mod_for_test.sh [--link|--copy] [--dry-run] [--force] <mod_dir>` — Symlink (default) or copy a mod into CDDA for testing (--force skips overwrite confirmation)
+- `bash scripts/place_mod_for_test.sh [--link|--copy] [--dry-run] [--force] <mod_dir>` — Symlink (default) or copy a mod into CDDA for testing (--force skips overwrite confirmation; `--link` is accepted as an explicit alias of the default)
 - `.venv/bin/pytest scripts/tests/` — Run Python test suite
 - `.venv/bin/ruff check scripts/` — Lint Python code
 - `.venv/bin/mypy scripts/` — Type check Python code
@@ -97,4 +98,5 @@ English as the agent entry point; all other project docs (`README.md`,
 `cdda_mod_dev_plan.md`, `rules/`) are canonically Japanese. Code comments,
 CLI messages, and identifiers are English.
 
-(Last verified: 2026-09-14)
+(Last verified: 2026-09-14 — bump when CORE.md workflow, verification levels,
+naming, or CI contracts change; other doc-only fixes need not bump.)
