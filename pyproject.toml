@@ -98,10 +98,6 @@ module = "convert_item_types"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = "convert_price"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
 module = "add_activity_level"
 ignore_errors = true
 
