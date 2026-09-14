@@ -151,7 +151,7 @@ cat external/cdda/config/debug.log | grep ERROR
 
 ## 検証
 
-検証は 3 段階で行う。
+検証は 3 段階で行う。Level1/2/3の定義の正本は `rules/verification.md` とし、本表は概要とする。
 
 | レベル | 内容 | ツール | 実行タイミング |
 |---|---|---|---|
@@ -188,6 +188,6 @@ mod は事前に `place_mod_for_test.sh` で `external/cdda/mods/` に配置す�
 
 詳細は `issue.md` を参照。
 
-- **spec.md 未整備**: 21 mod 中 spec.md が 1 件も作成されていない
+- **spec.md 未整備**: 24 mod 中 spec.md が 3 件（`combat_stim` / `bone_armor` / `hedge_magic` の新規システム3modのみ。小規模modは `rules/CORE.md` の省略条件により省略可）
 - **孤児ファイル・空ディレクトリ**: `mods/{medium,large,seen,unseen}` が実質的に空（`activity_map_magiclysm.json` は `patches/` に移動済み）
 - **ドキュメント言語の混在**: `AGENTS.md`（英語）とルール群（日本語）で言語が分かれている

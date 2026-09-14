@@ -41,4 +41,4 @@
 ### 完了条件
 - [ ] Level1: JSON構文OK
 - [ ] Level2: 起動OK（エラーなし）
-- [ ] Level3: 意図通り動作（任意）
+- [ ] Level3: 意図通り動作（必須・手動確認。Level定義の正本は `rules/verification.md`）

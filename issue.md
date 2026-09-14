@@ -4,34 +4,14 @@
 
 ## Critical Issues
 
-### 1. テストの不足（解決済み）
-- **ステータス:** 解決済み（2026-07-22）
-- **重要度:** 高
-- **詳細:**
-  - `scripts/tests/` に約 3,260 行のテストが整備された（common.py、変換スクリプト、mapgen サブシステム、summarize_debug_log.py の 19 テストを含む）
-- **解決案:**
-  - 特になし。全スクリプトのテストが作成済み。
-
-### 2. CI/CD の導入（依存固定・マトリクス化・mod検証追加により強化）
-- **ステータス:** 解決済み（2026-08-01 更新）
-- **重要度:** 高
-- **詳細:**
-  - `.github/workflows/ci.yml` が存在し、ruff + black + pytest + mypy + shellcheck を実行
-  - Python 系: Python 3.10/3.11/3.12/3.13 マトリクス、ruff check, black --check, pytest, mypy
-  - Shell 系: shellcheck
-  - 追加ジョブ: `validate` (`validate_mods.py` 全mod Level1検証 + ID重複チェックと `verify_patches.py` パッチ構造検証を統合、E-7で集約)
-  - `requirements-dev.txt` により dev 依存バージョンを固定
-- **解決案:**
-  - 特になし。
-
 ### 3. design.md カバレッジ不足（解決済み）
 - **ステータス:** 解決済み（2026-09-14）
 - **重要度:** 中
 - **詳細:**
   - 2026-09-14 時点: 24 mod 中 design.md が 24 件（`eoc_talk_test` と `wm_weapon_mastery` を D-3 で作成し穴埋め完了）
-  - spec.md は新規3modのみの3件のまま（spec 要否の最終整理は E-8 で実施）
+  - spec.md は新規システム3modのみの3件（`combat_stim` / `bone_armor` / `hedge_magic`）。小規模modの省略条件は `rules/CORE.md`（正本）および `AGENTS.md` に集約済み（D-2）。残件は E-8 で整理済み
 - **解決案:**
-  - 済み。spec.md の要否をワークフローに明記する残件は E-8 に移管
+  - 済み。spec 要否は `rules/CORE.md` の小規模mod定義（ID5個以下 + copy-fromのみ + 既存拡張 + 派生明確）に従う
 
 ## Minor Issues
 
@@ -72,17 +52,6 @@
 - **解決案:**
   - 月次での issue.md レビューをワークフローに組み込む
 
-### 8. 移植スクリプトの exit code 仕様統一（解決済み）
-- **ステータス:** 解決済み（2026-08-02）
-- **重要度:** 低
-- **詳細:**
-  - 従来は processor が None を返す（変更対象なし）ファイルも「失敗」扱いで exit 1 になっていた
-  - `common.ProcessResult` の導入により処理成功・スキップ・失敗を分離し、スキップは exit 0、失敗のみ exit 1 に統一
-  - 対象: `run_standard_pipeline` 利用スクリプト（convert_item_types / remove_armor_bullet / revert_all_translations / revert_translation_errors）および convert_price.py
-  - 仕様は `common.py` の `run_standard_pipeline` docstring に明記済み
-- **解決案:**
-  - 特になし
-
 ### 9. 新規3modのLevel3検証が未実行
 - **ステータス:** 未解決（2026-09-13 起票）
 - **重要度:** 中
@@ -94,3 +63,37 @@
   - CDDA を起動し、各 `design.md` の「テスト手順」に従って Level3 を実施する
   - 確認ポイント: combat_stim（効果付与と enchantment 反映）/ bone_armor（装備・クラフト反映）/ hedge_magic（呪文書からの習得と詠唱・効果付与）
   - 手順は `docs/level3_checklist.md` に機械可読チェックリストとして転記済み（2026-09-14、C-3）。Level3 9項目はすべて未実行（`grep -c "^- \[ \]" docs/level3_checklist.md` = 9）。実行時はチェックリストの `[ ]` → `[x]` と本節を連動更新する
+  - Level3は必須（手動確認）。`templates/design_template.md` の完了条件と整合済み（E-8）。Level定義の正本は `rules/verification.md`
+
+## アーカイブ（解決済み・E-8で移動）
+
+### 1. テストの不足（解決済み）
+- **ステータス:** 解決済み（2026-07-22）
+- **重要度:** 高
+- **詳細:**
+  - `scripts/tests/` に約 3,260 行のテストが整備された（common.py、変換スクリプト、mapgen サブシステム、summarize_debug_log.py の 19 テストを含む）
+- **解決案:**
+  - 特になし。全スクリプトのテストが作成済み。
+
+### 2. CI/CD の導入（依存固定・マトリクス化・mod検証追加により強化）
+- **ステータス:** 解決済み（2026-08-01 更新）
+- **重要度:** 高
+- **詳細:**
+  - `.github/workflows/ci.yml` が存在し、ruff + black + pytest + mypy + shellcheck を実行
+  - Python 系: Python 3.10/3.11/3.12/3.13 マトリクス、ruff check, black --check, pytest, mypy
+  - Shell 系: shellcheck
+  - 追加ジョブ: `validate` (`validate_mods.py` 全mod Level1検証 + ID重複チェックと `verify_patches.py` パッチ構造検証を統合、E-7で集約)
+  - `requirements-dev.txt` により dev 依存バージョンを固定
+- **解決案:**
+  - 特になし。
+
+### 8. 移植スクリプトの exit code 仕様統一（解決済み）
+- **ステータス:** 解決済み（2026-08-02）
+- **重要度:** 低
+- **詳細:**
+  - 従来は processor が None を返す（変更対象なし）ファイルも「失敗」扱いで exit 1 になっていた
+  - `common.ProcessResult` の導入により処理成功・スキップ・失敗を分離し、スキップは exit 0、失敗のみ exit 1 に統一
+  - 対象: `run_standard_pipeline` 利用スクリプト（convert_item_types / remove_armor_bullet / revert_all_translations / revert_translation_errors）および convert_price.py
+  - 仕様は `common.py` の `run_standard_pipeline` docstring に明記済み
+- **解決案:**
+  - 特になし
