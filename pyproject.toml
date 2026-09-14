@@ -91,20 +91,5 @@ warn_redundant_casts = true
 module = "tests.*"
 ignore_errors = true
 
-# Porting scripts: use dynamic callbacks and recursive Any-typed JSON traversal,
-# which cannot be typed precisely under strict mode.
-[[tool.mypy.overrides]]
-module = "convert_item_types"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "remove_armor_bullet"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "revert_all_translations"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "revert_translation_errors"
-ignore_errors = true
+# Porting scripts: strict-typed (B-1a..B-1d). Remaining override is
+# tests.* only (see B-1e for policy decision).

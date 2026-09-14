@@ -3,6 +3,8 @@
 
 import copy
 import sys
+from pathlib import Path
+from typing import Any
 
 from common import MAX_RECURSION_DEPTH, run_standard_pipeline
 
@@ -12,7 +14,7 @@ TARGET_VALUES = {"ARMOR_BULLET", "ARMOR_BALLISTIC"}
 MAX_DEPTH = MAX_RECURSION_DEPTH
 
 
-def clean_object(obj, _depth=0):
+def clean_object(obj: Any, _depth: int = 0) -> Any:
     if _depth > MAX_DEPTH:
         if _depth == MAX_DEPTH + 1:
             print(
@@ -46,28 +48,27 @@ def clean_object(obj, _depth=0):
     return obj
 
 
-def processor(data, _path):
+def processor(data: Any, _path: Path) -> Any | None:
+    if not isinstance(data, (list, dict)):
+        return None
+    original: Any = copy.deepcopy(data)
     if isinstance(data, list):
-        original = copy.deepcopy(data)
-        result = [clean_object(item) for item in data]
-        result = [item for item in result if item is not None]
-        if result == original:
+        cleaned: Any = [clean_object(item) for item in data]
+        cleaned = [item for item in cleaned if item is not None]
+        if cleaned == original:
             return None
-        return result
-    elif isinstance(data, dict):
-        original = copy.deepcopy(data)
-        result = clean_object(data)
-        if result is None:
-            # Top-level dict itself matched TARGET_VALUES; nothing sensible
-            # to save, so treat as skipped rather than writing null.
-            return None
-        if result == original:
-            return None
-        return result
-    return None
+        return cleaned
+    result: Any = clean_object(data)
+    if result is None:
+        # Top-level dict itself matched TARGET_VALUES; nothing sensible
+        # to save, so treat as skipped rather than writing null.
+        return None
+    if result == original:
+        return None
+    return result
 
 
-def main():
+def main() -> None:
     run_standard_pipeline("Remove ARMOR_BULLET/BALLISTIC enchantment values", processor)
 
 

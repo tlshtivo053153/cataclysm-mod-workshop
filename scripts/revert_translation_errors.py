@@ -3,6 +3,8 @@
 
 import copy
 import sys
+from pathlib import Path
+from typing import Any
 
 from common import MAX_RECURSION_DEPTH, revert_translation_field, run_standard_pipeline
 
@@ -17,7 +19,7 @@ TYPES_WITH_STRING_NAME = {
 MAX_DEPTH = MAX_RECURSION_DEPTH
 
 
-def revert_name_fields(obj, _depth=0):
+def revert_name_fields(obj: Any, _depth: int = 0) -> Any:
     """Revert name fields that are objects back to strings for unsupported types."""
     if _depth > MAX_DEPTH:
         if _depth == MAX_DEPTH + 1:
@@ -39,7 +41,7 @@ def revert_name_fields(obj, _depth=0):
     return obj
 
 
-def processor(data, _path):
+def processor(data: Any, _path: Path) -> Any | None:
     if isinstance(data, (list, dict)):
         original = copy.deepcopy(data)
         if isinstance(data, list):
@@ -53,7 +55,7 @@ def processor(data, _path):
     return None
 
 
-def main():
+def main() -> None:
     run_standard_pipeline(
         "Revert translation objects for name fields on unsupported types", processor
     )

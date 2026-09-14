@@ -3,13 +3,15 @@
 
 import copy
 import sys
+from pathlib import Path
+from typing import Any
 
 from common import MAX_RECURSION_DEPTH, revert_translation_field, run_standard_pipeline
 
 MAX_DEPTH = MAX_RECURSION_DEPTH
 
 
-def revert_all_name_fields(obj, _depth=0):
+def revert_all_name_fields(obj: Any, _depth: int = 0) -> Any:
     """Revert all name fields that are translation objects back to strings."""
     if _depth > MAX_DEPTH:
         if _depth == MAX_DEPTH + 1:
@@ -31,7 +33,7 @@ def revert_all_name_fields(obj, _depth=0):
     return obj
 
 
-def processor(data, _path):
+def processor(data: Any, _path: Path) -> Any | None:
     if isinstance(data, (list, dict)):
         original = copy.deepcopy(data)
         if isinstance(data, list):
@@ -45,7 +47,7 @@ def processor(data, _path):
     return None
 
 
-def main():
+def main() -> None:
     run_standard_pipeline("Revert all name/description translation objects to strings", processor)
 
 

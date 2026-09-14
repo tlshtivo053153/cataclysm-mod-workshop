@@ -3,6 +3,8 @@
 
 import copy
 import sys
+from pathlib import Path
+from typing import Any
 
 from common import MAX_RECURSION_DEPTH, run_standard_pipeline
 
@@ -33,7 +35,7 @@ TYPE_MAP = {
 MAX_DEPTH = MAX_RECURSION_DEPTH
 
 
-def convert_object(obj, _depth=0):
+def convert_object(obj: Any, _depth: int = 0) -> Any:
     if _depth > MAX_DEPTH:
         if _depth == MAX_DEPTH + 1:
             print(
@@ -65,23 +67,20 @@ def convert_object(obj, _depth=0):
     return obj
 
 
-def processor(data, _path):
+def processor(data: Any, _path: Path) -> Any | None:
+    if not isinstance(data, (list, dict)):
+        return None
+    original: Any = copy.deepcopy(data)
     if isinstance(data, list):
-        original = copy.deepcopy(data)
-        result = [convert_object(item) for item in data]
-        if result == original:
-            return None
-        return result
-    elif isinstance(data, dict):
-        original = copy.deepcopy(data)
+        result: Any = [convert_object(item) for item in data]
+    else:
         result = convert_object(data)
-        if result == original:
-            return None
-        return result
-    return None
+    if result == original:
+        return None
+    return result
 
 
-def main():
+def main() -> None:
     run_standard_pipeline("Convert old item types to unified ITEM type", processor)
 
 
