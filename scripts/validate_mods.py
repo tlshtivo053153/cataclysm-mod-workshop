@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 from common import _is_backup_path
 
@@ -107,6 +108,92 @@ def run_validate(mod_dir: Path) -> bool:
     return result.returncode == 0
 
 
+def _iter_json_objects(mod_dir: Path) -> list[tuple[Path, dict[str, Any]]]:
+    """Collect all JSON objects in a mod dir (list or dict top-level).
+
+    Files that fail to parse are skipped here; syntax errors are already
+    reported by run_validate/validate.sh. `.bak` paths are excluded.
+    """
+    objects: list[tuple[Path, dict[str, Any]]] = []
+    for json_file in sorted(mod_dir.rglob("*.json")):
+        if _is_backup_path(mod_dir, json_file):
+            continue
+        try:
+            with open(json_file, encoding="utf-8") as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            continue
+        entries = data if isinstance(data, list) else [data]
+        for entry in entries:
+            if isinstance(entry, dict):
+                objects.append((json_file, entry))
+    return objects
+
+
+def check_recipe_activity_level(mod_dir: Path) -> list[str]:
+    """Check CORE.md recipe rule: every `type: recipe` needs `activity_level`.
+
+    Returns a list of error messages (empty = pass).
+    """
+    errors: list[str] = []
+    for json_file, entry in _iter_json_objects(mod_dir):
+        if entry.get("type") != "recipe":
+            continue
+        level = entry.get("activity_level")
+        if not isinstance(level, str) or not level:
+            result = entry.get("result", "?")
+            errors.append(
+                f"{json_file}: recipe '{result}' missing required "
+                "'activity_level' (rules/CORE.md recipe必須フィールド)"
+            )
+    return errors
+
+
+def check_modinfo_dependencies(mod_dir: Path) -> list[str]:
+    """Check CORE.md modinfo rule: `dependencies` must include `dda`.
+
+    Returns a list of error messages (empty = pass). Unparseable modinfo
+    is skipped here (already reported by collect_mod_ids).
+    """
+    modinfo_path = mod_dir / "modinfo.json"
+    try:
+        with open(modinfo_path, encoding="utf-8") as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return []
+    entry: Any = data[0] if isinstance(data, list) and data else data
+    if not isinstance(entry, dict):
+        return []
+    deps = entry.get("dependencies")
+    if not isinstance(deps, list) or "dda" not in deps:
+        return [
+            f"{mod_dir}/modinfo.json missing required dependency 'dda' "
+            "in 'dependencies' (rules/CORE.md modinfo.json)"
+        ]
+    return []
+
+
+def check_copy_from_references(mod_dir: Path) -> list[str]:
+    """Check CORE.md copy-from rule: warn when target is not defined in-mod.
+
+    Vanilla IDs (external/cdda) are unavailable in CI, so unknown targets
+    are WARNING-level only and never fail validation. Returns warnings.
+    """
+    objects = _iter_json_objects(mod_dir)
+    local_ids = {entry["id"] for _, entry in objects if isinstance(entry.get("id"), str)}
+    warnings: list[str] = []
+    for json_file, entry in objects:
+        target = entry.get("copy-from")
+        if not isinstance(target, str) or not target:
+            continue
+        if target not in local_ids:
+            warnings.append(
+                f"{json_file}: '{entry.get('id', '?')}' copy-from "
+                f"'{target}' not defined in mod (verify in external/cdda/data/json/)"
+            )
+    return warnings
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate all mods in a base directory")
     parser.add_argument(
@@ -150,6 +237,15 @@ def main() -> int:
         print(f"\n--- Validating {mod_dir} ---")
         if not run_validate(mod_dir):
             errors += 1
+        # C-1: Level1 content rules from rules/CORE.md (beyond JSON syntax).
+        for msg in check_recipe_activity_level(mod_dir):
+            print(f"ERROR: {msg}", file=sys.stderr)
+            errors += 1
+        for msg in check_modinfo_dependencies(mod_dir):
+            print(f"ERROR: {msg}", file=sys.stderr)
+            errors += 1
+        for msg in check_copy_from_references(mod_dir):
+            print(f"WARNING: {msg}", file=sys.stderr)
 
     if errors > 0:
         print(f"\nERROR: {errors} validation failure(s) detected", file=sys.stderr)

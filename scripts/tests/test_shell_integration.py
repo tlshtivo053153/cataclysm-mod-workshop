@@ -290,7 +290,18 @@ class TestValidateMods:
         mod_dir.mkdir()
         mod_dir.joinpath("data").mkdir()
         modinfo = mod_dir / "modinfo.json"
-        modinfo.write_text(json.dumps([{"type": "MOD_INFO", "id": "test_mod", "name": "Test Mod"}]))
+        modinfo.write_text(
+            json.dumps(
+                [
+                    {
+                        "type": "MOD_INFO",
+                        "id": "test_mod",
+                        "name": "Test Mod",
+                        "dependencies": ["dda"],
+                    }
+                ]
+            )
+        )
         (mod_dir / "data" / "items.json").write_text('{"id": "item1"}')
         (mod_dir / "data" / "recipes.json").write_text('[{"id": "recipe1"}]')
 
@@ -342,7 +353,11 @@ class TestValidateMods:
             mod_dir = tmp_path / sub / "test_mod"
             mod_dir.mkdir(parents=True)
             modinfo = mod_dir / "modinfo.json"
-            modinfo.write_text(json.dumps([{"type": "MOD_INFO", "id": f"mod_{sub}", "name": sub}]))
+            modinfo.write_text(
+                json.dumps(
+                    [{"type": "MOD_INFO", "id": f"mod_{sub}", "name": sub, "dependencies": ["dda"]}]
+                )
+            )
 
         result = _run_validate_mods("--base-dir", str(tmp_path))
         assert result.returncode == 0, f"stderr: {result.stderr}"
@@ -353,7 +368,11 @@ class TestValidateMods:
         mod_dir = tmp_path / "dict_mod"
         mod_dir.mkdir()
         modinfo = mod_dir / "modinfo.json"
-        modinfo.write_text(json.dumps({"type": "MOD_INFO", "id": "dict_mod", "name": "Dict Mod"}))
+        modinfo.write_text(
+            json.dumps(
+                {"type": "MOD_INFO", "id": "dict_mod", "name": "Dict Mod", "dependencies": ["dda"]}
+            )
+        )
 
         result = _run_validate_mods("--base-dir", str(tmp_path))
         assert result.returncode == 0, f"stderr: {result.stderr}"
@@ -378,12 +397,16 @@ class TestValidateMods:
         mod_dir = tmp_path / "mymod"
         mod_dir.mkdir(parents=True)
         (mod_dir / "modinfo.json").write_text(
-            json.dumps([{"type": "MOD_INFO", "id": "mymod", "name": "My Mod"}])
+            json.dumps(
+                [{"type": "MOD_INFO", "id": "mymod", "name": "My Mod", "dependencies": ["dda"]}]
+            )
         )
         bak = mod_dir / ".bak"
         bak.mkdir()
         (bak / "modinfo.json").write_text(
-            json.dumps([{"type": "MOD_INFO", "id": "mymod", "name": "My Mod"}])
+            json.dumps(
+                [{"type": "MOD_INFO", "id": "mymod", "name": "My Mod", "dependencies": ["dda"]}]
+            )
         )
         result = _run_validate_mods("--base-dir", str(tmp_path))
         assert result.returncode == 0, f"stderr: {result.stderr}"
