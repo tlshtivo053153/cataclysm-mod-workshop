@@ -1,5 +1,8 @@
 """Tests for summarize_debug_log.py signature extraction and block parsing."""
 
+import sys
+
+import summarize_debug_log as sdl
 from summarize_debug_log import (
     extract_signature,
     format_human,
@@ -185,3 +188,42 @@ class TestFormatJson:
         parsed = json.loads(result)
         assert len(parsed) == 1
         assert parsed[0]["signature"] == "ERROR : a"
+
+
+class TestMainErrorCapture:
+    def test_top_negative_exits_1(self, tmp_path, monkeypatch, capsys):
+        log = tmp_path / "debug.log"
+        log.write_text("12:34:56.789 ERROR : boom\n", encoding="utf-8")
+        monkeypatch.setattr(sys, "argv", ["summarize_debug_log.py", str(log), "--top", "-1"])
+        assert sdl.main() == 1
+        assert "--top" in capsys.readouterr().err
+
+    def test_undecodable_log_exits_1(self, tmp_path, monkeypatch, capsys):
+        log = tmp_path / "debug.log"
+        log.write_bytes(b"\xff\xfe\xfd not utf-8\n")
+        monkeypatch.setattr(sys, "argv", ["summarize_debug_log.py", str(log)])
+        assert sdl.main() == 1
+        assert "UTF-8" in capsys.readouterr().err
+
+    def test_output_is_directory_exits_1(self, tmp_path, monkeypatch, capsys):
+        log = tmp_path / "debug.log"
+        log.write_text("12:34:56.789 ERROR : boom\n", encoding="utf-8")
+        out_dir = tmp_path / "outdir"
+        out_dir.mkdir()
+        monkeypatch.setattr(
+            sys, "argv", ["summarize_debug_log.py", str(log), "--output", str(out_dir)]
+        )
+        assert sdl.main() == 1
+        assert "Cannot write" in capsys.readouterr().err
+
+    def test_permission_error_exits_1(self, tmp_path, monkeypatch, capsys):
+        log = tmp_path / "debug.log"
+        log.write_text("12:34:56.789 ERROR : boom\n", encoding="utf-8")
+
+        def boom(*a, **k):
+            raise PermissionError("denied")
+
+        monkeypatch.setattr("pathlib.Path.open", boom)
+        monkeypatch.setattr(sys, "argv", ["summarize_debug_log.py", str(log)])
+        assert sdl.main() == 1
+        assert "Permission denied" in capsys.readouterr().err

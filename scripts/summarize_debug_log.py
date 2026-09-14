@@ -169,6 +169,9 @@ def main() -> int:
     args = parser.parse_args()
 
     log_path: Path = args.log
+    if args.top is not None and args.top < 0:
+        print(f"ERROR: --top must be >= 0, got {args.top}", file=sys.stderr)
+        return 1
     if not log_path.exists():
         print(f"File not found: {log_path}", file=sys.stderr)
         return 1
@@ -176,8 +179,18 @@ def main() -> int:
         print(f"Not a file: {log_path}", file=sys.stderr)
         return 1
 
-    with log_path.open("r", encoding="utf-8") as f:
-        lines = f.readlines()
+    try:
+        with log_path.open("r", encoding="utf-8") as f:
+            lines = f.readlines()
+    except PermissionError as e:
+        print(f"ERROR: Permission denied reading {log_path}: {e}", file=sys.stderr)
+        return 1
+    except UnicodeDecodeError as e:
+        print(f"ERROR: Cannot decode {log_path} as UTF-8: {e}", file=sys.stderr)
+        return 1
+    except OSError as e:
+        print(f"ERROR: Cannot read {log_path}: {e}", file=sys.stderr)
+        return 1
 
     blocks = parse_blocks(lines)
     groups = summarize(blocks)
@@ -185,7 +198,17 @@ def main() -> int:
     out = format_json(groups, top=args.top) if args.json else format_human(groups, top=args.top)
 
     if args.output is not None:
-        args.output.write_text(out + "\n", encoding="utf-8")
+        try:
+            args.output.write_text(out + "\n", encoding="utf-8")
+        except PermissionError as e:
+            print(f"ERROR: Permission denied writing {args.output}: {e}", file=sys.stderr)
+            return 1
+        except UnicodeError as e:
+            print(f"ERROR: Cannot encode output for {args.output}: {e}", file=sys.stderr)
+            return 1
+        except OSError as e:
+            print(f"ERROR: Cannot write {args.output}: {e}", file=sys.stderr)
+            return 1
     else:
         print(out)
     return 0

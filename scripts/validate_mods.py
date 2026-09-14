@@ -93,14 +93,25 @@ def collect_mod_ids(mod_dirs: list[Path]) -> tuple[dict[str, list[Path]], list[P
     return id_map, error_dirs
 
 
-def run_validate(mod_dir: Path) -> bool:
+def run_validate(mod_dir: Path, timeout: int = 120) -> bool:
     """Run validate.sh on a mod directory. Returns True on success."""
     script = Path(__file__).resolve().parent / "validate.sh"
-    result = subprocess.run(
-        ["bash", str(script), str(mod_dir)],
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            ["bash", str(script), str(mod_dir)],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except FileNotFoundError as e:
+        print(f"ERROR: validate.sh not found for {mod_dir}: {e}", file=sys.stderr)
+        return False
+    except subprocess.TimeoutExpired as e:
+        print(f"ERROR: validation timed out for {mod_dir}: {e}", file=sys.stderr)
+        return False
+    except OSError as e:
+        print(f"ERROR: Cannot run validation for {mod_dir}: {e}", file=sys.stderr)
+        return False
     if result.stdout:
         print(result.stdout, end="")
     if result.stderr:

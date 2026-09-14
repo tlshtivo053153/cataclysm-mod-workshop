@@ -216,3 +216,45 @@ class TestCompilerCLI:
         assert result.returncode == 0
         out_file = mod_dir / "data" / "mapgen" / "test.json"
         assert out_file.exists()
+
+
+class TestCliErrorCapture:
+    def test_compile_doc_undecodable_returns_none(self, tmp_path, capsys):
+        from mapgen.cli import _compile_doc
+        from mapgen.compiler import Compiler
+
+        bad = tmp_path / "bad.yml"
+        bad.write_bytes(b"\xff\xfe\xfd not utf-8\n")
+        assert _compile_doc(Compiler(), bad) is None
+        assert "UTF-8" in capsys.readouterr().err
+
+    def test_compile_doc_missing_returns_none(self, tmp_path, capsys):
+        from mapgen.cli import _compile_doc
+        from mapgen.compiler import Compiler
+
+        missing = tmp_path / "does_not_exist.yml"
+        assert _compile_doc(Compiler(), missing) is None
+        assert "Cannot read" in capsys.readouterr().err
+
+    def test_single_file_directory_returns_2(self, tmp_path, capsys):
+        from mapgen.cli import _run_single_file
+
+        assert _run_single_file(tmp_path, None, False, True, [], False) == 2
+        assert "Not a file" in capsys.readouterr().err
+
+    def test_single_file_undecodable_returns_1(self, tmp_path, capsys):
+        from mapgen.cli import _run_single_file
+
+        bad = tmp_path / "bad.yml"
+        bad.write_bytes(b"\xff\xfe\xfd not utf-8\n")
+        assert _run_single_file(bad, None, False, True, [], False) == 1
+
+    def test_mod_dir_undecodable_counts_error(self, tmp_path, capsys):
+        from mapgen.cli import _run_mod_dir
+
+        mod_dir = tmp_path / "my_mod"
+        dsl_dir = mod_dir / "data" / "mapgen_dsl"
+        dsl_dir.mkdir(parents=True)
+        (dsl_dir / "bad.yml").write_bytes(b"\xff\xfe\xfd not utf-8\n")
+        assert _run_mod_dir(mod_dir, "data/mapgen_dsl", False, True, [], False) == 1
+        assert "UTF-8" in capsys.readouterr().err

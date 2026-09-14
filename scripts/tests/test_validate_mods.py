@@ -7,11 +7,14 @@ Covers CORE.md-derived checks beyond JSON syntax:
 """
 
 import json
+import subprocess
 
+import validate_mods
 from validate_mods import (
     check_copy_from_references,
     check_modinfo_dependencies,
     check_recipe_activity_level,
+    run_validate,
 )
 
 
@@ -125,3 +128,46 @@ class TestCopyFromReferences:
     def test_no_copy_from_no_warning(self, tmp_path):
         mod_dir = _write_mod(tmp_path, files={"items.json": [{"type": "ITEM", "id": "plain"}]})
         assert check_copy_from_references(mod_dir) == []
+
+
+class TestRunValidateErrorCapture:
+    def test_missing_script_returns_false(self, tmp_path, monkeypatch, capsys):
+        def boom(*a, **k):
+            raise FileNotFoundError("no bash")
+
+        monkeypatch.setattr(subprocess, "run", boom)
+        assert run_validate(tmp_path) is False
+        assert "not found" in capsys.readouterr().err
+
+    def test_timeout_returns_false(self, tmp_path, monkeypatch, capsys):
+        def boom(*a, **k):
+            raise subprocess.TimeoutExpired(cmd="bash", timeout=120)
+
+        monkeypatch.setattr(subprocess, "run", boom)
+        assert run_validate(tmp_path) is False
+        assert "timed out" in capsys.readouterr().err
+
+    def test_oserror_returns_false(self, tmp_path, monkeypatch, capsys):
+        def boom(*a, **k):
+            raise OSError("injected failure")
+
+        monkeypatch.setattr(subprocess, "run", boom)
+        assert run_validate(tmp_path) is False
+        assert "Cannot run validation" in capsys.readouterr().err
+
+    def test_uses_timeout(self, tmp_path, monkeypatch):
+        seen = {}
+
+        class R:
+            stdout = ""
+            stderr = ""
+            returncode = 0
+
+        def fake_run(*a, **k):
+            seen.update(k)
+            return R()
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+        assert run_validate(tmp_path) is True
+        assert seen.get("timeout") == 120
+        assert validate_mods.run_validate.__defaults__ == (120,)

@@ -59,6 +59,15 @@ def _compile_doc(
     except CompileError as e:
         print(f"Compile error in {yaml_path}: {e}", file=sys.stderr)
         return None
+    except PermissionError as e:
+        print(f"ERROR: Permission denied reading {yaml_path}: {e}", file=sys.stderr)
+        return None
+    except UnicodeDecodeError as e:
+        print(f"ERROR: Cannot decode {yaml_path} as UTF-8: {e}", file=sys.stderr)
+        return None
+    except OSError as e:
+        print(f"ERROR: Cannot read {yaml_path}: {e}", file=sys.stderr)
+        return None
     return doc, entries, compiler.emit(entries)
 
 
@@ -73,8 +82,21 @@ def _run_single_file(
     if not input_path.exists():
         print(f"File not found: {input_path}", file=sys.stderr)
         return 2
+    if not input_path.is_file():
+        print(f"Not a file: {input_path}", file=sys.stderr)
+        return 2
 
-    compiler = Compiler(palette_paths=palette_paths if palette_paths else None)
+    try:
+        compiler = Compiler(palette_paths=palette_paths if palette_paths else None)
+    except PermissionError as e:
+        print(f"ERROR: Permission denied loading palettes: {e}", file=sys.stderr)
+        return 1
+    except UnicodeDecodeError as e:
+        print(f"ERROR: Cannot decode palette as UTF-8: {e}", file=sys.stderr)
+        return 1
+    except OSError as e:
+        print(f"ERROR: Cannot load palettes: {e}", file=sys.stderr)
+        return 1
     compiled = _compile_doc(compiler, input_path)
     if compiled is None:
         return 1
@@ -104,7 +126,18 @@ def _run_mod_dir(
         print(f"DSL directory not found: {dsl_path}", file=sys.stderr)
         return 2
 
-    compiler = Compiler(palette_paths=palette_paths if palette_paths else None)
+    compiler: Compiler
+    try:
+        compiler = Compiler(palette_paths=palette_paths if palette_paths else None)
+    except PermissionError as e:
+        print(f"ERROR: Permission denied loading palettes: {e}", file=sys.stderr)
+        return 1
+    except UnicodeDecodeError as e:
+        print(f"ERROR: Cannot decode palette as UTF-8: {e}", file=sys.stderr)
+        return 1
+    except OSError as e:
+        print(f"ERROR: Cannot load palettes: {e}", file=sys.stderr)
+        return 1
     yaml_files = sorted(dsl_path.glob("*.yml"))
     compiled_count = 0
     error_count = 0
@@ -120,6 +153,18 @@ def _run_mod_dir(
             continue
         except CompileError as e:
             print(f"Compile error in {yml_file}: {e}", file=sys.stderr)
+            error_count += 1
+            continue
+        except PermissionError as e:
+            print(f"ERROR: Permission denied reading {yml_file}: {e}", file=sys.stderr)
+            error_count += 1
+            continue
+        except UnicodeDecodeError as e:
+            print(f"ERROR: Cannot decode {yml_file} as UTF-8: {e}", file=sys.stderr)
+            error_count += 1
+            continue
+        except OSError as e:
+            print(f"ERROR: Cannot read {yml_file}: {e}", file=sys.stderr)
             error_count += 1
             continue
 
