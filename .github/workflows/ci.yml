@@ -42,6 +42,12 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y shellcheck
       - run: shellcheck scripts/*.sh
 
+  # NOTE (C-2, human decision b): Level2 (scripts/check_mods.sh engine check)
+  # is intentionally NOT run in CI. external/cdda/ is gitignored so the
+  # cataclysm-tiles binary and mods/ tree are absent on CI runners.
+  # Manual procedure (see rules/verification.md "Level2自動"):
+  #   bash scripts/place_mod_for_test.sh --link mods/small/<mod>/
+  #   bash scripts/check_mods.sh --isolated <mod_id>
   validate-mods:
     timeout-minutes: 10
     runs-on: ubuntu-latest

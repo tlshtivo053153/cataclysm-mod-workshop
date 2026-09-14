@@ -5,6 +5,11 @@
 #   bash scripts/check_mods.sh <mod_id>                    (use shared config)
 #   bash scripts/check_mods.sh --isolated <mod_id>         (use temp workdir)
 #   bash scripts/check_mods.sh --check-errors <mod_id>     (also check debug.log for ERROR)
+#   bash scripts/check_mods.sh --help                      (show this help)
+#
+# NOTE (C-2): Level2 is intentionally NOT run in CI (external/cdda/ is
+# gitignored, cataclysm-tiles binary absent). Run manually after
+# place_mod_for_test.sh; see rules/verification.md "Level2自動".
 #
 # Exit codes:
 #   0 - mod check passed (and debug.log has no ERROR when --check-errors is used)
@@ -20,8 +25,35 @@ CHECK_ERRORS=false
 TIMEOUT_SEC=90
 CLEANUP_DIRS=()
 
+show_help() {
+    cat <<'EOF'
+Usage: check_mods.sh [--isolated] [--check-errors] [--timeout N] <mod_id>
+       check_mods.sh --help | -h
+
+Level2: verify a mod with CDDA's built-in --check-mods engine check.
+
+Options:
+  --isolated      use a temp workdir (avoid shared-state pollution)
+  --check-errors  also fail (exit 4) when debug.log contains ERROR lines
+  --timeout N     timeout in seconds, 1-3600 (default: 90)
+  --help, -h      show this help and exit 0
+
+CI note: Level2 is intentionally NOT run in CI (external/cdda/ is
+gitignored, cataclysm-tiles binary absent on runners).
+
+Manual procedure (see rules/verification.md "Level2自動"):
+  bash scripts/place_mod_for_test.sh --link mods/small/<mod_dir>/
+  bash scripts/check_mods.sh --isolated <mod_id>
+
+Exit codes:
+  0 - passed | 1 - usage/prerequisites | 2 - check failed
+  3 - timeout | 4 - debug.log ERROR (with --check-errors)
+EOF
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        -h|--help) show_help; exit 0 ;;
         --isolated) ISOLATED=true; shift ;;
         --check-errors) CHECK_ERRORS=true; shift ;;
         --timeout)
