@@ -189,7 +189,9 @@ class TestProcessDirectory:
     def test_missing_directory(self, tmp_path):
         result = process_directory(tmp_path / "nonexistent", tmp_path, lambda d, p: d)
         assert result.processed == 0
-        assert result.total == 0
+        assert result.failed == 1
+        assert result.total == 1
+        assert result.has_errors is True
 
 
 class TestProcessFile:

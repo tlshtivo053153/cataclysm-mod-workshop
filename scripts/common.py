@@ -169,6 +169,7 @@ def process_directory(
     processor: Callable[..., Any],
     backup: bool = True,
     pattern: str = "*.json",
+    copy_unchanged: bool = False,
 ) -> ProcessResult:
     """Walk input_dir, apply processor to each matching file, write to output_dir.
 
@@ -181,12 +182,43 @@ def process_directory(
     `.bak` directories under input_dir are excluded from the walk (see
     _is_backup_path).  Backups are only created when overwriting in place
     (output_dir == input_dir).
+
+    When output_dir differs and copy_unchanged is True, files the processor
+    skips (None) are still copied to the output tree (failed files are not).
+    This preserves the `-o <other-dir>` full-copy contract for scripts that
+    need it (e.g. convert_price).  Other scripts keep False (in-place
+    behavior unchanged).
+
+    Missing input_dir counts as failed=1 (not silent success).  Mutually
+    nested input/output dirs (one contains the other) are rejected with
+    failed=1 to prevent recursive self-growth (e.g. `-o <input>/out`).
     """
     result = ProcessResult()
 
     if not input_dir.exists():
         print(f"Directory not found: {input_dir}", file=sys.stderr)
+        result.failed = 1
         return result
+
+    try:
+        input_res = input_dir.resolve()
+        output_res = output_dir.resolve()
+    except Exception:
+        input_res = input_dir
+        output_res = output_dir
+    if output_res != input_res:
+        try:
+            nested = output_res.is_relative_to(input_res) or input_res.is_relative_to(output_res)
+        except Exception:
+            nested = False
+        if nested:
+            print(
+                f"Error: input and output directories must not contain each other: "
+                f"{input_dir} vs {output_dir}",
+                file=sys.stderr,
+            )
+            result.failed = 1
+            return result
 
     files = sorted(p for p in input_dir.rglob(pattern) if not _is_backup_path(input_dir, p))
 
@@ -195,6 +227,15 @@ def process_directory(
             data = load_json(src)
             transformed = processor(data, src)
             if transformed is None:
+                if copy_unchanged and output_dir != input_dir:
+                    try:
+                        dst = output_dir / src.relative_to(input_dir)
+                        dst.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(src, dst)
+                    except Exception as e:
+                        print(f"Error copying {src}: {e}", file=sys.stderr)
+                        result.failed += 1
+                        continue
                 result.skipped += 1
                 continue
 
@@ -251,12 +292,17 @@ def process_file(
         return result
 
 
-def run_standard_pipeline(description: str, processor: Callable[..., Any]) -> None:
+def run_standard_pipeline(
+    description: str, processor: Callable[..., Any], copy_unchanged: bool = False
+) -> None:
     """Run a standard input/output pipeline for a transformation script.
 
     Handles argument parsing, path resolution, and dispatches to
     process_directory() or process_file() based on whether the input
     is a directory or a single file.
+
+    Single-file input with an existing directory as output is saved as
+    <output_dir>/<input_name> (legacy convert_price contract).
 
     Exit codes:
         0 - all files processed successfully (including intentional skips)
@@ -267,12 +313,16 @@ def run_standard_pipeline(description: str, processor: Callable[..., Any]) -> No
     input_path, output_path = resolve_paths(args)
 
     if input_path.is_dir():
-        result = process_directory(input_path, output_path, processor, backup=args.backup)
+        result = process_directory(
+            input_path, output_path, processor, backup=args.backup, copy_unchanged=copy_unchanged
+        )
         print(
             f"Updated {result.processed} files, skipped {result.skipped}, "
             f"failed {result.failed}."
         )
     else:
+        if output_path.is_dir():
+            output_path = output_path / input_path.name
         result = process_file(input_path, output_path, processor, backup=args.backup)
         if result.skipped:
             print(f"Skipped: {input_path}")

@@ -40,3 +40,15 @@
 - 検証: pytest 325 passed（test_shell 31 件含む）、ruff/black/mypy green、bash -n OK。adversarial: dry-run 無変更（snapshot 一致）、冪等 exit0、cp 失敗で旧 DEST 温存・tmp 残存なし、sibling mods_evil が誤ブロックされない、symlink 起点 validate 回帰。
 - 残: 次は P0-4（P1）または P0-6（P2）。P0-5 は P0-2 完了で unblock。
 - Backpressure: tests pass, lint pass, typecheck pass, audit pass, coverage pass, complexity n/a (shell), duplication pass, performance pass, specs pass。
+
+## 2026-09-14 P0-4 着手前メモ
+- 目的: P0-4 のみ実施（ONE task, P1）。P0-6/P0-5は次回。
+- 根拠: convert_price.py:55-59 regexがJSON文脈無視で破壊、:68-69 非原子直書き、:38-73 共通処理の独自再実装。
+- 変更: (1) NO_CONVERT_CONTEXTS配下は不変+警告。(2) int(bool除外)のみ変換、float・負は警告+不変。(3) 変更なし→Noneでskip。(4) format_price型注釈。(5) run_standard_pipeline統一。(6) copy_unchanged追加・伝搬。(7) 単一→既存dir対応。(8) 相互包含拒否。(9) missing inputをfailed=1に修正。
+- Confidence: 85。決定ジャーナル不要。
+
+## 2026-09-14 P0-4 完了メモ
+- 変更: convert_priceをregex→再帰JSON変換（NO_CONVERT_CONTEXTS 6種は不変+警告、bool除外・float/負は警告+不変、変更なし→Noneでskip）。commonにcopy_unchanged/missing→failed/相互包含拒否/単一→既存dirを追加。test_common期待値更新、test_convert_priceをTestJsonConversionに改名し回帰拡充。
+- 検証: pytest 350 passed（+25）、ruff/black/mypy green。adversarial: float 1.5不変・文字列内pattern不変・proportional不変+兄弟変換を確認。
+- 残: 次はP0-6（P2）またはP0-5（P0-2完了でunblock済み）。
+- Backpressure: tests pass, lint pass, typecheck pass, audit pass, coverage pass, complexity n/a, duplication pass, performance pass (3.81s), specs pass。
