@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "scrap_9mm",
+    "name": "Scrap 9mm Handload",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds a crude scrap 9mm handload ammo, a cheap lower-performance alternative compatible with 9mm firearms.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

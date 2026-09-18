@@ -1,0 +1,16 @@
+[
+  {
+    "id": "scrap_9mm_handload",
+    "copy-from": "9mm",
+    "type": "ITEM",
+    "name": { "str_sp": "9x19mm JHP, scrap handload" },
+    "description": "粗悪な手詰め9mm弾。威力・精度は劣るが材料は安い。",
+    "proportional": {
+      "price": 0.7,
+      "damage": { "damage_type": "bullet", "amount": 0.85 },
+      "dispersion": 1.1
+    },
+    "extend": { "effects": [ "RECYCLED" ] },
+    "delete": { "flags": [ "IRREPLACEABLE_CONSUMABLE" ] }
+  }
+]

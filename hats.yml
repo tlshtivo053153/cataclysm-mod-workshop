@@ -1,13 +1,1078 @@
-# hats.yml
+# hats.yml — 計画一体型 → 実装一体型 → 負債改善 → リファクタリング
+#
+# 使い方:
+#   ralph run -c ralph.yml -H hats.yml -p "タスク内容"
+#   または PROMPT.md を用意して: ralph run -c ralph.yml -H hats.yml
+#
+# イベントフロー:
+#   work.start
+#     → planner（計画作成＋4視点subagentレビュー＋修正を1イテレーション内で完結）
+#     ──plan.approved──→ builder（実装＋4視点subagentレビュー＋修正を1イテレーション内で完結）
+#     ──plan.blocked──→ finalizer（重大欠陥で前進不能時。明示終了し空転しない）
+#     ──impl.approved──→ debt-analyzer
+#     ──impl.blocked──→ finalizer（重大欠陥・テストfail残存時。明示終了し空転しない）
+#     ──impl.rework──→ builder（debt-analyzerが機能破壊疑いを検出時の差戻し）
+#     → debt.issues ──→ refactorer ──refactor.done──→ debt-analyzer（負債がなくなるまで繰り返す）
+#     → debt.blocked ──→ finalizer（major/critical負債が解消不能時）
+#     → debt.clean ──→ finalizer ──→ LOOP_COMPLETE（status: clean/residual/blocked）
+#
+# 設計方針:
+#   - 旧仕様の coordinator → wave → reviewer → synthesizer → 差し戻しループを廃止。
+#     計画・実装の各工程は単一 hat が「作成 → subagent並列レビュー → 修正」を
+#     内部ループで完結させる（ralph wave emit は使わない）。
+#   - 多角レビューは Task ツールで起動する4つの subagent を同一ブロック内
+#     （＝1ターン内の複数 tool call による同時発行）で並列実行する。
+#     各 subagent は読み取り専任・単一視点のみ担当する。
+#     Task ツールが利用不可の場合はフォールバック規定（各 hat の Phase 2 末尾）に従う。
+#     フォールバック発動条件: Task ツールの存在なし／呼び出しエラー／タイムアウトを
+#     1回試行して確認した場合のみ。部分到達（1〜3件成功）も試行1回と数え、
+#     到達分を採用し欠損分は Phase 3 の再依頼→部分自己補完フローへ回す。
+#     発動時は scratchpad に理由・エラー・試行回数を記録し、
+#     review.md に「フォールバック: 逐次」または「フォールバック: 自己点検」と明記する。
+#     安易な格下げは禁止。
+#   - 外側の Ralph イテレーションは工程間の前進のみに使い、同一工程内の
+#     レビュー差し戻しではイテレーションを消費しない。
+#   - 「同一内容」の判定基準: 完全一致または意味的に同一とみなせるものを指す
+#     （planner / builder / debt-analyzer に共通適用。「同一 issues」も同義）。
+#     判定者は親 hat。判定根拠として前回報告との差分引用を review.md と scratchpad の
+#     両方に記録する。肯定例: 文言のみ変えた同一指摘。否定例: 指摘箇所は同じだが
+#     根拠・条件が変わったものは非同一とする。
+#   - 残課題エスカレーション（fail-open緩和版）:
+#     内部ループ上限（3ラウンド）で解消しない Blocking のうち、重大度 minor は
+#     Suggestions 扱いとし、最大4件まで residual として前進できる。
+#     minor は本来 Blocking 件数に含めず Suggestions に記載することを推奨する
+#     （4視点×各1件程度の軽微指摘で blocked にならないようにするため）。
+#     major / critical は residual 不可。
+#     debt-analyzer の issues にも `[critical|major|minor]` を必須とし、waived 可は
+#     minor のみ最大4件までとする（planner / builder と対称。旧上限2件から緩和）。
+#     residual / waived 前進時は review.md の「## 残課題」＋ scratchpad に全件記録し、
+#     emit 文に `blocking: N, residual: M` / `issues: 0, waived: N`
+#     を付記する（blocking＝major/critical残件数の参考値、residual/waived＝minor残件数。
+#     blocking == residual の一致は要求しない。旧仕様の一致必須は廃止）。
+#     未記録のまま major / critical を残して approved / clean を出すことは禁止
+#     （minor の未記録は警告に留める）。
+#     下流 hat（builder / debt-analyzer / finalizer）は上流 review.md の残課題を必読とし、
+#     件数不一致（emit の residual/waived と「## 残課題」件数の不一致）を検出したら
+#     自身の review.md に警告を追記し、review.md を正本として計数を確定して継続する
+#     （blocked にしない。過少申告疑いは `status: residual`＋警告で前進させる）。
+#     不一致時は review.md を正本とし、emit 値を正としない（変更なし）。
+#     approved / debt.clean payload に `blocking:` / `residual:` / `waived:` フィールド欠落
+#     （default_publishes 発動等の無検査通過）がある場合も、ファイル側に記録があれば
+#     警告＋補完で継続する。単一検査の payload・ファイル両欠落は finalizer 手順2の
+#     ファイル別扱いを優先し residual＋警告で継続する（blocked にしない）。
+#     `status: blocked` は artifact 2件以上欠落の場合に限定する（planner / builder / debt 共通）。
+#     major / critical が残存する場合は approved / clean を出さず、blocked 系イベント
+#     （plan.blocked / impl.blocked / debt.blocked）で明示終了する。
+#     無 emit のまま停止すること（外側ループの空転）は禁止。
+#     集約時に親 hat が subagent の重大度を変更（例: major → minor 扱い）する場合は
+#     変更理由を review.md に明記推奨とする（必須ではない。欠落時は警告に留める）。
+#   - サーキットブレーカー（CB）と residual の優先順位: 同一 Blocking 2回連続時は
+#     CB による方針転換を residual 例外より優先する（並列・逐次共通の単一閾値。
+#     モード別閾値は廃止し、LLM の判定負荷を下げる。予算不足時の早期CBも同閾値のため
+#     別規定は設けない）。
+#     方針転換後に再レビューし、
+#     それでも解消しない minor のみ初めて residual 検討可とする。
+#     方針転換後は連続計数をリセットし、1回目から数え直す。
+#     CB の回避（非同一と主張し続ける）・逃避（形だけの方針転換・residual 逃げ）は警告対象とし、
+#     方針転換記録の欠落自体では blocked にしない（finalizer は警告＋residual で前進させる）。
+#     方針転換内容は具体案（代替案・スコープ縮小の具体）を推奨とする。
+#   - 機能破壊疑いの切り分け: テスト fail で機能回帰・破壊が疑われる場合、
+#     debt-analyzer は `debt.issues`（refactorer 行き）にせず `impl.rework` で
+#     builder に差し戻す。refactorer は機能修正不可のため、`area: builder` の
+#     指摘を受け取ったら機能変更せず警告記録して返す。
+#     `area: builder` を debt ループで回し続けること・waived 化することは禁止。
+#   - Blocking の重大度: subagent 報告の各 Blocking には `[critical|major|minor]` を
+#     必須付記する。critical＝セキュリティ・データ破壊・要求根幹の破綻、
+#     major＝機能不全・重大な設計欠陥、minor＝軽微な改善（命名・重複・文言等）。
+#     residual / waived 可は minor のみ。minor は Blocking ではなく Suggestions への
+#     記載を推奨し、その場合は blocking 件数に含めない（fail-open緩和の中核）。
+#     タグなし・重大度タグ欠落は警告＋ [minor] みなし計上で継続し、blocked にしない。
+#   - 計画の完全度スコア（助言のみ・blocked 化しない）:
+#     計画完成度の可視化のため 10項目×10点＝100点満点で採点する。90点以上で完成とする。
+#     項目: (1)背景・ゴール明確 (2)非ゴールとの矛盾なし (3)変更ファイル一覧と内容が具体
+#     (4)手順が順序付き・実行可能 (5)テストコマンド具体化
+#     (6)期待結果・件数形式まで定義、手動確認のみでない
+#     (7)受け入れ条件が検証可能・曖昧語なし (8)既存構成との整合・依存方向・分割妥当
+#     (9)工数・リスク・代替案・ロールバック記載 (10)境界値・異常系の網羅。
+#     各項目は pass=`10/10` / fail=`0/10` とし、表記は `10/10`・`0/10` に統一する
+#     （本規定の適用範囲は Score 節・完全度スコア節の値表記に限定する。
+#     説明文中の `10項目×10点`・`各10点満点` 等の prose は対象外であり違反ではない。
+#     値表記での `10点`・`10/0`等の別表記は不可。finalizer の機械検査 `rg "^\s*- " | rg -o "10/10|0/10"` が前提）。
+#     pass には根拠 file:line を必須とする。
+#     根拠なし・未報告の項目は fail（`0/10`）とする。分担目安: Requirements=(1)(2)(7)、
+#     Architecture=(3)(4)(8)、Feasibility=(9)＋(4)の実行可能性再確認、
+#     Testability=(5)(6)(10)。(4)は Architecture が正本とし、Feasibility の(4)再確認は
+#     参考値として重複計上しない。合計は常に10項目（(1)〜(10)各1回）で算出する。
+#     最終採点は親 hat が集約して確定する。
+#     スコアは助言のみとし、90点未満・スコア欠落だけでは blocked にしない。
+#     finalizer は score<90 または欠落時に警告を追記し `status: residual`（要人間確認）とする。
+#     `status: clean` は residual 0 かつ waived 0 かつ score>=90 の場合のみとする。
+#     （意図的に clean は狭き門とする。fail-open緩和後は `status: residual` が正常終了の
+#     既定であり、失敗ではない。要人間確認の上で前進させる）。
+#
+# 設定の優先順位:
+#   - `-H hats.yml` 指定時は本ファイルの event_loop が ralph.yml より優先される。
+#     max_iterations / max_runtime_seconds は両ファイルで同一値（50 / 14400）に合わせている。
+#   - planner / builder の timeout: 1600 は ralph.yml の adapters.opencode.timeout: 1800 より
+#     200s 短くし、emit / commit 直前キルの余裕（ヘッドルーム）を確保する。
+#     この200sは adapter 差であり、各 hat の予算余裕（planner 370s / builder 170s）とは別物。
+#     adapter 側が小さいと先にキルされるため、変更時は両方を同時に変え、
+#     常に hat < adapter の関係を保つこと。
+#     debt-analyzer / refactorer / finalizer は短時間工程のため timeout: 600 とする
+#     （adapter 上限 1800 の範囲内。意図的除外ではなく工程規模による設定）。
+#   - 時間予算の超過時アクション: 1ラウンド上限は planner 450s / builder 550s
+#     （内訳: レビュー250＋集約40〜50＋修正110〜150＋テスト・書出30〜100。
+#     subagent 個別250sで打切り、超過分は次ラウンド持越し・持越し不可なら打切り）。
+#     保証範囲は Phase 1（250s）＋フルラウンド2回＋ Phase 4（80s）まで。
+#     3ラウンド目は上限であり保証ではない。残り予算不足時（planner 530s / builder 630s
+#     未満。＝最終ラウンド上限450/550＋Phase 4確定80s）は現状で確定判断する。commit は最終確定を待たず、各ラウンドの修正完了時に
+#     分割して即 commit する（git 手順化。キル時の未 commit 差分消失を防ぐ）。
+#     逐次フォールバック時は1視点100s目安、合計400s超過で自己点検に切替える。
+#     この400sを「切替閾値400s」と呼ぶ（逐次レビュー内訳の400sとは別物。偶然同値）。
+#     並列→逐次への途中切替時は、消費済み時間を差し引いた残り予算で逐次上限を適用し、
+#     残りが逐次1ラウンド分に満たなければ現状確定する（残り枠の持越し計算必須）。
+#     逐次ラウンド上限は planner 550s / builder 600s とする
+#     （内訳: レビュー400＋集約30＋修正100＋書出20。builder は＋差分テスト30（フル再実行はしない）。
+#     builder 逐次合計580に対し上限600は20sの slack を含む）。
+#     修正100sに収まらない分は次ラウンド持越し。
+#     逐次時の保証範囲: Phase 1（250s）＋2ラウンド＋ Phase 4（80s）。
+#     planner 250+2×550+80=1430、builder 250+2×600+80=1530（いずれも1600以内）。
+#     逐次時は内部ループ上限を2ラウンドに引下げる（3ラウンドでは予算超過するため）。
+#     hat起動直後に `date +%s` で起動 anchor を取得し `anchor: <epoch>` 形式で scratchpad に記録し、残り＝timeout−elapsed で計算する。
+#     各 Phase / ラウンド開始時にも `date +%s` を取得・scratchpad に記録し、
+#     残り時間を自前計算する（自己申告の体感時間は不可）。
+#     残り200sを切ったら新規ラウンド開始禁止・現状記録して確定フェーズへ進む（530s/630s gate と両方満たす必要があり、530s/630s が支配的。200s は確定フェーズの最低所要）。
+#     予算超過→キル後は中間ファイル（plan.md 初稿・各ラウンド review.md）から
+#     外側再試行で未完ラウンドから再開する（再開手順: scratchpad＋中間ファイルを
+#     読み直し、完了済みラウンドは再実行しない）。
+#
+# 受容リスク（残存する前提・完全防止しないことを受容した事項）:
+#   - Task 4並列の真の同時性は backend 依存。直列化時は逐次規定で吸収するが性能保証なし。
+#   - wall-clock・残り予算計算は LLM の自己申告計算に依存する。anchor 形式で検証可能性のみ担保する。
+#   - 重大度の最終判断には主観が残る。分布突合・再評価記録・CB検査で抑止するが、結託的過小評価の完全防止はしない。
+#   - emit payload は自由形式文字列。スキーマ一覧＋欠落検査で表記揺れを検出するが、機械バリデータは持たない。
+#   - debt-analyzer は単独判定のため多角レビューなし。自己再評価＋finalizer 検査で代替する。
+#   - 軽微な書式ミス1件での false blocked は出さない（fail-open緩和）。
+#     タグ欠落・件数不一致・見出し変異・raw一部欠落・再評価記録欠落・CB記録欠落は
+#     警告＋ `status: residual` で前進させる。blocked は major/critical残存・テストfail・
+#     artifact 2件以上欠落に限定する（単一ファイル＋対応payloadの両欠落は residual＋警告）。運用で警告を消化し、
+#     再投入で回復する。
+#     なお `[minor]` みなし継続は major のタグ落としによる格下げ見逃しを許容する。
+#     受容リスクとし、運用でタグなし検出の hit 件数を監視する（多発時は再投入で回復）。
+#
+# 検証方法（hats.yml 自体の検証手順）:
+#   ```bash
+#   python3 -c "import yaml,pathlib; d=yaml.safe_load(pathlib.Path('hats.yml').read_text()); print('YAML OK', list(d['hats'].keys()))"
+#   python3 -c "import yaml; d=yaml.safe_load(open('hats.yml')); ts={t:h for h,v in d['hats'].items() for t in v.get('triggers',[])}; ps={p for v in d['hats'].values() for p in v.get('publishes',[])}; print('orphan triggers:', set(ts)-ps-{'work.start'}); print('orphan publishes:', {p for p in ps if p not in ts and p!='LOOP_COMPLETE'})"
+#   rg -n "emit|triggers|publishes|plan\\.approved|plan\\.blocked|impl\\.approved|impl\\.blocked|impl\\.rework|debt\\.|refactor\\.done|work\\.start|LOOP_COMPLETE" hats.yml
+#   rg -n "residual|waived|フォールバック|残課題|重大度|critical|major|minor" hats.yml
+#   rg -n "status: clean|status: residual|status: blocked" hats.yml
+#   python3 -c "import yaml,pathlib,re; t=pathlib.Path('hats.yml').read_text(); d=yaml.safe_load(t); print('payload schema refs:', len(re.findall(r'residual|waived', t))>0)"
+#   ```
+#
+# emit payload スキーマ一覧（自由形式文字列だが推奨フィールドあり。欠落は警告＋補完）:
+#   - plan.approved: plan / review / rounds / blocking / residual / score（推奨6件）
+#   - plan.blocked: reason / blocking / residual(=0) / detail（推奨4件）
+#   - impl.approved: tests / command / count / changed / review / rounds / blocking / residual（推奨8件）
+#   - impl.blocked: reason / blocking / residual(=0) / detail（推奨4件）
+#   - impl.rework: reason / issues / area(=builder) / tests / command / count / detail（推奨7件）
+#   - debt.issues: issues / detail（推奨2件）
+#   - debt.clean: issues(=0) / waived（推奨2件）
+#   - debt.blocked: reason / issues / detail（推奨3件）
+#   - refactor.done: fixed / tests / command / count（推奨4件）
+#   - LOOP_COMPLETE: clean/residual系は status(=clean|residual) / residual / waived（推奨3件）。
+#     blocked系は status(=blocked) / reason / detail（推奨3件）。分岐で推奨集合が異なる。
+#     フィールド欠落は単独では blocked にしない。ファイル側記録で補完し警告に留める。
+#     単一検査の payload・ファイル両欠落は finalizer 手順2のファイル別扱いを優先し
+#     residual＋警告とする。blocked は artifact 2件以上欠落に限定する。
+#     `blocking == residual` の一致検査は廃止する（blocking は major/critical残の参考値、
+#     residual は minor残の確定値として独立に扱う）。
+
+# 集約定義（finalizer の検査基準・fail-open緩和版）:
+#   - residual 合計 ＝ planner residual ＋ builder residual。各 approved payload の residual と
+#     各 review.md「## 残課題」の件数が不一致の場合は警告を追記し review.md を正本として
+#     確定して継続する（blocked にしない。不一致時は review.md を正本とし、emit 値を正としない）。
+#   - waived ＝ debt.clean payload の waived。debt-report「## 残課題」と不一致の場合は
+#     警告＋ review.md 正本で継続する。
+#     waived / blocking / residual フィールド欠落（default_publishes 発動等の無検査通過）は
+#     ファイル側記録で補完し警告に留める。単一検査の両欠落は finalizer 手順2の
+#     ファイル別扱いを優先し residual＋警告とする。blocked は artifact 2件以上欠落に限定する。
+#   - 上限: residual 合計<=8 かつ各hat個別<=4、かつ waived<=4、かつすべて minor の場合は
+#     `status: residual` で前進させる（旧上限 4/2/2 から緩和）。
+#     緩和により最大 residual 8＋waived 4＝12件の minor 残で前進可能となる。
+#     警告放置による負債溜まりを防ぐため、運用で警告件数を監視し再投入で回収すること。
+#     major/critical 混入・テストfail のみ status: blocked。minor の上限超過自体では blocked にしない。
+#     debt-analyzer は単独判定のため raw 永続化なし。自己再評価記録で代替する（非対称は意図的）。
+#     tests / command / count 等の値の真偽検証は builder 内チェック＋最終テスト再実行に委ね、
+#     finalizer はフィールド欠落検査までとする（値の真偽の機械検証は持たない。受容）。
+#   - status: clean ＝ residual 0 かつ waived 0 かつ plan score>=90。
+#     score<90・スコア欠落・その他 minor・警告のみは status: residual（要人間確認）。
+#     スコアだけでは blocked にしない。blocked は major/critical残存・テストfail・
+#     artifact 2件以上欠落に限定する（単一ファイル＋対応payloadの両欠落は手順2の
+#     ファイル別扱いで residual＋警告とし、blocked にしない）。
+#     status: blocked ＝ 前進不能の明示終了。再投入手順:
+#     `ralph run -c ralph.yml -H hats.yml -p "未解決一覧の続き"` で再開し、
+#     再開時は scratchpad＋plan.md＋各 review.md＋debt-report.md を読み直す。
+#     完了済みラウンドは再実行しない。
+
 event_loop:
-  starting_event: "task.start"
+  starting_event: "work.start"
+  completion_promise: "LOOP_COMPLETE"
+  max_iterations: 50
+  max_runtime_seconds: 14400
 
 hats:
-  builder:
-    name: "Builder"
-    triggers: ["task.start"]
-    publishes: ["task.done"]
+  # ─────────────────────────────────────────────
+  # 1. 計画の作成＋多角レビュー（一体型）
+  # ─────────────────────────────────────────────
+  planner:
+    name: "📋 Planner"
+    description: "計画作成と4視点subagentレビュー・修正を1イテレーションで完結する"
+    triggers: ["work.start"]
+    publishes: ["plan.approved", "plan.blocked"]
+    default_publishes: "plan.approved"  # 意図的fail-open。無検査通過は payload欠落として警告＋ファイル補完で継続（単一両欠落もresidual＋警告。blockedはartifact 2件以上欠落に限定）
+    timeout: 1600
     instructions: |
-      Implement the task from PROMPT.md.
-      Run any relevant tests.
-      When finished, emit task.done and print LOOP_COMPLETE.
+      ## PLANNER — 計画作成＋多角レビュー一体型
+
+      計画の作成・レビュー・修正をこの hat の1回の起動内で完結させる。
+      別 hat への委譲や `ralph wave emit` は使わない。
+
+      時間予算（壁時計で管理）: 保証範囲は Phase 1 初稿250s ＋ フルラウンド2回
+      ＋ Phase 4 確定80s ＝ 1230s以内（timeout 1600 に対し370sの余裕）。
+      1ラウンド上限450s（内訳: レビュー250＋集約40＋計画修正110＋書出30。
+      合計430に対し上限450は20sの slack を含む）。
+      修正が110sに収まらない分は次ラウンド持越し、持越し不可なら打切って現状で
+      確定判断する）。3ラウンド目は上限であり保証ではない。残り予算530s以上ある場合のみ
+      開始し、不足時は現状（Blocking ゼロなら approved、minor 残のみなら residual、
+      それ以外は blocked）で確定フェーズへ進む。
+      subagent 個別は250sで打切り、超過分は縮小して再試行する。
+      hat起動直後に `date +%s` で起動 anchor を取得し `anchor: <epoch>` 形式で scratchpad に記録し、残り＝timeout−elapsed で計算する。
+      各 Phase / ラウンド開始時にも `date +%s` を取得・scratchpad に記録し、
+      残り時間を自前計算する（体感時間は不可）。
+      各ラウンド終了時に scratchpad へ残り予算・進捗を記録する。
+      残り200sを切ったら新規ラウンド開始禁止・現状記録して確定フェーズへ進む（530s gate と両方満たす必要があり、530s が支配的。200s は確定フェーズの最低所要）。
+      逐次フォールバック時は内部ループ上限を2ラウンドに引下げ、ラウンド上限を
+      自hatの逐次上限（planner 550s）に読替える（逐次レビュー400s＋集約30s＋修正100s＋書出20s。
+      他hat値の詳細は冒頭方針を参照）。
+      subagent 報告は受領時に原文のまま `.ralph/agent/raw/plan-roundN-<role>.md` に
+      永続化した上で、集約時に要点圧縮する（圧縮後のみ残すことは禁止。
+      finalizer の重大度変更検査の突合対象とするため）。
+      raw ファイル名文法（正規形）: `<phase>-roundN-<role>[-partial][-retryK].md`。
+      `<role>` の値域は 4視点名（requirements / architecture / feasibility / testability）
+      または self に固定する。通常報告は `plan-roundN-<視点名>.md`、自己点検は
+      `plan-roundN-self.md`、部分的自己補完は `plan-roundN-<視点名>-partial.md` とする。
+      再依頼分は末尾に `-retryK` を付与する（例: `plan-roundN-requirements-retry1.md`、
+      `plan-roundN-self-retry1.md`）。`-self-self-retryK` のような重複形は使わない（role=self に `-retryK` を直接付与する）。
+      同一ファイル名の上書きは禁止。N・K とも1始まりとし、K は視点別連番とする。
+      外側再試行では未完ラウンドの N を継承する（完了済み N の再採番は禁止）。
+      各 Phase 完了時に中間ファイル（plan.md 初稿・各ラウンドの plan-review.md）を
+      必ず書き出す（タイムアウト時も外側再試行で未完ラウンドから再開できるよう全損を防ぐ。
+      再開時は scratchpad＋中間ファイルを読み直し、完了済みラウンドは再実行しない）。
+
+      ### 読むもの
+      1. PROMPT.md（タスクの要求・制約）
+      2. scratchpad（進捗・過去の経緯）
+      3. 対象コード（関連ファイルの構成把握に必要な範囲のみ）
+
+      ### Phase 1 — 計画初稿
+      要求をタスク分解し、以下を含む計画を `.ralph/agent/plan.md` に書く:
+        - 背景・ゴール・非ゴール
+        - 変更ファイル一覧と変更内容
+        - 手順（順序付きステップ）
+        - テスト計画（実行コマンド・期待結果まで具体化。例: `pytest tests/test_x.py` で全件パス。
+          終了コード・件数（`N pass / M fail`）の記録形式まで定める。「手動確認」のみは不可）
+        - リスクと代替案
+
+      ### Phase 2 — subagent並列レビュー（多角的視点）
+      Task ツールで4つの subagent を**同一ブロック内（＝1ターン内の複数 tool call による
+      同時発行）で並列起動**する。逐次起動は禁止。必ず4件同時であること。
+
+      各 subagent への依頼プロンプト:
+        1. ROLE: Requirements Reviewer. 要求の完全性・曖昧さ・非ゴールとの矛盾・受け入れ条件の検証可能性をレビューせよ。対象: PROMPT.md と .ralph/agent/plan.md。担当スコア項目 (1)(2)(7) を各10点満点（表記は `10/10`=pass・`0/10`=fail に統一）で採点せよ。
+        2. ROLE: Architecture Reviewer. 設計の妥当性・既存構成との整合性・ファイル分割・依存方向・拡張性をレビューせよ。対象: .ralph/agent/plan.md と関連コード。担当スコア項目 (3)(4)(8) を各10点満点（表記は `10/10`=pass・`0/10`=fail に統一）で採点せよ。
+        3. ROLE: Feasibility & Risk Reviewer. 実現可能性・工数見積の現実味・リスクと代替案の網羅性・ロールバック可能性をレビューせよ。対象: .ralph/agent/plan.md。担当スコア項目 (9)＋(4)の実行可能性再確認を各10点満点（表記は `10/10`=pass・`0/10`=fail に統一）で採点せよ。
+        4. ROLE: Testability Reviewer. テスト計画の具体性・境界値/異常系の網羅・検証手段の実行可能性をレビューせよ。対象: .ralph/agent/plan.md。担当スコア項目 (5)(6)(10) を各10点満点（表記は `10/10`=pass・`0/10`=fail に統一）で採点せよ。
+
+      subagent への制約（依頼文に明記せよ）:
+        - 読み取り専任。コード・計画の修正は禁止。レビュー報告のみ返す。
+        - 自分の視点のみ担当し、専門外には踏み込まない。
+        - 自分の視点に関連記述がない場合は「該当なし」と明記する（無言・空報告は禁止）。
+          該当なしの場合も確認した章・ファイル一覧を Evidence に記載すること
+          （欠落時は警告＋再依頼対象とし、blocked にはしない）。
+        - Blocking には必ず重大度 `[critical|major|minor]`、file:line または該当セクション名と
+          根拠（PROMPT.md の章・参照ファイル:行）を添える。根拠なしの指摘は無効として扱い
+          Blocking 件数に含めない（blocked にはしない）。
+          critical＝要求根幹の破綻・実現不可能、major＝重大な設計欠陥、minor＝軽微な改善。
+          重大度の定義は本ファイル冒頭の定義と同義とする（文言差は許容し、意味を優先）。
+        - 報告形式:
+          ```
+          ## [Role名]
+          ### Blocking（計画差し戻しが必要）
+          - [major] file:line/section — 内容（根拠付き）
+          ### Suggestions
+          - ...
+          ### Evidence
+          - 根拠（PROMPT.md の章・参照ファイル:行）
+          ### Score（担当項目のみ。各 `10/10`/`0/10`＋根拠 file:line。根拠なしは `0/10`。担当項目を全件列挙すること）
+          - (1) 背景・ゴール明確: 10/10（根拠: ...）
+          ### LGTM
+          - 問題なし / 軽微のみ / 該当なし
+          ```
+
+      フォールバック（下記の発動条件を満たす場合のみ）:
+        発動条件: Task ツールの存在なし／呼び出しエラー／タイムアウトを1回試行して確認したこと。
+        発動時は scratchpad に「フォールバック発動: <理由・エラー・試行回数>」を記録する。
+        安易な格下げは禁止。
+        - まず逐次起動で4視点を順に実行する（視点・報告形式は同じ）。
+          逐次時は plan-review.md に「フォールバック: 逐次」と明記する。
+        - 逐次も不可なら、親 hat 自身が下記チェックリストで自己点検し、
+          plan-review.md に「フォールバック: 自己点検」と明記する。
+          自己点検チェックリスト（4視点×各3項目を順に自己点検し、各項目に
+          pass/fail＋根拠 file:line を記録。主観的項目も根拠必須）:
+          [要求] 非ゴールとの矛盾なし／受け入れ条件が検証可能／曖昧語の残存なし
+          [設計] 既存構成と整合／依存方向が正しい／ファイル分割が妥当
+          [実現性] 工数見積が現実的／リスクと代替案あり／ロールバック可能
+          [テスト] 実行コマンド具体化／境界値・異常系あり／手動確認のみでない
+        - いずれの場合も `ralph wave emit` は使わない。
+
+      ### Phase 3 — 集約・修正（内部ループ）
+      1. 4件の報告原文を `.ralph/agent/raw/plan-roundN-<role>.md` に保存し（上書き厳禁・
+         追記のみ。自己点検 fallback 時は親 hat の点検記録を
+         `.ralph/agent/raw/plan-roundN-self.md` に保存。再実行時は `-retryK` 末尾付与（`plan-roundN-self-retryK.md`）で別ファイル化する）、
+          集約し `.ralph/agent/plan-review.md` に書く。集約時に各 Blocking の重大度妥当性を
+          1行で再評価し記録する（再評価記録は推奨。欠落時は警告に留め blocked にしない）。形式:
+          ```markdown
+          # 計画レビュー結果（YYYY-MM-DD・第Nラウンド）
+          ## サマリ（Blocking: N / Suggestions: N / 報告視点: N/4 / score: N/100）
+          ## Blocking（全件・重大度付き）
+          ## Suggestions
+          ## LGTM / 該当なしの視点
+          ## 完全度スコア（N/100・内訳10項目・各 `10/10`・`0/10`＋根拠 file:line）
+          ## 残課題（3ラウンドで解消しない minor のみ記載）
+          ```
+          Blockingゼロ時は `## Blocking` 節に `- なし` と書く（空欄禁止）。
+          `- なし` 行はタグなし検出の除外対象とする。
+          完全度スコアは10項目×各 `10/10`・`0/10` で採点し合計を `score: N/100` と記録する。
+         (4)は Architecture を正本とし Feasibility の(4)再確認は重複計上しない（合計は(1)〜(10)各1回）。
+         未報告・根拠なし項目は `0/10` とする。スコア未記録・内訳欠落は警告に留め blocked にしない。
+      2. 報告が4件揃わない、または Evidence のない Blocking は無効として扱い、
+         不足分を補うよう該当 subagent に再依頼する。
+         Evidence 欠落のみでは Blocking 化しない（builder と対称の fail-open扱い）。
+         再依頼は同一ラウンド内で最大2回までとし、それでも揃わなければ下記で継続する。
+         再依頼でも補完不能な Evidence 欠落指摘は無効のまま plan-review.md に警告を記録して継続する
+         （blocked にしない）。
+         再依頼の無限繰り返しは禁止。
+         再依頼2回分の時間も当該ラウンド予算（並列時450s／逐次時550s）に含めて会計する。
+         予算超過時は再依頼を打切り、下記に進むことを優先する。
+         - 欠損1視点まで: 親 hat が該当視点の自己点検チェックリストで部分的自己補完し、
+           plan-review.md に「フォールバック: 部分的自己補完（<視点名>）」と明記し、
+            raw には `.ralph/agent/raw/plan-roundN-<視点名>-partial.md` として保存して継続する。再実行時は `-retryK` 末尾付与で別ファイル化する
+           （残り3件の報告＋1件自己補完で4件揃いとみなす。単独 Task 失敗・遅延での早詰み防止）。
+          - 欠損2視点以上: 親 hat が欠損各視点の自己点検チェックリストで部分的自己補完し、
+            plan-review.md に「フォールバック: 部分的自己補完（<視点名>×N）」と明記して継続する。
+            `[major] 報告欠損` としての Blocking 化はしない（fail-open緩和。欠損自体では blocked にしない）。
+            補完不能な場合のみ `[minor] 報告欠損` として Suggestions に記録する。
+       3. 有効な Blocking（major / critical）のみが修正必須である。
+          minor は Suggestions への記載を推奨し、blocking 件数に含めない。
+          minor を Blocking に残したまま `plan.approved` で前進してよい（residual 計上は任意）。
+          有効な major / critical が1件でもあれば `.ralph/agent/plan.md` を修正する。
+         指摘を黙殺しない。反論がある場合は計画内に「検討したが採用しない理由」
+         として明記する。ただし理由の記載だけでは指摘解消にならない。
+         再レビューで妥当と認められるまで Blocking は残るものとして扱う。
+      4. 修正後は Phase 2 に戻る。内部ループは最大3ラウンドまでとする。
+      5. 同一内容（完全一致または意味的に同一とみなせるもの）の Blocking が2回連続で
+         返ってきたら、residual 例外より優先して方針転換する（並列・逐次共通の単一閾値）。
+         同一性判定は親 hat が行い、前回報告との差分引用を plan-review.md と scratchpad の
+         両方に記録する。肯定例: 文言のみ変えた同一指摘。否定例: 箇所は同じだが
+         根拠・条件が変わったものは非同一とする。
+         方針転換は具体案推奨（代替案の採用・スコープ縮小の具体。
+         PROMPT.md の前提確認は単独起動では解決不能な場合が多いため、人間への
+         確認事項として記録に残す）。形だけの方針転換・residual 逃げは警告対象とする（blocked にしない）。
+         scratchpad に「2回連続の同一指摘: <内容> → 方針転換: <内容>」と記録し、
+         無言で同じ計画を出し直さない。
+         方針転換後は連続計数をリセットし1回目から数え直す。
+         方針転換後に再レビューし、それでも解消しない minor のみ初めて residual 検討可。
+         ただし再レビュー分の残り予算がなければ再レビューは行わず、方針転換案の記録のみ残して
+         現状の重大度ゲート（major/critical残のみ blocked、minor は residual）で確定する。
+       6. major / critical ゼロ（minor・Suggestions のみ / LGTM / 該当なし）で次に進むのが原則。
+          minor は Blocking 件数に含めず Suggestions に記載することを推奨する。
+          3ラウンドで解消しない場合の例外（fail-open緩和版）: 残存 major / critical がゼロで
+          minor のみの場合、最大4件まで残課題として plan-review.md の「## 残課題」と
+          scratchpad に全件記録し、なぜ次に進めるかを明記した上で
+          `blocking: 0, residual: M`（M は minor 残件数）付きで前進できる
+          （隠蔽は禁止。`blocking == residual` の一致は要求しない）。
+          残存 minor が5件以上の場合も警告付きで前進可とし、下記 blocked にはしない
+          （上限超過の黙認ではなく residual として明示する）。
+          予算枯渇時（残り予算不足で次ラウンド開始不可）の確定判断も本項に従う。
+          すなわち major / critical 残存ありでの予算枯渇のみ blocked 確定とし、
+          minor 残のみでの予算枯渇は residual 前進とする。
+          major / critical が1件でも残る場合のみ `plan.approved` を出さず、
+         現状最善と未解決一覧を記録した上で下記 blocked を emit して明示終了する
+         （無 emit のまま停止すること＝外側ループの空転は禁止）。
+          ```bash
+          ralph emit "plan.blocked" "reason: major/critical残存, blocking: N, residual: 0, detail: .ralph/agent/plan-review.md"
+          ```
+         blocked payload にも `residual: 0` を付記し（residual 前進でないことを明示）、
+         未解決件数の追跡検証を可能にする。
+         下流 builder はこの残課題を必読とし、Phase 1 で引き継ぐこと。
+         builder は emit の residual と「## 残課題」件数の不一致を検出したら、
+         自身の impl-review.md に警告を追記すること。
+
+      ### Phase 4 — 確定
+      1. scratchpad に計画の要点・レビューラウンド数・残課題・完全度スコアを記録する。
+      2. 終了条件:
+         ```bash
+          ralph emit "plan.approved" "plan: .ralph/agent/plan.md, review: .ralph/agent/plan-review.md, rounds: N, blocking: 0, residual: M, score: S"
+          ```
+          通常は `blocking: 0, residual: 0, score: 90〜100`。minor 残あり前進時は `blocking: 0, residual: M`
+          （M は minor 残件数、最大4目安。`blocking == residual` は要求しない）。
+          S は完全度スコア（0〜100）。スコア未算出時は `score: unknown` と明記し警告に留める。
+
+      ### 禁止
+      - ❌ `ralph wave emit`（subagent並列化は Task ツールで行う）
+      - ❌ 計画なしにコードを書く
+      - ❌ 残課題記録なしに major / critical を残したまま approved を出す
+      - ❌ major / critical を residual として前進する
+      - ❌ レビュー指摘の黙殺・根拠なしの指摘の採用
+      - ❌ subagent にコード修正をさせる
+      - ❌ フォールバック条件を満たさず並列要求を格下げする
+
+  # ─────────────────────────────────────────────
+  # 2. 実装＋多角レビュー（一体型）
+  # ─────────────────────────────────────────────
+  builder:
+    name: "⚡ Builder"
+    description: "実装と4視点subagentレビュー・修正を1イテレーションで完結する"
+    triggers: ["plan.approved", "impl.rework"]
+    publishes: ["impl.approved", "impl.blocked"]
+    default_publishes: "impl.approved"  # 意図的fail-open。無検査通過は payload欠落として警告＋ファイル補完で継続（単一両欠落もresidual＋警告。blockedはartifact 2件以上欠落に限定）
+    timeout: 1600
+    instructions: |
+      ## BUILDER — 実装＋多角レビュー一体型
+
+      実装・テスト・レビュー・修正をこの hat の1回の起動内で完結させる。
+      別 hat への委譲や `ralph wave emit` は使わない。
+
+      時間予算（壁時計で管理）: 保証範囲は Phase 1 実装250s ＋ フルラウンド2回
+      ＋ Phase 4 確定80s ＝ 1430s以内（timeout 1600 に対し170sの余裕）。
+      1ラウンド上限550s（内訳: レビュー250＋集約50＋修正150＋差分テスト80＋書出20。
+      修正・テストが枠に収まらない分は次ラウンド持越し、持越し不可なら打切って現状で
+      確定判断する）。3ラウンド目は上限であり保証ではない。残り予算630s以上ある場合のみ
+      開始し、不足時は現状（Blocking ゼロ＋テスト pass なら approved、minor 残のみなら
+      residual、それ以外は blocked）で確定フェーズへ進む。
+      subagent 個別は250sで打切り、超過分は縮小して再試行する。
+      hat起動直後に `date +%s` で起動 anchor を取得し `anchor: <epoch>` 形式で scratchpad に記録し、残り＝timeout−elapsed で計算する。
+      各 Phase / ラウンド開始時にも `date +%s` を取得・scratchpad に記録し、
+      残り時間を自前計算する（体感時間は不可）。
+      各ラウンド終了時に scratchpad へ残り予算・進捗を記録する。
+      残り200sを切ったら新規ラウンド開始禁止・現状記録して確定フェーズへ進む（630s gate と両方満たす必要があり、630s が支配的。200s は確定フェーズの最低所要）。
+      逐次フォールバック時は内部ループ上限を2ラウンドに引下げ、ラウンド上限を
+      自hatの逐次上限（builder 600s）に読替える（逐次レビュー400s＋集約30s＋修正100s＋差分テスト30s＋書出20s＝580。残り20sは slack。他hat値の詳細は冒頭方針を参照）。
+      subagent 報告は受領時に原文のまま `.ralph/agent/raw/impl-roundN-<role>.md` に
+      永続化した上で、集約時に要点圧縮する（圧縮後のみ残すことは禁止。
+      finalizer の重大度変更検査の突合対象とするため）。
+      raw ファイル名文法（正規形）: `<phase>-roundN-<role>[-partial][-retryK].md`。
+      `<role>` の値域は 4視点名（correctness / security / maintainability / testquality）
+      または self に固定する。通常報告は `impl-roundN-<視点名>.md`、自己点検は
+      `impl-roundN-self.md`、部分的自己補完は `impl-roundN-<視点名>-partial.md` とする。
+      再依頼分は末尾に `-retryK` を付与する（例: `impl-roundN-correctness-retry1.md`）。
+      `-self-self-retryK` のような重複形は使わない（role=self に `-retryK` を直接付与する）。
+      同一ファイル名の上書きは禁止。N・K とも1始まりとし、K は視点別連番とする。
+      外側再試行では未完ラウンドの N を継承する（完了済み N の再採番は禁止）。
+      各 Phase 完了時に中間ファイル（実装差分・各ラウンドの impl-review.md）を
+      必ず書き出す（タイムアウト時の全損を防ぐ。再開時は scratchpad＋中間ファイルを
+      読み直し、完了済みラウンドは再実行しない）。
+
+      ### 読むもの
+      1. `.ralph/agent/plan.md`（承認済み計画・唯一の作業範囲）
+      2. scratchpad と `.ralph/agent/plan-review.md`（残課題の確認。上流の残課題は必読とし、
+         引き継ぎを scratchpad に記録する。emit の residual と「## 残課題」件数の不一致が
+         あれば自身の impl-review.md に警告を追記する）
+      3. `impl.rework` で起動された場合（debt-analyzer からの機能破壊疑いの差戻し）は、
+         `.ralph/agent/debt-report.md` の `area: builder` 指摘のみ対応する。
+         debt-report.md 自体が欠落している場合は検証不能として下記 blocked で明示終了する
+         （警告継続は禁止。正本不在のため）。
+         Phase 1〜3 を該当箇所に限定して再実行し、関連テスト再実行の上で
+         `impl.approved` を再 emit する（フルスコープの作り直しはしない）。
+
+      ### Phase 0 — rework 受信時の分岐
+      トリガーが `impl.rework` の場合は Phase 1 の実装範囲を `area: builder` 指摘に限定し、
+      修正後に Phase 2〜3 を1〜2ラウンドで再実行する（3ラウンド上限は維持）。
+      rework 往復の上限: 1往復 ＝ debt-analyzer の rework 発行 → builder 対応
+      → debt-analyzer 再検査の1循環とする。routing は payload、内容正本は debt-report.md
+      （payload優先で受信し、内容はファイルで確認する順序）とする。同一内容の rework は最大2往復までとし
+      （3回目の同一 rework は受け付けず `impl.blocked` で明示終了する）。
+      往復回数は scratchpad に計数記録し、同一性判定は親 hat が前回 rework との
+      差分引用で行う。計数正本は debt-analyzer 側の発行回数とし、builder 側の受領回数と
+      食い違ったら警告記録の上で debt-analyzer 側を正とする。
+      振動対策: 同一・非同一を問わず rework 通算3往復を超えたら、見解相違の振動とみなし
+      `impl.blocked` で明示終了する（文言僅変による上限回避は禁止。
+      通算計数は単調増加・リセットなし）。同一上限と通算上限はいずれか先に達した方で
+      blocked とする（OR 条件）。
+      rework payload は `issues: N, area: builder` の構造化形式で受け取る。
+      debt-report.md の Markdown 解析に依存しない（payload 件数とファイル件数の不一致が
+      あれば impl-review.md に警告を追記し、正本は debt-report.md とする）。
+
+      ### Phase 1 — 実装
+      0. 上流成果物の存在確認: `.ralph/agent/plan.md` が不在の場合は検査不能として
+         下記 blocked で明示終了する（plan-review.md 不在は警告記録の上で継続可）。
+         ```bash
+         ralph emit "impl.blocked" "reason: 上流plan.md欠落, blocking: 1, residual: 0, detail: scratchpad"
+         ```
+      1. 計画の範囲内のみ実装する。計画外の改善・ついでの修正はしない。
+         原則として `.ralph/agent/plan.md` は不変とし、乖離は `.ralph/agent/impl-review.md`
+         と scratchpad に記録する。計画自体の欠陥で進行不能な場合のみ、親 hat（builder）の
+         判断で最小限（進行不能箇所の直接関連のみ）の plan.md 更新を可とする。
+         planner への差戻しイベントはないため、更新内容は impl-review.md に全件記録する。
+         （更新内容は scratchpad にも記録）。
+      2. 関連テストを実行し、scratchpad に以下を記録する:
+         実行コマンド・結果（pass/fail）・件数・失敗時のログ抜粋。
+         件数ゼロを pass 扱いにしない。テストがない箇所にはテストを追加する。
+
+      ### Phase 2 — subagent並列レビュー（多角的視点）
+      Task ツールで4つの subagent を**同一ブロック内（＝1ターン内の複数 tool call による
+      同時発行）で並列起動**する。逐次起動は禁止。必ず4件同時であること。
+
+      各 subagent への依頼プロンプト:
+        1. ROLE: Correctness Reviewer. ロジックの正しさ・境界値/異常系・既存呼び出しへの影響（リグレッション）・計画との一致をレビューせよ。git diff と関連コード・テストを読む。テスト実行は禁止（既存結果の読み取りのみ）。
+        2. ROLE: Security Reviewer. 入力検証・認証認可・秘密情報の扱い・危険なAPI/コマンド実行・依存の脆弱性をレビューせよ。git diff 中心に読む。テスト実行は禁止（既存結果の読み取りのみ）。
+        3. ROLE: Maintainability Reviewer. 可読性・命名・重複・関数サイズ・既存パターンとの整合性・コメント/ドキュメントをレビューせよ。テスト実行は禁止（既存結果の読み取りのみ）。
+        4. ROLE: Test Quality Reviewer. テストの妥当性・カバレッジの穴・モックの使いすぎ・flaky 要素・検証が実行可能か（スタブでごまかしていないか）をレビューせよ。親 hat のテスト結果を共有前提とし、差分・追加確認に絞る。フルスイート再実行は必要な場合のみとし、実行時は他 subagent と同時刻の同一テスト実行を避ける。
+
+      subagent への制約（依頼文に明記せよ）:
+        - 読み取り専任。コードの修正は禁止。レビュー報告のみ返す。
+          一時ファイル・カバレッジ出力等の副作用は可だが、リポジトリに変更を残さない
+         （生成物は /tmp 配下に限定）。テスト実行権限は Test Quality のみが持つ。
+        - 自分の視点のみ担当する。
+        - 主張には必ず重大度 `[critical|major|minor]`、file:line と根拠（テスト出力・仕様）を添える。
+          critical＝セキュリティ・データ破壊、major＝機能不全・重大欠陥、minor＝軽微な改善。
+        - Test Quality 視点は実行した範囲で実行コマンド・件数・ログ抜粋を
+          Evidence に記載する。推測で「たぶん大丈夫」は禁止。
+          ただし正当に「該当なし」の場合は、対象テスト不在の根拠として
+          該当ファイル一覧＋検索コマンドとその結果の記録をもって
+          Evidence 要件を免除する（免除の濫用は禁止）。
+        - 自分の視点に関連コードがない場合は「該当なし」と明記する。
+          Test Quality 以外の視点も、該当なしの場合は確認したファイル一覧を
+          Evidence に記載する（免除濫用防止のため全視点対称）。
+        - 報告形式:
+          ```
+          ## [Role名]
+          ### Blocking
+          - [major] file:line — 内容（根拠付き）
+          ### Suggestions
+          - ...
+          ### Evidence
+          - 実行コマンド: ...（Test Quality のみ必須。該当なし免除の場合はファイル一覧＋検索コマンド結果を記載）
+          - 結果: N pass / M fail
+          - ログ抜粋: ...
+          ### LGTM
+          - 問題なし / 該当なし
+          ```
+
+      フォールバック（下記の発動条件を満たす場合のみ）:
+        発動条件: Task ツールの存在なし／呼び出しエラー／タイムアウトを1回試行して確認したこと。
+        発動時は scratchpad に「フォールバック発動: <理由・エラー・試行回数>」を記録する。
+        安易な格下げは禁止。
+        - まず逐次起動で4視点を順に実行する（視点・報告形式は同じ。テスト実行は
+          Test Quality 相当のみに限定し競合を避ける）。
+          逐次時は impl-review.md に「フォールバック: 逐次」と明記する。
+        - 逐次も不可なら、親 hat 自身が下記チェックリストで自己点検し、
+          impl-review.md に「フォールバック: 自己点検」と明記する。
+          自己点検チェックリスト（各項目に pass/fail＋根拠 file:line を記録）:
+          [正確性] 境界値・異常系の処理あり／既存呼び出しへの影響確認／計画との一致
+          [セキュリティ] 入力検証あり／秘密情報の直書きなし／危険なAPI・コマンド実行なし
+          [保守性] 命名が既存パターンと整合／重複・肥大化なし／必要箇所にコメント
+          [テスト] 関連テスト実行済み／件数記録あり／モックの使いすぎ・flaky 要素なし
+        - いずれの場合も `ralph wave emit` は使わない。
+
+      ### Phase 3 — 集約・修正（内部ループ）
+      1. 4件の報告原文を `.ralph/agent/raw/impl-roundN-<role>.md` に保存し（上書き厳禁・
+         追記のみ。自己点検 fallback 時は親 hat の点検記録を
+         `.ralph/agent/raw/impl-roundN-self.md` に保存。再実行時は `-retryK` 末尾付与（`impl-roundN-self-retryK.md`）で別ファイル化する）、
+          集約し `.ralph/agent/impl-review.md` に書く。集約時に各 Blocking の重大度妥当性を
+          1行で再評価し記録する（再評価記録は推奨。欠落時は警告に留め blocked にしない）。形式:
+         ```markdown
+         # 実装レビュー結果（YYYY-MM-DD・第Nラウンド）
+         ## サマリ（Blocking: N / Suggestions: N / 報告視点: N/4 / テスト: N pass M fail）
+         ## Blocking（全件・重大度付き）
+         ## Suggestions
+         ## LGTM / 該当なしの視点
+         ## 残課題（3ラウンドで解消しない minor のみ記載）
+         ```
+         Blockingゼロ時は `## Blocking` 節に `- なし` と書く（空欄禁止）。
+         `- なし` 行はタグなし検出の除外対象とする。
+      2. 報告が4件揃わない、または（該当なし免除を除き）Test Quality 視点の
+         Evidence（実行コマンド・件数）がない場合は、不足分を補うよう該当
+         subagent に再依頼する。再依頼は同一ラウンド内で最大2回までとし、
+         それでも揃わなければ下記で継続する。再依頼の無限繰り返しは禁止。
+         再依頼2回分の時間も当該ラウンド予算（並列時550s／逐次時600s）に含めて会計する。
+         予算超過時は再依頼を打切り、下記に進むことを優先する。
+         - 欠損1視点まで: 親 hat が該当視点の自己点検チェックリストで部分的自己補完し、
+           impl-review.md に「フォールバック: 部分的自己補完（<視点名>）」と明記し、
+            raw には `.ralph/agent/raw/impl-roundN-<視点名>-partial.md` として保存して継続する。再実行時は `-retryK` 末尾付与で別ファイル化する
+           （残り3件の報告＋1件自己補完で4件揃いとみなす。ただし Test Quality 欠損時は
+           親 hat 自身がテストを実行し、実行コマンド・件数を Evidence に記録する）。
+          - 欠損2視点以上: 親 hat が欠損各視点の自己点検チェックリストで部分的自己補完し、
+            impl-review.md に「フォールバック: 部分的自己補完（<視点名>×N）」と明記して継続する。
+            `[major] 報告欠損` としての Blocking 化はしない（fail-open緩和）。
+            補完不能な場合のみ `[minor] 報告欠損` として Suggestions に記録する。
+            （Test Quality 欠損時は親 hat 自身がテストを実行し Evidence に記録する）。
+       3. 以下のいずれかに該当すれば Blocking（major / critical相当）として扱い修正する:
+          - 自身のテスト実行結果が fail（失敗内容を Blocking に転記。機能破壊が疑われる
+            場合は `[critical]` とし、原因切り分けを優先する）
+          - 有効な major / critical の Blocking が1件以上
+          報告欠損・Test Quality の Evidence 欠落のみでは Blocking 化しない。
+          再依頼1回＋部分的自己補完で継続し、impl-review.md に警告を記録する。
+          minor は Suggestions への記載を推奨し、blocking 件数に含めない。
+      4. 指摘をすべて修正し、関連テストを再実行する。
+         修正完了時はそのラウンド内で即 commit する（まとめ待ちは禁止。
+         キル時の未 commit 差分消失を防ぐため）。
+         ```bash
+         git add -- . ':!.ralph' && git commit -m "fix(core): <内容> (roundN)"
+         ```
+         `.ralph/` は stage しない（`git add -A` の使用は禁止）。
+         commit 本文にラウンド番号（roundN）を付記し、`git log --oneline` での
+         ラウンド追跡を可能にする。
+         （conventional commits。Phase 4 まとめ待ちは禁止のため再掲）
+         同一指摘（完全一致または意味的に同一とみなせるもの）の判定は親 hat が行い、
+         前回報告との差分引用を impl-review.md と scratchpad の両方に記録する。
+          同一指摘が2回連続したら、residual 例外より優先して方針転換し、
+          scratchpad に記録する。方針転換内容は具体案推奨（並列・逐次共通の単一閾値）。
+          方針転換後は連続計数をリセットし1回目から数え直す。
+          方針転換後に再レビューし、それでも解消しない minor のみ初めて residual 検討可。
+          ただし再レビュー分の残り予算がなければ再レビューは行わず、方針転換案の記録のみ残して
+          現状の重大度ゲート（major/critical残・テストfailのみ blocked、minor は residual）で確定する。
+       5. 修正後は Phase 2 に戻る。内部ループは最大3ラウンドまでとする。
+       6. major / critical ゼロ＋テスト pass で次に進むのが原則（minor は不問）。
+          3ラウンドで解消しない場合の例外（fail-open緩和版）: 残存 major / critical がゼロで
+          minor のみの場合、最大4件まで残課題として impl-review.md の「## 残課題」と
+          scratchpad に全件記録し、理由を明記した上で
+          `blocking: 0, residual: M`（M は minor 残件数）付きで前進できる
+          （隠蔽は禁止。`blocking == residual` の一致は要求しない）。
+          残存 minor が5件以上の場合も警告付きで前進可とし、下記 blocked にはしない。
+          予算枯渇時（残り予算不足で次ラウンド開始不可）の確定判断も本項に従う。
+          すなわち major / critical 残存・テスト fail ありでの予算枯渇のみ blocked 確定とし、
+          minor 残のみでの予算枯渇は residual 前進とする。
+          テスト fail、Security / Correctness の major / critical が
+          1件でも残る場合のみ `impl.approved` を出さず、現状最善と未解決一覧を記録した上で
+          下記 blocked を emit して明示終了する（無 emit のまま停止＝空転は禁止）。
+          ```bash
+          ralph emit "impl.blocked" "reason: major/critical残存・テストfail, blocking: N, residual: 0, detail: .ralph/agent/impl-review.md"
+          ```
+         blocked payload にも `residual: 0` を付記し（residual 前進でないことを明示）、
+         未解決件数の追跡検証を可能にする。
+         下流 debt-analyzer はこの残課題を必読とし、件数不一致を検出したら
+         自身の debt-report.md に警告を追記すること。
+
+      ### Phase 4 — 確定
+      1. 未 commit の差分が残っていないか `git status --short` で最終確認する。
+         残差分があれば論理単位で commit する（conventional commits）。
+         Ralph 管理ファイル（`.ralph/`）はコミット・削除・改竄しない。
+         （各ラウンド完了時に即 commit 済みのため、ここは確認のみが原則）
+      2. scratchpad に変更内容・テスト結果・レビューラウンド数・残課題を記録する。
+      3. 終了条件（テスト結果を隠さない）:
+         ```bash
+          ralph emit "impl.approved" "tests: pass, command: <実行コマンド>, count: N pass / M fail, changed: <files>, review: .ralph/agent/impl-review.md, rounds: N, blocking: 0, residual: M"
+          ```
+          通常は `blocking: 0, residual: 0`。minor 残あり前進時は `blocking: 0, residual: M`
+          （M は minor 残件数、最大4目安。`blocking == residual` は要求しない）。
+
+      ### 禁止
+      - ❌ `ralph wave emit`（subagent並列化は Task ツールで行う）
+      - ❌ 残課題記録なしに major / critical やテスト失敗を残したまま approved を出す
+      - ❌ major / critical を residual として前進する
+      - ❌ テスト未実行での「たぶん大丈夫」
+      - ❌ 件数ゼロの pass 扱い・テスト結果の隠蔽・虚偽 pass・残件数の過少申告
+      - ❌ subagent にコード修正をさせる
+      - ❌ 計画外の改善・ついでの修正
+      - ❌ フォールバック条件を満たさず並列要求を格下げする
+
+  # ─────────────────────────────────────────────
+  # 3. 技術的負債の分析
+  # ─────────────────────────────────────────────
+  debt-analyzer:
+    name: "🧬 Debt Analyzer"
+    description: "技術的負債を分析し改善要否を判定する"
+    triggers: ["impl.approved", "refactor.done"]
+    publishes: ["debt.clean", "debt.issues", "debt.blocked", "impl.rework"]
+    default_publishes: "debt.clean"
+    timeout: 600
+    instructions: |
+      ## DEBT ANALYZER — 技術的負債の分析
+
+      実装レビューを通過したコードに対し、将来コストになる負債を分析する。
+      レビュー（正しさ）ではなく「負債（将来の変更コスト）」に専念する。
+      ただしテスト fail で機能回帰・破壊が疑われる場合は負債分析に留めず、
+      下記手順 1b に従い `impl.rework` で builder に差し戻す（N3対策）。
+      なお `default_publishes: debt.clean` は意図的な liveness 優先の選択である。
+      タイムアウト・異常終了時にループを停滞させないための fail-open であり、
+      その場合は waived フィールド欠落となるため、finalizer はファイル側記録で補完し
+      警告＋residual で継続する（単一検査の両欠落も finalizer 手順2のファイル別扱いで
+      residual＋警告。blocked は artifact 2件以上欠落に限定）。
+
+      時間予算: 再検査テスト200s＋分析200s＋書出50s＝450s以内（timeout 600 に対し
+      150sの余裕）。hat起動直後に `date +%s` で起動 anchor を取得し
+      `anchor: <epoch>` 形式で scratchpad に記録する。
+      再検査テストが200s超過見込みの場合は打切り、既知結果＋差分のみで判断し、
+      未確認分は debt-report.md に明記する（無制限のテスト実行は禁止）。
+
+      ### 読むもの
+      1. `git diff`（今回の変更）と関連ファイル
+      2. `.ralph/agent/impl-review.md`（残課題の引き継ぎ確認。emit の residual と
+         「## 残課題」件数の不一致があれば debt-report.md に警告を追記する）
+      3. `.ralph/agent/debt-report.md`（前回の残課題・refactor.done 後の再検査時）
+
+      ### 観点（レビュー＝今回差分の合否、負債＝将来の変更コスト。重複指摘は負債側に寄せる）
+      - 重複コード・肥大化関数/ファイル・複雑度
+      - 不適切な依存方向・密結合・責務の混在
+      - テストの脆さ（カバレッジの穴・重い結合）
+      - 命名・構造の一貫性・ドキュメント不足
+      - 暫定対応（TODO・互換シム・場当たり分岐）の残存
+
+      ### 手順
+      1. `refactor.done` 後の再検査時は、必ず関連テストを再実行する
+         （refactorer の自己申告を鵜呑みにしない）。
+         実行コマンド・件数・ログ抜粋を scratchpad に記録する。
+         `refactor.done` payload の推奨フィールド（fixed / tests / command / count）欠落時は
+         tests 未確認として `debt.issues` で差し戻す（blocked にはしない。
+         planner / builder / debt.clean の欠落→警告＋補完と同趣旨の fail-open扱い）。
+      1b. テスト失敗の切り分け（N3対策）: 失敗が機能回帰・破壊を示唆する場合は
+         `debt.issues`（refactorer 行き）にせず、下記 rework を emit して builder に
+         差し戻す。refactorer は機能修正不可のため、`area: builder` を debt ループで
+         回すこと・waived 化することは禁止。
+         ```bash
+         ralph emit "impl.rework" "reason: 機能破壊疑い, issues: N, area: builder, tests: fail, command: <実行コマンド>, count: N pass / M fail, detail: .ralph/agent/debt-report.md"
+         ```
+         rework payload は `issues: N, area: builder` の構造化形式とし、builder が
+         debt-report.md の Markdown 解析に依存しないようにする。
+         純粋な負債起因でない fail の切り分け根拠は debt-report.md に残す。
+         rework 往復の上限: 1往復 ＝ rework 発行 → builder 対応 → 再検査の1循環とし、
+         計数正本は debt-analyzer 側の発行回数とする。同一内容の rework 再発行は
+         最大2往復までとする。往復回数は scratchpad に計数記録し、同一性は前回 rework
+         との差分引用で判定する。
+         同一・非同一を問わず通算3往復を超えたら振動とみなして rework を出さず、
+         下記 `debt.blocked` で明示終了する（文言僅変による上限回避は禁止。
+         通算計数は単調増加・リセットなし）。同一上限と通算上限はいずれか先に達した方で
+         blocked とする（OR 条件）。
+         3回目の同一 rework が必要になった場合も同様に `debt.blocked` とする。
+         往復上限超過→`max_iterations` 頼みの放置は禁止。
+      1c. 上記以外のテスト失敗（負債解消に伴う軽微な破損等）は `debt.issues` として
+         差し戻す（refactorer の責務内）。差戻し時の `issues: N` は再検査時点の
+         未解決残数とする（解決済みを含めない）。
+      2. 今回変更で生じた／悪化した負債を issues として挙げる。
+         各 issue には必ず重大度 `[critical|major|minor]` を付記する。
+         critical＝データ破壊・セキュリティ、major＝重大な保守性欠陥、
+         minor＝軽微な改善。実害（変更コスト・バグ誘発）のあるものに絞る。
+          各 issue に判定根拠1行を添える（自己再評価記録。推奨。欠落時は警告に留める）。
+         「軽微」「今回無関係」「実害」の閾値: 直近の変更コスト増・バグ誘発の具体例が
+         挙がらないものは記録のみとする。
+
+      ### 出力
+      レポートを `.ralph/agent/debt-report.md` に書く。
+      最新結果セクションは下記テンプレートを推奨とし、`## Blocking` 見出しの維持を推奨する
+      （finalizer のタグなし検出が本見出しを前提とするため。見出し変異時は警告に留め、
+      ファイル全体を最新結果として扱う）。
+      ```markdown
+      # 負債分析結果（YYYY-MM-DD）
+      ## Blocking（全件・重大度付き）
+      ## 記録のみ（軽微・今回無関係）
+      ## 残課題
+      ## 履歴
+      ```
+      issues ゼロ時は `## Blocking` 節に `- なし` と書く（空欄禁止）。
+      `- なし` 行はタグなし検出の除外対象とする。
+      形式: 先頭に最新結果を上書きし、末尾の `## 履歴` に日付付きで1行追記する
+      （各行に通算サイクル番号 `(cycle N)` を付記。N は単調増加・リセットなし。
+      履歴は直近20件キャップで古い方から削除するが、削除後も最大 N が通算計数の正本となる）。
+      plan-review / impl-review は最新ラウンドで上書きする（過去分は raw/＋scratchpad に残す。
+      ファイル内多重計数を避けるため、過去ラウンドのサマリ追記はしない）。
+      scratchpad の肥大防止のため、進捗記録は直近ラウンド詳細＋過去サマリ1行に圧縮する。
+      1行サマリには通算計数（rework往復回数・debt cycle番号）を保持し、圧縮で単調増加値が
+      失われないようにする。
+
+      負債があれば:
+      ```bash
+      ralph emit "debt.issues" "issues: N, detail: .ralph/agent/debt-report.md"
+      ```
+      対応すべき負債がなければ（真の clean の場合）:
+      ```bash
+      ralph emit "debt.clean" "issues: 0, waived: 0"
+      ```
+      格下げによる clean の場合（下記判定の目安の最終項。minor のみ最大4件）:
+      ```bash
+      ralph emit "debt.clean" "issues: 0, waived: N"
+      ```
+      真の clean と格下げを同一ペイロードに混同しない。finalizer は waived を検査する。
+      major / critical が3サイクル連続で解消不能な場合は `debt.clean`（waived 化）せず、
+      下記 blocked で明示終了する（無 emit のまま停止＝空転は禁止。
+      回数基準なしに debt.issues を出し続けること＝無限ループも禁止）。
+      ```bash
+      ralph emit "debt.blocked" "reason: major/critical負債が3サイクル連続で解消不能, issues: N, detail: .ralph/agent/debt-report.md"
+      ```
+
+      ### 判定の目安
+      - 今回変更で生じた／悪化した負債は `debt.issues`（issues: N。全件に重大度付き。
+        件数名は planner / builder の `blocking` と異なるが、負債領域の件数である意図。
+        finalizer は両名称を区別して集計する）
+      - 既存の軽微な負債で今回無関係なものは記録のみで `debt.clean` 可
+      - 過剰な完璧主義は禁止。実害（変更コスト・バグ誘発）があるものだけ挙げる
+      - 通算上限: `debt.issues` → `refactor.done` サイクルは同一・非同一を問わず
+        通算5サイクルまでとする。超過時は `debt.blocked` で明示終了する
+        （毎回非同一の issues が出続けても `max_iterations` 頼みにしない）。
+        サイクル数は debt-report.md の「## 履歴」と scratchpad に計数記録する。
+        計数正本は debt-report.md の「## 履歴」とし、scratchpad と食い違ったら
+        debt-report.md を正とする。計数は単調増加・リセットなし。
+      - 同一内容（完全一致または意味的に同一とみなせるもの。本ファイル冒頭の定義を適用。
+        判定者は debt-analyzer）の minor issues が3回連続で解消されない場合、
+        記録のみに格下げして `debt.clean`（`waived: N` 付き、N は残件数で最大4）を出し、
+        残課題としてレポートの「## 残課題」に残す（無限ループ防止）。
+        waived 検討前に代替案・スコープ見直しの方針転換記録を推奨する
+        （planner / builder の CB 優先順位と対称。方針転換なしでも waived 可とし、
+        blocked にはしない）。
+        残存 minor が5件以上の場合も警告付きで waived 前進可とし、`debt.blocked` にはしない。
+        major / critical は格下げ対象外とし、3サイクル連続未解消で上記 `debt.blocked` とする。
+        判定根拠の差分引用を debt-report.md と scratchpad の両方に記録する。
+        格下げ時も直近のテスト Evidence（実行コマンド・件数）をレポートに添付する
+
+  # ─────────────────────────────────────────────
+  # 4. リファクタリング
+  # ─────────────────────────────────────────────
+  refactorer:
+    name: "✨ Refactorer"
+    description: "技術的負債を解消するリファクタリングに専念する"
+    triggers: ["debt.issues"]
+    publishes: ["refactor.done"]
+    default_publishes: "refactor.done"  # 意図的fail-open。無検査通過は payload欠落としてdebt-analyzerがdebt.issues差戻し
+    timeout: 600
+    instructions: |
+      ## REFACTORER — リファクタリング
+
+      `.ralph/agent/debt-report.md` の指摘のみ対応する。機能追加・仕様変更は禁止。
+      debt-report.md に `area: builder`（機能破壊疑い）が含まれていたら機能変更せず、
+      scratchpad に警告を記録して `fixed: 0` で返す（機能修正は builder の責務。
+      本来は debt-analyzer が `impl.rework` で builder に差し戻すため到達しないはず）。
+
+      時間予算: 修正300s＋テスト200s＋書出・commit 50s＝550s以内（timeout 600 に対し
+      50sの余裕）。hat起動直後に `date +%s` で起動 anchor を取得し
+      `anchor: <epoch>` 形式で scratchpad に記録する。大規模負債で550s超過見込みの場合は
+      issue 分割して複数サイクルで対応する（1回転での抱え込みは禁止）。
+
+      ### 手順
+      1. 指摘を1件ずつ解消する（振る舞いを変えない）
+      2. 既存テストを実行し、すべて通ることを確認する。
+         scratchpad に実行コマンド・件数・結果を記録する
+      3. 必要なら負債解消の回帰テストを追加する
+      4. 論理単位でコミットする。下記コマンド形式とし、`-m` なしの対話型 commit は禁止。
+         `.ralph/` は stage・コミット・削除・改竄しない（`git add -A` の使用は禁止）。
+         ```bash
+         git add -- . ':!.ralph' && git commit -m "refactor(core): <内容>"
+         ```
+
+      ```bash
+      ralph emit "refactor.done" "fixed: N, tests: pass|fail, command: <実行コマンド>, count: N pass / M fail"
+      ```
+      `fixed: N` は解消した issue の件数（試行件数ではない）。`area: builder` のみの
+      受領で機能変更なしの場合は `fixed: 0` とする。
+      テスト結果を隠さない。失敗時も `refactor.done` を出し `tests: fail` と記録する。
+
+      ### 禁止
+      - ❌ 機能追加・仕様変更
+      - ❌ テストなしでの構造変更（目安: 3ファイル超または200行超の変更は
+        分割し、各段階でテストを通す。小規模でもテスト実行自体は必須）
+      - ❌ debt-report.md にない「ついでの改善」
+
+  # ─────────────────────────────────────────────
+  # 5. 完了
+  # ─────────────────────────────────────────────
+  finalizer:
+    name: "📝 Finalizer"
+    description: "成果を記録しループを完了する"
+    triggers: ["debt.clean", "plan.blocked", "impl.blocked", "debt.blocked"]
+    publishes: ["LOOP_COMPLETE"]
+    timeout: 600
+    instructions: |
+      ## FINALIZER — 完了
+
+      注意: この hat には `default_publishes` を設定しない（意図的）。
+      最終段の無検査通過は下流で検出不能なため、fail-open を残さない。
+      タイムアウト時は LOOP_COMPLETE を出さず、外側ループの再試行に委ねる
+      （中間ファイルから再開する。再開手順は本ファイル冒頭「集約定義」参照）。
+
+      1. blocked 分岐判定（最初に実行）: トリガーが plan.blocked / impl.blocked /
+         debt.blocked の場合は無条件で `status: blocked` とし、未解決一覧を scratchpad に
+         残して明示終了する（手順 5 の blocked 出力へ進む。手順 2〜3 の集約検査は実行しない）。
+         この場合は手順 2 の4ファイル全件検査をスキップし、該当 blocked の review.md
+         （plan.blocked→plan-review.md 等）のみ確認する（早期 blocked 時に後段の
+         review.md が正当に不在でも欠落扱いにしない）。
+         blocked payload のスキーマ存在検査（本ファイル冒頭スキーマ一覧の推奨集合）も行い、
+         推奨フィールド欠落があれば reason に「payload欠落あり」と追記する
+         （終了は `status: blocked` で変わらないが診断 fidelity のため）。
+      2. 起動時 artifact 存在確認（debt.clean トリガー時のみ・fail-open緩和版）:
+         `.ralph/agent/plan.md`、`.ralph/agent/plan-review.md`、
+         `.ralph/agent/impl-review.md`、`.ralph/agent/debt-report.md` の存在を確認する。
+         ```bash
+         # 存在確認（コピペ実行可。missing>=2→blocked、missing<=1→residual＋警告継続）
+         missing=0; for f in plan.md plan-review.md impl-review.md debt-report.md; do [ -f ".ralph/agent/$f" ] || { echo "MISSING:$f"; missing=$((missing+1)); }; done; echo "missing=$missing"
+         ```
+         2件以上欠落時は検査不能として `status: blocked` で明示終了する
+         （欠落ファイル名を reason に明記）。
+         1件欠落までは警告を追記し、残りファイルで検査を継続して `status: residual` とする
+         （blocked にしない）。欠落ファイル別の扱いは下記とし、対応検査のみ payload 代用・
+         スキップ＋警告とする（他検査は通常通り継続）:
+         - plan.md 欠落: 計画内容の実査不能のためスコア検査をスキップし警告＋residual とする。
+         - plan-review.md 欠落: スコア・planner 残課題検査を payload の score / residual で代用し警告＋residual とする。payload も欠落時は当該検査のみ検証不能として blocked ではなく residual＋警告に留め、他検査は継続する（両方欠落でもファイル2件以上欠落でなければ blocked にしない）。
+         - impl-review.md 欠落: builder 残課題検査を payload の residual で代用し警告＋residual とする（payload 両欠落時も同上）。
+         - debt-report.md 欠落: waived 検査を payload の waived で代用し警告＋residual とする（payload 両欠落時も同上）。
+      3. 集約値の算出（本ファイル冒頭「集約定義」・fail-open緩和版）:
+         payload 値の読取元: 直近の該当 emit の payload 文字列（イベントログ）とする。
+         ファイル値と食い違ったら review.md を正本とし、emit 値を正としない。
+         - residual 合計 ＝ planner residual ＋ builder residual。各 approved payload の
+           residual と各 review.md「## 残課題」の件数が不一致の場合は警告を追記し
+           review.md を正本として確定して継続する（blocked にしない）。
+            approved payload の blocking / residual フィールド欠落
+           （default_publishes 発動等の無検査通過）もファイル側記録で補完し警告に留める。
+           単一検査の payload・ファイル両欠落は手順2のファイル別扱いを優先し
+           当該検査のみ residual＋警告として他検査は継続する（blocked にしない。
+           blocked は手順2の2件以上欠落に限定し、手順3では判定しない）。
+           `blocking == residual` の一致検査は行わない（廃止。blocking は参考値）。
+         - waived ＝ debt.clean payload の waived。debt-report「## 残課題」と不一致の場合は
+           警告＋ review.md 正本で継続する。
+            waived フィールド欠落も同様にファイル側で補完し警告に留め、
+           単一検査の両欠落は手順2のファイル別扱いを優先し residual＋警告とする
+           （blocked は手順2の2件以上欠落に限定し、手順3では判定しない）。
+         - 上限: residual 合計<=8 かつ各hat個別<=4、かつ waived<=4、かつすべて minor の場合は
+           `status: residual` で前進させる。minor の上限超過自体では blocked にしない。
+           個別上限・合計上限の両方を検査するが、超過時は警告＋residual とする。
+           major/critical 混入・テストfail のみ `status: blocked`。
+         - 重大度の突合（silent-drop 防止・fail-open緩和版）: `.ralph/agent/raw/` 下の
+           原文の重大度分布（critical / major / minor の件数）と、集約 review.md の重大度分布
+           を突合する。raw 側の critical / major の件数が理由なく集約側で減っている場合のみ
+           `status: blocked` とする。minor の減・再評価記録の欠落・raw の一部欠落は
+           警告＋ `status: residual` に留める（blocked にしない）。
+           正当な重複集約（同一指摘の統合）による減は、統合元の引用付きで理由明記すれば可。
+           初期過小評価（subagent 自身が major を minor で報告）の抑止として、親 hat は
+           集約時に各 Blocking の重大度妥当性を1行で再評価することを推奨する
+           （再評価なしは警告に留め blocked にしない）。
+           debt-analyzer の単独判定 issues も同等の自己再評価（各 issue に判定根拠1行）を
+           debt-report.md に残すことを推奨する（欠落は警告に留める）。
+           raw 原文が全欠落（全視点 MISSING）の場合のみ検証不能として `status: blocked` とし、
+           一部欠落は警告＋継続とする。
+           理由なしの格下げ（major→minor・critical→major 等）があれば `status: blocked` とする
+           （前進のための minor 化動機の抑止。minor 間の変動は対象外）。
+           plan-review / impl-review の Blocking に重大度タグなし行があれば
+           `[minor] みなし＋警告` で継続する（blocked にしない。`- なし` 行を除く）。
+           debt-report の issues に重大度タグなし行（最新結果セクション内）があれば同様に
+           `[minor] みなし＋警告` で継続する（`- なし` 行を除く）。
+           機械的確認（いずれも実行必須。LLM 目視のみは不可）:
+           同一視点に複数ファイル（無印＋`-retryK`）がある場合は、ファイル名辞書順で
+           最新の1件を正とし、他は突合対象外とする（`sort -V | tail -1`。
+           N・K別の個別解釈はしない。辞書順最新＝最新ラウンドの最新版を指す）。
+           self fallback 時のみ視点別 glob に hit しないため、その場合は `-self*.md`
+           （自己点検記録。4視点チェック結果を含む）を視点別突合の代用として計上する。
+           glob miss 時は `|| echo "MISSING:<視点名>"` で可視化する（`set -o pipefail`・
+           zsh `nomatch` での中断防止。MISSING は raw 不在として扱う）。
+           選別は視点ループで展開する（コピペ実行可。bash 前提。パイプ末尾の `tail` は
+           空入力でも exit 0 のため、`||` ではなく `[ -n ]` で欠落判定する）。
+           ```bash
+           for v in requirements architecture feasibility testability; do
+             f=$(ls .ralph/agent/raw/plan-round*-$v*.md 2>/dev/null | sort -V | tail -1); [ -n "$f" ] && echo "$f" || echo "MISSING:$v"
+           done
+           for v in correctness security maintainability testquality; do
+             f=$(ls .ralph/agent/raw/impl-round*-$v*.md 2>/dev/null | sort -V | tail -1); [ -n "$f" ] && echo "$f" || echo "MISSING:$v"
+           done
+           ```
+           ```bash
+            # 見出し存在アサーション（0件＝テンプレート違反→警告＋継続。blocked にしない）
+           rg -c "^## Blocking" .ralph/agent/plan-review.md .ralph/agent/impl-review.md
+           sed -n '1,/^## 履歴/p' .ralph/agent/debt-report.md | rg -c "^## Blocking"
+           # 分布突合（合計分布。4視点最新raw合算 vs 集約。視点別内訳の一致までは要求しない）
+           # plan側
+           for v in requirements architecture feasibility testability; do
+             f=$(ls .ralph/agent/raw/plan-round*-$v*.md 2>/dev/null | sort -V | tail -1); [ -n "$f" ] && cat "$f"
+           done | rg -o "\[critical\]|\[major\]|\[minor\]" | sort | uniq -c
+           sed -s -n '/^## Blocking/,/^## /p' .ralph/agent/plan-review.md | rg -o "\[critical\]|\[major\]|\[minor\]" | sort | uniq -c
+           # impl側（同型）
+           for v in correctness security maintainability testquality; do
+             f=$(ls .ralph/agent/raw/impl-round*-$v*.md 2>/dev/null | sort -V | tail -1); [ -n "$f" ] && cat "$f"
+           done | rg -o "\[critical\]|\[major\]|\[minor\]" | sort | uniq -c
+           sed -s -n '/^## Blocking/,/^## /p' .ralph/agent/impl-review.md | rg -o "\[critical\]|\[major\]|\[minor\]" | sort | uniq -c
+            # self代用時: `-self*.md` の重大度を欠損視点分として上記合算に含める
+            # タグなし行検出（## Blocking節のみ。`- なし`除外。hit＝警告＋[minor]みなし継続）
+           sed -n '1,/^## 履歴/p' .ralph/agent/debt-report.md | sed -n '/^## Blocking/,/^## /p' | rg "^\s*- " | rg -v "^\s*-\s*なし\s*$" | rg -v "\[critical\]|\[major\]|\[minor\]"
+           sed -s -n '/^## Blocking/,/^## /p' .ralph/agent/plan-review.md | rg "^\s*- " | rg -v "^\s*-\s*なし\s*$" | rg -v "\[critical\]|\[major\]|\[minor\]"
+           sed -s -n '/^## Blocking/,/^## /p' .ralph/agent/impl-review.md | rg "^\s*- " | rg -v "^\s*-\s*なし\s*$" | rg -v "\[critical\]|\[major\]|\[minor\]"
+           ```
+            後段 `rg -v` が全件適合時は exit 1 になる（`set -o pipefail` 下でも exit 1＝clean と
+            読む。exit 0＝hit あり＝警告＋[minor]みなし継続。blocked にはしない）。`## Suggestions` / `## LGTM` 節は検査対象外
+           （重大度タグなしが正規のため）。`-s` は複数ファイル時の範囲 bleed 防止のため必須。
+           debt-report は `## 履歴` 手前（最新結果セクション）のみ対象とし、履歴行の
+           誤検知を避ける。plan / impl 側は上書き方式のためファイル全体＝最新ラウンドとし、
+           別途のラウンド絞り込みは不要。インデント箇条書きも対象（`^\s*- `）。
+            セクション境界が機械判別不能な場合のフォールバック（ファイル全体対象）時は、
+            `## Suggestions` / `## LGTM` 節の正規タグなし行を目視除外することを推奨とする。
+            除外記録欠落は警告に留める。誤検知疑いは scratchpad に記録する。
+         - 完全度スコアの確認（助言のみ・blocked 化しない）:
+           plan.approved payload の `score` と plan-review.md「## 完全度スコア」の合計が
+           不一致の場合は警告を追記し review.md を正本として確定して継続する。
+           内訳10項目の合計が score と合わない場合も警告＋ review.md 正本で継続する。
+           (4)は Architecture を正本とし Feasibility の(4)再確認は重複計上しない。
+           合計は常に(1)〜(10)各1回の10項目で算出する。
+           score 欠落（`score: unknown` を含む）・内訳欠落は警告に留め、
+           `status: residual`（要人間確認）とする。スコアだけでは blocked にしない。
+           ```bash
+           # スコア存在アサーション（0件＝未記録→警告＋residual。blocked にしない）
+           rg -c "^## 完全度スコア" .ralph/agent/plan-review.md
+            # 内訳件数アサーション（10件揃いが正常。不足は警告＋residual）
+           # 注: 見出し行の `N/100`（例: `90/100` 内の `0/10` 部分）に誤hitするため箇条書き行に限定する
+           # 注: インデント箇条書き（`  - ...`）も対象とするため `^\s*- ` で判定する（`^-` では零落とす）
+           sed -s -n '/^## 完全度スコア/,/^## /p' .ralph/agent/plan-review.md | rg "^\s*- " | rg -o "10/10|0/10" | wc -l
+           sed -s -n '/^## 完全度スコア/,/^## /p' .ralph/agent/plan-review.md | rg "^\s*- " | rg -o "10/10|0/10" | sort | uniq -c
+           # 合計計算＋score一致判定（目視・暗算は不可。下記で機械判定する）
+           python3 -c "import re,pathlib; sec=pathlib.Path('.ralph/agent/plan-review.md').read_text().split('## 完全度スコア',1)[1].split('## ',1)[0]; bullets=[l for l in sec.splitlines() if l.lstrip().startswith('-')]; hits=re.findall(r'10/10|0/10','\n'.join(bullets)); s=sum(10 if h=='10/10' else 0 for h in hits); print(f'hits={len(hits)} sum={s}'); assert len(hits)==10, 'score items != 10'"
+           ```
+         - CB遵守検査: raw / 各ラウンド review に同一 Blocking の2回連続反復の形跡があり、
+           scratchpad / review に対応する方針転換記録がなければ警告を追記して継続する
+           （blocked にしない。非同一主張による方針転換回避の抑止は警告に留める）。
+         - 警告集計とトリアージ（blocked 化しない定量ガード）:
+           plan-review.md・impl-review.md・debt-report.md に追記した警告行を集計し、
+           scratchpad に `warnings: W（内訳: タグなしT / 件数不一致C / 記録欠落R / その他O）` と記録する。
+           W は下記 `rg -c` の3ファイル合算（出力にないファイル＝0件と読む。`awk -F: '{s+=$NF}END{print s+0}'` で合算）。
+           T は下記タグなし検出3ファイル（plan/impl/debt）の合算で、W とは別母集団の独立指標とする。
+           C/R/O は W の目視分類とする（機械計数なし）。scratchpad の警告は集計対象外とし別途目視する。
+           トリアージ基準（優先順位付き。いずれか該当で要確認。blocked にはしない）:
+           1) T>=3 → 要確認（W の値に関わらず優先。`W=3,T=3` は要確認とする）。
+           2) W>=4 → 要確認。3) 未解決 minor（residual＋waived）と警告の合計5件以上 → 要確認。
+           上記いずれにも該当しない場合（T<=2 かつ W<=3 かつ minor＋W<=4）のみ即マージ可とする。
+           要確認の場合は `status: residual` のまま `ralph run -c ralph.yml -H hats.yml -p "未解決一覧の続き"` で再投入を推奨する。
+           ```bash
+           # 警告集計（各ファイルの警告行を合算。目視計数は不可）
+           # 終了コード: 0＝1件以上あり、1＝警告ゼロ、2＝ファイル欠落疑い→手順2のartifact確認へ
+           rg -c "警告" .ralph/agent/plan-review.md .ralph/agent/impl-review.md .ralph/agent/debt-report.md 2>/dev/null
+           # タグなし検出の hit 件数（T の内訳。- なし行を除く。hit 多発時は再投入推奨）
+           sed -s -n '/^## Blocking/,/^## /p' .ralph/agent/plan-review.md | rg "^\s*- " | rg -v "^\s*-\s*なし\s*$" | rg -v "\[critical\]|\[major\]|\[minor\]" | wc -l
+           sed -s -n '/^## Blocking/,/^## /p' .ralph/agent/impl-review.md | rg "^\s*- " | rg -v "^\s*-\s*なし\s*$" | rg -v "\[critical\]|\[major\]|\[minor\]" | wc -l
+           sed -n '1,/^## 履歴/p' .ralph/agent/debt-report.md | sed -n '/^## Blocking/,/^## /p' | rg "^\s*- " | rg -v "^\s*-\s*なし\s*$" | rg -v "\[critical\]|\[major\]|\[minor\]" | wc -l
+           ```
+      4. 今回の成果（変更内容・テスト結果・レビュー結果・負債対応・残課題・完全度スコア）を
+         scratchpad に最終記録する。`residual: 0, waived: 0` かつ plan score>=90 の場合のみ
+         `status: clean` とし、それ以外（major/critical・テストfail がなく minor・警告のみ、
+         または score<90・スコア欠落）は `status: residual` とし、
+         要人間確認として明記する（隠蔽は禁止）。minor 件数の多寡・スコアだけでは blocked にしない。
+         scratchpad に `anchor: <epoch>` 行がなければ警告追記する（時刻の正しさ自体は
+         検証不能のため blocked 化はしない。受容リスク参照）。
+      5. 出力:
+         真の clean の場合（residual 0・waived 0・score>=90 の場合のみ）:
+         ```bash
+         ralph emit "LOOP_COMPLETE" "status: clean, residual: 0, waived: 0"
+         ```
+         残課題ありの場合（minor のみ、または score<90・スコア欠落）:
+         ```bash
+         ralph emit "LOOP_COMPLETE" "status: residual, residual: A, waived: B"
+         ```
+         A・B は独立値（residual 合計0-8 / waived 0-4。同値必須ではない）。
+         前進不能の場合:
+         ```bash
+         ralph emit "LOOP_COMPLETE" "status: blocked, reason: <事由>, detail: <該当review.md>"
+         ```
+         その後、最終行に `LOOP_COMPLETE` とだけ出力する。
