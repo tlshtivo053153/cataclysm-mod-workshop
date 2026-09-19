@@ -72,8 +72,8 @@
 4. CDDAを起動してLevel3確認 — **対象外（実施しない。Level定義の正本は `rules/verification.md`）**
 
 ### 完了条件
-- [ ] Level1: JSON構文OK（`validate.sh` 通過）
-- [ ] Level2: 起動OK（エラーなし。`check_mods.sh --isolated --check-errors alt_recipes` 終了コード0＋ERRORなし）
+- [x] Level1: JSON構文OK（`validate.sh` 通過。`OK: data/recipes.json`＋`OK: modinfo.json`、`All files passed`、終了コード0）
+- [x] Level2: 起動OK（エラーなし。`check_mods.sh --isolated --check-errors alt_recipes` 終了コード0＋ERROR 0。log `logs/check_alt_recipes_20260920_031127.log`）
 - [ ] Level3: 対象外として未実施（必須・手動確認だが本計画の範囲外。Level定義の正本は `rules/verification.md`）
 - [ ] 新規IDが0個に収まり、小規模条件を満たす（上記「小規模判定」4件）
 - [ ] Step 9（バランス調整）は未実施（対象外として明記）
@@ -86,3 +86,7 @@
 - `id_suffix: softer` / `softest` 実在、自レシピ `scrap_alt` と重ならず（`grep -rn '"scrap_alt"'` 0件）。OK
 - `tinder`（ammo.json:1601）、`paper`（generic.json:1638）、`splinter`（wood.json:22）、`cardboard`（other.json:447）、`pinecone`（generic.json:2263）、`CUT`（tool_qualities.json:4）、`survival`（skills.json:280）すべて実在。OK
 - `grep -r '"alt_recipes"' external/cdda/data/json/ mods/` → 0件（mod id衝突なし）。`ls mods/small/alt_recipes` 不在（新規作成可）。OK
+
+### 陽性対照記録（T6b/T6d。一時modで実行し本体は汚さない。いずれも撤去済み）
+- T6b 未知成分：成分1件を `__no_such_item__` に置換した一時mod `alt_fault_tmp` → `check_mods.sh` 終了コード2＋debug.log ERROR 2行（`__no_such_item__ ... is not a valid item template`）。検出成立。注：planの期待値 `exit 4`（`check_mods.sh:287-299` のERROR検査ブロック）に対し実測は `exit 2`（`:275-282` でエンジン異常終了時に先にreturn）。不正検出（非0＋ERROR）自体は成立。
+- T6d `activity_level` 除去：一時mod `alt_noact_tmp`（`activity_level` フィールドなし）→ `check_mods.sh` 終了コード2＋debug.log ERROR 2116行（2回再現。いずれも `logs/check_alt_noact_tmp_20260920_031000.log` / `..._031211.log`）。対して本体は2回とも終了コード0＋ERROR 0（`logs/check_alt_recipes_20260920_030459.log` / `..._031127.log`）。log内に `recipe` 言及0件のため帰属は差分実証（除去で確定反転）による。`activity_level` がLevel2必須であることの陽性対照として成立。
