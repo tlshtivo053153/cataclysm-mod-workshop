@@ -16,13 +16,25 @@ event_loop:
   prompt_file: "PROMPT.md"
   completion_promise: "LOOP_COMPLETE"
   max_iterations: 100
-  # max_runtime_seconds: 14400    # 4 hours max
+  max_runtime_seconds: 14400    # 4 hours max（hats.yml 側と同一値。hats.yml -H 指定時は hats.yml 側が優先される）
+  # 100 は 1サブタスク約4〜6イテレーション×10超サブタスク＋再検査余裕の想定。長時間化の上限は max_runtime_seconds が支配的。
+  # starting_event は hats.yml 側で定義（work.start）。本ファイル単体起動時は -H hats.yml を指定すること。
 
 # Per-backend inactivity timeout (seconds). OpenCode は adapters.default (300s)
 # に解決されるため、長時間タスク向けに個別上書きする。
+# hats.yml の planner/builder は timeout: 1600 のため、実効キルされないよう余裕を持たせている。
+# 常に hat < adapter の関係を保つこと（200sのヘッドルーム）。
 adapters:
   opencode:
-    timeout: 600
+    timeout: 1800
+
+core:
+  specs_dir: ".ralph/specs/"
+  guardrails:
+    - "各イテレーション開始時に PROMPT.md と scratchpad を読み直す。コンテキストは使い回さない。"
+    - "根拠のない主張は禁止。ファイル:行・テスト出力・コマンド結果を添える。"
+    - "レビューで指摘された問題がゼロになるまで次の工程に進まない（ただし hats.yml で定める残課題エスカレーションは review.md＋scratchpad 記録を条件に例外とする）。"
+    - "実装・修正の後は必ず関連テストを実行し、結果を scratchpad に記録する。"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Additional Configuration (uncomment to customize)
