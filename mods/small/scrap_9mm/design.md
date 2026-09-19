@@ -56,7 +56,7 @@
 | delete.flags | `["IRREPLACEABLE_CONSUMABLE"]` | reloaded準拠 |
 | 継承（上書きしない） | `casing`・`ammo_type: 9mm`・重量・容量・素材 | pipe_pistol互換維持 |
 
-注記：`delete.effects: ["NEVER_MISFIRES"]` は親に存在しないため不要（reloadedとの差異として記録のみ）。
+注記：`delete.effects: ["NEVER_MISFIRES"]` は親 `9mm` に存在しないため機能的に等価な省略（reloadedとの差異として記録のみ。Step 4で実データ確認済み。vanilla `reloaded_9mm` は防御的にdeleteを含む）。
 
 ### レシピ仕様
 | フィールド | 値 | 根拠 |
@@ -76,11 +76,13 @@
 | components | `[[["gunpowder_pistol", 3], ["gunpowder_shotgun", 3]], [["copper", 1]]]` | 同上 |
 | book_learn | `[["manual_pistol", 1], ["manual_smg", 1], ["recipe_bullets", 2]]` | 既定。序盤緩和目的なら `autolearn: true` も可（いずれかを記録） |
 
-注記：`lead` は `ammo_bullet` が既に要求するため追加しない。`scrap` 採用時は `[copper, 1]` の代替として数量つきで記録する。
+注記：`lead` は `ammo_bullet` が既に要求するため追加しない。現状は `[copper, 1]` を継続（数量1を明示）。`scrap` 採用時は `[copper, 1]` の代替として数量つきで本節に記録する。
+
+注記：`batch_time_factors`・`reversible` 等の任意フィールドは `reloaded_9mm` からの意図的省略（`reloaded_9mm` は `batch_time_factors: [60, 5]`・`reversible: {"time": "5 s"}` あり。本modはvanilla既定動作で正常のため省略。バッチ割引なし・解体不可の差分あり）。追加する場合は意図を本節に記録する。
 
 ### ファイル構成
 - modinfo.json（type MOD_INFO, id `scrap_9mm`, dependencies `["dda"]`）
-- data/ammo.json（ITEM/AMMO 1件）
+- data/ammo.json（ITEM/AMMO 1件。テンプレート汎用名 `data/items.json` に対する特化名で、PROMPT.md §3.6準拠の意図的特化）
 - data/recipes.json（recipe 1件）
 
 ### 実装順序
@@ -95,8 +97,8 @@
 4. CDDAを起動してLevel3確認 — **対象外（実施しない）**
 
 ### 完了条件
-- [x] Level1: JSON構文OK（`validate.sh` 通過。2026-09-18確認）
-- [x] Level2: 起動OK（エラーなし。`check_mods.sh --isolated --check-errors scrap_9mm` 終了コード0＋ERRORなし。2026-09-18確認、log: `logs/check_scrap_9mm_20260919_020817.log`）
+- [x] Level1: JSON構文OK（`validate.sh` 通過。2026-09-18確認、2026-09-19再確認）
+- [x] Level2: 起動OK（エラーなし。`check_mods.sh --isolated --check-errors scrap_9mm` 終了コード0＋ERRORなし。2026-09-18確認、2026-09-19実証：log `logs/check_scrap_9mm_20260919_075606.log`、`grep -c ERROR` = 0）
 - [ ] Level3: 対象外として未実施（必須・手動確認だが本計画の範囲外。Level定義の正本は `rules/verification.md`）
 - [x] 新規IDが1個に収まり、小規模条件を満たす
 - [ ] Step 9（バランス調整）は未実施（対象外として明記）
