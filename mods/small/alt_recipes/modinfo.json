@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "alt_recipes",
+    "name": "Alternative Tinder Recipe",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds one alternative tinder crafting recipe from scrap paper and wood splinters.",
+    "category": "items",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]

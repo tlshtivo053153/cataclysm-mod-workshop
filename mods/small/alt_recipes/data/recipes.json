@@ -1,0 +1,19 @@
+[
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "tinder",
+    "id_suffix": "scrap_alt",
+    "category": "CC_OTHER",
+    "subcategory": "CSC_OTHER_MATERIALS",
+    "skill_used": "survival",
+    "difficulty": 1,
+    "time": "2 m",
+    "autolearn": true,
+    "qualities": [ { "id": "CUT", "level": 1 } ],
+    "components": [
+      [ [ "paper", 3 ], [ "cardboard", 1 ] ],
+      [ [ "splinter", 2 ], [ "pinecone", 2 ] ]
+    ]
+  }
+]
