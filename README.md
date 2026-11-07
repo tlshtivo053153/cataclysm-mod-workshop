@@ -50,7 +50,7 @@ cataclysm-mod-workshop/
 │   ├── mapgen/                ← mapgen DSL コンパイラ（18ファイル: `ls scripts/mapgen/*.py | wc -l` 実測）
 │   └── tests/                 ← テスト群
 ├── mods/
-│   ├── small/                 ← 小規模 mod（24件）
+│   ├── small/                 ← 小規模 mod（26件）
 │   ├── medium/                ← 中規模 mod（予約）
 │   ├── large/                 ← 大規模 mod（予約）
 │   ├── seen/                  ← 学習済み mod（予約）
@@ -193,6 +193,6 @@ mod は事前に `place_mod_for_test.sh` で `external/cdda/mods/` に配置す�
 
 詳細は `issue.md` を参照。
 
-- **spec.md 未整備**: 24 mod 中 spec.md が 3 件（`combat_stim` / `bone_armor` / `hedge_magic` の新規システム3modのみ。小規模modは `rules/CORE.md` の省略条件により省略可）
+- **spec.md 未整備**: 28 mod 中 spec.md が 9 件（小規模3 + 中規模6。小規模modは `rules/CORE.md` の省略条件により省略可）
 - **孤児ファイル・空ディレクトリ**: `mods/{medium,large,seen,unseen}` が実質的に空（`activity_map_magiclysm.json` は `patches/` に移動済み）
 - **ドキュメント言語**: 日英併記を方針とする（F-3決定）。`AGENTS.md` は英語のエージェント入口とし、他文書（本書・`cdda_mod_dev_plan.md`・`rules/`）は日本語正本。コードのコメント・CLIメッセージ・識別子は英語

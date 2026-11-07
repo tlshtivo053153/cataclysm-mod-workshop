@@ -156,13 +156,17 @@ def _iter_json_objects(mod_dir: Path) -> list[tuple[Path, dict[str, Any]]]:
     return objects
 
 
-def check_recipe_activity_level(mod_dir: Path) -> list[str]:
+def check_recipe_activity_level(
+    mod_dir: Path, objects: list[tuple[Path, dict[str, Any]]] | None = None
+) -> list[str]:
     """Check CORE.md recipe rule: every `type: recipe` needs `activity_level`.
 
     Returns a list of error messages (empty = pass).
     """
+    if objects is None:
+        objects = _iter_json_objects(mod_dir)
     errors: list[str] = []
-    for json_file, entry in _iter_json_objects(mod_dir):
+    for json_file, entry in objects:
         if entry.get("type") != "recipe":
             continue
         level = entry.get("activity_level")
@@ -199,13 +203,16 @@ def check_modinfo_dependencies(mod_dir: Path) -> list[str]:
     return []
 
 
-def check_copy_from_references(mod_dir: Path) -> list[str]:
+def check_copy_from_references(
+    mod_dir: Path, objects: list[tuple[Path, dict[str, Any]]] | None = None
+) -> list[str]:
     """Check CORE.md copy-from rule: warn when target is not defined in-mod.
 
     Vanilla IDs (external/cdda) are unavailable in CI, so unknown targets
     are WARNING-level only and never fail validation. Returns warnings.
     """
-    objects = _iter_json_objects(mod_dir)
+    if objects is None:
+        objects = _iter_json_objects(mod_dir)
     local_ids = {entry["id"] for _, entry in objects if isinstance(entry.get("id"), str)}
     local_ids |= {entry["abstract"] for _, entry in objects if isinstance(entry.get("abstract"), str)}
     warnings: list[str] = []
@@ -286,13 +293,14 @@ def main() -> int:
         if not run_validate(mod_dir, quiet=args.quiet):
             errors += 1
         # C-1: Level1 content rules from rules/CORE.md (beyond JSON syntax).
-        for msg in check_recipe_activity_level(mod_dir):
+        objects = _iter_json_objects(mod_dir)
+        for msg in check_recipe_activity_level(mod_dir, objects):
             print(f"ERROR: {msg}", file=sys.stderr)
             errors += 1
         for msg in check_modinfo_dependencies(mod_dir):
             print(f"ERROR: {msg}", file=sys.stderr)
             errors += 1
-        for msg in check_copy_from_references(mod_dir):
+        for msg in check_copy_from_references(mod_dir, objects):
             print(f"WARNING: {msg}", file=sys.stderr)
 
     if errors > 0:

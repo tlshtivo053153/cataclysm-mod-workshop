@@ -34,17 +34,27 @@ if [ "${#FILES[@]}" -eq 0 ]; then
   exit 1
 fi
 
-# NOTE: パイプ経由の while read はサブシェルで実行されるため ERRORS が
-# 親シェルに伝播しない。プロセス置換 < <(...) を使って同一シェルで実行する。
-for file in "${FILES[@]}"; do
-  if python3 -m json.tool "$file" > /dev/null 2>&1; then
-    echo "  OK: $file"
-  else
-    echo "  NG: $file" >&2
-    python3 -m json.tool "$file" 2>&1 | head -10 >&2 || true
-    ERRORS=$((ERRORS + 1))
-  fi
-done
+# Single Python process validates all files (was: one `python3 -m json.tool`
+# per file). Output format (`OK:`/`NG:`/`All files passed`) is unchanged.
+# shortcut: error count rides on the exit code (caps at 255), upgrade to a
+# count file when a single mod routinely reports 255+ bad JSONs.
+python3 - "${FILES[@]}" <<'PY'
+import json
+import sys
+
+errors = 0
+for path in sys.argv[1:]:
+    try:
+        with open(path, encoding="utf-8") as f:
+            json.load(f)
+        print(f"  OK: {path}")
+    except Exception as e:
+        print(f"  NG: {path}", file=sys.stderr)
+        print(str(e)[:1000], file=sys.stderr)
+        errors += 1
+sys.exit(min(errors, 255))
+PY
+ERRORS=$?
 
 if [ "$ERRORS" -eq 0 ]; then
   echo "=== All files passed ==="
