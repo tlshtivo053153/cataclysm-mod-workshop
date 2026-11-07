@@ -246,21 +246,27 @@ class TestFindModDirs:
         assert validate_mods.find_mod_dirs(tmp_path) == [mod]
 
     def test_orphan_data_dir_errors(self, tmp_path):
-        import subprocess
-        import sys
+        from validate_mods import find_orphan_data_dirs
 
         base = tmp_path / "mods"
         orphan = base / "small" / "foo"
         (orphan / "data").mkdir(parents=True)
-        (orphan / "data" / "items.json").write_text("[]")
-        result = subprocess.run(
-            [sys.executable, "scripts/validate_mods.py", "--base-dir", str(base)],
-            capture_output=True,
-            text=True,
-            cwd=validate_mods.__file__.rsplit("/scripts/", 1)[0] if "/scripts/" in validate_mods.__file__ else ".",
+        assert find_orphan_data_dirs(base) == [orphan]
+
+    def test_orphan_alongside_valid_mod(self, tmp_path):
+        from validate_mods import find_orphan_data_dirs
+
+        base = tmp_path / "mods2"
+        good = base / "small" / "good"
+        good.mkdir(parents=True)
+        (good / "modinfo.json").write_text(
+            json.dumps([{"type": "MOD_INFO", "id": "good", "name": "G", "dependencies": ["dda"]}])
         )
-        assert result.returncode == 1
-        assert "no modinfo.json" in result.stderr
+        orphan = base / "small" / "orphan"
+        (orphan / "data").mkdir(parents=True)
+        (base / "small" / "stray.txt").write_text("x")
+        (base / "small" / "linkmod").symlink_to(good, target_is_directory=True)
+        assert find_orphan_data_dirs(base) == [orphan]
 
 
 class TestCollectModIds:

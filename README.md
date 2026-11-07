@@ -121,6 +121,10 @@ Step 1・2 は、以下すべてを満たす小規模 mod のみ省略可能（�
 # 実装中は編集のたびに Level1 チェック
 bash scripts/validate.sh mods/small/my_mod/
 
+# mapgen は rows を直接書かず DSL を使う。反復は --check-only、文字の意味は --explain で確認
+# 参照例: mods/small/fortified_shelters/data/mapgen_dsl/fortified_garage.yml
+python3 -m mapgen_compiler --mod-dir mods/small/fortified_shelters --check-only
+
 # 機能完成時に mod を CDDA に配置（symlink がデフォルト。--link 明示も可）
 bash scripts/place_mod_for_test.sh mods/small/my_mod/
 

@@ -33,6 +33,24 @@ def find_mod_dirs(base_dir: Path) -> list[Path]:
     return mod_dirs
 
 
+def find_orphan_data_dirs(base_dir: Path) -> list[Path]:
+    """Return category children with data/ but no modinfo.json.
+
+    Scans mods/{small,medium,large,seen,unseen} direct children only.
+    """
+    orphans: list[Path] = []
+    for category in ("small", "medium", "large", "seen", "unseen"):
+        cat_dir = base_dir / category
+        if not cat_dir.is_dir():
+            continue
+        for child in sorted(cat_dir.iterdir()):
+            if not child.is_dir() or child.is_symlink():
+                continue
+            if (child / "data").is_dir() and not (child / "modinfo.json").is_file():
+                orphans.append(child)
+    return orphans
+
+
 def collect_mod_ids(mod_dirs: list[Path]) -> tuple[dict[str, list[Path]], list[Path]]:
     """Extract mod IDs from modinfo.json, grouping directories by ID.
 
@@ -214,7 +232,9 @@ def check_copy_from_references(
     if objects is None:
         objects = _iter_json_objects(mod_dir)
     local_ids = {entry["id"] for _, entry in objects if isinstance(entry.get("id"), str)}
-    local_ids |= {entry["abstract"] for _, entry in objects if isinstance(entry.get("abstract"), str)}
+    local_ids |= {
+        entry["abstract"] for _, entry in objects if isinstance(entry.get("abstract"), str)
+    }
     warnings: list[str] = []
     for json_file, entry in objects:
         target = entry.get("copy-from")
@@ -255,17 +275,10 @@ def main() -> int:
 
     mod_dirs = find_mod_dirs(base)
 
-    orphan_errors = 0
-    for category in ("small", "medium", "large", "seen", "unseen"):
-        cat_dir = base / category
-        if not cat_dir.is_dir():
-            continue
-        for child in sorted(cat_dir.iterdir()):
-            if not child.is_dir() or child.is_symlink():
-                continue
-            if (child / "data").is_dir() and not (child / "modinfo.json").is_file():
-                print(f"ERROR: {child} has data/ but no modinfo.json", file=sys.stderr)
-                orphan_errors += 1
+    orphans = find_orphan_data_dirs(base)
+    for orphan in orphans:
+        print(f"ERROR: {orphan} has data/ but no modinfo.json", file=sys.stderr)
+    orphan_errors = len(orphans)
     if not mod_dirs:
         if orphan_errors:
             return 1

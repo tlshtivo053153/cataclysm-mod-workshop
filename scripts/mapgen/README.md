@@ -5,6 +5,14 @@
 CDDA の mapgen JSON を YAML DSL で記述し、コンパイルするツール。
 矩形の部屋配置・ドア接続・フィーチャー配置を宣言的に記述できる。
 
+## LLM 向け使い方
+
+- 24×24 の `rows` を直接書かない。部屋・ドア・相対配置を DSL で宣言し、
+  壊れていない rows をコンパイラに生成させる。
+- 反復ループは `--check-only` で検証する（ファイル出力なし、exit 0 が成功）。
+- 生成物の各文字の意味は `--explain` で確認する。
+- 実データの参照例: `mods/small/fortified_shelters/data/mapgen_dsl/fortified_garage.yml`
+
 ## CLI 使用方法
 
 ```bash

@@ -1,0 +1,108 @@
+# Reference DSL input for fortified_garage (Phase 0).
+#
+# shortcut: structural reference only, not yet byte-identical to
+# data/mapgen/fortified_garage.json — upgrade to a golden reproduction
+# (room/feature/global diff against the existing rows) before treating
+# this YAML as the source of truth and regenerating the JSON.
+#
+# Purpose: LLM writes this declarative form instead of raw 24x24 rows.
+# Validate with `mapgen-compile --mod-dir <mod> --check-only`,
+# inspect chars with `--explain`.
+entries:
+  - om_terrain: "shelter_d"
+    fill_ter: "t_floor"
+    palette: ["fortified_shelter"]
+    auto_doors: false
+    canvas:
+      cols: [2, 20, 2]
+      rows: [6, 16, 2]
+    layout:
+      - [nw, n, ne]
+      - [w, main, e]
+      - [sw, s, se]
+    rooms:
+      - { id: nw, wall: " ", floor: " " }
+      - { id: n, wall: " ", floor: " " }
+      - { id: ne, wall: " ", floor: " " }
+      - { id: w, wall: " ", floor: " " }
+      - { id: main, wall: "#", floor: "." }
+      - { id: e, wall: " ", floor: " " }
+      - { id: sw, wall: " ", floor: " " }
+      - { id: s, wall: " ", floor: " " }
+      - { id: se, wall: " ", floor: " " }
+    features:
+      - room: "main"
+        tiles:
+          - { char: "{", x: 0, y: 1 }
+          - { char: "~", x: 1, y: 1 }
+          - { char: "w", x: 3, y: 1 }
+          - { char: "G", x: 9, y: 1 }
+          - { char: "}", x: 17, y: 1 }
+          - { char: ">", x: 7, y: 7 }
+          - { char: ">", x: 8, y: 7 }
+          - { char: ">", x: 7, y: 8 }
+          - { char: ">", x: 8, y: 8 }
+          - { char: "=", x: 3, y: 12 }
+          - { char: "*", x: 3, y: 14 }
+    global:
+      - { char: "!", x: [4, 19], y: 3 }
+      - { char: "&", x: [4, 19], y: 5 }
+      - { char: "&", x: [4, 19], y: 22 }
+    pass_through:
+      place_zones:
+        - type: "ZONE_START_POINT"
+          faction: "your_followers"
+          x: [7, 17]
+          y: [10, 15]
+
+  - om_terrain: "shelter_d_roof"
+    fill_ter: "t_flat_roof"
+    palette: ["roof_palette"]
+    auto_doors: false
+    canvas:
+      cols: [3, 18, 3]
+      rows: [7, 16, 1]
+    layout:
+      - [nw, n, ne]
+      - [w, main, e]
+      - [sw, s, se]
+    rooms:
+      - { id: nw, wall: " ", floor: " " }
+      - { id: n, wall: " ", floor: " " }
+      - { id: ne, wall: " ", floor: " " }
+      - { id: w, wall: " ", floor: " " }
+      - { id: main, wall: "-", floor: "." }
+      - { id: e, wall: " ", floor: " " }
+      - { id: sw, wall: " ", floor: " " }
+      - { id: s, wall: " ", floor: " " }
+      - { id: se, wall: " ", floor: " " }
+    features:
+      - room: "main"
+        tiles:
+          - { char: "*", x: 2, y: 13 }
+    global:
+      - { char: "~", x: [7, 8], y: 5 }
+    pass_through:
+      terrain: { "*": "t_ladder_up" }
+      furniture: { "~": "f_sandbag_half" }
+      place_items:
+        - item: "SUS_trash_roof"
+          x: [5, 18]
+          y: [8, 22]
+          chance: 50
+          repeat: [1, 3]
+
+  - om_terrain: "shelter_d_under"
+    fill_ter: "t_linoleum_white"
+    palette: ["fortified_shelter"]
+    auto_doors: false
+    rooms:
+      - { id: "shell", w: 24, h: 24, wall: "-", floor: "-" }
+      - { id: "store", inside: "shell", gap: 4, w: 16, h: 16, wall: ";", floor: "." }
+    features:
+      - room: "store"
+        tiles:
+          - { char: "<", x: 5, y: 9 }
+          - { char: "<", x: 6, y: 9 }
+          - { char: "<", x: 5, y: 10 }
+          - { char: "<", x: 6, y: 10 }
