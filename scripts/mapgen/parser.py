@@ -49,24 +49,10 @@ def _integer(value: Any, field: str, where: str) -> None:
 def _detect_new_placement_keys(
     room_data: dict[str, Any],
     room_id: str,
-    has_x: bool,
-    has_y: bool,
-    has_place: bool,
 ) -> PlaceSpec | None:
     new_keys = _RELATIVE_KEYS & set(room_data.keys())
     if not new_keys:
         return None
-
-    if has_place:
-        raise CompileError(
-            f"Room '{room_id}': cannot mix new placement keys ({', '.join(sorted(new_keys))}) "
-            f"with 'place' — use one or the other"
-        )
-    if has_x or has_y:
-        raise CompileError(
-            f"Room '{room_id}': cannot mix new placement keys ({', '.join(sorted(new_keys))}) "
-            f"with 'x'/'y' absolute coordinates — use one or the other"
-        )
 
     right_of = room_data.get("right_of")
     left_of = room_data.get("left_of")
@@ -321,13 +307,6 @@ def _parse_rooms(
             if has_layout:
                 w = 0
                 h = 0
-            elif has_new_placement:
-                missing = []
-                if w is None:
-                    missing.append("w")
-                if h is None:
-                    missing.append("h")
-                raise CompileError(f"Room '{room_id}' missing required field: {', '.join(missing)}")
             else:
                 missing = []
                 if w is None:
@@ -343,7 +322,7 @@ def _parse_rooms(
         dep_rooms: set[str] = set()
 
         if has_new_placement:
-            place = _detect_new_placement_keys(room_data, room_id, has_x, has_y, has_place)
+            place = _detect_new_placement_keys(room_data, room_id)
             if place:
                 if place.relative_to:
                     dep_rooms.add(place.relative_to)

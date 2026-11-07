@@ -2,7 +2,7 @@
 
 import pytest
 from mapgen import CompileError
-from mapgen.parser import _detect_new_placement_keys, parse_dsl
+from mapgen.parser import parse_dsl
 
 
 def _write(tmp_path, text, name="t.yml"):
@@ -34,48 +34,26 @@ def _two_valid(extra=""):
 
 
 class TestDetectPlacementKeys:
-    def test_mix_with_place(self):
-        with pytest.raises(CompileError, match="cannot mix.*with 'place'"):
-            _detect_new_placement_keys(
-                {"right_of": "b"}, "a", has_x=False, has_y=False, has_place=True
-            )
-
-    def test_mix_with_xy(self):
-        with pytest.raises(CompileError, match="cannot mix.*absolute"):
-            _detect_new_placement_keys(
-                {"right_of": "b"}, "a", has_x=True, has_y=False, has_place=False
-            )
-
-    def test_no_target(self):
+    def test_no_target(self, tmp_path):
+        yml = BASE + _room("a", '        align: "top"\n')
         with pytest.raises(CompileError, match="must specify one of"):
-            _detect_new_placement_keys(
-                {"align": "top"}, "a", has_x=False, has_y=False, has_place=False
-            )
+            parse_dsl(_write(tmp_path, yml))
 
-    def test_multiple_targets(self):
-        with pytest.raises(CompileError, match="exactly one"):
-            _detect_new_placement_keys(
-                {"right_of": "b", "left_of": "c"},
-                "a",
-                has_x=False,
-                has_y=False,
-                has_place=False,
-            )
-
-    def test_negative_gap(self):
-        with pytest.raises(CompileError, match="'gap' must be >= 0"):
-            _detect_new_placement_keys(
-                {"right_of": "b", "gap": -1},
-                "a",
-                has_x=False,
-                has_y=False,
-                has_place=False,
-            )
-
-    def test_none_without_keys(self):
-        assert (
-            _detect_new_placement_keys({}, "a", has_x=False, has_y=False, has_place=False) is None
+    def test_multiple_targets(self, tmp_path):
+        yml = BASE + _room("a", '        right_of: "b"\n        left_of: "c"\n') + _room("b") + _room(
+            "c"
         )
+        with pytest.raises(CompileError, match="exactly one"):
+            parse_dsl(_write(tmp_path, yml))
+
+    def test_negative_gap(self, tmp_path):
+        yml = BASE + _room("a") + _room("b", '        right_of: "a"\n        gap: -1\n')
+        with pytest.raises(CompileError, match="'gap' must be >= 0"):
+            parse_dsl(_write(tmp_path, yml))
+
+    def test_none_without_keys(self, tmp_path):
+        yml = BASE + _room("a")
+        assert parse_dsl(_write(tmp_path, yml)) is not None
 
 
 class TestPlacementViaParse:
