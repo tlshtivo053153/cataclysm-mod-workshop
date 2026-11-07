@@ -1,0 +1,58 @@
+[
+  {
+    "type": "vehicle_part",
+    "id": "jk_wheel",
+    "copy-from": "wheel_bicycle",
+    "name": { "str": "scrap wheel" },
+    "description": "A lopsided wheel cobbled together from scrap.  Rolls, barely.",
+    "durability": 30,
+    "item": "jk_wheel_item",
+    "breaks_into": [
+      { "item": "scrap", "count": [ 1, 2 ] },
+      { "item": "lc_wire", "count": [ 1, 2 ] },
+      { "item": "chunk_rubber", "count": [ 1, 2 ] },
+      { "item": "rubber_tire_chunk", "count": [ 0, 1 ] }
+    ]
+  },
+  {
+    "type": "vehicle_part",
+    "id": "jk_saddle",
+    "copy-from": "saddle",
+    "name": { "str": "scrap saddle" },
+    "description": "A narrow saddle patched from scrap metal and stitched cloth.  You straddle it like a motorcycle.",
+    "durability": 40,
+    "item": "jk_saddle_item",
+    "requirements": {
+      "install": { "skills": [ [ "mechanics", 1 ] ], "time": "200 s", "using": [ [ "vehicle_wrench_2", 1 ] ] },
+      "removal": { "skills": [ [ "mechanics", 1 ] ], "time": "200 s", "using": [ [ "vehicle_wrench_2", 1 ] ] },
+      "repair": {
+        "skills": [ [ "fabrication", 1 ] ],
+        "time": "15 m",
+        "using": [ [ "sewing_standard", 4 ], [ "adhesive", 1 ] ]
+      }
+    },
+    "breaks_into": [
+      { "item": "leather", "count": [ 0, 1 ] },
+      { "item": "cotton_patchwork", "count": [ 1, 2 ] },
+      { "item": "scrap", "count": [ 0, 1 ] }
+    ]
+  },
+  {
+    "type": "vehicle_part",
+    "id": "jk_cargo",
+    "copy-from": "basketsm",
+    "name": { "str": "scrap cargo basket" },
+    "description": "A crude wire basket for hauling gear on a junk bike.",
+    "durability": 40,
+    "item": "jk_cargo_item",
+    "requirements": {
+      "install": { "skills": [ [ "mechanics", 1 ] ], "time": "150 s", "using": [ [ "vehicle_screw", 1 ] ] },
+      "removal": { "skills": [ [ "mechanics", 1 ] ], "time": "150 s", "using": [ [ "vehicle_screw", 1 ] ] },
+      "repair": { "skills": [ [ "fabrication", 1 ] ], "time": "15 m", "using": [ [ "adhesive", 1 ] ] }
+    },
+    "breaks_into": [
+      { "item": "lc_wire", "count": [ 2, 4 ] },
+      { "item": "scrap", "count": [ 1, 2 ] }
+    ]
+  }
+]

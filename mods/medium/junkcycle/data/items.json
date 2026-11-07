@@ -1,0 +1,32 @@
+[
+  {
+    "type": "ITEM",
+    "id": "jk_wheel_item",
+    "copy-from": "wheel_bicycle",
+    "name": { "str": "scrap wheel" },
+    "description": "A lopsided wheel cobbled together from scrap rims, wire spokes, and patches of salvaged rubber.  Heavy and wobbly, but it rolls.",
+    "material": [ "steel", "rubber" ],
+    "price": "15 USD",
+    "price_postapoc": "50 cent"
+  },
+  {
+    "type": "ITEM",
+    "id": "jk_saddle_item",
+    "copy-from": "saddle",
+    "name": { "str": "scrap saddle" },
+    "description": "A narrow saddle patched from scrap metal, leather scraps, and stitched cloth.  Uncomfortable but rideable.",
+    "material": [ "leather", "cotton" ],
+    "price": "10 USD",
+    "price_postapoc": "50 cent"
+  },
+  {
+    "type": "ITEM",
+    "id": "jk_cargo_item",
+    "copy-from": "bike_basket",
+    "name": { "str": "scrap cargo basket" },
+    "description": "A crude cargo basket wired from scrap wire and pipe.  Fits on a bike rear rack mount.",
+    "material": [ "steel" ],
+    "price": "15 USD",
+    "price_postapoc": "50 cent"
+  }
+]

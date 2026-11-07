@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "junkcycle",
+    "name": "Junkcycle",
+    "authors": [ "cdda_mod_framework" ],
+    "description": "Adds craftable scrap wheels, saddle, and cargo for building a junk motorcycle.",
+    "category": "vehicles",
+    "dependencies": [ "dda" ],
+    "version": "1.0"
+  }
+]
