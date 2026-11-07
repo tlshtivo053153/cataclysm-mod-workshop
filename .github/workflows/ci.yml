@@ -45,7 +45,17 @@ jobs:
       # B-2 packaging guard: dist layout repair (cf720d33) regresses silently
       # without an install check (py-modules 12 entries + mapgen* package).
       - run: pip install -e .
-      - run: python -c "import add_activity_level, common, convert_item_types, convert_price, mapgen_compiler, remove_armor_bullet, remove_invalid_fields, revert_all_translations, revert_translation_errors, summarize_debug_log, validate_mods, verify_patches; print('wheel-import-ok')"
+      - run: python -c "import add_activity_level, common, convert_item_types, convert_price, mapgen_compiler, remove_armor_bullet, revert_all_translations, revert_translation_errors, summarize_debug_log; import mapgen.cli; print('wheel-import-ok')"
+      - run: python -m pip wheel . --no-deps -w dist
+      - run: python - <<'PY'
+          import glob, zipfile
+          whl = glob.glob("dist/*.whl")[0]
+          with zipfile.ZipFile(whl) as z:
+              names = z.namelist()
+              assert "mapgen/palettes.json" in names, names
+              assert not any(n in names for n in ("validate_mods.py", "verify_patches.py", "remove_invalid_fields.py")), names
+          print("wheel contents ok")
+          PY
       - run: mapgen-compile --help
 
   shell:

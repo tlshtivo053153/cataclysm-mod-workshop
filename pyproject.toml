@@ -28,17 +28,17 @@ py-modules = [
     "convert_price",
     "mapgen_compiler",
     "remove_armor_bullet",
-    "remove_invalid_fields",
     "revert_all_translations",
     "revert_translation_errors",
     "summarize_debug_log",
-    "validate_mods",
-    "verify_patches",
 ]
 
 [tool.setuptools.packages.find]
 where = ["scripts"]
 include = ["mapgen*"]
+
+[tool.setuptools.package-data]
+mapgen = ["palettes.json"]
 
 [tool.black]
 line-length = 100
