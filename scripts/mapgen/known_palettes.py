@@ -23,6 +23,11 @@ def _extract_cdda_palette_fields(obj: dict[str, Any]) -> dict[str, dict[str, Any
     for key in _PALETTE_FIELD_KEYS:
         if key in obj and isinstance(obj[key], dict):
             fields[key] = obj[key]
+    palettes = obj.get("palettes")
+    if isinstance(palettes, list) and all(isinstance(p, str) for p in palettes):
+        fields["palettes"] = {p: {} for p in palettes}
+    elif isinstance(palettes, str):
+        fields["palettes"] = {palettes: {}}
     return fields
 
 
@@ -78,7 +83,42 @@ def _load_all_palettes(palette_paths: list[Path] | None = None) -> dict[str, dic
             elif path.is_dir():
                 for f in sorted(path.glob("*.json")):
                     merged.update(_load_json_palettes(f))
-    return merged
+    return _resolve_palette_inheritance(merged)
+
+
+def _resolve_palette_inheritance(
+    palettes: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    resolved: dict[str, dict[str, Any]] = {}
+
+    def _resolve(name: str, seen: tuple[str, ...]) -> dict[str, Any]:
+        if name in resolved:
+            return resolved[name]
+        if name in seen:
+            logger.warning("Circular palette inheritance detected: %s", " -> ".join([*seen, name]))
+            return {}
+        raw = palettes.get(name)
+        if raw is None:
+            return {}
+        parents = raw.get("palettes", {})
+        parent_names = list(parents.keys()) if isinstance(parents, dict) else []
+        out: dict[str, dict[str, Any]] = {}
+        for parent in parent_names:
+            parent_fields = _resolve(parent, (*seen, name))
+            for key, mapping in parent_fields.items():
+                if key == "palettes" or not isinstance(mapping, dict):
+                    continue
+                out.setdefault(key, {}).update(mapping)
+        for key, mapping in raw.items():
+            if key == "palettes" or not isinstance(mapping, dict):
+                continue
+            out.setdefault(key, {}).update(mapping)
+        resolved[name] = out
+        return out
+
+    for pname in list(palettes.keys()):
+        _resolve(pname, ())
+    return resolved
 
 
 class PaletteRegistry:
@@ -99,7 +139,10 @@ class PaletteRegistry:
         palette = self.get_palette(palette_name)
         if palette is None:
             return False
-        return char in palette.get("terrain", {}) or char in palette.get("furniture", {})
+        return any(
+            isinstance(palette.get(key), dict) and char in palette[key]
+            for key in _PALETTE_FIELD_KEYS
+        )
 
     def explain_char(self, palette_name: str, char: str) -> str | None:
         palette = self.get_palette(palette_name)

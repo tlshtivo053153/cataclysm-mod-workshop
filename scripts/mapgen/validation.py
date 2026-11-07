@@ -97,17 +97,24 @@ class PostValidator:
     ) -> list[Warning]:
         warnings: list[Warning] = []
         used_chars = grid.collect_used_chars(fill_char=fill_char)
-        for palette_name in palette_names:
-            if self._palette_registry.get_palette(palette_name) is None:
+        known_palettes = [
+            name for name in palette_names if self._palette_registry.get_palette(name) is not None
+        ]
+        for ch in used_chars:
+            if any(self._palette_registry.is_char_known(name, ch) for name in known_palettes):
                 continue
-            for ch in used_chars:
-                if not self._palette_registry.is_char_known(palette_name, ch):
-                    warnings.append(
-                        Warning(
-                            code="undefined_palette_char",
-                            message=f"Character '{ch}' not defined in palette '{palette_name}'",
-                        )
-                    )
+            if not known_palettes:
+                continue
+            warnings.append(
+                Warning(
+                    code="undefined_palette_char",
+                    message=(
+                        f"Character '{ch}' not defined in any of {known_palettes}"
+                        if len(known_palettes) > 1
+                        else f"Character '{ch}' not defined in palette '{known_palettes[0]}'"
+                    ),
+                )
+            )
         return warnings
 
     def _check_meaning_consistency(self, spec: EntrySpec) -> list[Warning]:

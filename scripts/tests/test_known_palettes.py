@@ -230,3 +230,83 @@ class TestCddaFormat:
         reg = PaletteRegistry()
         reg._palettes["p2"] = {"terrain": {"a": {}}}
         assert reg.explain_char("p2", "a") is None
+
+
+class TestPaletteWarnings:
+    def test_traps_char_known(self):
+        reg = PaletteRegistry()
+        reg._palettes["trapper"] = {"traps": {"?": "tr_beartrap"}}
+        assert reg.is_char_known("trapper", "?") is True
+
+    def test_inheritance_child_overrides_parent(self, tmp_path: Path):
+        parent = tmp_path / "parent.json"
+        parent.write_text(
+            json.dumps(
+                [{"type": "palette", "id": "parent_pal", "terrain": {".": "t_parent", "x": "t_x"}}]
+            ),
+            encoding="utf-8",
+        )
+        child = tmp_path / "child.json"
+        child.write_text(
+            json.dumps(
+                [
+                    {
+                        "type": "palette",
+                        "id": "child_pal",
+                        "palettes": ["parent_pal"],
+                        "terrain": {".": "t_child"},
+                    }
+                ]
+            ),
+            encoding="utf-8",
+        )
+        reg = PaletteRegistry(palette_paths=[parent, child])
+        pal = reg.get_palette("child_pal")
+        assert pal is not None
+        assert pal["terrain"]["."] == "t_child"
+        assert pal["terrain"]["x"] == "t_x"
+        assert reg.is_char_known("child_pal", "x") is True
+
+    def test_inheritance_cycle_warns(self, tmp_path: Path, caplog):
+        p = tmp_path / "cycle.json"
+        p.write_text(
+            json.dumps(
+                [
+                    {"type": "palette", "id": "a", "palettes": ["b"], "terrain": {"a": "t_a"}},
+                    {"type": "palette", "id": "b", "palettes": ["a"], "terrain": {"b": "t_b"}},
+                ]
+            ),
+            encoding="utf-8",
+        )
+        import logging
+
+        with caplog.at_level(logging.WARNING):
+            reg = PaletteRegistry(palette_paths=[p])
+        assert reg.get_palette("a") is not None
+        assert any("Circular palette" in r.message for r in caplog.records)
+
+    def test_any_palette_ok_single_warning(self):
+        from mapgen.grid import Grid
+        from mapgen.validation import PostValidator
+
+        reg = PaletteRegistry()
+        reg._palettes["pa"] = {"terrain": {".": "t_a"}}
+        reg._palettes["pb"] = {"terrain": {".": "t_b", "?": "t_q"}}
+        grid = Grid(3, 3)
+        grid.place(0, 0, ".")
+        grid.place(1, 1, "?")
+        grid.place(2, 2, "z")
+        warnings = PostValidator(reg)._check_palette_chars(grid, " ", ["pa", "pb"])
+        assert [w for w in warnings if "'z'" in w.message] != []
+        assert sum(1 for w in warnings if "'.'" in w.message or '"."' in w.message) == 0
+        assert sum(1 for w in warnings if "'?'" in w.message) == 0
+        assert sum(1 for w in warnings if "'z'" in w.message) == 1
+
+    def test_unknown_palette_skipped(self):
+        from mapgen.grid import Grid
+        from mapgen.validation import PostValidator
+
+        reg = PaletteRegistry()
+        grid = Grid(2, 2)
+        grid.place(0, 0, "q")
+        assert PostValidator(reg)._check_palette_chars(grid, " ", ["nope"]) == []

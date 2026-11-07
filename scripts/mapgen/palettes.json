@@ -29,9 +29,5 @@
             "-": "t_concrete_wall"
         },
         "furniture": {}
-    },
-    "standard_domestic_palette": {
-        "terrain": {},
-        "furniture": {}
     }
 }

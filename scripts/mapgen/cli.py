@@ -233,9 +233,10 @@ def main() -> int:
     palette_paths: list[Path] = list(args.palette_dir) if args.palette_dir else []
 
     if args.mod_dir:
-        auto_palette = args.mod_dir / "data" / "palettes"
-        if auto_palette.is_dir() and auto_palette not in palette_paths:
-            palette_paths.append(auto_palette)
+        for dirname in ("data/palettes", "data/palette"):
+            auto_palette = args.mod_dir / dirname
+            if auto_palette.is_dir() and auto_palette not in palette_paths:
+                palette_paths.append(auto_palette)
         return _run_mod_dir(
             args.mod_dir, args.dsl_dir, args.backup, args.check_only, palette_paths, args.explain
         )

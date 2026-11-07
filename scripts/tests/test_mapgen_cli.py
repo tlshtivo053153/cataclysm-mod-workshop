@@ -123,6 +123,19 @@ class TestRunModDir:
         assert _run_mod_dir(mod, "data/mapgen_dsl", False, False, [], False) == 0
         assert (mod / "data" / "mapgen" / "a.json").exists()
 
+    def test_singular_palette_dir_auto_loaded(self, tmp_path, monkeypatch):
+        import json
+
+        good = (FIXTURES / "single_room.yml").read_text(encoding="utf-8")
+        mod = self._mod(tmp_path, {"a.yml": good})
+        pal_dir = mod / "data" / "palette"
+        pal_dir.mkdir(parents=True)
+        (pal_dir / "extra.json").write_text(json.dumps([{"type": "palette", "id": "extra"}]))
+        monkeypatch.setattr(
+            sys, "argv", ["mapgen-compile", "--mod-dir", str(mod), "--check-only"]
+        )
+        assert main() == 0
+
 
 class TestMain:
     def test_no_args_returns_2(self, monkeypatch, capsys):
