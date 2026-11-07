@@ -62,7 +62,7 @@ class TestWriteOutput:
         out = tmp_path / "o.json"
         out.write_text("[]", encoding="utf-8")
         _write_output(out, [{"type": "mapgen"}], backup=True)
-        assert list((tmp_path / ".bak").glob("o.json*")) != []
+        assert (tmp_path / "o.json~").exists()
 
 
 class TestRunSingleFile:
@@ -182,4 +182,4 @@ class TestLegacyEntry:
             ["mapgen-compile", "--input", str(src), "--output", str(out), "--backup"],
         )
         assert main() == 0
-        assert list((tmp_path / ".bak").glob("o.json*")) != []
+        assert (tmp_path / "o.json~").exists()

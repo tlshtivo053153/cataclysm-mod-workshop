@@ -217,7 +217,7 @@ def main() -> int:
         "--backup",
         action="store_true",
         default=True,
-        help="Create .bak backup before overwriting (default: True)",
+        help="Create ~ backup before overwriting (default: True)",
     )
     parser.add_argument(
         "--no-backup", dest="backup", action="store_false", help="Disable backup creation"

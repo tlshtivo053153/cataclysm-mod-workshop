@@ -64,7 +64,8 @@ class TestBackupFile:
         bak = backup_file(src)
         assert bak.exists()
         assert bak.read_text() == "hello"
-        assert bak.parent.name == ".bak"
+        assert bak.name == "data.json~"
+        assert bak.parent == src.parent
 
     def test_dir_backup(self, tmp_path):
         src = tmp_path / "mydir"
@@ -73,17 +74,18 @@ class TestBackupFile:
         bak = backup_file(src)
         assert bak.is_dir()
         assert (bak / "f.txt").read_text() == "hi"
+        assert bak.name == "mydir~"
 
     def test_duplicate_handling(self, tmp_path):
         src = tmp_path / "data.json"
         src.write_text("first")
-        bak_dir = tmp_path / ".bak"
-        bak_dir.mkdir()
-        (bak_dir / "data.json").write_text("old")
+        first = backup_file(src)
+        assert first.name == "data.json~"
+        src.write_text("second")
         bak = backup_file(src)
-        assert bak.name != "data.json"
-        assert bak.name.startswith("data.json.")
-        assert bak.parent == bak_dir
+        assert bak.name == "data.json~1"
+        assert bak.parent == tmp_path
+        assert bak.read_text() == "second"
 
 
 class TestLoadJson:
@@ -172,10 +174,10 @@ class TestProcessDirectory:
         assert result.skipped == 1
         assert result.failed == 0
 
-    def test_backup_creates_bak(self, tmp_path):
+    def test_backup_creates_tilde(self, tmp_path):
         make_json_file(tmp_path, {"x": 1}, "file.json")
         process_directory(tmp_path, tmp_path, lambda d, p: d, backup=True)
-        assert (tmp_path / ".bak" / "file.json").exists()
+        assert (tmp_path / "file.json~").exists()
 
     def test_failure_counted(self, tmp_path):
         for i in range(3):
@@ -259,10 +261,10 @@ class TestProcessFile:
         assert result.failed == 1
         assert result.has_errors is True
 
-    def test_backup_creates_bak(self, tmp_path):
+    def test_backup_creates_tilde(self, tmp_path):
         p = make_json_file(tmp_path, {"x": 1}, "file.json")
         process_file(p, p, lambda d, p: d, backup=True)
-        assert (tmp_path / ".bak" / "file.json").exists()
+        assert (tmp_path / "file.json~").exists()
 
     def test_backup_via_symlink_alias(self, tmp_path):
         # Same file via different spellings must still back up (resolve
@@ -272,7 +274,7 @@ class TestProcessFile:
         link.symlink_to(p)
         result = process_file(p, link, lambda d, path: d, backup=True)
         assert result.processed == 1
-        assert (tmp_path / ".bak" / "file.json").exists()
+        assert (tmp_path / "file.json~").exists()
         assert link.is_symlink()
         assert json.loads(link.read_text()) == {"x": 1}
         assert json.loads(p.read_text()) == {"x": 1}
@@ -339,6 +341,12 @@ class TestIsBackupPath:
     def test_nested_bak_excluded(self, tmp_path):
         assert _is_backup_path(tmp_path, tmp_path / "sub" / ".bak" / "a.json") is True
 
+    def test_tilde_excluded(self, tmp_path):
+        assert _is_backup_path(tmp_path, tmp_path / "data~") is True
+        assert _is_backup_path(tmp_path, tmp_path / "items.json~") is True
+        assert _is_backup_path(tmp_path, tmp_path / "items.json~1") is True
+        assert _is_backup_path(tmp_path, tmp_path / "sub" / "mydir~" / "a.json") is True
+
     def test_normal_file_included(self, tmp_path):
         assert _is_backup_path(tmp_path, tmp_path / "a.json") is False
         assert _is_backup_path(tmp_path, tmp_path / "sub" / "a.json") is False
@@ -367,13 +375,14 @@ class TestIsBackupPath:
 
 
 class TestProcessDirectoryBakExclusion:
-    def test_double_run_no_nested_bak(self, tmp_path):
+    def test_double_run_creates_generations(self, tmp_path):
         make_json_file(tmp_path, {"n": 1}, "a.json")
         processor = lambda data, path: dict(data)  # noqa: E731
         process_directory(tmp_path, tmp_path, processor, backup=True)
         process_directory(tmp_path, tmp_path, processor, backup=True)
-        assert (tmp_path / ".bak" / ".bak").exists() is False
-        assert (tmp_path / ".bak" / "a.json").exists() is True
+        assert (tmp_path / "a.json~").exists() is True
+        assert (tmp_path / "a.json~1").exists() is True
+        assert (tmp_path / ".bak").exists() is False
 
     def test_processor_never_receives_bak_paths(self, tmp_path):
         make_json_file(tmp_path, {"n": 1}, "a.json")
@@ -386,14 +395,14 @@ class TestProcessDirectoryBakExclusion:
         process_directory(tmp_path, tmp_path, spy, backup=True)
         assert seen, "processor should have run at least once"
         process_directory(tmp_path, tmp_path, spy, backup=True)
-        assert all(".bak" not in Path(p).relative_to(tmp_path).parts for p in seen)
+        assert all(not _is_backup_path(tmp_path, Path(p)) for p in seen)
 
-    def test_nested_levels_each_get_bak_without_recursion(self, tmp_path):
+    def test_nested_levels_each_get_tilde_without_recursion(self, tmp_path):
         make_json_file(tmp_path, {"n": 1}, "sub1/sub2/a.json")
         process_directory(tmp_path, tmp_path, lambda d, p: dict(d), backup=True)
         process_directory(tmp_path, tmp_path, lambda d, p: dict(d), backup=True)
-        assert (tmp_path / "sub1" / "sub2" / ".bak" / "a.json").exists() is True
-        assert (tmp_path / "sub1" / "sub2" / ".bak" / ".bak").exists() is False
+        assert (tmp_path / "sub1" / "sub2" / "a.json~").exists() is True
+        assert (tmp_path / "sub1" / "sub2" / "a.json~1").exists() is True
 
     def test_file_named_bak_variants_are_processed(self, tmp_path):
         # foo.bak / .bakfile must not be treated as backup dirs.
@@ -413,13 +422,16 @@ class TestValidateModsBakExclusion:
             json.dumps([{"type": "MOD_INFO", "id": "mymod", "name": "My Mod"}])
         )
         process_directory(tmp_path, tmp_path, lambda d, p: d, backup=True)
-        assert (tmp_path / "mymod" / ".bak").exists() or (tmp_path / ".bak").exists()
-        # Simulate a stale backup copy of modinfo.json inside .bak.
-        bak_modinfo = mod_dir / ".bak" / "modinfo.json"
-        assert bak_modinfo.exists() is True
+        assert (mod_dir / "modinfo.json~").exists() is True
+        # Legacy .bak copy must also be ignored.
+        legacy_bak = mod_dir / ".bak"
+        legacy_bak.mkdir(exist_ok=True)
+        (legacy_bak / "modinfo.json").write_text(
+            json.dumps([{"type": "MOD_INFO", "id": "mymod", "name": "My Mod"}])
+        )
         mod_dirs = find_mod_dirs(tmp_path)
         assert mod_dir in mod_dirs
-        assert all(".bak" not in p.relative_to(tmp_path).parts for p in mod_dirs)
+        assert all(not _is_backup_path(tmp_path, p) for p in mod_dirs)
         id_map, error_dirs = collect_mod_ids(mod_dirs)
         assert error_dirs == []
         assert id_map["mymod"] == [mod_dir]

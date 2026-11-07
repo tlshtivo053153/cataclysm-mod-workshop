@@ -188,6 +188,8 @@ class TestCompilerCLI:
         assert result.returncode == 0
         bak_files = list(Path(mod_dir).rglob("*.bak"))
         assert len(bak_files) == 0
+        tilde_files = [p for p in Path(mod_dir).rglob("*") if p.name.endswith("~")]
+        assert len(tilde_files) == 0
 
     def test_mod_dir_dsl_dir_override(self, tmp_path):
         mod_dir = tmp_path / "my_mod"

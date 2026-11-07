@@ -59,9 +59,13 @@ class TestValidateSh:
         bak.mkdir()
         (bak / "bad.json").write_text("{bad json")
         (bak / "modinfo.json").write_text("{bad json")
+        (tmp_path / "bad.json~").write_text("{bad json")
+        (tmp_path / "tildefail~").mkdir()
+        (tmp_path / "tildefail~" / "bad.json").write_text("{bad json")
         result = _run_sh("validate.sh", str(tmp_path))
         assert result.returncode == 0, f"stdout: {result.stdout} stderr: {result.stderr}"
         assert ".bak" not in result.stdout
+        assert "bad.json~" not in result.stdout
 
     def test_symlink_origin_detected(self, tmp_path):
         real = tmp_path / "real_mod"
@@ -392,6 +396,11 @@ class TestValidateMods:
         bak = mod_dir / ".bak"
         bak.mkdir()
         (bak / "modinfo.json").write_text(
+            json.dumps(
+                [{"type": "MOD_INFO", "id": "mymod", "name": "My Mod", "dependencies": ["dda"]}]
+            )
+        )
+        (mod_dir / "modinfo.json~").write_text(
             json.dumps(
                 [{"type": "MOD_INFO", "id": "mymod", "name": "My Mod", "dependencies": ["dda"]}]
             )

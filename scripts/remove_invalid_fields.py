@@ -163,7 +163,7 @@ def make_processor(config: InvalidFieldsConfig) -> Callable[[Any, Path], Any | N
         else:
             return None
         # No-op files return None so process_directory skips save+backup
-        # (prevents .bak generation growth on repeated runs).
+        # (prevents ~ generation growth on repeated runs).
         if is_unchanged(original, data):
             return None
         return data

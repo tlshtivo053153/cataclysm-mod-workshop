@@ -20,11 +20,14 @@ echo "=== JSON Validation: $MOD_DIR ==="
 FILES=()
 while IFS= read -r file; do
   FILES+=("$file")
-done < <(find -H "$MOD_DIR" -type d -name .bak -prune -o -name "*.json" -print 2>/dev/null)
-# NOTE (E-6): .bak exclusion is unified with common._is_backup_path
-# (scripts/common.py): only paths with a `.bak` component relative to the
-# base dir are skipped; ancestors of the base named `.bak` never exclude
-# the base itself. `find ... -name .bak -prune` is the shell equivalent.
+done < <(find -H "$MOD_DIR" -type d \( -name .bak -o -name '*~' \) -prune -o -name "*.json" -print 2>/dev/null)
+# NOTE (E-6): backup exclusion is unified with common._is_backup_path
+# (scripts/common.py): paths with a `.bak` component or trailing `~`
+# (`data.json~`, `data.json~1`, `mydir~`) relative to the base dir are
+# skipped; ancestors of the base named `.bak` never exclude the base
+# itself. `find ... -prune` is the shell equivalent. `*.json~*` never
+# matches `-name "*.json"` anyway; the prune keeps `mydir~/a.json`
+# from being found via a backup directory.
 
 if [ "${#FILES[@]}" -eq 0 ]; then
   echo "  ERROR: No JSON files found in $MOD_DIR" >&2

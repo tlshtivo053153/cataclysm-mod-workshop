@@ -70,18 +70,25 @@ def noop_if_unchanged(original: Any, result: Any) -> Any | None:
 
 
 def _is_backup_path(base: Path, p: Path) -> bool:
-    """Return True if p is under a `.bak` directory relative to base.
+    """Return True if p is a converter backup relative to base.
 
-    Only the path relative to base is inspected.  Ancestors of base that
-    happen to be named `.bak` do not cause exclusion, so a legitimate mod
-    directory named `.bak` is never skipped wholesale — only its `.bak`
-    children are excluded.
+    Backups are either under a `.bak` directory (legacy) or use a trailing
+    `~` name (current: `data.json~`, `data.json~1`, `mydir~`). Only the path
+    relative to base is inspected. Ancestors of base that happen to be named
+    `.bak` do not cause exclusion.
     """
     try:
         rel_parts = p.relative_to(base).parts
     except ValueError:
         return False
-    return ".bak" in rel_parts
+    import re
+
+    for part in rel_parts:
+        if part == ".bak":
+            return True
+        if part.endswith("~") or re.search(r"~\d+$", part):
+            return True
+    return False
 
 
 @dataclass
@@ -154,7 +161,7 @@ def create_parser(
         "-b",
         action="store_true",
         default=True,
-        help="Create .bak backup before overwriting (default: True)",
+        help="Create ~ backup before overwriting (default: True)",
     )
     parser.add_argument(
         "--no-backup",
@@ -177,24 +184,19 @@ def resolve_paths(args: argparse.Namespace) -> tuple[Path, Path]:
     return input_path, output_path
 
 
-def backup_file(source: Path, backup_dir: Path | None = None) -> Path:
-    """Copy source file to a .bak directory.
+def backup_file(source: Path) -> Path:
+    """Copy source to a trailing-`~` backup next to it.
 
-    If backup_dir is None, uses <source.parent>/.bak.
-    Generations: the bare name is the oldest generation, then `.1`, `.2`, ...
-    in increasing newness (first existing name wins, then suffixed copies).
-    Callers only create backups when overwriting in place
-    (`output_dir == input_dir`); a different output tree never backs up.
-    Returns the path to the backup file.
+    Names: `data.json~`, then `data.json~1`, `data.json~2`, ... (first
+    existing name wins). All names avoid `*.json` so CDDA's loader and
+    `validate.sh` never see them as mod data. Callers only back up when
+    overwriting in place (`output_dir == input_dir`); a different output
+    tree never backs up. Returns the backup path.
     """
-    if backup_dir is None:
-        backup_dir = source.parent / ".bak"
-    backup_dir.mkdir(parents=True, exist_ok=True)
-
-    backup_path = backup_dir / source.name
+    backup_path = source.with_name(source.name + "~")
     counter = 1
     while backup_path.exists():
-        backup_path = backup_dir / f"{source.name}.{counter}"
+        backup_path = source.with_name(f"{source.name}~{counter}")
         counter += 1
 
     if source.is_dir():
@@ -275,8 +277,8 @@ def process_directory(
 
     Returns a ProcessResult with counts for processed, skipped, and failed files.
 
-    `.bak` directories under input_dir are excluded from the walk (see
-    _is_backup_path).  Backups are only created when overwriting in place
+    `.bak` directories and trailing-`~` names under input_dir are excluded
+    from the walk (see _is_backup_path).  Backups are only created when overwriting in place
     (output_dir == input_dir).
 
     When output_dir differs and copy_unchanged is True, files the processor

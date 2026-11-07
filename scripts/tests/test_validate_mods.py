@@ -68,6 +68,7 @@ class TestRecipeActivityLevel:
         bak = mod_dir / ".bak"
         bak.mkdir()
         (bak / "recipes.json").write_text(json.dumps([{"type": "recipe", "result": "x"}]))
+        (mod_dir / "recipes.json~").write_text(json.dumps([{"type": "recipe", "result": "y"}]))
         assert check_recipe_activity_level(mod_dir) == []
 
     def test_invalid_json_skipped(self, tmp_path):
@@ -229,6 +230,7 @@ class TestFindModDirs:
         bak.mkdir(parents=True)
         (mod / "modinfo.json").write_text("{}")
         (bak / "modinfo.json").write_text("{}")
+        (mod / "modinfo.json~").write_text("{}")
         assert validate_mods.find_mod_dirs(tmp_path) == [mod]
 
 

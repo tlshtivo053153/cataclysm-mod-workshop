@@ -16,10 +16,10 @@ REQUIRED_MODINFO_FIELDS = {"type", "id", "name"}
 def find_mod_dirs(base_dir: Path) -> list[Path]:
     """Find mod directories containing a modinfo.json file (recursive).
 
-    `.bak` directories under base_dir are excluded so post-conversion
-    backups are not detected as separate mods (Duplicate mod ID guard).
-    Only the path relative to base_dir is inspected (see
-    common._is_backup_path).
+    Backup paths (legacy `.bak` dirs and trailing-`~` names) under base_dir
+    are excluded so post-conversion backups are not detected as separate
+    mods (Duplicate mod ID guard). Only the path relative to base_dir is
+    inspected (see common._is_backup_path).
     """
 
     mod_dirs = sorted(
@@ -138,7 +138,7 @@ def _iter_json_objects(mod_dir: Path) -> list[tuple[Path, dict[str, Any]]]:
     """Collect all JSON objects in a mod dir (list or dict top-level).
 
     Files that fail to parse are skipped here; syntax errors are already
-    reported by run_validate/validate.sh. `.bak` paths are excluded.
+    reported by run_validate/validate.sh. Backup paths are excluded.
     """
     objects: list[tuple[Path, dict[str, Any]]] = []
     for json_file in sorted(mod_dir.rglob("*.json")):
