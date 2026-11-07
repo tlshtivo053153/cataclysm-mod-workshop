@@ -100,3 +100,6 @@ warn_redundant_casts = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 ignore_errors = true
+
+[tool.coverage.run]
+omit = ["scripts/tests/*"]

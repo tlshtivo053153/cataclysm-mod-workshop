@@ -1159,3 +1159,57 @@ entries:
         grid = entries[0].grid
         assert grid.get(2, 3) == "."
         assert grid.get(5, 3) == " "
+
+    def test_contained_auto_doors(self):
+        yml = """\
+entries:
+  - om_terrain: "test"
+    fill_ter: "t_floor"
+    auto_doors: true
+    rooms:
+      - id: "outer"
+        w: 10
+        h: 10
+        wall: "#"
+        floor: "."
+      - id: "inner"
+        inside: "outer"
+        gap: 2
+        w: 4
+        h: 4
+        wall: "#"
+        floor: "."
+    doors: []
+"""
+        entries = _compile_yml(yml)
+        grid = entries[0].grid
+        chars = grid.collect_used_chars(fill_char=" ")
+        assert "+" in chars
+
+
+class TestStairMismatch:
+    def test_reverse_up_down_mismatch(self):
+        from mapgen import EntryContext
+        from mapgen.grid import Grid
+        from mapgen.stairs import validate_stairs
+
+        upper = EntryContext("top", "t_floor", [], Grid(5, 5), {}, [])
+        upper.grid.place(1, 1, "<")
+        upper.stair_positions = {(1, 1)}
+        lower = EntryContext("bottom", "t_floor", [], Grid(5, 5), {}, [])
+        lower.grid.place(2, 2, ">")
+        lower.stair_positions = {(2, 2)}
+        assert validate_stairs([upper, lower], 5) != []
+
+    def test_ladder_mismatch(self):
+        from mapgen import EntryContext
+        from mapgen.grid import Grid
+        from mapgen.stairs import validate_stairs
+
+        upper = EntryContext("top", "t_floor", [], Grid(5, 5), {}, [])
+        upper.grid.place(1, 1, "*")
+        upper.stair_positions = {(1, 1)}
+        lower = EntryContext("bottom", "t_floor", [], Grid(5, 5), {}, [])
+        lower.grid.place(3, 3, "*")
+        lower.stair_positions = {(3, 3)}
+        assert validate_stairs([upper, lower], 5) != []
