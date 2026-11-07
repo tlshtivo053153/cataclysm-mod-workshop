@@ -125,6 +125,10 @@ def _run_mod_dir(
     if not dsl_path.exists():
         print(f"DSL directory not found: {dsl_path}", file=sys.stderr)
         return 2
+    yaml_files = sorted(dsl_path.glob("*.yml"))
+    if not yaml_files:
+        print(f"No DSL files found in: {dsl_path}", file=sys.stderr)
+        return 2
 
     compiler: Compiler
     try:
@@ -138,7 +142,6 @@ def _run_mod_dir(
     except OSError as e:
         print(f"ERROR: Cannot load palettes: {e}", file=sys.stderr)
         return 1
-    yaml_files = sorted(dsl_path.glob("*.yml"))
     compiled_count = 0
     error_count = 0
     output_dir = mod_dir / "data" / "mapgen"

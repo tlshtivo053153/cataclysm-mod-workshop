@@ -138,6 +138,18 @@ class TestCopyFromReferences:
         mod_dir = _write_mod(tmp_path, files={"items.json": [{"type": "ITEM", "id": "plain"}]})
         assert check_copy_from_references(mod_dir) == []
 
+    def test_abstract_target_passes(self, tmp_path):
+        mod_dir = _write_mod(
+            tmp_path,
+            files={
+                "items.json": [
+                    {"type": "ITEM", "abstract": "base"},
+                    {"type": "ITEM", "id": "child", "copy-from": "base"},
+                ]
+            },
+        )
+        assert check_copy_from_references(mod_dir) == []
+
 
 class TestRunValidateErrorCapture:
     def test_missing_script_returns_false(self, tmp_path, monkeypatch, capsys):
@@ -232,6 +244,23 @@ class TestFindModDirs:
         (bak / "modinfo.json").write_text("{}")
         (mod / "modinfo.json~").write_text("{}")
         assert validate_mods.find_mod_dirs(tmp_path) == [mod]
+
+    def test_orphan_data_dir_errors(self, tmp_path):
+        import subprocess
+        import sys
+
+        base = tmp_path / "mods"
+        orphan = base / "small" / "foo"
+        (orphan / "data").mkdir(parents=True)
+        (orphan / "data" / "items.json").write_text("[]")
+        result = subprocess.run(
+            [sys.executable, "scripts/validate_mods.py", "--base-dir", str(base)],
+            capture_output=True,
+            text=True,
+            cwd=validate_mods.__file__.rsplit("/scripts/", 1)[0] if "/scripts/" in validate_mods.__file__ else ".",
+        )
+        assert result.returncode == 1
+        assert "no modinfo.json" in result.stderr
 
 
 class TestCollectModIds:

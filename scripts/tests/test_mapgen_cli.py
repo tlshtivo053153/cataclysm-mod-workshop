@@ -106,6 +106,11 @@ class TestRunModDir:
         mod.mkdir()
         assert _run_mod_dir(mod, "data/mapgen_dsl", False, True, [], False) == 2
 
+    def test_empty_dsl_dir_returns_2(self, tmp_path):
+        mod = tmp_path / "mymod"
+        (mod / "data" / "mapgen_dsl").mkdir(parents=True)
+        assert _run_mod_dir(mod, "data/mapgen_dsl", False, True, [], False) == 2
+
     def test_check_only_counts(self, tmp_path, capsys):
         good = (FIXTURES / "single_room.yml").read_text(encoding="utf-8")
         mod = self._mod(tmp_path, {"a.yml": good})
