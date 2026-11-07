@@ -833,6 +833,63 @@ entries:
         with pytest.raises(CompileError, match="specified w=10 conflicts with layout-computed"):
             _parse_yml(yml)
 
+    def test_error_one_sided_w_mismatch(self):
+        yml = """\
+entries:
+  - om_terrain: "test"
+    fill_ter: "t_floor"
+    canvas:
+      cols: [8]
+      rows: [8]
+    layout:
+      - [hall]
+    rooms:
+      - id: hall
+        w: 5
+        wall: "#"
+        floor: "."
+"""
+        with pytest.raises(CompileError, match="specified w=5 conflicts with layout-computed"):
+            _parse_yml(yml)
+
+    def test_error_one_sided_h_mismatch(self):
+        yml = """\
+entries:
+  - om_terrain: "test"
+    fill_ter: "t_floor"
+    canvas:
+      cols: [8]
+      rows: [8]
+    layout:
+      - [hall]
+    rooms:
+      - id: hall
+        h: 5
+        wall: "#"
+        floor: "."
+"""
+        with pytest.raises(CompileError, match="specified h=5 conflicts with layout-computed"):
+            _parse_yml(yml)
+
+    def test_error_negative_w_with_layout(self):
+        yml = """\
+entries:
+  - om_terrain: "test"
+    fill_ter: "t_floor"
+    canvas:
+      cols: [8]
+      rows: [8]
+    layout:
+      - [hall]
+    rooms:
+      - id: hall
+        w: -1
+        wall: "#"
+        floor: "."
+"""
+        with pytest.raises(CompileError, match="specified w=-1 conflicts with layout-computed"):
+            _parse_yml(yml)
+
     def test_layout_compiles_to_valid_grid(self):
         yml = """\
 entries:

@@ -206,19 +206,18 @@ def resolve_entry_layout(
         computed_y = sum(rows[:r_min])
 
         spec = rooms[cell_id]
-        if spec.w > 0 and spec.h > 0:
-            if spec.w != computed_w:
-                raise CompileError(
-                    f"Room '{cell_id}': specified w={spec.w} conflicts with layout-computed "
-                    f"width {computed_w} (spans columns {c_min}-{c_max - 1}). "
-                    f"Omit 'w'/'h' or 'inner_w'/'inner_h' to use layout-derived sizes."
-                )
-            if spec.h != computed_h:
-                raise CompileError(
-                    f"Room '{cell_id}': specified h={spec.h} conflicts with layout-computed "
-                    f"height {computed_h} (spans rows {r_min}-{r_max - 1}). "
-                    f"Omit 'w'/'h' or 'inner_w'/'inner_h' to use layout-derived sizes."
-                )
+        if spec.w != 0 and spec.w != computed_w:
+            raise CompileError(
+                f"Room '{cell_id}': specified w={spec.w} conflicts with layout-computed "
+                f"width {computed_w} (spans columns {c_min}-{c_max - 1}). "
+                f"Omit 'w'/'h' or 'inner_w'/'inner_h' to use layout-derived sizes."
+            )
+        if spec.h != 0 and spec.h != computed_h:
+            raise CompileError(
+                f"Room '{cell_id}': specified h={spec.h} conflicts with layout-computed "
+                f"height {computed_h} (spans rows {r_min}-{r_max - 1}). "
+                f"Omit 'w'/'h' or 'inner_w'/'inner_h' to use layout-derived sizes."
+            )
 
         spec.w = computed_w
         spec.h = computed_h
