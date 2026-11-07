@@ -232,6 +232,23 @@ class TestProcessDirectory:
         assert (out / "a.json").is_file()
         assert json.loads((out / "a.json").read_text()) == json.loads(src_file.read_text())
 
+    def test_default_full_copy_to_other_dir(self, tmp_path):
+        src = tmp_path / "src"
+        make_json_file(src, {"v": 1}, "changed.json")
+        make_json_file(src, {"v": 2}, "same.json")
+
+        def processor(data, path):
+            if data.get("v") == 2:
+                return None
+            return data
+
+        out = tmp_path / "out"
+        result = process_directory(src, out, processor, backup=False)
+        assert result.processed == 1
+        assert result.skipped == 1
+        assert (out / "changed.json").is_file()
+        assert (out / "same.json").is_file()
+
 
 class TestProcessFile:
     def test_success(self, tmp_path):

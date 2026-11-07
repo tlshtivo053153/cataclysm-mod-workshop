@@ -267,7 +267,7 @@ def process_directory(
     processor: Processor,
     backup: bool = True,
     pattern: str = "*.json",
-    copy_unchanged: bool = False,
+    copy_unchanged: bool = True,
 ) -> ProcessResult:
     """Walk input_dir, apply processor to each matching file, write to output_dir.
 
@@ -281,15 +281,14 @@ def process_directory(
     from the walk (see _is_backup_path).  Backups are only created when overwriting in place
     (output_dir == input_dir).
 
-    When output_dir differs and copy_unchanged is True, files the processor
-    skips (None) are still copied to the output tree (failed files are not).
-    This preserves the `-o <other-dir>` full-copy contract for scripts that
-    need it (e.g. convert_price).  Other scripts keep False (in-place
-    behavior unchanged).
+    When output_dir differs and copy_unchanged is True (default), files the
+    processor skips (None) are still copied to the output tree (failed files
+    are not). This preserves the `-o <other-dir>` full-copy contract.
+    In-place (output_dir == input_dir) never copies.
 
-    NOTE: with copy_unchanged=False (default), `-o <other-dir>` produces a
-    partial tree: unchanged (skipped) files are NOT copied.  Use in-place
-    mode or convert_price for full-copy needs.
+    NOTE: with copy_unchanged=False (explicit direct calls only),
+    `-o <other-dir>` produces a partial tree: unchanged (skipped) files are
+    NOT copied.
 
     Missing input_dir counts as failed=1 (not silent success).  Mutually
     nested input/output dirs (one contains the other) are rejected with
@@ -425,7 +424,7 @@ def _setup_exit_code(setup_code: Any) -> int | None:
 def run_standard_pipeline(
     description: str,
     processor: Processor,
-    copy_unchanged: bool = False,
+    copy_unchanged: bool = True,
     configure: ConfigureHook | None = None,
     setup: SetupHook | None = None,
 ) -> int:
@@ -444,7 +443,7 @@ def run_standard_pipeline(
         description: Help text for --help.
         processor: (data, path) -> transformed data or None (skip).
         copy_unchanged: Forward to process_directory() for `-o <other-dir>`
-            full-copy needs (convert_price=True, others False).
+            full-copy contract (default True).
         configure: Optional create_parser hook for script-specific options.
         setup: Optional hook run after parse_args (e.g. load --config).
             May return an int exit code to abort before processing
