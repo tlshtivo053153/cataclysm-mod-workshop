@@ -29,7 +29,7 @@ def _setup_fake_cdda(tmp_path, *, mode="success"):
         'for a in "$@"; do\n'
         '  if [ "$prev" = "--userdir" ]; then userdir="$a"; fi\n'
         '  prev="$a"\n'
-        'done\n'
+        "done\n"
         'if [ -n "$userdir" ]; then log="$userdir/config/debug.log";\n'
         'else log="$(dirname "$0")/config/debug.log"; fi\n'
         'mkdir -p "$(dirname "$log")"\n'

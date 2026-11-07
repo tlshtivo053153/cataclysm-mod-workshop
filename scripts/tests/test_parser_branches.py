@@ -40,8 +40,11 @@ class TestDetectPlacementKeys:
             parse_dsl(_write(tmp_path, yml))
 
     def test_multiple_targets(self, tmp_path):
-        yml = BASE + _room("a", '        right_of: "b"\n        left_of: "c"\n') + _room("b") + _room(
-            "c"
+        yml = (
+            BASE
+            + _room("a", '        right_of: "b"\n        left_of: "c"\n')
+            + _room("b")
+            + _room("c")
         )
         with pytest.raises(CompileError, match="exactly one"):
             parse_dsl(_write(tmp_path, yml))
@@ -180,12 +183,18 @@ class TestNoDoorAndCanvas:
 
 class TestInputValidation:
     def test_wall_two_chars(self, tmp_path):
-        yml = BASE + '      - id: "a"\n        w: 4\n        h: 4\n        wall: "##"\n        floor: "."\n'
+        yml = (
+            BASE
+            + '      - id: "a"\n        w: 4\n        h: 4\n        wall: "##"\n        floor: "."\n'
+        )
         with pytest.raises(CompileError, match="must be a single character"):
             parse_dsl(_write(tmp_path, yml))
 
     def test_floor_two_chars(self, tmp_path):
-        yml = BASE + '      - id: "a"\n        w: 4\n        h: 4\n        wall: "#"\n        floor: ".."\n'
+        yml = (
+            BASE
+            + '      - id: "a"\n        w: 4\n        h: 4\n        wall: "#"\n        floor: ".."\n'
+        )
         with pytest.raises(CompileError, match="must be a single character"):
             parse_dsl(_write(tmp_path, yml))
 
@@ -195,19 +204,23 @@ class TestInputValidation:
             parse_dsl(_write(tmp_path, yml))
 
     def test_gap_string(self, tmp_path):
-        yml = BASE + '      - id: "a"\n        w: 4\n        h: 4\n        wall: "#"\n        floor: "."\n' + '      - id: "b"\n        w: 2\n        h: 2\n        wall: "#"\n        floor: "."\n        right_of: "a"\n        gap: "x"\n'
+        yml = (
+            BASE
+            + '      - id: "a"\n        w: 4\n        h: 4\n        wall: "#"\n        floor: "."\n'
+            + '      - id: "b"\n        w: 2\n        h: 2\n        wall: "#"\n        floor: "."\n        right_of: "a"\n        gap: "x"\n'
+        )
         with pytest.raises(CompileError, match="must be an integer"):
             parse_dsl(_write(tmp_path, yml))
 
     def test_contained_door_bad_side(self, tmp_path):
-        yml = _two_valid(
-            '    doors:\n      - {from: "a", to: "b", char: "+", side: "up"}\n'
-        )
+        yml = _two_valid('    doors:\n      - {from: "a", to: "b", char: "+", side: "up"}\n')
         with pytest.raises(CompileError, match="invalid side"):
             parse_dsl(_write(tmp_path, yml))
 
     def test_feature_char_two_chars(self, tmp_path):
-        yml = _two_valid('    features:\n      - room: "a"\n        tiles:\n          - {char: "ab", x: 0, y: 0}\n')
+        yml = _two_valid(
+            '    features:\n      - room: "a"\n        tiles:\n          - {char: "ab", x: 0, y: 0}\n'
+        )
         with pytest.raises(CompileError, match="must be a single character"):
             parse_dsl(_write(tmp_path, yml))
 

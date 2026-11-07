@@ -519,7 +519,9 @@ def _parse_global_tiles(entry_data: dict[str, Any], canvas_size: int) -> list[Gl
                 if isinstance(coord, bool):
                     raise CompileError(f"Global tile: '{field}' must be an integer, got {coord!r}")
             elif isinstance(coord, list):
-                if len(coord) != 2 or any(isinstance(v, bool) or not isinstance(v, int) for v in coord):
+                if len(coord) != 2 or any(
+                    isinstance(v, bool) or not isinstance(v, int) for v in coord
+                ):
                     raise CompileError(
                         f"Global tile: '{field}' must be an integer or 2-element integer list, "
                         f"got {coord!r}"

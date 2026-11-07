@@ -42,7 +42,9 @@ def load_activity_config(config_path: Path) -> None:
             file=sys.stderr,
         )
         raise ValueError(f"Invalid activity config: {config_path}")
-    invalid = {k: v for k, v in data.items() if not isinstance(k, str) or not isinstance(v, str) or not v}
+    invalid = {
+        k: v for k, v in data.items() if not isinstance(k, str) or not isinstance(v, str) or not v
+    }
     if invalid:
         print(
             f"ERROR: Invalid activity config {config_path}: "

@@ -10,7 +10,6 @@ import json
 import sys
 from pathlib import Path
 
-import pytest
 from mapgen.cli import (
     _print_explanations,
     _print_warnings,
@@ -136,9 +135,7 @@ class TestRunModDir:
         pal_dir = mod / "data" / "palette"
         pal_dir.mkdir(parents=True)
         (pal_dir / "extra.json").write_text(json.dumps([{"type": "palette", "id": "extra"}]))
-        monkeypatch.setattr(
-            sys, "argv", ["mapgen-compile", "--mod-dir", str(mod), "--check-only"]
-        )
+        monkeypatch.setattr(sys, "argv", ["mapgen-compile", "--mod-dir", str(mod), "--check-only"])
         assert main() == 0
 
 
