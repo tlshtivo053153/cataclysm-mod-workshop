@@ -52,3 +52,21 @@ class TestAddActivityLevel:
 
         result = processor({"not": "list"}, None)
         assert result is None
+
+    def test_null_treated_as_missing(self):
+        data = [{"type": "recipe", "activity_level": None}]
+        result = add_activity_level(data)
+        assert result[0]["activity_level"] == DEFAULT_ACTIVITY
+
+    def test_empty_string_treated_as_missing(self):
+        data = [{"type": "recipe", "activity_level": ""}]
+        result = add_activity_level(data)
+        assert result[0]["activity_level"] == DEFAULT_ACTIVITY
+
+    def test_empty_config_value_rejected(self, tmp_path):
+        bad = make_json_file(tmp_path, {"CSC_FOOD_MEAT": ""}, "bad.json")
+        try:
+            load_activity_config(bad)
+            raise AssertionError("Expected ValueError")
+        except ValueError:
+            pass

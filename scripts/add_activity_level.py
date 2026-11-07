@@ -42,7 +42,7 @@ def load_activity_config(config_path: Path) -> None:
             file=sys.stderr,
         )
         raise ValueError(f"Invalid activity config: {config_path}")
-    invalid = {k: v for k, v in data.items() if not isinstance(k, str) or not isinstance(v, str)}
+    invalid = {k: v for k, v in data.items() if not isinstance(k, str) or not isinstance(v, str) or not v}
     if invalid:
         print(
             f"ERROR: Invalid activity config {config_path}: "
@@ -60,7 +60,7 @@ def add_activity_level(data: list[Any]) -> list[Any]:
             continue
         if obj.get("type") != "recipe":
             continue
-        if "activity_level" in obj:
+        if isinstance(obj.get("activity_level"), str) and obj["activity_level"]:
             continue
 
         subcategory = obj.get("subcategory", "")
@@ -68,6 +68,8 @@ def add_activity_level(data: list[Any]) -> list[Any]:
 
         new_obj: dict[str, Any] = {}
         for key, value in obj.items():
+            if key == "activity_level":
+                continue
             new_obj[key] = value
             if key == "type":
                 new_obj["activity_level"] = activity
