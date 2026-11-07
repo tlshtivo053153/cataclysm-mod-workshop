@@ -31,6 +31,21 @@ from mapgen.schema import (
 from mapgen.utils import resolve_global_coords
 
 
+def _one_char(value: Any, field: str, where: str) -> None:
+    if not isinstance(value, str) or len(value) != 1:
+        raise CompileError(f"{where}: '{field}' must be a single character, got {value!r}")
+
+
+def _mapping(value: Any, field: str, where: str) -> None:
+    if not isinstance(value, dict):
+        raise CompileError(f"{where}: '{field}' must be a mapping, got {value!r}")
+
+
+def _integer(value: Any, field: str, where: str) -> None:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise CompileError(f"{where}: '{field}' must be an integer, got {value!r}")
+
+
 def _detect_new_placement_keys(
     room_data: dict[str, Any],
     room_id: str,
@@ -60,6 +75,7 @@ def _detect_new_placement_keys(
     inside = room_data.get("inside")
     align = room_data.get("align")
     gap = room_data.get("gap", 0)
+    _integer(gap, "gap", f"Room '{room_id}'")
 
     place_count = sum(1 for v in [right_of, left_of, above, below, inside] if v is not None)
     if place_count == 0:
@@ -221,11 +237,14 @@ def _parse_rooms(
         for room_id, room_data in rooms_data.items():
             if not isinstance(room_data, dict):
                 raise CompileError(f"Room '{room_id}': value must be a mapping")
+            if not isinstance(room_id, str):
+                raise CompileError(f"Room id must be a string, got {room_id!r}")
             room_items.append((room_id, room_data))
     elif isinstance(rooms_data, list):
         for room_data in rooms_data:
+            _mapping(room_data, "room", "Room list entry")
             room_id = room_data.get("id")
-            if not room_id:
+            if not isinstance(room_id, str) or not room_id:
                 raise CompileError("Room missing required field: id")
             room_items.append((room_id, room_data))
     else:
@@ -259,18 +278,26 @@ def _parse_rooms(
                 f"or 'h' for total height including walls"
             )
         if inner_w is not None:
+            _integer(inner_w, "inner_w", f"Room '{room_id}'")
             if inner_w < 0:
                 raise CompileError(f"Room '{room_id}': inner_w must be >= 0, got {inner_w}")
             w = inner_w + 2
         if inner_h is not None:
+            _integer(inner_h, "inner_h", f"Room '{room_id}'")
             if inner_h < 0:
                 raise CompileError(f"Room '{room_id}': inner_h must be >= 0, got {inner_h}")
             h = inner_h + 2
+        if w is not None:
+            _integer(w, "w", f"Room '{room_id}'")
+        if h is not None:
+            _integer(h, "h", f"Room '{room_id}'")
 
         wall = room_data.get("wall")
         floor = room_data.get("floor")
         if wall is None or floor is None:
             raise CompileError(f"Room '{room_id}' missing required field: wall or floor")
+        _one_char(wall, "wall", f"Room '{room_id}'")
+        _one_char(floor, "floor", f"Room '{room_id}'")
 
         has_x = "x" in room_data
         has_y = "y" in room_data
@@ -393,6 +420,7 @@ def _parse_rooms(
 def _parse_doors(entry_data: dict[str, Any], resolved: dict[str, RoomSpec]) -> list[DoorSpec]:
     door_specs: list[DoorSpec] = []
     for door_data in entry_data.get("doors", []):
+        _mapping(door_data, "door", "Door entry")
         try:
             spec = DoorSpec(
                 from_room=door_data["from"],
@@ -404,6 +432,14 @@ def _parse_doors(entry_data: dict[str, Any], resolved: dict[str, RoomSpec]) -> l
             )
         except KeyError as e:
             raise CompileError(f"Door missing required field: {e}") from e
+        where = f"Door between '{spec.from_room}' and '{spec.to_room}'"
+        _one_char(spec.char, "char", where)
+        if spec.offset is not None:
+            _integer(spec.offset, "offset", where)
+        if spec.side is not None and spec.side not in ("north", "south", "east", "west"):
+            raise CompileError(
+                f"{where}: invalid side '{spec.side}' — must be north, south, east, or west"
+            )
         if spec.position is not None and spec.offset is not None:
             raise CompileError(
                 f"Door between '{spec.from_room}' and '{spec.to_room}': "
@@ -441,12 +477,17 @@ def _parse_features(
 ) -> list[FeatureSpec]:
     feature_specs: list[FeatureSpec] = []
     for feat_data in entry_data.get("features", []):
+        _mapping(feat_data, "feature", "Feature entry")
         room_name = feat_data.get("room")
         if room_name is not None and room_name not in resolved:
             raise FeatureOutOfRoomError(f"Feature references unknown room: '{room_name}'")
         room_spec = resolved.get(room_name) if room_name is not None else None
+        tiles_data = feat_data.get("tiles", [])
+        if not isinstance(tiles_data, list):
+            raise CompileError(f"Feature entry: 'tiles' must be a list, got {tiles_data!r}")
         tiles: list[FeatureTile] = []
-        for tile_data in feat_data.get("tiles", []):
+        for tile_data in tiles_data:
+            _mapping(tile_data, "tile", f"Feature tile in room '{room_name}'")
             try:
                 tile = FeatureTile(
                     char=tile_data["char"],
@@ -459,6 +500,10 @@ def _parse_features(
                 raise CompileError(
                     f"Feature tile in {room_label} missing required field: {e}"
                 ) from e
+            where = f"Feature tile in room '{room_name}'" if room_name else "Feature tile"
+            _one_char(tile.char, "char", where)
+            _integer(tile.x, "x", where)
+            _integer(tile.y, "y", where)
 
             if room_spec is not None:
                 if tile.x < 0 or tile.x >= room_spec.w or tile.y < 0 or tile.y >= room_spec.h:
@@ -480,6 +525,7 @@ def _parse_features(
 def _parse_global_tiles(entry_data: dict[str, Any], canvas_size: int) -> list[GlobalTile]:
     global_tiles: list[GlobalTile] = []
     for gt_data in entry_data.get("global", []):
+        _mapping(gt_data, "global tile", "Global tile")
         try:
             gt = GlobalTile(
                 char=gt_data["char"],
@@ -488,6 +534,22 @@ def _parse_global_tiles(entry_data: dict[str, Any], canvas_size: int) -> list[Gl
             )
         except KeyError as e:
             raise CompileError(f"Global tile missing required field: {e}") from e
+        _one_char(gt.char, "char", "Global tile")
+        for coord, field in ((gt.x, "x"), (gt.y, "y")):
+            if isinstance(coord, int):
+                if isinstance(coord, bool):
+                    raise CompileError(f"Global tile: '{field}' must be an integer, got {coord!r}")
+            elif isinstance(coord, list):
+                if len(coord) != 2 or any(isinstance(v, bool) or not isinstance(v, int) for v in coord):
+                    raise CompileError(
+                        f"Global tile: '{field}' must be an integer or 2-element integer list, "
+                        f"got {coord!r}"
+                    )
+            else:
+                raise CompileError(
+                    f"Global tile: '{field}' must be an integer or 2-element integer list, "
+                    f"got {coord!r}"
+                )
         for x_val in resolve_global_coords(gt.x):
             if x_val < 0 or x_val > canvas_size - 1:
                 raise FeatureOutOfGridError(
@@ -527,14 +589,20 @@ def _parse_no_door(
 
 
 def _validate_entry(entry_data: dict[str, Any], canvas_size: int = MAPGEN_SIZE) -> EntrySpec:
+    _mapping(entry_data, "entry", "Entry")
     om_terrain = entry_data.get("om_terrain")
-    if not om_terrain:
+    if not isinstance(om_terrain, str) or not om_terrain:
         raise CompileError("Entry missing required field: om_terrain")
 
     fill_ter = entry_data.get("fill_ter", "t_floor")
+    if not isinstance(fill_ter, str) or not fill_ter:
+        raise CompileError(f"Entry '{om_terrain}': 'fill_ter' must be a non-empty string")
     palette = entry_data.get("palette", [])
+    if not isinstance(palette, list) or any(not isinstance(p, str) for p in palette):
+        raise CompileError(f"Entry '{om_terrain}': 'palette' must be a list of strings")
     auto_doors = entry_data.get("auto_doors", True)
     default_door_char = entry_data.get("default_door_char", "+")
+    _one_char(default_door_char, "default_door_char", f"Entry '{om_terrain}'")
 
     layout_matrix = entry_data.get("layout")
     has_layout = layout_matrix is not None
