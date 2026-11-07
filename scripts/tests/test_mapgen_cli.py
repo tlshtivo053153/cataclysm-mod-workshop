@@ -177,11 +177,10 @@ class TestLegacyEntry:
         )
         assert main() == 0
 
-    @pytest.mark.parametrize("flag", ["--backup", "--no-backup"])
-    def test_backup_flags_parsed(self, tmp_path, monkeypatch, flag):
+    def test_no_backup_flag_parsed(self, tmp_path, monkeypatch):
         src = _copy_fixture(tmp_path)
         monkeypatch.setattr(
-            sys, "argv", ["mapgen-compile", "--input", str(src), "--check-only", flag]
+            sys, "argv", ["mapgen-compile", "--input", str(src), "--check-only", "--no-backup"]
         )
         assert main() == 0
 
@@ -192,7 +191,7 @@ class TestLegacyEntry:
         monkeypatch.setattr(
             sys,
             "argv",
-            ["mapgen-compile", "--input", str(src), "--output", str(out), "--backup"],
+            ["mapgen-compile", "--input", str(src), "--output", str(out)],
         )
         assert main() == 0
         assert (tmp_path / "o.json~").exists()

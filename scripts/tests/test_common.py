@@ -259,6 +259,12 @@ class TestProcessFile:
         assert result.failed == 0
         assert result.has_errors is False
 
+    def test_success_prints_once(self, tmp_path, capsys):
+        p = make_json_file(tmp_path, {"a": 1})
+        process_file(p, p, lambda d, p: d, backup=False)
+        out = capsys.readouterr().out.strip().splitlines()
+        assert len([line for line in out if "Updated:" in line]) == 1
+
     def test_processor_returns_none_skips(self, tmp_path):
         p = make_json_file(tmp_path, {"a": 1})
         result = process_file(p, p, lambda d, p: None, backup=False)

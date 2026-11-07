@@ -132,7 +132,7 @@ def create_parser(
     description: str,
     configure: ConfigureHook | None = None,
 ) -> argparse.ArgumentParser:
-    """Create a standard ArgumentParser with --input, --output, and --backup.
+    """Create a standard ArgumentParser with --input, --output, and --no-backup.
 
     Args:
         description: Help text shown for the script.
@@ -157,16 +157,10 @@ def create_parser(
         help="Output directory or file path (default: overwrite input)",
     )
     parser.add_argument(
-        "--backup",
-        "-b",
-        action="store_true",
-        default=True,
-        help="Create ~ backup before overwriting (default: True)",
-    )
-    parser.add_argument(
         "--no-backup",
         dest="backup",
         action="store_false",
+        default=True,
         help="Disable backup creation",
     )
     if configure is not None:
@@ -494,8 +488,6 @@ def run_standard_pipeline(
         result = process_file(input_path, output_path, processor, backup=args.backup)
         if result.skipped:
             print(f"Skipped: {input_path}")
-        elif result.processed:
-            print(f"Updated: {input_path}")
 
     if result.has_errors:
         return 1

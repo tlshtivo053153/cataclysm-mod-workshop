@@ -42,8 +42,8 @@ python3 mapgen_compiler.py -i <input.yml> --explain
 | `--check-only` | コンパイル検証のみ、ファイル出力しない |
 | `--mod-dir` | mod ディレクトリ指定（バッチコンパイル） |
 | `--dsl-dir` | バッチ時の DSL ソースディレクトリ（デフォルト: `data/mapgen_dsl`） |
-| `--palette-dir` | 追加パレットディレクトリ（複数指定可）。`--mod-dir` 使用時は自動で `{mod_dir}/data/palettes/` も検索 |
-| `--backup / --no-backup` | バックアップ作成の有無（デフォルト: 有効） |
+| `--palette-dir` | 追加パレットディレクトリ（複数指定可）。`--mod-dir` 使用時は自動で `{mod_dir}/data/palettes/` と `{mod_dir}/data/palette/` も検索 |
+| `--no-backup` | バックアップ作成を無効化（デフォルト: 有効） |
 | `--explain` | コンパイル後のグリッド上に出現する文字とその意味を一覧表示する。各エントリごとに `Characters used:` のヘッダーに続くリスト形式で出力され、**表示時**の優先順位は以下の通り: (1) `meaning` アノテーションがあればそれを表示 (2) なければ指定パレット内の定義（terrain/furniture など）を表示 (3) いずれもなければ `(unknown)` と表示。なお、`meaning` が指定されている文字については、後述の `meaning` フィールドの節で説明する通り、パレット定義との整合性が別途バリデーションされる |
 
 ## DSL 構文

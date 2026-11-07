@@ -214,13 +214,11 @@ def main() -> int:
         help="Additional palette directory(s) to load",
     )
     parser.add_argument(
-        "--backup",
-        action="store_true",
+        "--no-backup",
+        dest="backup",
+        action="store_false",
         default=True,
-        help="Create ~ backup before overwriting (default: True)",
-    )
-    parser.add_argument(
-        "--no-backup", dest="backup", action="store_false", help="Disable backup creation"
+        help="Disable backup creation",
     )
     parser.add_argument(
         "--explain",
