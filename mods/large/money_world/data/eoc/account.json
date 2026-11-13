@@ -16,7 +16,7 @@
     "type": "effect_on_condition",
     "id": "EOC_MW_LEASE_CHECK",
     "recurrence": 600,
-    "condition": { "math": [ "u_mw_lease_until > 0 && time('now') >= u_mw_lease_until" ] },
+    "condition": { "and": [ { "math": [ "u_mw_lease_until > 0" ] }, { "math": [ "time('now') >= u_mw_lease_until" ] } ] },
     "effect": [
       {
         "if": { "u_has_item": "mw_lease_blade" },
