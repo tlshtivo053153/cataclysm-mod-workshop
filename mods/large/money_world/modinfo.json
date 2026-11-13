@@ -1,0 +1,8 @@
+{
+  "type": "MOD_INFO",
+  "id": "money_world",
+  "name": "Money World — Meridian",
+  "description": "Meridian bank network: sell junk, buy supplies and time leases.",
+  "category": "content",
+  "dependencies": [ "dda" ]
+}

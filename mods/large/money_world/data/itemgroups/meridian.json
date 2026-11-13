@@ -1,0 +1,9 @@
+[
+  {
+    "type": "item_group",
+    "id": "homebooks",
+    "copy-from": "homebooks",
+    "subtype": "distribution",
+    "extend": { "entries": [ { "item": "mw_card", "prob": 200 } ] }
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "type": "ITEM",
+    "id": "mw_lease_blade",
+    "copy-from": "katana",
+    "name": { "str": "monomolecular blade (lease)", "str_pl": "monomolecular blades (lease)" },
+    "description": "A Meridian hardlight projection.  The lease expires in 6 hours; the blade will dissolve.",
+    "extend": { "flags": [ "TRADER_AVOID", "NO_SALVAGE", "NO_REPAIR" ] }
+  },
+  {
+    "type": "ITEM",
+    "id": "mw_lease_plate",
+    "copy-from": "cuirass_lightplate",
+    "name": { "str": "hardlight plate (lease)", "str_pl": "hardlight plates (lease)" },
+    "description": "A Meridian hardlight projection.  The lease expires in 12 hours; the plate will dissolve.",
+    "extend": { "flags": [ "TRADER_AVOID", "NO_SALVAGE", "NO_REPAIR", "NO_TAKEOFF" ] }
+  }
+]

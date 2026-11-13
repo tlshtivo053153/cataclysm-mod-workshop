@@ -1,0 +1,604 @@
+[
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SHOP",
+    "effect": [
+      {
+        "run_eoc_selector": [
+          "EOC_MW_SHOP_CONS",
+          "EOC_MW_SHOP_TOOLS",
+          "EOC_MW_SHOP_ARMOR",
+          "EOC_MW_SHOP_LEASE",
+          "EOC_MW_MENU"
+        ],
+        "names": [
+          "Consumables",
+          "Tools",
+          "Armor",
+          "Leases",
+          "Back"
+        ],
+        "keys": [
+          "c",
+          "t",
+          "a",
+          "l",
+          "b"
+        ],
+        "descriptions": [
+          "Medicine and ammo.",
+          "Hand tools and devices.",
+          "Leather, helmet, boots.",
+          "Time-limited Meridian hardware.",
+          "Back to main menu."
+        ],
+        "title": "Meridian catalog",
+        "allow_cancel": true
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SHOP_CONS",
+    "effect": [
+      {
+        "run_eoc_selector": [
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "bandages",
+                "price": "200",
+                "rank": "0",
+                "count": "5"
+              }
+            },
+            "id": "EOC_MW_BUY_bandages"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "disinfectant",
+                "price": "400",
+                "rank": "0",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_disinfectant"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "antibiotics",
+                "price": "800",
+                "rank": "0",
+                "count": "5"
+              }
+            },
+            "id": "EOC_MW_BUY_antibiotics"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "aspirin",
+                "price": "300",
+                "rank": "0",
+                "count": "10"
+              }
+            },
+            "id": "EOC_MW_BUY_aspirin"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "9mm",
+                "price": "1200",
+                "rank": "0",
+                "count": "50"
+              }
+            },
+            "id": "EOC_MW_BUY_9mm"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "223",
+                "price": "1500",
+                "rank": "0",
+                "count": "30"
+              }
+            },
+            "id": "EOC_MW_BUY_223"
+          },
+          "EOC_MW_SHOP"
+        ],
+        "names": [
+          "bandages x5 \u2014 $2",
+          "disinfectant \u2014 $4",
+          "antibiotics x5 \u2014 $8",
+          "aspirin x10 \u2014 $3",
+          "9mm x50 \u2014 $12",
+          ".223 x30 \u2014 $15",
+          "Back"
+        ],
+        "keys": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g"
+        ],
+        "descriptions": [
+          "Rank 0",
+          "Rank 0",
+          "Rank 0",
+          "Rank 0",
+          "Rank 0",
+          "Rank 0",
+          "Back to catalog."
+        ],
+        "title": "Consumables",
+        "allow_cancel": true
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SHOP_TOOLS",
+    "effect": [
+      {
+        "run_eoc_selector": [
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "crowbar",
+                "price": "800",
+                "rank": "0",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_crowbar"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "flashlight",
+                "price": "500",
+                "rank": "0",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_flashlight"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "mask_gas",
+                "price": "1000",
+                "rank": "0",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_mask_gas"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "portable_generator",
+                "price": "6000",
+                "rank": "0",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_portable_generator"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "goggles_nv",
+                "price": "18000",
+                "rank": "1",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_goggles_nv"
+          },
+          "EOC_MW_SHOP"
+        ],
+        "names": [
+          "crowbar \u2014 $8",
+          "flashlight \u2014 $5",
+          "gas mask \u2014 $10",
+          "portable generator \u2014 $60",
+          "light amp goggles \u2014 $180",
+          "Back"
+        ],
+        "keys": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f"
+        ],
+        "descriptions": [
+          "Rank 0",
+          "Rank 0",
+          "Rank 0",
+          "Rank 0",
+          "Rank 1",
+          "Back to catalog."
+        ],
+        "title": "Tools",
+        "allow_cancel": true
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SHOP_ARMOR",
+    "effect": [
+      {
+        "run_eoc_selector": [
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "jacket_leather",
+                "price": "4000",
+                "rank": "1",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_jacket_leather"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "helmet_army",
+                "price": "4000",
+                "rank": "1",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_helmet_army"
+          },
+          {
+            "effect": {
+              "run_eocs": "EOC_MW_BUY",
+              "variables": {
+                "item_id": "boots_combat",
+                "price": "3500",
+                "rank": "1",
+                "count": "1"
+              }
+            },
+            "id": "EOC_MW_BUY_boots_combat"
+          },
+          "EOC_MW_SHOP"
+        ],
+        "names": [
+          "leather jacket \u2014 $40",
+          "army helmet \u2014 $40",
+          "combat boots \u2014 $35",
+          "Back"
+        ],
+        "keys": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ],
+        "descriptions": [
+          "Rank 1",
+          "Rank 1",
+          "Rank 1",
+          "Back to catalog."
+        ],
+        "title": "Armor",
+        "allow_cancel": true
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SHOP_LEASE",
+    "effect": [
+      {
+        "run_eoc_selector": [
+          "EOC_MW_BUY_BLADE",
+          "EOC_MW_BUY_PLATE",
+          "EOC_MW_SHOP"
+        ],
+        "names": [
+          "monomolecular blade \u2014 $150 / 6h",
+          "hardlight plate \u2014 $200 / 12h",
+          "Back"
+        ],
+        "keys": [
+          "a",
+          "b",
+          "c"
+        ],
+        "descriptions": [
+          "Rank 1.  Dissolves on expiry.",
+          "Rank 2.  Dissolves on expiry.",
+          "Back to catalog."
+        ],
+        "title": "Leases (one active at a time)",
+        "allow_cancel": true
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_BUY",
+    "condition": {
+      "and": [
+        {
+          "expects_vars": [
+            "item_id",
+            "price",
+            "rank",
+            "count"
+          ]
+        },
+        {
+          "math": [
+            "u_mw_cents >= _price"
+          ]
+        },
+        {
+          "math": [
+            "u_mw_rank >= _rank"
+          ]
+        }
+      ]
+    },
+    "effect": [
+      {
+        "math": [
+          "u_mw_cents = u_mw_cents - _price"
+        ]
+      },
+      {
+        "u_spawn_item": {
+          "context_val": "item_id"
+        },
+        "count": {
+          "context_val": "count"
+        },
+        "flags": [
+          "TRADER_AVOID",
+          "NO_SALVAGE"
+        ]
+      },
+      {
+        "u_message": "Purchased.",
+        "type": "good"
+      },
+      {
+        "run_eocs": "EOC_MW_SHOP"
+      }
+    ],
+    "false_effect": [
+      {
+        "u_message": "Insufficient balance or account tier.",
+        "type": "bad"
+      },
+      {
+        "run_eocs": "EOC_MW_SHOP"
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_BUY_BLADE",
+    "condition": {
+      "and": [
+        {
+          "math": [
+            "u_mw_cents >= 15000"
+          ]
+        },
+        {
+          "math": [
+            "u_mw_rank >= 1"
+          ]
+        },
+        {
+          "math": [
+            "u_mw_lease_until <= time( 'now' )"
+          ]
+        },
+        {
+          "not": {
+            "u_has_item": "mw_lease_blade"
+          }
+        }
+      ]
+    },
+    "effect": [
+      {
+        "math": [
+          "u_mw_cents = u_mw_cents - 15000"
+        ]
+      },
+      {
+        "math": [
+          "u_mw_lease_until = time( 'now' ) + 21600"
+        ]
+      },
+      {
+        "u_cast_spell": {
+          "id": "mw_conjure_lease_blade"
+        },
+        "true_eocs": [
+          "EOC_MW_BUY_BLADE_OK"
+        ],
+        "false_eocs": [
+          "EOC_MW_BUY_BLADE_FAIL"
+        ]
+      }
+    ],
+    "false_effect": [
+      {
+        "u_message": "Insufficient balance, tier, or an active lease.",
+        "type": "bad"
+      },
+      {
+        "run_eocs": "EOC_MW_SHOP"
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_BUY_BLADE_OK",
+    "effect": [
+      {
+        "u_message": "Lease active: monomolecular blade (6 hours).",
+        "type": "good"
+      },
+      {
+        "run_eocs": "EOC_MW_SHOP"
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_BUY_BLADE_FAIL",
+    "effect": [
+      {
+        "math": [
+          "u_mw_cents = u_mw_cents + 15000"
+        ]
+      },
+      {
+        "math": [
+          "u_mw_lease_until = 0"
+        ]
+      },
+      {
+        "u_message": "Blade materialization failed; refunded.",
+        "type": "bad"
+      },
+      {
+        "run_eocs": "EOC_MW_SHOP"
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_BUY_PLATE",
+    "condition": {
+      "and": [
+        {
+          "math": [
+            "u_mw_cents >= 20000"
+          ]
+        },
+        {
+          "math": [
+            "u_mw_rank >= 2"
+          ]
+        },
+        {
+          "math": [
+            "u_mw_lease_until <= time( 'now' )"
+          ]
+        },
+        {
+          "not": {
+            "u_has_item": "mw_lease_plate"
+          }
+        },
+        {
+          "not": {
+            "u_is_wearing": "mw_lease_plate"
+          }
+        }
+      ]
+    },
+    "effect": [
+      {
+        "math": [
+          "u_mw_cents = u_mw_cents - 20000"
+        ]
+      },
+      {
+        "math": [
+          "u_mw_lease_until = time( 'now' ) + 43200"
+        ]
+      },
+      {
+        "u_cast_spell": {
+          "id": "mw_conjure_lease_plate"
+        },
+        "true_eocs": [
+          "EOC_MW_BUY_PLATE_OK"
+        ],
+        "false_eocs": [
+          "EOC_MW_BUY_PLATE_FAIL"
+        ]
+      }
+    ],
+    "false_effect": [
+      {
+        "u_message": "Insufficient balance, tier, or an active lease.",
+        "type": "bad"
+      },
+      {
+        "run_eocs": "EOC_MW_SHOP"
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_BUY_PLATE_OK",
+    "effect": [
+      {
+        "u_message": "Lease active: hardlight plate (12 hours).",
+        "type": "good"
+      },
+      {
+        "run_eocs": "EOC_MW_SHOP"
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_BUY_PLATE_FAIL",
+    "effect": [
+      {
+        "math": [
+          "u_mw_cents = u_mw_cents + 20000"
+        ]
+      },
+      {
+        "math": [
+          "u_mw_lease_until = 0"
+        ]
+      },
+      {
+        "u_message": "Plate materialization failed; refunded.",
+        "type": "bad"
+      },
+      {
+        "run_eocs": "EOC_MW_SHOP"
+      }
+    ]
+  }
+]

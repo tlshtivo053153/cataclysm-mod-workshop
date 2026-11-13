@@ -1,0 +1,10 @@
+[
+  {
+    "type": "overmap_terrain",
+    "id": "mw_branch_1",
+    "copy-from": "generic_city_building",
+    "name": "Meridian branch",
+    "sym": "M",
+    "color": "light_cyan"
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_OPEN_MOBILE",
+    "effect": [
+      { "math": [ "u_mw_branch = 0" ] },
+      { "run_eocs": "EOC_MW_REFRESH_RANK" },
+      {
+        "math": [ "_display = floor( u_mw_cents / 100 )" ]
+      },
+      { "u_message": "Meridian balance: $<context_val:display> (<u_val:mw_cents> cents).  Mobile rate: 50 percent." },
+      { "u_message": "A voice calling itself Mister Money whispers: liquidity is civilization.", "type": "neutral" },
+      { "run_eocs": "EOC_MW_MENU" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_OPEN_BRANCH",
+    "effect": [
+      {
+        "if": { "not": { "u_has_item": "mw_card" } },
+        "then": [ { "u_spawn_item": "mw_card" }, { "u_message": "The ATM prints your Meridian card.  Free of charge.  Everything else costs.", "type": "good" } ]
+      },
+      { "math": [ "u_mw_branch = 1" ] },
+      { "run_eocs": "EOC_MW_REFRESH_RANK" },
+      { "math": [ "_display = floor( u_mw_cents / 100 )" ] },
+      { "u_message": "Meridian balance: $<context_val:display> (<u_val:mw_cents> cents).  Branch rate: 100 percent." },
+      { "run_eocs": "EOC_MW_MENU" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_MENU",
+    "effect": [
+      {
+        "run_eoc_selector": [ "EOC_MW_SELL_SCRAP", "EOC_MW_SELL_AMMO", "EOC_MW_SHOP", "EOC_MW_SERVICE", "EOC_MW_CLOSE" ],
+        "names": [ "Sell scrap", "Sell ammo", "Buy", "Services", "Close" ],
+        "keys": [ "s", "a", "b", "v", "c" ],
+        "descriptions": [
+          "Recycler buys whitelisted scrap at 2 cents per charge.",
+          "Recycler buys whitelisted ammo at 2 cents per round.",
+          "Spend account balance on goods and leases.",
+          "Clinic and map survey.",
+          "Walk away.  The bank remains."
+        ],
+        "title": "Meridian",
+        "allow_cancel": true
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_CLOSE",
+    "effect": [ { "u_message": "The terminal dims.  Your balance remains.", "type": "neutral" } ]
+  }
+]

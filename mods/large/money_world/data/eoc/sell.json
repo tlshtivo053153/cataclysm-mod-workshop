@@ -1,0 +1,76 @@
+[
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SELL_SCRAP",
+    "effect": [
+      {
+        "u_run_inv_eocs": "manual",
+        "title": "Sell scrap (2c/charge)",
+        "search_data": [
+          {
+            "id": [
+              "scrap",
+              "spike",
+              "cu_pipe",
+              "scrap_brass",
+              "sheet_metal_small",
+              "steel_chunk",
+              "steel_lump",
+              "hinge",
+              "scrap_copper",
+              "copper_rod",
+              "wire",
+              "chunk_cast_iron",
+              "lump_cast_iron"
+            ],
+            "excluded_flags": [ "MISSION_ITEM", "NO_UNWIELD", "TRADER_AVOID" ]
+          }
+        ],
+        "true_eocs": [ "EOC_MW_SELL_DO" ]
+      },
+      { "run_eocs": "EOC_MW_MENU" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SELL_AMMO",
+    "effect": [
+      {
+        "u_run_inv_eocs": "manual",
+        "title": "Sell ammo (2c/round)",
+        "search_data": [
+          {
+            "id": [ "9mm", "223", "556", "shot_00", "shot_slug", "22_lr" ],
+            "excluded_flags": [ "MISSION_ITEM", "NO_UNWIELD", "TRADER_AVOID" ]
+          }
+        ],
+        "true_eocs": [ "EOC_MW_SELL_DO" ]
+      },
+      { "run_eocs": "EOC_MW_MENU" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SELL_DO",
+    "effect": [
+      { "math": [ "_count = max( 1, n_val( 'count' ) )" ] },
+      { "math": [ "_value = _count * 2" ] },
+      {
+        "if": { "math": [ "u_mw_branch == 0" ] },
+        "then": [ { "math": [ "_value = max( 1, floor( _value * 0.5 ) )" ] } ]
+      },
+      { "math": [ "_display = floor( _value / 100 )" ] },
+      { "u_message": "Item: <npc_name>, count: <context_val:count>, value: $<context_val:display>" },
+      {
+        "if": { "u_query": "Sell this stack?", "default": false },
+        "then": [
+          { "npc_die": { "remove_corpse": true, "supress_message": true } },
+          { "math": [ "u_mw_cents = u_mw_cents + _value" ] },
+          { "math": [ "u_mw_total_sold = u_mw_total_sold + _value" ] },
+          { "run_eocs": "EOC_MW_REFRESH_RANK" },
+          { "u_message": "Sold.", "type": "good" }
+        ]
+      }
+    ]
+  }
+]

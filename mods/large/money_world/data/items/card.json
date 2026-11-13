@@ -1,0 +1,15 @@
+[
+  {
+    "type": "ITEM",
+    "id": "mw_card",
+    "copy-from": "card_plastic_abstract",
+    "name": { "str": "Meridian card" },
+    "description": "A Meridian access card.  The balance is held by the account, not the card.",
+    "use_action": {
+      "type": "effect_on_conditions",
+      "menu_text": "Use Meridian card",
+      "effect_on_conditions": [ "EOC_MW_OPEN_MOBILE" ]
+    },
+    "extend": { "flags": [ "TRADER_AVOID" ] }
+  }
+]

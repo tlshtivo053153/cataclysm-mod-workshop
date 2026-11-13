@@ -1,0 +1,52 @@
+[
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SERVICE",
+    "effect": [
+      {
+        "run_eoc_selector": [ "EOC_MW_CLINIC", "EOC_MW_SURVEY", "EOC_MW_MENU" ],
+        "names": [ "Clinic — $50", "Map survey — $100", "Back" ],
+        "keys": [ "c", "m", "b" ],
+        "descriptions": [ "Restore all body parts to full HP.", "Rank 1.  Reveal surrounding overmap.", "Back to main menu." ],
+        "title": "Meridian services",
+        "allow_cancel": true
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_CLINIC",
+    "condition": { "math": [ "u_mw_cents >= 5000" ] },
+    "effect": [
+      { "math": [ "u_mw_cents = u_mw_cents - 5000" ] },
+      { "math": [ "u_hp( 'head' ) = u_hp_max( 'head' )" ] },
+      { "math": [ "u_hp( 'torso' ) = u_hp_max( 'torso' )" ] },
+      { "math": [ "u_hp( 'arm_l' ) = u_hp_max( 'arm_l' )" ] },
+      { "math": [ "u_hp( 'arm_r' ) = u_hp_max( 'arm_r' )" ] },
+      { "math": [ "u_hp( 'leg_l' ) = u_hp_max( 'leg_l' )" ] },
+      { "math": [ "u_hp( 'leg_r' ) = u_hp_max( 'leg_r' )" ] },
+      { "u_message": "Meridian clinic complete.  You feel billable.", "type": "good" },
+      { "run_eocs": "EOC_MW_MENU" }
+    ],
+    "false_effect": [
+      { "u_message": "Insufficient balance for clinic.", "type": "bad" },
+      { "run_eocs": "EOC_MW_MENU" }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_SURVEY",
+    "condition": { "and": [ { "math": [ "u_mw_cents >= 10000" ] }, { "math": [ "u_mw_rank >= 1" ] } ] },
+    "effect": [
+      { "math": [ "u_mw_cents = u_mw_cents - 10000" ] },
+      { "u_location_variable": { "context_val": "mw_loc" } },
+      { "reveal_map": { "context_val": "mw_loc" }, "radius": 15 },
+      { "u_message": "Survey complete.  Meridian knows where you are.  It always did.", "type": "good" },
+      { "run_eocs": "EOC_MW_MENU" }
+    ],
+    "false_effect": [
+      { "u_message": "Insufficient balance or account tier for survey.", "type": "bad" },
+      { "run_eocs": "EOC_MW_MENU" }
+    ]
+  }
+]

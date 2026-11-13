@@ -1,0 +1,17 @@
+[
+  {
+    "type": "furniture",
+    "id": "f_mw_atm",
+    "name": "Meridian ATM",
+    "description": "A Meridian branch terminal.  No humans, no queue, no mercy — just liquidity.",
+    "symbol": "&",
+    "color": "light_cyan",
+    "move_cost_mod": 2,
+    "required_str": -1,
+    "flags": [ "TRANSPARENT", "NOITEM", "PERMEABLE" ],
+    "examine_action": {
+      "type": "effect_on_condition",
+      "effect_on_conditions": [ "EOC_MW_OPEN_BRANCH" ]
+    }
+  }
+]
