@@ -60,7 +60,7 @@
         "then": [ { "math": [ "_value = max( 1, floor( _value * 0.5 ) )" ] } ]
       },
       { "math": [ "_display = floor( _value / 100 )" ] },
-      { "u_message": "Item: <npc_name>, count: <context_val:count>, value: $<context_val:display>" },
+      { "u_message": "Sell <context_val:count>x <npc_name> for <context_val:value>c ($<context_val:display>)." },
       {
         "if": { "u_query": "Sell this stack?", "default": false },
         "then": [

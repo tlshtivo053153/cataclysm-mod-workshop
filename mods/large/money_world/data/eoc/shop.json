@@ -136,12 +136,12 @@
           "g"
         ],
         "descriptions": [
-          "Rank 0",
-          "Rank 0",
-          "Rank 0",
-          "Rank 0",
-          "Rank 0",
-          "Rank 0",
+          "Rank 0 - stops bleeding",
+          "Rank 0 - disinfects bites",
+          "Rank 0 - kills infection",
+          "Rank 0 - painkiller",
+          "Rank 0 - pistol ammo",
+          "Rank 0 - rifle ammo",
           "Back to catalog."
         ],
         "title": "Consumables",
@@ -234,11 +234,11 @@
           "f"
         ],
         "descriptions": [
-          "Rank 0",
-          "Rank 0",
-          "Rank 0",
-          "Rank 0",
-          "Rank 1",
+          "Rank 0 - prying tool",
+          "Rank 0 - portable light",
+          "Rank 0 - gas and smoke protection",
+          "Rank 0 - base power",
+          "Rank 1 - night vision",
           "Back to catalog."
         ],
         "title": "Tools",
@@ -303,9 +303,9 @@
           "d"
         ],
         "descriptions": [
-          "Rank 1",
-          "Rank 1",
-          "Rank 1",
+          "Rank 1 - torso protection",
+          "Rank 1 - head protection",
+          "Rank 1 - feet protection",
           "Back to catalog."
         ],
         "title": "Armor",
