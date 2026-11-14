@@ -25,7 +25,8 @@
 | spell | `mw_conjure_lease_plate` | プレート実体化（`spawn_item`、12時間） |
 | furniture | `f_mw_atm` | Meridian ATM（`examine_action` EOC） |
 | overmap_terrain | `mw_branch_1` | Meridian支店（copy-from `generic_city_building`） |
-| overmap_special | `mw_meridian_branch` | 支店配置（`OVERMAP_UNIQUE`） |
+| city_building | `mw_meridian_branch` | 街区画配置（`land`、1x1＋ATM） |
+| region_overlay | 全regionの`shops`に重み1500（`s_grocery`並み）で登録 |
 | mapgen | `mw_branch_1` | 支店1x1（24x24、ATMのみ） |
 | item_group | `homebooks`（extend） | カード配布（`copy-from`＋`extend`） |
 | recipe | `mw_card` | カード再作成 |
@@ -40,8 +41,7 @@
 | EOC | `EOC_MW_BUY` | 通常購入（汎用＋variables） |
 | EOC | `EOC_MW_BUY_BLADE` / `EOC_MW_BUY_PLATE` | リース購入2種 |
 | EOC | `EOC_MW_SERVICE` / `EOC_MW_CLINIC` / `EOC_MW_SURVEY` | サービス系 |
-| EOC | `EOC_MW_LEASE_CHECK` | リース期限（600秒周期） |
-| u_val | `u_mw_cents` / `u_mw_total_sold` / `u_mw_rank` / `u_mw_lease_until` / `u_mw_branch` | 口座・進行変数 |
+| u_val | `u_mw_cents` / `u_mw_total_sold` / `u_mw_rank` / `u_mw_branch` | 口座・進行変数 |
 
 ### 参照ファイル（実在確認済み）
 
@@ -64,12 +64,12 @@
 
 - modinfo.json
 - spec.md / design.md / README.md
-- data/items/card.json / data/items/leases.json
-- data/eoc/account.json / menu.json / sell.json / shop.json / service_eocs.json
+- data/items/card.json / data/items/debug.json / data/items/leases.json
+- data/eoc/account.json / menu.json / sell.json / shop.json / service_eocs.json / debug.json
 - data/spells/leases.json
 - data/itemgroups/meridian.json
 - data/mapgen/branch.json
-- data/overmap/terrain.json / special.json
+- data/overmap/terrain.json / city_building.json / region_overlay.json
 - data/furniture/atm.json
 - data/recipes/card.json
 
@@ -93,13 +93,13 @@
    - 換金: `scrap` 100チャージ→スタック消滅・残高 `count*2` 一致・二重支払いなし。ammo代表1種（例 `9mm`）でも換金。同一品を携帯・支店で換金し料率差（50%/100%）確認。`tin`/`lead`系が選択肢に出ないこと
    - 購入: bandagesで正常・残高不足・ランク不足の3分岐（残り13品は同一EOC経由のため省略可）
    - ランク2・高額品の確認はデバッグで `u_mw_total_sold` = 50000（ランク2閾値）に設定してプレート購入で実施
-   - リース: 期限後に消失（装備中・所持・地面・セーブ跨ぎ）。プレートは装着のまま期限を迎えるケースを含む。期限操作は `u_mw_lease_until` を過去時刻に設定（またはデバッグ時刻送り）
-   - `u_mw_lease_until` のsave/load跨ぎ、`_FAIL`系返金分岐は到達不能な防御のため未実行として記録する
+   - リース: 期限後に消失（装備中・所持・地面・セーブ跨ぎ）。プレートは装着のまま期限を迎えるケースを含む。期限操作はデバッグ時刻送りで実施
+   - `_FAIL`系返金分岐は到達不能な防御のため未実行として記録する
    - セーブ→ロード後に `u_mw_cents` / `u_mw_total_sold` / `u_mw_rank` が維持されること
    - 支店: デバッグreveal/テレポートでATM存在確認。死亡で残高消失、購入品14＋リース2が換金対象外であること、uncraft→換金の利益なしを確認
 
 ### 完了条件
 
-- [ ] Level1: JSON構文OK
-- [ ] Level2: 起動OK（エラーなし）
-- [ ] Level3: 意図通り動作（必須・手動確認。Level定義の正本は `rules/verification.md`）
+- [x] Level1: JSON構文OK
+- [x] Level2: 起動OK（エラーなし）
+- [x] Level3: 意図通り動作（全手順確認済み。Level定義の正本は `rules/verification.md`）
