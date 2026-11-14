@@ -1,0 +1,15 @@
+[
+  {
+    "type": "effect_on_condition",
+    "id": "EOC_MW_DEBUG",
+    "effect": [
+      { "math": [ "u_mw_cents = 100000" ] },
+      { "math": [ "u_mw_total_sold = 50000" ] },
+      { "run_eocs": "EOC_MW_REFRESH_RANK" },
+      { "u_spawn_item": "scrap", "count": 100 },
+      { "u_spawn_item": "9mm", "count": 50 },
+      { "u_message": "Meridian debug setup: $1000, Tier 2, test stock spawned.", "type": "good" },
+      { "run_eocs": "EOC_MW_MENU" }
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "type": "ITEM",
+    "id": "mw_debug_token",
+    "copy-from": "card_plastic_abstract",
+    "name": { "str": "Meridian debug token" },
+    "description": "Debug tool.  Spawns test funds and stock.  Not for normal play.",
+    "use_action": {
+      "type": "effect_on_conditions",
+      "menu_text": "Run Meridian debug setup",
+      "effect_on_conditions": [ "EOC_MW_DEBUG" ]
+    }
+  }
+]
