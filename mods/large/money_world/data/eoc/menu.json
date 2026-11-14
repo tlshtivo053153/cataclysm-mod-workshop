@@ -5,10 +5,7 @@
     "effect": [
       { "math": [ "u_mw_branch = 0" ] },
       { "run_eocs": "EOC_MW_REFRESH_RANK" },
-      {
-        "math": [ "_display = floor( u_mw_cents / 100 )" ]
-      },
-      { "u_message": "Meridian balance: $<context_val:display> (<u_val:mw_cents>c) Tier <u_val:mw_rank>.  Mobile rate: 50 percent." },
+      { "u_message": "Mobile rate: 50 percent." },
       { "u_message": "A voice calling itself Mister Money whispers: liquidity is civilization.", "type": "neutral" },
       { "run_eocs": "EOC_MW_MENU" }
     ]
@@ -23,8 +20,7 @@
       },
       { "math": [ "u_mw_branch = 1" ] },
       { "run_eocs": "EOC_MW_REFRESH_RANK" },
-      { "math": [ "_display = floor( u_mw_cents / 100 )" ] },
-      { "u_message": "Meridian balance: $<context_val:display> (<u_val:mw_cents>c) Tier <u_val:mw_rank>.  Branch rate: 100 percent." },
+      { "u_message": "Branch rate: 100 percent." },
       { "run_eocs": "EOC_MW_MENU" }
     ]
   },
@@ -32,6 +28,8 @@
     "type": "effect_on_condition",
     "id": "EOC_MW_MENU",
     "effect": [
+      { "math": [ "_display = floor( u_mw_cents / 100 )" ] },
+      { "u_message": "Meridian balance: $<context_val:display> (<u_val:mw_cents>c) Tier <u_val:mw_rank>." },
       {
         "run_eoc_selector": [ "EOC_MW_SELL_SCRAP", "EOC_MW_SELL_AMMO", "EOC_MW_SHOP", "EOC_MW_SERVICE", "EOC_MW_CLOSE" ],
         "names": [ "Sell scrap", "Sell ammo", "Buy", "Services", "Close" ],

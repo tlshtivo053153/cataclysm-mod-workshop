@@ -53,6 +53,7 @@
                 "count": "5"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 200" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_bandages"
           },
           {
@@ -65,6 +66,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 400" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_disinfectant"
           },
           {
@@ -77,6 +79,7 @@
                 "count": "5"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 800" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_antibiotics"
           },
           {
@@ -89,6 +92,7 @@
                 "count": "10"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 300" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_aspirin"
           },
           {
@@ -101,6 +105,7 @@
                 "count": "50"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 1200" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_9mm"
           },
           {
@@ -113,6 +118,7 @@
                 "count": "30"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 1500" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_223"
           },
           "EOC_MW_SHOP"
@@ -165,6 +171,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 800" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_crowbar"
           },
           {
@@ -177,6 +184,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 500" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_flashlight"
           },
           {
@@ -189,6 +197,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 1000" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_mask_gas"
           },
           {
@@ -201,6 +210,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 6000" ] }, { "math": [ "u_mw_rank >= 0" ] } ] },
             "id": "EOC_MW_BUY_portable_generator"
           },
           {
@@ -213,6 +223,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 18000" ] }, { "math": [ "u_mw_rank >= 1" ] } ] },
             "id": "EOC_MW_BUY_goggles_nv"
           },
           "EOC_MW_SHOP"
@@ -262,6 +273,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 4000" ] }, { "math": [ "u_mw_rank >= 1" ] } ] },
             "id": "EOC_MW_BUY_jacket_leather"
           },
           {
@@ -274,6 +286,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 4000" ] }, { "math": [ "u_mw_rank >= 1" ] } ] },
             "id": "EOC_MW_BUY_helmet_army"
           },
           {
@@ -286,6 +299,7 @@
                 "count": "1"
               }
             },
+            "condition": { "and": [ { "math": [ "u_mw_cents >= 3500" ] }, { "math": [ "u_mw_rank >= 1" ] } ] },
             "id": "EOC_MW_BUY_boots_combat"
           },
           "EOC_MW_SHOP"
@@ -338,7 +352,7 @@
           "Rank 2.  Dissolves on expiry.",
           "Back to catalog."
         ],
-        "title": "Leases (one active at a time)",
+        "title": "Leases (time-limited, one of each)",
         "allow_cancel": true
       }
     ]
@@ -420,11 +434,6 @@
           ]
         },
         {
-          "math": [
-            "u_mw_lease_until <= time( 'now' )"
-          ]
-        },
-        {
           "not": {
             "u_has_item": "mw_lease_blade"
           }
@@ -435,11 +444,6 @@
       {
         "math": [
           "u_mw_cents = u_mw_cents - 15000"
-        ]
-      },
-      {
-        "math": [
-          "u_mw_lease_until = time( 'now' ) + 21600"
         ]
       },
       {
@@ -487,11 +491,6 @@
         ]
       },
       {
-        "math": [
-          "u_mw_lease_until = 0"
-        ]
-      },
-      {
         "u_message": "Blade materialization failed; refunded.",
         "type": "bad"
       },
@@ -516,11 +515,6 @@
           ]
         },
         {
-          "math": [
-            "u_mw_lease_until <= time( 'now' )"
-          ]
-        },
-        {
           "not": {
             "u_has_item": "mw_lease_plate"
           }
@@ -536,11 +530,6 @@
       {
         "math": [
           "u_mw_cents = u_mw_cents - 20000"
-        ]
-      },
-      {
-        "math": [
-          "u_mw_lease_until = time( 'now' ) + 43200"
         ]
       },
       {
@@ -585,11 +574,6 @@
       {
         "math": [
           "u_mw_cents = u_mw_cents + 20000"
-        ]
-      },
-      {
-        "math": [
-          "u_mw_lease_until = 0"
         ]
       },
       {

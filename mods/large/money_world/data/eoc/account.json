@@ -10,24 +10,5 @@
         "then": [ { "u_message": "Meridian account tier increased.", "type": "good" } ]
       }
     ]
-  },
-  {
-    "//": "shortcut: worn lease plate may survive this sweep; ethereal timer dissolves it on expiry. Upgrade to limb-slot scan if players hoard plates.",
-    "type": "effect_on_condition",
-    "id": "EOC_MW_LEASE_CHECK",
-    "recurrence": 600,
-    "condition": { "and": [ { "math": [ "u_mw_lease_until > 0" ] }, { "math": [ "time('now') >= u_mw_lease_until" ] } ] },
-    "effect": [
-      {
-        "if": { "u_has_item": "mw_lease_blade" },
-        "then": [ { "u_remove_item_with": "mw_lease_blade" } ]
-      },
-      {
-        "if": { "u_has_item": "mw_lease_plate" },
-        "then": [ { "u_remove_item_with": "mw_lease_plate" } ]
-      },
-      { "math": [ "u_mw_lease_until = 0" ] },
-      { "u_message": "Meridian lease expired.", "type": "neutral" }
-    ]
   }
 ]

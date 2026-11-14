@@ -4,7 +4,7 @@
     "id": "EOC_MW_SELL_SCRAP",
     "effect": [
       {
-        "u_run_inv_eocs": "manual",
+        "u_run_inv_eocs": "manual_mult",
         "title": "Sell scrap (2c/charge)",
         "search_data": [
           {
@@ -36,7 +36,7 @@
     "id": "EOC_MW_SELL_AMMO",
     "effect": [
       {
-        "u_run_inv_eocs": "manual",
+        "u_run_inv_eocs": "manual_mult",
         "title": "Sell ammo (2c/round)",
         "search_data": [
           {
@@ -60,17 +60,11 @@
         "then": [ { "math": [ "_value = max( 1, floor( _value * 0.5 ) )" ] } ]
       },
       { "math": [ "_display = floor( _value / 100 )" ] },
-      { "u_message": "Sell <context_val:count>x <npc_name> for <context_val:value>c ($<context_val:display>)." },
-      {
-        "if": { "u_query": "Sell this stack?", "default": false },
-        "then": [
-          { "npc_die": { "remove_corpse": true, "supress_message": true } },
-          { "math": [ "u_mw_cents = u_mw_cents + _value" ] },
-          { "math": [ "u_mw_total_sold = u_mw_total_sold + _value" ] },
-          { "run_eocs": "EOC_MW_REFRESH_RANK" },
-          { "u_message": "Sold.", "type": "good" }
-        ]
-      }
+      { "u_message": "Sold <context_val:count>x <npc_name> for <context_val:value>c ($<context_val:display>).", "type": "good" },
+      { "npc_die": { "remove_corpse": true, "supress_message": true } },
+      { "math": [ "u_mw_cents = u_mw_cents + _value" ] },
+      { "math": [ "u_mw_total_sold = u_mw_total_sold + _value" ] },
+      { "run_eocs": "EOC_MW_REFRESH_RANK" }
     ]
   }
 ]
