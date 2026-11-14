@@ -1,0 +1,9 @@
+[
+  {
+    "type": "city_building",
+    "id": "mw_meridian_branch",
+    "locations": [ "land" ],
+    "overmaps": [ { "point": [ 0, 0, 0 ], "overmap": "mw_branch_1_north" } ],
+    "flags": [ "MAN_MADE", "CLASSIC" ]
+  }
+]

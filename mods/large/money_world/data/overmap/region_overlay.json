@@ -1,0 +1,11 @@
+[
+  {
+    "type": "region_overlay",
+    "regions": [ "all" ],
+    "city": {
+      "shops": {
+        "mw_meridian_branch": 1500
+      }
+    }
+  }
+]
